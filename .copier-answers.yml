@@ -1,0 +1,10 @@
+# Changes here will be overwritten by Copier
+_commit: cd60a7f
+_src_path: gh:cagov/caldata-infrastructure-template
+dbt_profile_name: caltrans_pems
+dbt_target: Snowflake
+email_address: Zhenyu.Zhu@dot.ca.gov
+friendly_project_name: Traffic Operations PeMS Modernization
+license: MIT
+project_name: caldata-mdsa-caltrans-pems
+team_name: Traffic Operations

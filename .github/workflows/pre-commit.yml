@@ -1,0 +1,36 @@
+name: pre-commit
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+env:
+  DBT_PROFILES_DIR: ci
+
+  PRIVATE_KEY: ${{ SECRETS.SNOWFLAKE_PRIVATE_KEY }}
+  SNOWFLAKE_USER: ${{ SECRETS.SNOWFLAKE_USER }}
+  SNOWFLAKE_ACCOUNT: ${{ SECRETS.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_PRIVATE_KEY_PATH: /tmp/private_key.p8
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        # TODO: once we are on dbt-snowflake 1.5, no need to pipe to a file, we can
+        # just use $SNOWFLAKE_PRIVATE_KEY
+      - name: Set up private key
+        run: echo "$PRIVATE_KEY" > $SNOWFLAKE_PRIVATE_KEY_PATH
+      - uses: actions/setup-python@v3
+      - uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+      - name: Install dependencies
+        run: |
+          poetry install
+      - uses: pre-commit/action@v3.0.0

@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: sample_data
+    description: A sample model
+    columns:
+      - name: name
+        description: A person's name
+      - name: city
+        description: Their residence
+      - name: license_plate
+        description: Their license plate
+      - name: email
+        description: Their email

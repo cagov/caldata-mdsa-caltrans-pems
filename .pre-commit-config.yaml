@@ -1,0 +1,54 @@
+default_language_version:
+  python: python3.10
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.3.0
+    hooks:
+      - id: check-yaml
+        args:
+          - --unsafe
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.7.1
+    hooks:
+      - id: prettier
+        types: [yaml]
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.28.0
+    hooks:
+      - id: yamllint
+        args: []
+  - repo: local
+    hooks:
+      - name: Dbt deps
+        id: dbt-deps
+        language: python
+        entry: dbt deps --project-dir=transform
+        always_run: false
+        pass_filenames: false
+        types: [sql]
+  # Note: for SQLFluff we don't use the default pre-commit hook for a few reasons:
+  #   1. dbt cloud looks for config in the dbt project directory, so we put it in
+  #      transform/, however sqlfluff requires the templater config to be in the
+  #      current working directory. So we have to cd to transform/ to properly set the
+  #      templater config.
+  #   2. Some machines (such as ODI Macs) seem to struggle with sqlfluff's
+  #      multiprocessing implementation, so we force it to be single-process.
+  #   3. The pre-commit managed python environment can be difficult to install,
+  #      especially due to issues with pyarrow being brought in by Snowflake.
+  #      This keep things more predictable by using the poetry.lock environment.
+  - repo: local
+    hooks:
+      - id: sqlfluff
+        name: sqlfluff
+        language: python
+        description: "Lints sql files with `SQLFluff`"
+        types: [sql]
+        require_serial: true
+        entry: >
+          poetry run python -c "import os, subprocess; os.chdir('transform');
+          subprocess.run(['sqlfluff', 'fix', '--force', '--processes', '1', '--nocolor',
+          '--show-lint-violations', '--disable-progress-bar'], check=True,
+          )"
