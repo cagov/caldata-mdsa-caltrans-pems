@@ -4,7 +4,7 @@
 
 # PeMS raw
 resource "aws_s3_bucket" "pems_raw" {
-  bucket = "${var.prefix}-${var.region}-pems-raw"
+  bucket = "${var.prefix}-${var.region}-raw"
 }
 
 # Versioning
@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "pems_raw_write" {
 }
 
 resource "aws_iam_policy" "pems_raw_write" {
-  name        = "${var.prefix}-${var.region}-pems-raw-write"
+  name        = "${var.prefix}-${var.region}-raw-write"
   description = "Policy allowing write for s3 pems raw bucket"
   policy      = data.aws_iam_policy_document.pems_raw_write.json
 }
