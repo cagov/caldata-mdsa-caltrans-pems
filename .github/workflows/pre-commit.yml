@@ -26,6 +26,14 @@ jobs:
         # just use $SNOWFLAKE_PRIVATE_KEY
       - name: Set up private key
         run: echo "$PRIVATE_KEY" > $SNOWFLAKE_PRIVATE_KEY_PATH
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: v1.4.0
+      - name: Install tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/\
+          tflint/master/install_linux.sh | bash
       - uses: actions/setup-python@v3
       - uses: snok/install-poetry@v1
         with:

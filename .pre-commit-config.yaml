@@ -20,6 +20,15 @@ repos:
     hooks:
       - id: yamllint
         args: []
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.77.1
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+        # Exclude modules to work around
+        # https://github.com/hashicorp/terraform/issues/28490
+        exclude: "terraform/[^/]+/modules/[^/]+/[^/]+$"
+      - id: terraform_tflint
   - repo: local
     hooks:
       - name: Dbt deps
