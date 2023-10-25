@@ -12,5 +12,5 @@ resource "aws_iam_user" "airflow_s3_writer" {
 
 resource "aws_iam_user_policy_attachment" "airflow_s3_writer_policy_attachment" {
   user       = aws_iam_user.airflow_s3_writer.name
-  policy_arn = aws_iam_policy.pems_raw_write.arn
+  policy_arn = aws_iam_policy.pems_raw_read_write.arn
 }
