@@ -1,6 +1,6 @@
 # Changes here will be overwritten by Copier
-_commit: b6df02b
-_src_path: /Users/ian.rose/caldata/caldata-infrastructure-template
+_commit: 4a2fff5
+_src_path: gh:cagov/caldata-infrastructure-template
 dbt_profile_name: caltrans_pems
 dbt_target: Snowflake
 email_address: Zhenyu.Zhu@dot.ca.gov
