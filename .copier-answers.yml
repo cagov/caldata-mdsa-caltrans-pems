@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: cd60a7f
+_commit: 4a2fff5
 _src_path: gh:cagov/caldata-infrastructure-template
 dbt_profile_name: caltrans_pems
 dbt_target: Snowflake
