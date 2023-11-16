@@ -14,7 +14,11 @@ DISTRICTS = { "d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12" }
 
 def copy_file(src, dst, s3) -> None:
     with fsspec.open(src, "rb") as f:
-        s3.upload_fileobj(f, S3_PREFIX.removeprefix("s3://"), os.path.basename(dst))
+        s3.upload_fileobj(
+            f,
+            dst.removeprefix("s3://").split("/")[0],
+            "/".join(dst.removeprefix("s3://").split("/")[1:]),
+        )
 
 def clearinghouse_to_s3(day: date) -> None:
     """
