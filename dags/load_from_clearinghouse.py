@@ -45,7 +45,11 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{S3_PREFIX}/clhouse/raw/{d}/{day.year}/{day.month:02}/"
             f"{d}_text_station_raw_{day.year}_{day.month:02}_{day.day:02}.txt.gz"
         )
-        copy_file(src_raw_url, dst_raw_url, s3)
+        try:
+            copy_file(src_raw_url, dst_raw_url, s3)
+        except FileNotFoundError:
+            # Some dates are missing, probably due to past incidents!
+            print(f"Failed to download {src_raw_url}, it may be missing")
 
         src_meta_url = (
             f"{CLHOUSE_PREFIX}/{d}/{day.year}/{day.month:02}/meta/"
