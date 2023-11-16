@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 from datetime import date, datetime, timedelta
 
-import s3fs
-from fsspec.implementations.http import HTTPFileSystem
+import boto3
+import fsspec
 
 from airflow.decorators import dag, task
 
@@ -12,14 +12,9 @@ CLHOUSE_PREFIX = "https://pems.dot.ca.gov/feeds/clhouse"
 S3_PREFIX = "s3://caltrans-pems-dev-us-west-2-raw"
 DISTRICTS = { "d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12" }
 
-def copy_file(src, dst, src_fs, dst_fs) -> None:
-    tmpfile = f"/tmp/{os.path.basename(src)}"
-    try:
-        src_fs.download(src, tmpfile)  # TODO: use tempfile
-        dst_fs.put(tmpfile, dst)
-    finally:
-        if os.path.exists(tmpfile):
-            os.remove(tmpfile)
+def copy_file(src, dst, s3) -> None:
+    with fsspec.open(src, "rb") as f:
+        s3.upload_fileobj(f, S3_PREFIX.removeprefix("s3://"), os.path.basename(dst))
 
 def clearinghouse_to_s3(day: date) -> None:
     """
@@ -35,8 +30,7 @@ def clearinghouse_to_s3(day: date) -> None:
     day: datetime.date
         The date for which to copy data.
     """
-    s3 = s3fs.S3FileSystem()
-    http = HTTPFileSystem()
+    s3 = boto3.client("s3")
 
     for d in DISTRICTS:
         print(f"Copying Caltrans district {d} data for {day}")
@@ -48,7 +42,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{S3_PREFIX}/clhouse/raw/{d}/{day.year}/{day.month:02}/"
             f"{d}_text_station_raw_{day.year}_{day.month:02}_{day.day:02}.txt.gz"
         )
-        copy_file(src_raw_url, dst_raw_url, http, s3)
+        copy_file(src_raw_url, dst_raw_url, s3)
 
         src_meta_url = (
             f"{CLHOUSE_PREFIX}/{d}/{day.year}/{day.month:02}/meta/"
@@ -59,7 +53,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{d}_text_meta_{day.year}_{day.month:02}_{day.day:02}.txt"
         )
         try:
-            copy_file(src_meta_url, dst_meta_url, http, s3)
+            copy_file(src_meta_url, dst_meta_url, s3)
         except FileNotFoundError:
             pass  # Not every date has meta
 
@@ -72,7 +66,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{d}_tmdd_meta_{day.year}_{day.month:02}_{day.day:02}.xml"
         )
         try:
-            copy_file(src_meta_xml_url, dst_meta_xml_url, http, s3)
+            copy_file(src_meta_xml_url, dst_meta_xml_url, s3)
         except FileNotFoundError:
             pass  # Not every date has status
 
