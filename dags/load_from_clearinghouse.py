@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 
 import boto3
 import fsspec
+import requests
 
 from airflow.decorators import dag, task
 
@@ -36,9 +37,24 @@ def clearinghouse_to_s3(day: date) -> None:
     s3 = boto3.client("s3")
 
     for d in DISTRICTS:
+        # Figure out whether we are using the old style URL or the new style
+        dist = d
+        r = requests.get(
+            f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/text/station_raw/"
+        )
+        if r.status_code == 404:
+            # Didn't find data, try the old style
+            dist = dist.lstrip("d0")
+            r = requests.get(
+                f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/text/station_raw/"
+            )
+            if r.status_code == 404:
+                raise RuntimeError(f"Could not find raw data for date {day}")
+
+        # Download the raw data
         print(f"Copying Caltrans district {d} data for {day}")
         src_raw_url = (
-            f"{CLHOUSE_PREFIX}/{d}/{day.year}/{day.month:02}/text/station_raw/"
+            f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/text/station_raw/"
             f"{d}_text_station_raw_{day.year}_{day.month:02}_{day.day:02}.txt.gz"
         )
         dst_raw_url = (
@@ -51,8 +67,9 @@ def clearinghouse_to_s3(day: date) -> None:
             # Some dates are missing, probably due to past incidents!
             print(f"Failed to download {src_raw_url}, it may be missing")
 
+        # Download the metadata
         src_meta_url = (
-            f"{CLHOUSE_PREFIX}/{d}/{day.year}/{day.month:02}/meta/"
+            f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/meta/"
             f"{d}_text_meta_{day.year}_{day.month:02}_{day.day:02}.txt"
         )
         dst_meta_url = (
@@ -65,7 +82,7 @@ def clearinghouse_to_s3(day: date) -> None:
             pass  # Not every date has meta
 
         src_meta_xml_url = (
-            f"{CLHOUSE_PREFIX}/{d}/{day.year}/{day.month:02}/meta/"
+            f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/meta/"
             f"{d}_tmdd_meta_{day.year}_{day.month:02}_{day.day:02}.xml"
         )
         dst_meta_xml_url = (
