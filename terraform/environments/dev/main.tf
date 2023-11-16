@@ -84,6 +84,15 @@ module "s3_lake" {
   region = local.region
 }
 
+data "aws_iam_role" "mwaa_execution_role" {
+  name = "dse-infra-dev-us-west-2-mwaa-execution-role"
+}
+
+resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
+  role       = data.aws_iam_role.mwaa_execution_role.name
+  policy_arn = module.s3_lake.pems_raw_read_write_policy.arn
+}
+
 ############################
 # Snowflake Infrastructure #
 ############################
