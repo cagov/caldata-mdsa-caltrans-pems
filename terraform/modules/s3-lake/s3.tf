@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "pems_raw_external_stage_policy" {
 }
 
 resource "aws_iam_policy" "pems_raw_external_stage_policy" {
-  name        = "${var.prefix}-${var.region}-snowpipe-test-bucket-policy"
+  name        = "${var.prefix}-${var.region}-pems-raw-external-stage-policy"
   description = "Policy allowing read/write for snowpipe-test bucket"
   policy      = data.aws_iam_policy_document.pems_raw_external_stage_policy.json
 }
