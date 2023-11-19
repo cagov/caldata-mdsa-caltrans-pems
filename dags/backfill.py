@@ -11,7 +11,7 @@ with DAG(
     cli_command = BashOperator(
         task_id="backfill_command",
         bash_command=(
-            "airflow dags backfill --start-date 2020-01-01 --end-date 2023-01-01"
+            "airflow dags backfill --start-date 1994-12-01 --end-date 2002-01-01"
             " --run-backwards --continue-on-failure pems_clearinghouse_to_s3_dag"
         ),
     )
