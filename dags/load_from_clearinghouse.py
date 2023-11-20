@@ -63,7 +63,7 @@ def clearinghouse_to_s3(day: date) -> None:
         )
         try:
             copy_file(src_raw_url, dst_raw_url, s3)
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             # Some dates are missing, probably due to past incidents!
             print(f"Failed to download {src_raw_url}, it may be missing")
 
@@ -78,7 +78,7 @@ def clearinghouse_to_s3(day: date) -> None:
         )
         try:
             copy_file(src_meta_url, dst_meta_url, s3)
-        except FileNotFoundError:
+        except (FileNotFoundError, ValueError):
             pass  # Not every date has meta
 
         src_meta_xml_url = (
@@ -91,8 +91,10 @@ def clearinghouse_to_s3(day: date) -> None:
         )
         try:
             copy_file(src_meta_xml_url, dst_meta_xml_url, s3)
-        except FileNotFoundError:
-            pass  # Not every date has status
+        except (FileNotFoundError, ValueError):
+            # Not every date has status, some are missing (FileNotFoundError),
+            # and some are empty (ValueError)
+            pass
 
 
 @task
