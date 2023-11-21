@@ -81,3 +81,12 @@ resource "aws_iam_policy" "pems_raw_external_stage_policy" {
   description = "Policy allowing read/write for snowpipe-test bucket"
   policy      = data.aws_iam_policy_document.pems_raw_external_stage_policy.json
 }
+
+# Snowpipe notifications
+resource "aws_s3_bucket_notification" "snowflake_pipe_notifications" {
+  bucket = aws_s3_bucket.pems_raw.id
+  queue {
+    queue_arn = var.snowflake_pipe_sqs_queue_arn
+    events    = ["s3:ObjectCreated:*"]
+  }
+}

@@ -19,3 +19,9 @@ variable "snowflake_raw_storage_integration_external_id" {
   type        = string
   default     = "0000"
 }
+
+variable "snowflake_pipe_sqs_queue_arn" {
+  description = "SQS Queue ARN for Snowpipe notification channel"
+  type        = string
+  default     = null
+}

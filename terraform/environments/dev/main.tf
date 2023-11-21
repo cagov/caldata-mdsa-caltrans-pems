@@ -32,6 +32,7 @@ locals {
   # integration, which itself depends on the assume role policy.
   storage_aws_external_id  = "NGB13288_SFCRole=2_P94CCaZYR9XFUzpMIGN6HOit/zQ="
   storage_aws_iam_user_arn = "arn:aws:iam::946158320428:user/uunc0000-s"
+  pipe_sqs_queue_arn       = "arn:aws:sqs:us-west-2:946158320428:sf-snowpipe-AIDA5YS3OHMWCVTR5XHEE-YZjsweK3loK4rXlOJBWF_g"
 }
 
 provider "aws" {
@@ -97,6 +98,7 @@ module "s3_lake" {
   region                                         = local.region
   snowflake_raw_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
   snowflake_raw_storage_integration_external_id  = local.storage_aws_external_id
+  snowflake_pipe_sqs_queue_arn                   = local.pipe_sqs_queue_arn
 }
 
 data "aws_iam_role" "mwaa_execution_role" {
@@ -175,4 +177,117 @@ output "pems_raw_stage" {
     storage_aws_external_id  = snowflake_storage_integration.pems_raw.storage_aws_external_id
     storage_aws_iam_user_arn = snowflake_storage_integration.pems_raw.storage_aws_iam_user_arn
   }
+}
+
+# Pipes
+resource "snowflake_pipe" "station_raw_pipe" {
+  provider    = snowflake.sysadmin
+  database    = snowflake_schema.pems_raw.database
+  schema      = snowflake_schema.pems_raw.name
+  name        = "STATION_RAW"
+  auto_ingest = true
+
+  # We have to fully specify the stage name, even though it is also in the pipe parameters:
+  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
+  # We also have to skip headers for CSVs loaded by Snowpipe.
+  copy_statement = <<-EOT
+    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_RAW
+    from (
+        select
+            metadata$filename,
+            try_to_timestamp_ntz($1, 'MM/DD/YYYY HH24:MI:SS'),
+            try_to_date($1, 'MM/DD/YYYY HH24:MI:SS'),
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13,
+            $14,
+            $15,
+            $16,
+            $17,
+            $18,
+            $19,
+            $20,
+            $21,
+            $22,
+            $23,
+            $24,
+            $25,
+            $26
+            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/raw/
+        )
+    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_RAW
+    on_error = continue
+    EOT
+}
+
+resource "snowflake_pipe" "station_meta_pipe" {
+  provider    = snowflake.sysadmin
+  database    = snowflake_schema.pems_raw.database
+  schema      = snowflake_schema.pems_raw.name
+  name        = "STATION_META"
+  auto_ingest = true
+
+  # We have to fully specify the stage name, even though it is also in the pipe parameters:
+  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
+  # We also have to skip headers for CSVs loaded by Snowpipe.
+  copy_statement = <<-EOT
+    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_META
+    from (
+        select
+            metadata$filename,
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13,
+            $14,
+            $15,
+            $16,
+            $17,
+            $18
+            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/meta/
+        )
+    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_META
+    on_error = continue
+    EOT
+}
+
+resource "snowflake_pipe" "station_status_pipe" {
+  provider    = snowflake.sysadmin
+  database    = snowflake_schema.pems_raw.database
+  schema      = snowflake_schema.pems_raw.name
+  name        = "STATION_STATUS"
+  auto_ingest = true
+
+  # We have to fully specify the stage name, even though it is also in the pipe parameters:
+  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
+  # We also have to skip headers for CSVs loaded by Snowpipe.
+  copy_statement = <<-EOT
+    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_STATUS
+    from (
+        select
+            metadata$filename,
+            $1
+            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/status/
+        )
+    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_STATUS
+    on_error = continue
+    EOT
 }
