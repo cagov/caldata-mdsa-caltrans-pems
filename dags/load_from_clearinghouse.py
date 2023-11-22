@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import contextlib
 from datetime import date, datetime, timedelta
 
 import boto3
 import fsspec
 import requests
-
 from airflow.decorators import dag, task
 
+HTTP_NOT_FOUND = 404
 CLHOUSE_PREFIX = "https://pems.dot.ca.gov/feeds/clhouse"
 S3_PREFIX = "s3://caltrans-pems-dev-us-west-2-raw"
-DISTRICTS = [ "d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12" ]
+DISTRICTS = ["d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12"]
+
 
 def copy_file(src, dst, s3) -> None:
     with fsspec.open(src, "rb") as f:
@@ -19,6 +21,7 @@ def copy_file(src, dst, s3) -> None:
             dst.removeprefix("s3://").split("/")[0],
             "/".join(dst.removeprefix("s3://").split("/")[1:]),
         )
+
 
 def clearinghouse_to_s3(day: date) -> None:
     """
@@ -30,7 +33,6 @@ def clearinghouse_to_s3(day: date) -> None:
 
     Parameters
     ----------
-
     day: datetime.date
         The date for which to copy data.
     """
@@ -42,13 +44,13 @@ def clearinghouse_to_s3(day: date) -> None:
         r = requests.get(
             f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/text/station_raw/"
         )
-        if r.status_code == 404:
+        if r.status_code == HTTP_NOT_FOUND:
             # Didn't find data, try the old style
             dist = dist.lstrip("d0")
             r = requests.get(
                 f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/text/station_raw/"
             )
-            if r.status_code == 404:
+            if r.status_code == HTTP_NOT_FOUND:
                 raise RuntimeError(f"Could not find raw data for date {day}")
 
         # Download the raw data
@@ -76,10 +78,10 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{S3_PREFIX}/clhouse/meta/{d}/{day.year}/{day.month:02}/"
             f"{d}_text_meta_{day.year}_{day.month:02}_{day.day:02}.txt"
         )
-        try:
+        # Not every date has meta, some are missing (FileNotFoundError),
+        # and some are empty (ValueError)
+        with contextlib.suppress(FileNotFoundError, ValueError):
             copy_file(src_meta_url, dst_meta_url, s3)
-        except (FileNotFoundError, ValueError):
-            pass  # Not every date has meta
 
         src_meta_xml_url = (
             f"{CLHOUSE_PREFIX}/{dist}/{day.year}/{day.month:02}/meta/"
@@ -89,18 +91,17 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{S3_PREFIX}/clhouse/status/{d}/{day.year}/{day.month:02}/"
             f"{d}_tmdd_meta_{day.year}_{day.month:02}_{day.day:02}.xml"
         )
-        try:
+        # Not every date has status, some are missing (FileNotFoundError),
+        # and some are empty (ValueError)
+        with contextlib.suppress(FileNotFoundError, ValueError):
             copy_file(src_meta_xml_url, dst_meta_xml_url, s3)
-        except (FileNotFoundError, ValueError):
-            # Not every date has status, some are missing (FileNotFoundError),
-            # and some are empty (ValueError)
-            pass
 
 
 @task
 def pems_clearinghouse_to_s3_task(**context):
     prev_date = (context["execution_date"] - timedelta(days=1)).date()
     clearinghouse_to_s3(prev_date)
+
 
 @dag(
     description="Load data from the PeMS clearinghouse webserver to S3",
@@ -117,6 +118,7 @@ def pems_clearinghouse_to_s3_task(**context):
 )
 def pems_clearinghouse_to_s3_dag():
     pems_clearinghouse_to_s3_task()
+
 
 # TODO: is this necessary in Airflow 2.7.2?
 run = pems_clearinghouse_to_s3_dag()

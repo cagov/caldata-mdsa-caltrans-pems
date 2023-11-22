@@ -29,6 +29,25 @@ repos:
         # https://github.com/hashicorp/terraform/issues/28490
         exclude: "terraform/[^/]+/modules/[^/]+/[^/]+$"
       - id: terraform_tflint
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--show-source, --fix]
+      - id: ruff-format
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+      - id: codespell
+        types_or: [rst, markdown]
+        files: docs
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.0
+    hooks:
+      - id: mypy
+        args: [--warn-unused-configs]
+        additional_dependencies:
+          - types-requests
   - repo: local
     hooks:
       - name: Dbt deps
