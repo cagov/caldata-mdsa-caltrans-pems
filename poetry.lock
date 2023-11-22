@@ -1161,14 +1161,14 @@ files = [
 
 [[package]]
 name = "dbt-semantic-interfaces"
-version = "0.2.2"
+version = "0.2.3"
 description = "The shared semantic layer definitions that dbt-core and MetricFlow use"
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "dbt_semantic_interfaces-0.2.2-py3-none-any.whl", hash = "sha256:64eeed377f2c8fe25092ff5598ac79a3b46a3c521d2ec40e26adcedaf0fcb999"},
-    {file = "dbt_semantic_interfaces-0.2.2.tar.gz", hash = "sha256:7daf7d4eaaa2600985ecf3946c5fe43027bf64aee41a7ce4045a8f036a52596b"},
+    {file = "dbt_semantic_interfaces-0.2.3-py3-none-any.whl", hash = "sha256:69235a6b261c45d1501c29a9b2a9496935b0c764e7fd25a2f83471ef53dae15f"},
+    {file = "dbt_semantic_interfaces-0.2.3.tar.gz", hash = "sha256:628fd65ce01bbfbf9115866d2bb11616d0e1987b65fb4fabfdf9bb807177c2ee"},
 ]
 
 [package.dependencies]
@@ -1180,7 +1180,7 @@ more-itertools = ">=8.0,<9.0"
 pydantic = ">=1.10,<2.0"
 python-dateutil = ">=2.0,<3.0"
 pyyaml = ">=6.0,<7.0"
-typing-extensions = ">=4.0,<5.0"
+typing-extensions = ">=4.4,<5.0"
 
 [[package]]
 name = "dbt-snowflake"

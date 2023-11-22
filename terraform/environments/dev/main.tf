@@ -172,13 +172,6 @@ resource "snowflake_stage_grant" "pems_raw" {
   enable_multiple_grants = true
 }
 
-output "pems_raw_stage" {
-  value = {
-    storage_aws_external_id  = snowflake_storage_integration.pems_raw.storage_aws_external_id
-    storage_aws_iam_user_arn = snowflake_storage_integration.pems_raw.storage_aws_iam_user_arn
-  }
-}
-
 # Pipes
 resource "snowflake_pipe" "station_raw_pipe" {
   provider    = snowflake.sysadmin
@@ -187,46 +180,16 @@ resource "snowflake_pipe" "station_raw_pipe" {
   name        = "STATION_RAW"
   auto_ingest = true
 
-  # We have to fully specify the stage name, even though it is also in the pipe parameters:
-  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
-  # We also have to skip headers for CSVs loaded by Snowpipe.
-  copy_statement = <<-EOT
-    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_RAW
-    from (
-        select
-            metadata$filename,
-            try_to_timestamp_ntz($1, 'MM/DD/YYYY HH24:MI:SS'),
-            try_to_date($1, 'MM/DD/YYYY HH24:MI:SS'),
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10,
-            $11,
-            $12,
-            $13,
-            $14,
-            $15,
-            $16,
-            $17,
-            $18,
-            $19,
-            $20,
-            $21,
-            $22,
-            $23,
-            $24,
-            $25,
-            $26
-            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/raw/
-        )
-    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_RAW
-    on_error = continue
-    EOT
+  copy_statement = templatefile(
+    "../common/raw_pipe.sql.tplfile",
+    {
+      database    = snowflake_schema.pems_raw.database
+      schema      = snowflake_schema.pems_raw.name
+      table       = "STATION_RAW"
+      stage       = snowflake_stage.pems_raw.name
+      file_format = "STATION_RAW"
+    },
+  )
 }
 
 resource "snowflake_pipe" "station_meta_pipe" {
@@ -236,37 +199,16 @@ resource "snowflake_pipe" "station_meta_pipe" {
   name        = "STATION_META"
   auto_ingest = true
 
-  # We have to fully specify the stage name, even though it is also in the pipe parameters:
-  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
-  # We also have to skip headers for CSVs loaded by Snowpipe.
-  copy_statement = <<-EOT
-    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_META
-    from (
-        select
-            metadata$filename,
-            $1,
-            $2,
-            $3,
-            $4,
-            $5,
-            $6,
-            $7,
-            $8,
-            $9,
-            $10,
-            $11,
-            $12,
-            $13,
-            $14,
-            $15,
-            $16,
-            $17,
-            $18
-            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/meta/
-        )
-    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_META
-    on_error = continue
-    EOT
+  copy_statement = templatefile(
+    "../common/meta_pipe.sql.tplfile",
+    {
+      database    = snowflake_schema.pems_raw.database
+      schema      = snowflake_schema.pems_raw.name
+      table       = "STATION_META"
+      stage       = snowflake_stage.pems_raw.name
+      file_format = "STATION_META"
+    },
+  )
 }
 
 resource "snowflake_pipe" "station_status_pipe" {
@@ -276,18 +218,22 @@ resource "snowflake_pipe" "station_status_pipe" {
   name        = "STATION_STATUS"
   auto_ingest = true
 
-  # We have to fully specify the stage name, even though it is also in the pipe parameters:
-  # https://github.com/Snowflake-Labs/terraform-provider-snowflake/issues/533#issuecomment-1171442286
-  # We also have to skip headers for CSVs loaded by Snowpipe.
-  copy_statement = <<-EOT
-    copy into ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_STATUS
-    from (
-        select
-            metadata$filename,
-            $1
-            FROM @${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.${snowflake_stage.pems_raw.name}/clhouse/status/
-        )
-    file_format = ${snowflake_schema.pems_raw.database}.${snowflake_schema.pems_raw.name}.STATION_STATUS
-    on_error = continue
-    EOT
+  copy_statement = templatefile(
+    "../common/status_pipe.sql.tplfile",
+    {
+      database    = snowflake_schema.pems_raw.database
+      schema      = snowflake_schema.pems_raw.name
+      table       = "STATION_STATUS"
+      stage       = snowflake_stage.pems_raw.name
+      file_format = "STATION_STATUS"
+    },
+  )
+}
+
+# Outputs
+output "pems_raw_stage" {
+  value = {
+    storage_aws_external_id  = snowflake_storage_integration.pems_raw.storage_aws_external_id
+    storage_aws_iam_user_arn = snowflake_storage_integration.pems_raw.storage_aws_iam_user_arn
+  }
 }
