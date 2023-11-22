@@ -26,6 +26,12 @@ locals {
   project     = "pems"
   region      = "us-west-2"
   locator     = "NGB13288"
+
+  # These are circular dependencies on the outputs. Unfortunate, but
+  # necessary, as we don't know them until we've created the storage
+  # integration, which itself depends on the assume role policy.
+  storage_aws_external_id  = "676096391788"
+  storage_aws_iam_user_arn = "0000"
 }
 
 provider "aws" {
@@ -80,8 +86,10 @@ module "s3_lake" {
     aws = aws
   }
 
-  prefix = "${local.owner}-${local.project}-${local.environment}"
-  region = local.region
+  prefix                                         = "${local.owner}-${local.project}-${local.environment}"
+  region                                         = local.region
+  snowflake_raw_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
+  snowflake_raw_storage_integration_external_id  = local.storage_aws_external_id
 }
 
 ############################
