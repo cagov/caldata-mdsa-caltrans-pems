@@ -126,114 +126,20 @@ module "elt" {
   environment = upper(local.environment)
 }
 
-# Schema for raw PeMS data
-resource "snowflake_schema" "pems_raw" {
-  provider            = snowflake.sysadmin
-  database            = "RAW_${upper(local.environment)}"
-  name                = "CLEARINGHOUSE"
-  data_retention_days = 14
-}
-
-# External stage
-resource "snowflake_storage_integration" "pems_raw" {
-  provider                  = snowflake.accountadmin
-  name                      = "PEMS_RAW_${upper(local.environment)}"
-  type                      = "EXTERNAL_STAGE"
-  storage_provider          = "S3"
-  storage_aws_role_arn      = module.s3_lake.snowflake_storage_integration_role.arn
-  storage_allowed_locations = ["s3://${module.s3_lake.pems_raw_bucket.name}"]
-}
-
-resource "snowflake_integration_grant" "pems_raw_to_sysadmin" {
-  provider               = snowflake.accountadmin
-  integration_name       = snowflake_storage_integration.pems_raw.name
-  privilege              = "USAGE"
-  roles                  = ["SYSADMIN"]
-  enable_multiple_grants = true
-}
-
-
-resource "snowflake_stage" "pems_raw" {
-  provider            = snowflake.sysadmin
-  name                = "PEMS_RAW_${upper(local.environment)}"
-  url                 = "s3://${module.s3_lake.pems_raw_bucket.name}"
-  database            = snowflake_schema.pems_raw.database
-  schema              = snowflake_schema.pems_raw.name
-  storage_integration = snowflake_storage_integration.pems_raw.name
-}
-
-resource "snowflake_stage_grant" "pems_raw" {
-  provider               = snowflake.sysadmin
-  database_name          = snowflake_stage.pems_raw.database
-  schema_name            = snowflake_stage.pems_raw.schema
-  roles                  = ["LOADER_${upper(local.environment)}"]
-  privilege              = "USAGE"
-  stage_name             = snowflake_stage.pems_raw.name
-  enable_multiple_grants = true
-}
-
-# Pipes
-resource "snowflake_pipe" "station_raw_pipe" {
-  provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
-  name        = "STATION_RAW"
-  auto_ingest = true
-
-  copy_statement = templatefile(
-    "../common/raw_pipe.sql.tplfile",
-    {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
-      table       = "STATION_RAW"
-      stage       = snowflake_stage.pems_raw.name
-      file_format = "STATION_RAW"
-    },
-  )
-}
-
-resource "snowflake_pipe" "station_meta_pipe" {
-  provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
-  name        = "STATION_META"
-  auto_ingest = true
-
-  copy_statement = templatefile(
-    "../common/meta_pipe.sql.tplfile",
-    {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
-      table       = "STATION_META"
-      stage       = snowflake_stage.pems_raw.name
-      file_format = "STATION_META"
-    },
-  )
-}
-
-resource "snowflake_pipe" "station_status_pipe" {
-  provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
-  name        = "STATION_STATUS"
-  auto_ingest = true
-
-  copy_statement = templatefile(
-    "../common/status_pipe.sql.tplfile",
-    {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
-      table       = "STATION_STATUS"
-      stage       = snowflake_stage.pems_raw.name
-      file_format = "STATION_STATUS"
-    },
-  )
-}
-
-# Outputs
-output "pems_raw_stage" {
-  value = {
-    storage_aws_external_id  = snowflake_storage_integration.pems_raw.storage_aws_external_id
-    storage_aws_iam_user_arn = snowflake_storage_integration.pems_raw.storage_aws_iam_user_arn
+module "snowflake_clearinghouse" {
+  source = "../../modules/snowflake-clearinghouse"
+  providers = {
+    snowflake.accountadmin  = snowflake.accountadmin,
+    snowflake.securityadmin = snowflake.securityadmin,
+    snowflake.sysadmin      = snowflake.sysadmin,
+    snowflake.useradmin     = snowflake.useradmin,
   }
+
+  environment          = upper(local.environment)
+  s3_url               = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  storage_aws_role_arn = module.s3_lake.snowflake_storage_integration_role.arn
+}
+
+output "pems_raw_stage" {
+  value = module.snowflake_clearinghouse.pems_raw_stage
 }
