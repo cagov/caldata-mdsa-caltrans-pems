@@ -12,7 +12,7 @@ terraform {
     }
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = "0.69"
+      version = "0.71"
     }
   }
 
@@ -30,8 +30,9 @@ locals {
   # These are circular dependencies on the outputs. Unfortunate, but
   # necessary, as we don't know them until we've created the storage
   # integration, which itself depends on the assume role policy.
-  storage_aws_external_id  = "676096391788"
-  storage_aws_iam_user_arn = "0000"
+  storage_aws_external_id  = "0000"
+  storage_aws_iam_user_arn = "676096391788"
+  pipe_sqs_queue_arn       = ""
 }
 
 provider "aws" {
@@ -53,6 +54,13 @@ provider "aws" {
 provider "snowflake" {
   account = local.locator
   role    = "PUBLIC"
+}
+
+# Snowflake provider for account administration (to be used only when necessary).
+provider "snowflake" {
+  alias   = "accountadmin"
+  account = local.locator
+  role    = "ACCOUNTADMIN"
 }
 
 # Snowflake provider for creating databases, warehouses, etc.
@@ -90,12 +98,23 @@ module "s3_lake" {
   region                                         = local.region
   snowflake_raw_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
   snowflake_raw_storage_integration_external_id  = local.storage_aws_external_id
+  snowflake_pipe_sqs_queue_arn                   = local.pipe_sqs_queue_arn
+}
+
+data "aws_iam_role" "mwaa_execution_role" {
+  name = "dse-infra-dev-us-west-2-mwaa-execution-role"
+}
+
+resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
+  role       = data.aws_iam_role.mwaa_execution_role.name
+  policy_arn = module.s3_lake.pems_raw_read_write_policy.arn
 }
 
 ############################
 # Snowflake Infrastructure #
 ############################
 
+# Main ELT architecture
 module "elt" {
   source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=74a522f"
   providers = {
@@ -105,4 +124,26 @@ module "elt" {
   }
 
   environment = upper(local.environment)
+}
+
+module "snowflake_clearinghouse" {
+  source = "../../modules/snowflake-clearinghouse"
+  providers = {
+    snowflake.accountadmin  = snowflake.accountadmin,
+    snowflake.securityadmin = snowflake.securityadmin,
+    snowflake.sysadmin      = snowflake.sysadmin,
+    snowflake.useradmin     = snowflake.useradmin,
+  }
+
+  environment          = upper(local.environment)
+  s3_url               = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  storage_aws_role_arn = module.s3_lake.snowflake_storage_integration_role.arn
+}
+
+output "pems_raw_stage" {
+  value = module.snowflake_clearinghouse.pems_raw_stage
+}
+
+output "notification_channel" {
+  value = module.snowflake_clearinghouse.notification_channel
 }
