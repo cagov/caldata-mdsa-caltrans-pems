@@ -84,6 +84,7 @@ resource "aws_iam_policy" "pems_raw_external_stage_policy" {
 
 # Snowpipe notifications
 resource "aws_s3_bucket_notification" "snowflake_pipe_notifications" {
+  count  = var.snowflake_pipe_sqs_queue_arn == null ? 0 : 1
   bucket = aws_s3_bucket.pems_raw.id
   queue {
     queue_arn = var.snowflake_pipe_sqs_queue_arn
