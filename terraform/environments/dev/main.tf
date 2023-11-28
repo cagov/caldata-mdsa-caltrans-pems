@@ -143,3 +143,7 @@ module "snowflake_clearinghouse" {
 output "pems_raw_stage" {
   value = module.snowflake_clearinghouse.pems_raw_stage
 }
+
+output "notification_channel" {
+  value = module.snowflake_clearinghouse.notification_channel
+}
