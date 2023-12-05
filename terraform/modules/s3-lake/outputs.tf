@@ -13,3 +13,11 @@ output "pems_raw_read_write_policy" {
     arn  = aws_iam_policy.pems_raw_read_write.arn
   }
 }
+
+output "snowflake_storage_integration_role" {
+  description = "IAM role for Snowflake to assume when reading from the bucket"
+  value = {
+    name = aws_iam_role.snowflake_storage_integration.name
+    arn  = aws_iam_role.snowflake_storage_integration.arn
+  }
+}

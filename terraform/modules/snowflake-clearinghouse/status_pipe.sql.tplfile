@@ -1,0 +1,9 @@
+copy into ${database}.${schema}.${table}
+from (
+    select
+        metadata$filename,
+        $1
+        FROM @${database}.${schema}.${stage}/clhouse/status/
+    )
+file_format = ${database}.${schema}.${file_format}
+on_error = continue
