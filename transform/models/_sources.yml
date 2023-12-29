@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: clearinghouse
+    database: RAW_DEV
+    schema: CLEARINGHOUSE
+    description: |
+      Historical PeMS data loaded from the clearinghouse feeds at
+      https://pems.dot.ca.gov/feeds/clhouse/
+    tables:
+      - name: STATION_RAW
+        description: Raw 30 second count data for vehicle detector stations
+      - name: STATION_META
+        description: Metadata for vehicle detector stations
+      - name: STATION_STATUS
+        description: Operational status metadata for vehicle detector stations.

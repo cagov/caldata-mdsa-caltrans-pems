@@ -1,0 +1,13 @@
+SELECT
+    ID,
+    SAMPLE_DATE,
+    SAMPLE_TIMESTAMP,
+    COALESCE(FLOW_1, 0)
+    + COALESCE(FLOW_2, 0)
+    + COALESCE(FLOW_3, 0)
+    + COALESCE(FLOW_4, 0)
+    + COALESCE(FLOW_5, 0)
+    + COALESCE(FLOW_6, 0)
+    + COALESCE(FLOW_7, 0)
+    + COALESCE(FLOW_8, 0) AS FLOW
+FROM {{ source('clearinghouse', 'STATION_RAW') }}
