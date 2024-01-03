@@ -10,7 +10,7 @@ from airflow.decorators import dag, task
 
 HTTP_NOT_FOUND = 404
 CLHOUSE_PREFIX = "https://pems.dot.ca.gov/feeds/clhouse"
-S3_PREFIX = "s3://caltrans-pems-dev-us-west-2-raw"
+S3_PREFIX = "s3://caltrans-pems-prd-us-west-2-raw"
 DISTRICTS = ["d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12"]
 
 
