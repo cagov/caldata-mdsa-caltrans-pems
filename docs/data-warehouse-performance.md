@@ -22,8 +22,8 @@ In a traditional transactional warehouse both compute power and storage are asso
 
 Cloud data warehouses typically have a different pricing model:
 they decouple storage and compute and charge based on your query usage.
-Google BigQuery charges based on the amount of [data your queries scan](https://cloud.google.com/bigquery/pricing).
 Snowflake charges based on the amount of [compute resources needed to execute your queries](https://www.snowflake.com/pricing/).
+Google BigQuery charges based on the amount of [data your queries scan](https://cloud.google.com/bigquery/pricing).
 There are also costs associated with data storage, but those are usually small compared to compute.
 Though these two models are slightly different, they both lead to a similar take-home lesson:
 by being careful with how data are laid out and accessed,
@@ -91,7 +91,7 @@ we can write down a set of recommendations for how to construct efficient querie
 ### Primary keys and constraints
 
 A central feature of cloud data warehouses is that storage is separate from compute,
-and data can be processed in parallel by distributed compute resources.
+and data can be processed in parallel by distributed compute resources while they cost money.
 The less communication that needs to happen between these distributed compute resources,
 the faster they can work.
 For this reason, most cloud data warehouses do not support primary keys,
@@ -197,26 +197,45 @@ but it can have particularly bad performance consequences for columnar data ware
 
 There is another problem with the performance of the above queries.
 You can see that there are about two hundred thousand partitions in the entire dataset ("Partitions total").
-And the number of partitions that the queries scanned were the same!
+And the number of partitions that the queries scanned ("Partitions scanned") was the same!
 That is to say, we needed to read through every single partition,
 even though we were only interested in the partitions corresponding to 2023.
 
-This is a consequence of
+Because we set a clustering key for the `SAMPLE_DATE`, we should be able to efficiently select
+records for specific date ranges.
+However, query optimizers are not always as good at reasoning about partitions as we would like them to be.
+In this case, Snowflake is unable to reason about the result of the `date_from_parts()` function well enough
+to know what its result will be (even though it will result in a constant date!).
+
+Since Snowflake cannot figure out the result of the `date_from_parts()` call,
+it gives up and scans every partition to figure out if its date is satisfied by the filtering predicates.
+If, however, we write a hard-coded date string, Snowflake's query optimizer *is* able to figure out
+which partitions it needs to read. So the following query, which is logically equivalent,
+has *much* better performance characteristics
 
 ```sql
 SELECT
     ID,
     SAMPLE_DATE,
-    SUM(FLOW_1) AS FLOW2
+    SUM(FLOW_1) AS FLOW
 FROM RAW_PRD.CLEARINGHOUSE.STATION_RAW
 WHERE SAMPLE_DATE > '2023-01-01'
 AND SAMPLE_DATE < '2024-01-01'
 GROUP BY ID, SAMPLE_DATE
 ```
 
+This runs in about seventeen seconds, and only scans a small fraction of the partitions in the dataset:
+
 ![Partition pruning](../images/pruning-exercise-partition.png "Partition pruning")
 
-By using the field by which the table is partitioned in our filter, we reduced the data scanned by another factor of ~5 (as discussed above, this is analogous to using an index).
+You'll also note that the total processing time is much more weighted towards actual data processing
+rather than I/O.
+This is a good thing: we want our compute processes to be working hard for us,
+rather than waiting idly for data to traverse the network while they cost money.
+
+The moral here is: partition pruning can drastically reduce the amount of data you need to process,
+but you sometimes need to be careful about query construction to have it behave properly.
+Pay attention to the results of the query profile if your queries are not having the performance you expect!
 
 ## References
 * [Snowflake documentation on clustering and micropartitions](https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions)
