@@ -237,6 +237,15 @@ The moral here is: partition pruning can drastically reduce the amount of data y
 but you sometimes need to be careful about query construction to have it behave properly.
 Pay attention to the results of the query profile if your queries are not having the performance you expect!
 
+#### Summary
+
+By using our knowledge about how cloud data warehouses work and how their data are laid out,
+we were able to take a query that took several minutes and cost a few dollars
+to one that took a fraction of the time and cost a few cents.
+
+It's a good idea to keep an eye on the query profiler to make sure your queries are performing as expected
+(especially for ones that are run frequently, or touch a lot of data).
+
 ## References
 * [Snowflake documentation on clustering and micropartitions](https://docs.snowflake.com/en/user-guide/tables-clustering-micropartitions)
 * [Snowflake documentation on query performance profiling](https://docs.snowflake.com/user-guide/ui-query-profile)
