@@ -36,9 +36,9 @@ This means that data for each column of a table are stored sequentially in objec
 (this is in contrast to transactional databases which usually store each row, or record, sequentially in storage).
 [This BigQuery blog post](https://cloud.google.com/blog/topics/developers-practitioners/bigquery-admin-reference-guide-storage) goes into a bit more detail.
 
-![On the left is data laid out in a record-oriented way, where each row's values are contiguous in memory. On the right is data laid out in a columnar way, where each column's values are contiguous in memory.](../images/columnar-storage.png "Columnar storage")
+![On the left is data laid out in a record-oriented way, where each row's values are contiguous in memory. On the right is data laid out in a columnar way, where each column's values are contiguous in memory.](images/columnar-storage.png "Columnar storage")
 
-There are a number of consequences of using columnar storage:
+There are a number of advantages to using columnar storage for analytical workloads:
 
 * You can read in columns separately from each other.
     So if your query only needs to look at one column of a several-hundred column table,
@@ -91,7 +91,8 @@ we can write down a set of recommendations for how to construct efficient querie
 ### Primary keys and constraints
 
 A central feature of cloud data warehouses is that storage is separate from compute,
-and data can be processed in parallel by distributed compute resources while they cost money.
+and data can be processed in parallel by distributed compute resources that are only running
+(and thus only costing you money) while they are needed.
 The less communication that needs to happen between these distributed compute resources,
 the faster they can work.
 For this reason, most cloud data warehouses do not support primary keys,
@@ -115,7 +116,7 @@ This can be surprising to some people, since they often still include the syntax
 This exercise is intended to be done live with collaborators.
 It should read fine, but will be more impactful if we set up a lab setting!
 
-We'll be querying PeMS vehicle detectory station data stored in Snowflake.
+We'll be querying PeMS vehicle detector station data stored in Snowflake.
 The dataset in question consists of (at the time of this writing)
 20+ years of detector data at thirty second resolution.
 It has a quarter of a trillion events and takes over 2 terabytes of storage.
@@ -151,13 +152,14 @@ GROUP BY ID, SAMPLE_DATE
 This query took about three minutes to run. Not too bad!
 But when we look at some statistics from the query profile, we start to see some problems:
 
-![Initial query profile](../images/pruning-exercise-initial.png "Initial query profile")
+![Initial query profile](images/pruning-exercise-initial.png "Initial query profile")
 
 Yikes! We can see from the "Bytes scanned" that this query scanned almost a terabyte of data,
 or about half of the overall dataset.
 Ideally, we should not scan the entire dataset to get some relatively simple statistics for a single year.
-We can also see that from the "Profile Overview", remote disk I/O takes about 86% of the processing time,
-so anything we can do to cut down on disk I/O will likely be worthwhile.
+We can also see that from the "Profile Overview", remote disk I/O takes about 86% of the execution time.
+This represents reads/writes to and from Snowflake's abstract cloud object storage.
+Since this is the bulk of the execution time, anything we can do to cut down on disk I/O will be worthwhile.
 
 Based on an XL warehouse's burn rate of about $1 per minute, this query costs about $3.
 If we were running this many times a day, it could easily cost thousands of dollars per year.
@@ -188,9 +190,9 @@ This ran in under two minutes, and by inspecting the query profile, it's clear w
 this query scanned a little over half the amount of data as the first one.
 By selecting the only the columns we wanted, we avoided loading a lot of unnecessary data!
 
-![column-pruning](../images/pruning-exercise-column.png "Column pruning")
+![column-pruning](images/pruning-exercise-column.png "Column pruning")
 
-Using `SELECT *` is often a bad idea in any database,
+Manually selecting all table columns or using `SELECT *` is often a bad idea in any database,
 but it can have particularly bad performance consequences for columnar data warehouses.
 
 #### Take advantage of partition pruning
@@ -226,7 +228,7 @@ GROUP BY ID, SAMPLE_DATE
 
 This runs in about seventeen seconds, and only scans a small fraction of the partitions in the dataset:
 
-![Partition pruning](../images/pruning-exercise-partition.png "Partition pruning")
+![Partition pruning](images/pruning-exercise-partition.png "Partition pruning")
 
 You'll also note that the total processing time is much more weighted towards actual data processing
 rather than I/O.
