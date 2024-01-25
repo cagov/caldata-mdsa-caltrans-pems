@@ -217,6 +217,7 @@ to know what its result will be (even though it will result in a constant date!)
 
 Since Snowflake cannot figure out the result of the `date_from_parts()` call,
 it gives up and scans every partition to figure out if its date is satisfied by the filtering predicates.
+Inefficient queries scan every single partition.
 If, however, we write a hard-coded date string, Snowflake's query optimizer *is* able to figure out
 which partitions it needs to read. So the following query, which is logically equivalent,
 has *much* better performance characteristics
