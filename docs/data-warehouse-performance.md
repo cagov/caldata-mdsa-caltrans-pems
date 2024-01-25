@@ -55,7 +55,7 @@ Different warehouses choose different sizing strategies for partitions,
 but they are typically from a few to a few hundred megabytes.
 Having separate logical partitions in a table allows the compute resources to process the partitions independently of each other in parallel.
 This massively parallel processing capability is a large part of what makes cloud data warehouses scalable.
-When designing your tables, you can often set partitioning strategies or clustering keys[^1] for the table.
+When designing your tables, you can often set partitioning strategies or clustering keys for the table.
 This tells the cloud data warehouse to store rows with similar values for those keys within the same partitions.
 A well-partitioned table can enable queries to only read from the partitions that it needs, and ignore the rest.
 
@@ -122,7 +122,7 @@ The dataset in question consists of (at the time of this writing)
 20+ years of detector data at thirty second resolution.
 It has a quarter of a trillion events and takes over 2 terabytes of storage.
 
-Because it is event data with a timestamp, we have set a clustering key for the event date,
+Because it is event data with a timestamp, we have set a clustering key for the event date on the column `SAMPLE_DATE`,
 so that all events with the same date are in the same (or adjacent) partitions.
 
 All queries for this exercise were run on an XL Snowflake warehouse.
