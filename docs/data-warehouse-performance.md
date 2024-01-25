@@ -55,7 +55,7 @@ Different warehouses choose different sizing strategies for partitions,
 but they are typically from a few to a few hundred megabytes.
 Having separate logical partitions in a table allows the compute resources to process the partitions independently of each other in parallel.
 This massively parallel processing capability is a large part of what makes cloud data warehouses scalable.
-When designing your tables, you can often set partitioning strategies or clustering keys for the table.
+When designing your tables, you can often set partitioning strategies or clustering keys[^1] for the table.
 This tells the cloud data warehouse to store rows with similar values for those keys within the same partitions.
 A well-partitioned table can enable queries to only read from the partitions that it needs, and ignore the rest.
 
@@ -67,12 +67,12 @@ we can write down a set of recommendations for how to construct efficient querie
 * *Only `SELECT` the columns you need.*
     Columnar storage allows you to ignore the columns you don't need,
     and avoid the cost of reading it in. `SELECT *` can get expensive!
-* *If the table has a natural ordering, consider setting a partitioning or clustering key.*
+* *If the table has a natural ordering, consider setting a clustering key.*
     For example, if the data in the table consists of events with an associated timestamp,
     you might want to cluster according to that timestamp.
     Then events with similar times would be stored near each other in the same or adjacent partitions,
     and queries selecting for a particular date range would have to scan fewer partitions.
-* *If the table has a partitioning or clustering key already set, try to filter based on that in your queries.*
+* *If the table has a clustering key already set, try to filter based on that in your queries.*
     This can greatly reduce the amount of data you need to scan. The queries based on these filters
     should be as simple as you can manage, complex predicates on clustered columns can make it
     difficult for query optimizers to prune partitions.
@@ -83,9 +83,9 @@ we can write down a set of recommendations for how to construct efficient querie
 
 !!! note
     For people coming from transactional databases,
-    the considerations about partitioning and clustering may seem reminiscent of indexes.
+    the considerations about clustering may seem reminiscent of indexes.
     Cloud data warehouses usually don't have traditional indexes,
-    but partitioning and clustering keys fill approximately the same role,
+    but clustering keys fill approximately the same role,
     tailored to the distributed compute model.
 
 
@@ -260,3 +260,21 @@ It's a good idea to keep an eye on the query profiler to make sure your queries 
 * [Blog post on BigQuery's strategy for data layout and storage](https://cloud.google.com/blog/topics/developers-practitioners/bigquery-explained-storage-overview)
 * [BigQuery partitioning guide](https://cloud.google.com/bigquery/docs/partitioned-tables)
 * [BigQuery optimization guide (most tips apply more generally to CDWs)](https://cloud.google.com/bigquery/docs/best-practices-performance-overview)
+
+## Glossary
+
+**Clustering key**: A clustering key is a special column in a table which instructs the database to order
+    the records in the table according to that column. In cloud data warehouses which partition
+    their tables into chunks, records with the same value for a clustering key will be
+    stored in the same (or nearby) partitions.
+**Foreign key**: A foreign key is a special column in a table which refers to the *primary key* of another
+    table. Using foreign keys allows related tables to be linked, and they are often used in join operations.
+    Traditional transactional databases often have strict guarantees (or constraints) around foreign keys.
+    Cloud data warehouses typically do not respect those constraints.
+**Partition**: A partition is a chunk of rows in a database table that are stored contiguously in memory.
+    Cloud data warehouses commonly organize their tables into partitions of tens to hundreds of megabytes.
+**Partition pruning**: The process by which a query optimizer decides whether it needs to read a given
+    partition for a query.
+**Primary key**: A primary key is a special column in a table which serves as an identifier for a record.
+    In traditional transactional databases, they are usually required to be non-null and unique.
+    Cloud data warehouses typically do not respect those constraints.
