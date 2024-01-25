@@ -76,6 +76,7 @@ we can write down a set of recommendations for how to construct efficient querie
     This can greatly reduce the amount of data you need to scan. The queries based on these filters
     should be as simple as you can manage, complex predicates on clustered columns can make it
     difficult for query optimizers to prune partitions.
+    You can tell if Snowflake has a clustering key set by inspecting the table definition for a `cluster by` clause.
 * *Filter early in complex queries, rather than at the end.*
    If you have complex, multi-stage queries, filtering down to the subset of interest at the outset
    can avoid the need to process unnecessary data and then throw it away later in the query.
@@ -196,6 +197,11 @@ Manually selecting all table columns or using `SELECT *` is often a bad idea in 
 but it can have particularly bad performance consequences for columnar data warehouses.
 
 #### Take advantage of partition pruning
+
+!!! note
+    TL;DR: if a large table has a clustering key set, try to use it in filters,
+    aggregations, and windowing operations. Try to keep predicates using that key
+    as simple as possible to help out the query optimizer.
 
 There is another problem with the performance of the above queries.
 You can see that there are about two hundred thousand partitions in the entire dataset ("Partitions total").
