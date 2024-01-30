@@ -14,13 +14,15 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 import os
+import ibis
+import dash_bootstrap_components as dbc
+
 
 load_dotenv()
 USERNAME = os.getenv('SNOWFLAKE_USER')
 PASSWORD = os.getenv('SNOWFLAKE_PASSWORD')
 
 
-import ibis
 print("connecting to snowflake...")
 
 
@@ -50,7 +52,9 @@ pd_station_metadata.set_index('ID',inplace = True)
 
 station_agg_stats_by_day = ibis_con.table(database = "TRANSFORM_DEV", schema = "DBT_MMARKS", name ="TBL_STATION_DAY_AGG_STATS_V2")
 pd_station_agg_stats_by_day = station_agg_stats_by_day.execute()
-expected_num_daily_observations = 2440
+
+expected_num_daily_observations = 2880
+
 pd_station_agg_stats_by_day['FLOW_1_Pct_Expected_Obs'] = pd_station_agg_stats_by_day['FLOW_1_COUNT']/expected_num_daily_observations
 pd_station_agg_stats_by_day['FLOW_2_Pct_Expected_Obs'] = pd_station_agg_stats_by_day['FLOW_2_COUNT']/expected_num_daily_observations
 pd_station_agg_stats_by_day['FLOW_3_Pct_Expected_Obs'] = pd_station_agg_stats_by_day['FLOW_3_COUNT']/expected_num_daily_observations
@@ -109,7 +113,6 @@ pd_station_metadata = pd_station_metadata[pd_station_metadata.index.isin(unique_
 
 print("Data load complete. Starting app....")
 
-import dash_bootstrap_components as dbc
 def create_number_tile(number, description,  p_txt_size = 19, h_txt_size = 45):
     """
     Create a number tile for Dash app.
@@ -272,14 +275,14 @@ def update_graph(start_date, end_date, agg_col, color_range_max_percentile,min_c
      (aggregated_df[agg_col] <= max_value)) | 
      (aggregated_df[agg_col].isnull())]
     
+    #I do this for the subsequent join. Perhaps it would be more performant to join on the column instead of index?
     aggregated_df_filtered.set_index('ID',inplace = True)    
     
     aggregated_df_filtered[agg_col] = aggregated_df_filtered[agg_col].astype('float32').round(2).astype('float16')
     
-
     pd_station_metadata_w_agg_results = pd_station_metadata.join(aggregated_df_filtered, how = "inner",rsuffix = "r").reset_index()
     
-    print(pd_station_metadata_w_agg_results.head)
+    # print(pd_station_metadata_w_agg_results.head)
     
     # Handle null value display based on the dropdown selection
     if null_toggle == 'SHOW_NULL':
@@ -661,14 +664,6 @@ def update_tiles(agg_col, start_date, end_date,null_toggle):
     tile4_layout = create_number_tile(f"{all_zero_percentage:.1f}%", "Pct Sensors w/ All Zeros")  
     tile5_layout = create_number_tile(f"{average_value:.2f}", "Statewide Avg")
     return tile1_layout, tile2_layout, tile3_layout, tile4_layout, tile5_layout
-
-
-def floor_to_tenth(num):
-    return math.floor(num * 10) / 10
-
-def ceil_to_tenth(num):
-    return math.ceil(num * 10) / 10
-
 
 
 
