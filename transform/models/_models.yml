@@ -1,0 +1,7 @@
+version: 2
+
+models:
+  - name: <model name here>
+    description: <model description here>
+  - name: <model name here>
+    description: <model description here>
