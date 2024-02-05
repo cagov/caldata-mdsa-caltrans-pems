@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: CLEARINGHOUSE
+    database: <database name here>
+    schema: <schema name here>
+    description: <data description here>
+    tables:
+      - name: <table name here>
+        description: <table description here>
+        columns:
+          - name: <column name here>
+            description: <column description here>
+          - name: <column name here>
+            description: <column description here>
+          - name: <column name here>
+            description: <column description here>
+          - name: <column name here>
+            description: <column description here>
