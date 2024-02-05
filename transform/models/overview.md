@@ -3,7 +3,7 @@
 
 # Traffic Operations PeMS Modernization dbt Documentation
 
-This is just a simple edit proposed by Britt
+This is just a simple edit proposed by Britt.
 
 
 Welcome to Traffic Operations's Traffic Operations PeMS Modernization `dbt` docs.
