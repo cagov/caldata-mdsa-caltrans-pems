@@ -3,5 +3,15 @@ version: 2
 models:
   - name: <model name here>
     description: <model description here>
+    columns:
+      - name: <column name here>
+        description: <column description here>
+      - name: <column name here>
+        description: <column description here>
   - name: <model name here>
     description: <model description here>
+    columns:
+      - name: <column name here>
+        description: <column description here>
+      - name: <column name here>
+        description: <column description here>
