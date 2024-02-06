@@ -6,7 +6,7 @@ and hosted using [GitHub Pages](https://pages.github.com/).
 The documentation source files are in the `docs/` directory
 and are authored using [markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
 
-## Local Development
+## Local Developments
 
 To write documentation for this project, make sure that the repository is [set up](./setup.md).
 You should then be able to start a local server for the docs:
