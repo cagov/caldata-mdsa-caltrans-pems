@@ -1,3 +1,22 @@
-select *
-from raw_prd.clearinghouse.station_meta
+SELECT
+    DATE_FROM_PARTS(
+        SUBSTRING(FILENAME, 18, 4),
+        SUBSTRING(FILENAME, 23, 2),
+        LEFT(RIGHT(FILENAME, 6), 2))
+        AS META_DATE,
+    ID,
+    FWY AS FREEWAY,
+    DIR AS DIRECTION,
+    DISTRICT,
+    COUNTY,
+    CITY,
+    STATE_PM AS STATE_POSTMILE,
+    ABS_PM AS ABSOLUTE_POSTMILE,
+    LATITUDE,
+    LONGITUDE,
+    LENGTH,
+    TYPE,
+    LANES,
+    NAME
+FROM RAW_PRD.CLEARINGHOUSE.STATION_META
 limit 10
