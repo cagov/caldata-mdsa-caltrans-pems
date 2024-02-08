@@ -1,17 +1,47 @@
 version: 2
 
 models:
-  - name: <model name here>
-    description: <model description here>
+  - name: stg_pems__station_meta
+    description: Staging model for the STATION_META source data.
     columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
-  - name: <model name here>
-    description: <model description here>
+      - name: meta_date
+        description: date in yyyy-mm-dd format pulled from the FILENAME column.
+      - name: id
+        description: |
+          An integer value that uniquely indenties the Station Metadata. 
+          Use this value to 'join' other clearinghouse files that contain Station Metadata.
+      - name: freeway
+        description: Freeway number.
+      - name: direction
+        description: A string indicating the freeway direction.
+      - name: district
+        description: District number.
+      - name: county_fips
+        description: The unique number that identifies the county that contains this census station within PeMS.
+      - name: county_name
+        description: The name of the county.
+      - name: city
+        description: The city name.
+      - name: state_postmile
+        description: State Postmile.
+      - name: absolute_postmile
+        description: Absolute Postmile.
+      - name: latitude
+        description: Latitude.
+      - name: longitude
+        description: Longitude.
+      - name: length
+        description: Length.
+      - name: type
+        description: Type.
+      - name: lanes
+        description: Total number of lanes.
+      - name: name
+        description: Street name.
+  - name: int_pems__stations_per_county_counted
+    description: Count of stations per county
     columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
+      - name: county_name
+        description: The name of the county.
+      - name: station_count
+        description: The count of stations.

@@ -1,19 +1,45 @@
 version: 2
 
 sources:
-  - name: CLEARINGHOUSE
-    database: <database name here>
-    schema: <schema name here>
-    description: <data description here>
+  - name: clearinghouse
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: |
+      Historical PeMS data loaded from the clearinghouse feeds at
+      https://pems.dot.ca.gov/feeds/clhouse/
     tables:
-      - name: <table name here>
-        description: <table description here>
+      - name: STATION_META
+        description: Metadata for vehicle detector stations.
         columns:
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
+          - name: FILENAME
+            description: Metadata about the text file embedded in its name.
+          - name: ID
+            description: |
+              An integer value that uniquely indenties the Station Metadata. 
+              Use this value to 'join' other clearinghouse files that contain Station Metadata.
+          - name: FWY
+            description: Freeway number.
+          - name: DIR
+            description: A string indicating the freeway direction.
+          - name: DISTRICT
+            description: District number.
+          - name: COUNTY
+            description: The unique number that identifies the county that contains this census station within PeMS.
+          - name: CITY
+            description: The city name.
+          - name: STATE_PM
+            description: State Postmile.
+          - name: ABS_PM
+            description: Absolute Postmile.
+          - name: LATITUDE
+            description: Latitude.
+          - name: LONGITUDE
+            description: Longitude.
+          - name: LENGTH
+            description: Length.
+          - name: TYPE
+            description: Type.
+          - name: LANES
+            description: Total number of lanes.
+          - name: NAME
+            description: Street name.
