@@ -562,7 +562,7 @@ def update_default_min_max(start_date, end_date, agg_col):  # noqa: D417
         Input("date-picker-range", "end_date"),
     ],
 )
-def update_time_series(selected_data, agg_col, start_date, end_date):
+def update_time_series(selected_data, agg_col, start_date, end_date):  # type: ignore
     """
     Update the time series plot based on the selected data.
 
@@ -700,7 +700,7 @@ def update_time_series(selected_data, agg_col, start_date, end_date):
     # Input('date-picker-range', 'start_date'),
     # Input('date-picker-range', 'end_date'),
 )
-def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):
+def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):  # type: ignore
     """
     Update the individual observation time series plot based on the selected data.
 
