@@ -596,8 +596,9 @@ def update_time_series(selected_data, agg_col, start_date, end_date):
                 ],
             },
         }
-
-    if len(selected_data["points"]) > 6:
+        
+    max_stations_to_plot = 5
+    if len(selected_data["points"]) >= max_stations_to_plot:
         # Display a message
         return {
             "data": [],
@@ -606,7 +607,7 @@ def update_time_series(selected_data, agg_col, start_date, end_date):
                 "yaxis": {"visible": False},
                 "annotations": [
                     {
-                        "text": "Select 5 or fewer sensors for plotting.",
+                        "text": f"Select {max_stations_to_plot} or fewer sensors for plotting.",
                         "xref": "paper",
                         "yref": "paper",
                         "showarrow": False,
@@ -737,8 +738,8 @@ def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):
                 ],
             },
         }
-
-    if len(map_selected_data["points"]) > 6:
+    max_stations_to_plot = 5
+    if len(map_selected_data["points"]) >= max_stations_to_plot:
         # Display a message
         return {
             "data": [],
@@ -747,7 +748,7 @@ def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):
                 "yaxis": {"visible": False},
                 "annotations": [
                     {
-                        "text": "Select 5 or fewer sensors for plotting.",
+                        "text": f"Select {max_stations_to_plot} or fewer sensors for plotting.",
                         "xref": "paper",
                         "yref": "paper",
                         "showarrow": False,
