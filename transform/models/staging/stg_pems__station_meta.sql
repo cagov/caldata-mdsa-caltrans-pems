@@ -1,3 +1,24 @@
-select *
-from raw_prd.clearinghouse.station_meta
-limit 10
+SELECT
+    -- FILENAME, 
+    ID,
+    FWY AS FWY_ID,
+    DIR AS FWY_DIR,
+    DISTRICT,
+    COUNTY,
+    CITY,
+    STATE_PM AS POSTMILE_STATE,
+    ABS_PM AS POSTMILE_STATE, 
+    LATITUDE,
+    LONGITUDE,
+    LENGTH,
+    TYPE,
+    LANES,
+    NAME,
+    CAST(
+        SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 6, 4) || '-'
+        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 11, 2) || '-'
+        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 14, 2) as Date
+    ) as META_DATE
+FROM RAW_PRD.CLEARINGHOUSE.STATION_META
+LIMIT 10;
+
