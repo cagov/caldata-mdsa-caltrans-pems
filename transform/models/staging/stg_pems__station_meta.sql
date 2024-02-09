@@ -15,9 +15,9 @@ select
     LANES,
     NAME,
     CAST(
-        SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 6, 4) || '-'
-        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 11, 2) || '-'
-        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 14, 2) as Date
+        SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + len('_meta_'), len('2024')) || '-'
+        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + len('_meta_2024_'), len('01')) || '-'
+        || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + len('_meta_2024_01_'), len('31')) as Date
     ) as META_DATE
-FROM raw_prd.clearinghouse.station_meta;
+FROM raw_prd.clearinghouse.station_meta
 -- limit 10
