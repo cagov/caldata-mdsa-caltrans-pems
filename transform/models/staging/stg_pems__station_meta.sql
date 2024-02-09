@@ -19,5 +19,5 @@ select
         || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 11, 2) || '-'
         || SUBSTRING(FILENAME, POSITION('_meta_' in FILENAME) + 14, 2) as Date
     ) as META_DATE
-FROM raw_prd.clearinghouse.station_meta
+FROM raw_prd.clearinghouse.station_meta;
 -- limit 10
