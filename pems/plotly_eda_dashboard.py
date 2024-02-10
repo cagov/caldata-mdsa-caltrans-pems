@@ -1,5 +1,9 @@
 # Import necessary libraries
 
+import math
+import os
+import re
+
 import dash
 import dash_bootstrap_components as dbc
 import dash_daq as daq
@@ -9,11 +13,6 @@ import plotly.express as px
 from dash import dcc, html
 from dash.dependencies import Input, Output
 from dotenv import load_dotenv
-import os
-import ibis
-import math
-import re
-
 
 load_dotenv()
 USERNAME = os.getenv("SNOWFLAKE_USER")
@@ -153,7 +152,7 @@ def create_number_tile(number, description, p_txt_size=19, h_txt_size=45):
     :param description: The description text to display below the number.
     :return: A Dash HTML Div representing the number tile.
     """
-    number_tile_div =  html.Div(
+    number_tile_div = html.Div(
         dbc.Card(
             dbc.CardBody(
                 [
@@ -196,6 +195,7 @@ def create_number_tile(number, description, p_txt_size=19, h_txt_size=45):
         style={},
     )
     return number_tile_div  # noqa: RET504
+
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
@@ -474,11 +474,7 @@ def update_graph(  # noqa: D417
 
     # Calculate the 95th percentile for the selected metric
     color_range_max_value = aggregated_df[agg_col].quantile(color_range_max_percentile)
-    
-    
-    
 
-    
     # Create the figure
     fig = px.scatter_mapbox(
         pd_station_metadata_w_agg_results,
@@ -562,21 +558,20 @@ def update_default_min_max(start_date, end_date, agg_col):  # noqa: D417
         Input("date-picker-range", "end_date"),
     ],
 )
-def update_time_series(selected_data, agg_col, start_date, end_date):  # type: ignore
+def update_time_series(selected_data, agg_col, start_date, end_date):
     """
     Update the time series plot based on the selected data.
 
-    Parameters
-    ----------
-    selected_data (dict): The selected data from the plotly graph.
-    agg_col (str): The column to aggregate the data.
-    start_date (str): The start date for filtering the data.
-    end_date (str): The end date for filtering the data.
+    Args:
+    ----
+        selected_data (dict): The selected data from the plotly graph.
+        agg_col (str): The column to aggregate the data on.
+        start_date (str): The start date for filtering the data.
+        end_date (str): The end date for filtering the data.
 
-    Returns
+    Returns:
     -------
-    fig (plotly.graph_objs.Figure): The updated time series plot.
-
+        fig (plotly.graph_objs.Figure): The updated figure for the time series plot.
     """
     if selected_data is None or len(selected_data["points"]) == 0:
         # Display a message
@@ -596,7 +591,7 @@ def update_time_series(selected_data, agg_col, start_date, end_date):  # type: i
                 ],
             },
         }
-        
+
     max_stations_to_plot = 5
     if len(selected_data["points"]) >= max_stations_to_plot:
         # Display a message
@@ -700,20 +695,19 @@ def update_time_series(selected_data, agg_col, start_date, end_date):  # type: i
     # Input('date-picker-range', 'start_date'),
     # Input('date-picker-range', 'end_date'),
 )
-def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):  # type: ignore
+def update_indiv_obs_time_series(click_data, agg_col, map_selected_data):
     """
     Update the individual observation time series plot based on the selected data.
 
-    Parameters
-    ----------
-    - click_data (dict): The click data from the plotly graph.
-    - agg_col (str): The column to aggregate the data.
-    - map_selected_data (dict): The selected data from the map.
+    Args:
+    ----
+        click_data (dict): The clickData from the individual observation map.
+        agg_col (str): The column to aggregate the data on.
+        map_selected_data (pandas.DataFrame): The data selected on the map.
 
-    Returns
+    Returns:
     -------
-    - fig (plotly.graph_objs.Figure): The updated plotly figure.
-
+        dict: The updated figure for the individual observation time series plot.
     """
     if (
         click_data is None
