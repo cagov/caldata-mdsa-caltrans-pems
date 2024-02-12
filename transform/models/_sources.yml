@@ -2,18 +2,88 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: <database name here>
-    schema: <schema name here>
-    description: <data description here>
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: Station Information
     tables:
-      - name: <table name here>
-        description: <table description here>
+      - name: STATION_META
+        description: meta data for stations
         columns:
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
+          - name: FILENAME
+            description: file name
+          - name: ID
+            description: station ID
+          - name: FWY
+            description: freeway number
+          - name: DIR
+            description: traffic flow direction
+          - name: DISTRICT
+            description: district number
+          - name: COUNTY
+            description: county name
+          - name: CITY
+            description: city name
+          - name: STATE_PM
+            description: state postmile
+          - name: ABS_PM
+            description: absolute postmile
+          - name: LATITUDE
+            description: coordinate-latitude
+          - name: LONGITUDE
+            description: coordinate-longitude
+          - name: LENGTH
+            description: distance
+          - name: TYPE
+            description: <>
+          - name: LANES
+            description: number of lanes
+          - name: NAME
+            description: station name
+          - name: USER_ID_1
+            description: <>
+          - name: USER_ID_2
+            description: <>
+          - name: USER_ID_3
+            description: <>
+          - name: USER_ID_4
+            description: <>
+
+          # FILENAME, ID, FWY, DIR, DISTRICT, COUNTY, CITY, STATE_PM, ABS_PM, LATITUDE, LONGITUDE, LENGTH, TYPE, LANES, NAME, USER_ID_1, USER_ID_2, USER_ID_3, USER_ID_4
+      - name: STATION_RAW
+        description: Raw traffic data collected at each station
+        #FILENAME, SAMPLE_TIMESTAMP, SAMPLE_DATE, ID, FLOW_1, OCCUPANCY_1, SPEED_1, FLOW_2, OCCUPANCY_2, SPEED_2, FLOW_3, OCCUPANCY_3, SPEED_3, FLOW_4, OCCUPANCY_4, SPEED_4, FLOW_5, OCCUPANCY_5, SPEED_5, FLOW_6, OCCUPANCY_6, SPEED_6, FLOW_7, OCCUPANCY_7, SPEED_7, FLOW_8, OCCUPANCY_8, SPEED_8
+        columns:
+          - name: FILENAME
+            description: file name
+          - name: SAMPLE_TIMESTAMP
+            description: timestamp
+          - name: SAMPLE_DATE
+            description: date
+          - name: ID
+            description: station ID
+          - name: FLOW_1
+            description: flow in lane 1
+          - name: OCCUPANCY_1
+            description: lane 1 occupancy
+          - name: SPEED_1
+            description: average travel speed in lane 1
+          - name: FLOW_2
+            description: flow in lane 2
+          - name: OCCUPANCY_2
+            description: lane 2 occupancy
+          - name: SPEED_2
+            description: average travel speed in lane 2
+          - name: FLOW_3
+            description: flow in lane 3
+          - name: OCCUPANCY_3
+            description: lane 3 occupancy
+          - name: SPEED_3
+            description: average travel speed in lane 3
+      - name: STATION_STATUS
+        description: station status information
+        # FILENAME, CONTENT
+        columns:
+          - name: FILENAME
+            description: file name
+          - name: CONTENT
+            description: content
