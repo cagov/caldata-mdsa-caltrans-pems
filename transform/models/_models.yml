@@ -1,8 +1,10 @@
 version: 2
 
 models:
-  - name: <model name here>
-    description: <model description here>
+  - name: ModelTest
+    description: >
+      abcd
+      ddfdfsf asdfasdfs 111
     columns:
       - name: <column name here>
         description: <column description here>
