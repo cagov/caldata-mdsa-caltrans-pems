@@ -2,18 +2,38 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: <database name here>
-    schema: <schema name here>
-    description: <data description here>
+    database: CLEARINGHOUSE
+    schema: STATION_META
+    description: station metadata 
     tables:
-      - name: <table name here>
-        description: <table description here>
+      - name: STATION_META
+        description: include metadata for stations 
         columns:
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
+          - name: ID
+            description: station id 
+          - name:   FWY AS FWY_ID
+            description: freeway id - a number 
+          - name:   DIR AS FWY_DIR
+            description: direction of traffic - N, S, E, W
+          - name:   DISTRICT
+            description: district number 3, 4, 5, 6, 7, 8. 11, 12
+          - name:   COUNTY
+            description: full name of the county 
+          - name:   CITY
+            description: city name 
+          - name:    STATE_PM 
+            description: state postmile 
+          - name:   ABS_PM 
+            description: absolute postmile 
+          - name:   LATITUDE
+            description: latitude 
+          - name:   LONGITUDE
+            description: longitude 
+          - name:   LENGTH
+            description: length of corridor 
+          - name:   TYPE
+            description: mainline, onramp, offramp, etc
+          - name:   LANES
+            description: number of lanes
+          - name:   NAME 
+            description: some name 
