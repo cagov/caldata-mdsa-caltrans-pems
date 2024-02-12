@@ -6,14 +6,19 @@ sources:
     schema: <schema name here>
     description: <data description here>
     tables:
-      - name: <table name here>
-        description: <table description here>
+      - name: TestSource
+        description: >
+          test model 
+          this is interesting
+          hoho
+          this is markdown
+          * 1,
+          * 2
+          * 3
         columns:
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
+          - name: test1
+            description: >
+              abc
+              ddfsfs
+          - name: test2
+            description: ddsfsfs
