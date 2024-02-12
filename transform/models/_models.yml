@@ -2,10 +2,7 @@ version: 2
 
 models:
   - name: ModelTest
-    description: >
-      abcd
-      ddfdfsf asdfasdfs 111
+    description: test 
     columns:
       - name: test1
         description: test description
-    

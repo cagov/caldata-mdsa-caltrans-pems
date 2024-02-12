@@ -2,23 +2,14 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: <database name here>
-    schema: <schema name here>
-    description: <data description here>
+    database: Raw_Prd
+    schema: ClearingHouse
+    description: test description
     tables:
       - name: TestSource
-        description: >
-          test model 
-          this is interesting
-          hoho
-          this is markdown
-          * 1,
-          * 2
-          * 3
+        description: test
         columns:
           - name: test1
-            description: >
-              abc
-              ddfsfs
+            description: test
           - name: test2
             description: ddsfsfs
