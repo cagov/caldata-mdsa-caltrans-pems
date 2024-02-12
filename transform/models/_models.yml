@@ -6,14 +6,6 @@ models:
       abcd
       ddfdfsf asdfasdfs 111
     columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
-  - name: <model name here>
-    description: <model description here>
-    columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
+      - name: test1
+        description: test description
+    
