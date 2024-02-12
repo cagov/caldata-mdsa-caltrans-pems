@@ -2,38 +2,67 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: CLEARINGHOUSE
-    schema: STATION_META
-    description: station metadata 
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: whatever, whatever 
     tables:
       - name: STATION_META
-        description: include metadata for stations 
+        description: include metadata for stations
         columns:
           - name: ID
-            description: station id 
-          - name:   FWY AS FWY_ID
-            description: freeway id - a number 
-          - name:   DIR AS FWY_DIR
+            description: station id
+          - name: FWY AS FWY_ID
+            description: freeway id - a number
+          - name: DIR AS FWY_DIR
             description: direction of traffic - N, S, E, W
-          - name:   DISTRICT
+          - name: DISTRICT
             description: district number 3, 4, 5, 6, 7, 8. 11, 12
-          - name:   COUNTY
-            description: full name of the county 
-          - name:   CITY
-            description: city name 
-          - name:    STATE_PM 
-            description: state postmile 
-          - name:   ABS_PM 
-            description: absolute postmile 
-          - name:   LATITUDE
-            description: latitude 
-          - name:   LONGITUDE
-            description: longitude 
-          - name:   LENGTH
-            description: length of corridor 
-          - name:   TYPE
+          - name: COUNTY
+            description: full name of the county
+          - name: CITY
+            description: city name
+          - name: STATE_PM
+            description: state postmile
+          - name: ABS_PM
+            description: absolute postmile
+          - name: LATITUDE
+            description: latitude
+          - name: LONGITUDE
+            description: longitude
+          - name: LENGTH
+            description: length of corridor
+          - name: TYPE
             description: mainline, onramp, offramp, etc
-          - name:   LANES
+          - name: LANES
             description: number of lanes
-          - name:   NAME 
-            description: some name 
+          - name: NAME
+            description: some name
+      - name: STATION_STATUS
+        description: include metadata for stations
+        columns:
+          - name: CONTENT
+            description: content
+          - name: FILENAME
+            description: FILENAME            
+      - name: STATION_RAW
+        description: 30 sec raw data 
+        columns:
+          - name: ID
+            description: station id
+          - name: SAMPLE_DATE
+            description: date of sample 
+          - name: SAMPLE_TIMESTAMP 
+            description: timestamp of sample 
+          - name: FLOW_1
+            description: flow in lane 1
+          - name: FLOW_2
+            description: flow in lane 2
+          - name: OCCUPANCY_1
+            description: occ in lane 1
+          - name: OCCUPANCY_2
+            description: occ in lane 2
+          - name: SPEED_1
+            description: speed in lane 1
+          - name: SPEED_2
+            description: speed in lane 2
+
