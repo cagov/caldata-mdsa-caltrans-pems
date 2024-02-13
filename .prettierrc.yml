@@ -1,3 +1,2 @@
 endOfLine: auto
-proseWrap: "always"
-printWidth: 120
+proseWrap: "preserve"
