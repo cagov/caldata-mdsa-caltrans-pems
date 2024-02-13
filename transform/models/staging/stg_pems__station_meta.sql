@@ -18,5 +18,4 @@ select
     TYPE,
     LANES,
     NAME
-
-from RAW_PRD.CLEARINGHOUSE.STATION_META
+from {{ source("CLEARINGHOUSE", "STATION_META") }}
