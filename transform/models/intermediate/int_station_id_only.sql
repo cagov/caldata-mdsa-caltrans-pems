@@ -4,6 +4,5 @@ source as (
    -- select * from stg_pems__station_meta
 ),
 
-select *
-from source
+select * from source
 limit 10
