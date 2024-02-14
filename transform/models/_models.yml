@@ -13,3 +13,15 @@ models:
         # tests:
         #   - not_null
         #   - unique
+  - name: int_pems__stations_per_county_counted
+    description: Staging model for PeMS station metadata
+    config:
+      materialized: table
+    columns:
+      - name: ID
+        description: "The station ID"
+      # - name: FILENAME
+      #   description: "FILENAME"
+      #   # tests:
+      #   #   - not_null
+      #   #   - unique
