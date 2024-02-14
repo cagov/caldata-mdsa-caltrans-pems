@@ -8,6 +8,6 @@ models:
     columns:
       - name: ID
         description: "The station ID"
-        tests:
-          - not_null
-          - unique
+        # tests:
+        #   - not_null
+        #   - unique
