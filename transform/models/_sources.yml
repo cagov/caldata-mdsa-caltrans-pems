@@ -2,18 +2,114 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: <database name here>
-    schema: <schema name here>
-    description: <data description here>
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: Database with PeMS station raw data station meta data and station status
     tables:
-      - name: <table name here>
-        description: <table description here>
+      - name: STATION_META
+        description: Table with station metadata
         columns:
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
-          - name: <column name here>
-            description: <column description here>
+          - name: FILENAME
+            description: The filename of what was uploaded
+          - name: ID
+            description: Station ID
+          - name: FWY
+            description: Freeway Route Number
+          - name: DIR
+            description: Direction in which traffic is travelling
+          - name: DISTRICT
+            description: Caltrans District
+          - name: COUNTY
+            description: County station is located
+          - name: CITY
+            description: City that station is located
+          - name: STATE_PM
+            description: State postmile station is located
+          - name: ABS_PM
+            description: Absolute postmile station is located
+          - name: LATITUDE
+            description: Latitude of where station is located
+          - name: LONGITUDE
+            description: Longitude of where station is located
+          - name: LENGTH
+            description: Station length
+          - name: TYPE
+            description: Type of station
+          - name: LANES
+            description: Number of lanes
+          - name: NAME
+            description: Station Name
+          - name: USER_ID_1
+            description: User ID 1
+          - name: USER_ID_2
+            description: User ID 2
+          - name: USER_ID_3
+            description: User ID 3
+          - name: USER_ID_4
+            description: User ID 4
+      - name: STATION_raw
+        description: Table with raw station data
+        columns:
+          - name: FILENAME
+            description: The filename of what was uploaded
+          - name: SAMPLE_TIMESTAMP
+            description: Time of sample
+          - name: SAMPLE_DATE,
+            description: Date of sample
+          - name: ID
+            description: Station ID
+          - name: FLOW_1
+            description: Lane 1 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_1
+            description: Lane 1 percent time of detector being occupied
+          - name: SPEED_1
+            description: Lane 1 speed
+          - name: FLOW_2
+            description: Lane 2 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_2
+            description: Lane 2 percent time of detector being occupied
+          - name: SPEED_2
+            description: Lane 2 speed
+          - name: FLOW_3
+            description: Lane 3 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_3
+            description: Lane 3 percent time of detector being occupied
+          - name: SPEED_3
+            description: Lane 3 speed
+          - name: FLOW_4
+            description: Lane 4 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_4
+            description: Lane 4 percent time of detector being occupied
+          - name: SPEED_4
+            description: Lane 4 speed
+          - name: FLOW_5
+            description: Lane 5 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_5
+            description: Lane 5 percent time of detector being occupied
+          - name: SPEED_5
+            description: Lane 5 speed
+          - name: FLOW_6
+            description: Lane 6 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_6
+            description: Lane 6 percent time of detector being occupied
+          - name: SPEED_6
+            description: Lane 6 speed
+          - name: FLOW_7
+            description: Lane 7 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_7
+            description: Lane 7 percent time of detector being occupied
+          - name: SPEED_7
+            description: Lane 7 speed
+          - name: FLOW_8
+            description: Lane 8 number of vehicles at station within the 30 sec interval
+          - name: OCCUPANCY_8
+            description: Lane 8 percent time of detector being occupied
+          - name: SPEED_8
+            description: Lane 8 speed
+      - name: STATION_STATUS
+        description: Table with the status of each station
+        columns:
+          - name: CONTENT
+            description: Provides an update of the station status
+          - name: FILENAME
+            description: Filename of what was uploaded

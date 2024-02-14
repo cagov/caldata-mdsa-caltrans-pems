@@ -1,17 +1,14 @@
 version: 2
 
 models:
-  - name: <model name here>
-    description: <model description here>
+  - name: stg_pems__station_meta
+    description: Staging model form PeMS meta data
+    config:
+      materialized: table
     columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
-  - name: <model name here>
-    description: <model description here>
-    columns:
-      - name: <column name here>
-        description: <column description here>
-      - name: <column name here>
-        description: <column description here>
+      - name: ID
+        description: Station ID
+      - tests:
+        - not_null
+        - unique
+        
