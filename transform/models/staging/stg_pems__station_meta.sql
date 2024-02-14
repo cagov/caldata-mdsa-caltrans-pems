@@ -9,7 +9,6 @@ source as (
 station_meta_with_date as (
 
     select
-        -- * EXCLUDE (FILENAME, USER_ID_1, USER_ID_2, USER_ID_3, USER_ID_4),
         DATE_FROM_PARTS(
             SUBSTR(filename, 18, 4)::INT,
             SUBSTR(filename, 23, 2)::INT,

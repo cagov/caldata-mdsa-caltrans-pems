@@ -3,6 +3,11 @@ version: 2
 models:
   - name: stg_pems__station_meta
     description: Staging model for the STATION_META source data.
+    config:
+      materialized: table
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: source('clearinghouse', 'STATION_META')
     columns:
       - name: meta_date
         description: date in yyyy-mm-dd format pulled from the FILENAME column.

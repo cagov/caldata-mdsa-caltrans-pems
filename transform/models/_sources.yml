@@ -43,3 +43,38 @@ sources:
             description: Total number of lanes.
           - name: NAME
             description: Street name.
+      - name: STATION_RAW
+        description: raw data for vehicle detector stations.
+        columns:
+          - name: FILENAME
+          - name: SAMPLE_TIMESTAMP
+          - name: SAMPLE_DATE
+          - name: ID
+          - name: FLOW_1
+            tests:
+              - flow_1_is_pos_or_null
+          - name: OCCUPANCY_1
+          - name: SPEED_1
+          - name: FLOW_2
+          - name: OCCUPANCY_2
+          - name: SPEED_2
+          - name: FLOW_3
+          - name: OCCUPANCY_3
+          - name: SPEED_3
+          - name: FLOW_4
+          - name: OCCUPANCY_4
+          - name: SPEED_4
+          - name: FLOW_5
+          - name: OCCUPANCY_5
+          - name: SPEED_5
+          - name: FLOW_6
+          - name: OCCUPANCY_6
+          - name: SPEED_6
+          - name: FLOW_7
+          - name: OCCUPANCY_7
+          - name: SPEED_7
+          - name: FLOW_8
+          - name: OCCUPANCY_8
+          - name: SPEED_8
+      - name: STATION_STATUS
+        description: Metadata for vehicle detector stations.
