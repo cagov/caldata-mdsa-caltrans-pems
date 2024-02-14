@@ -1,8 +1,13 @@
 version: 2
 
 models:
-  - name: ModelTest
-    description: test 
+  - name: stg_pems__station_meta
+    description: Staging model for PeMS station metadata
+    config:
+      materialized: table
     columns:
-      - name: test1
-        description: test description
+      - name: ID
+        description: "The station ID"
+        tests:
+          - not_null
+          - unique

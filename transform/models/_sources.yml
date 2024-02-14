@@ -2,14 +2,114 @@ version: 2
 
 sources:
   - name: CLEARINGHOUSE
-    database: Raw_Prd
-    schema: ClearingHouse
-    description: test description
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: Vehicle Detector Station (VDS) (aka Station) related data obtained from the PeMS clearinghouse
     tables:
-      - name: TestSource
-        description: test
+      - name: STATION_META
+        description: Contains Vehicle Detector Station (VDS) metadata related to a specific VDS which are also typically referred to as Stations
         columns:
-          - name: test1
-            description: test
-          - name: test2
-            description: ddsfsfs
+          - name: ABS_PM
+            description: Absolute postmile value along a partilcuar state route where the VDS is located
+          - name: CITY
+            description: The city number where the VDS is located, if available
+          - name: COUNTY
+            description: The unique number that identifies the county that contains a specific VDS within PeMS.
+          - name: DIR
+            description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+          - name: DISTRICT
+            description: The district in which the VDS is located. Values are 1-12
+          - name: FILENAME
+            description: The name of the file in the clearinghouse where the metdata was obtained from.
+          - name: FWY
+            description: The freeway where the VDS is located
+          - name: ID
+            description: An integer value that uniquely indenties the Station Metadata. Use this value to 'join' other clearinghouse files that contain Station Metadata
+          - name: LANES
+            description: Total number of lanes for a specific VDS
+          - name: LATITUDE
+            description: Latitude of a specific VDS
+          - name: LENGTH
+            description: The length associated with a VDS
+          - name: LONGITUDE
+            description: Longitude of a specific VDS
+          - name: NAME
+            description: A descriptive name assocaited with a VDS
+          - name: STATE_PM
+            description: State Postmile value
+          - name: TYPE
+            description: Two character string identify the VDS type
+          - name: USER_ID_1
+            description: User-entered string identifier
+          - name: USER_ID_2
+            description: User-entered string identifier
+          - name: USER_ID_3
+            description: User-entered string identifier
+          - name: USER_ID_4
+            description: User-entered string identifier
+      - name: STATION_RAW
+        description: Raw detector data as reported every 30 seconds by the district. Each line contains the sample timestamp and Station ID followed by flow, occupancy and speed for each lane. Note that occupancy and/or speed may be empty depending on the measurement capabilities of the detectors.
+        columns:
+          - name: FILENAME
+            description: The name of the file in the clearinghouse where the metdata was obtained from.
+          - name: FLOW_1
+            description: Number of vehicle that passed over the detector during the sample period for lane 1. Units are Vehicles/sample period.
+          - name: FLOW_2
+            description: Number of vehicle that passed over the detector during the sample period for lane 2. Units are Vehicles/sample period.
+          - name: FLOW_3
+            description: Number of vehicle that passed over the detector during the sample period for lane 3. Units are Vehicles/sample period.
+          - name: FLOW_4
+            description: Number of vehicle that passed over the detector during the sample period for lane 4. Units are Vehicles/sample period.
+          - name: FLOW_5
+            description: Number of vehicle that passed over the detector during the sample period for lane 5. Units are Vehicles/sample period.
+          - name: FLOW_6
+            description: Number of vehicle that passed over the detector during the sample period for lane 6. Units are Vehicles/sample period.
+          - name: FLOW_7
+            description: Number of vehicle that passed over the detector during the sample period for lane 7. Units are Vehicles/sample period.
+          - name: FLOW_8
+            description: Number of vehicle that passed over the detector during the sample period for lane 8. Units are Vehicles/sample period.
+          - name: ID
+            description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.
+          - name: OCCUPANCY_1
+            description: Occupancy of the lane 1 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_2
+            description: Occupancy of the lane 2 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_3
+            description: Occupancy of the lane 3 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_4
+            description: Occupancy of the lane 4 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_5
+            description: Occupancy of the lane 5 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_6
+            description: Occupancy of the lane 6 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_7
+            description: Occupancy of the lane 7 during the sample period expressed as a decimal number between 0 and 1.
+          - name: OCCUPANCY_8
+            description: Occupancy of the lane 8 during the sample period expressed as a decimal number between 0 and 1.
+          - name: SAMPLE_DATE
+            description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD.
+          - name: SAMPLE_TIMESTAMP
+            description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD HH24:MI:SS.
+          - name: SPEED_1
+            description: Speed in lane 1 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_2
+            description: Speed in lane 2 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_3
+            description: Speed in lane 3 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_4
+            description: Speed in lane 4 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_5
+            description: Speed in lane 5 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_6
+            description: Speed in lane 6 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_7
+            description: Speed in lane 7 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+          - name: SPEED_8
+            description: Speed in lane 8 as measured by the detector in miles/hour. Empty if the detector does not report speed.
+      - name: STATION_STATUS
+        description: TBD
+        columns:
+          - name: FILENAME
+            description: The name of the file in the clearinghouse where the metdata was obtained from.
+          - name: CONTENT
+            description: TBD
