@@ -1,22 +1,31 @@
-SELECT
-    ID,
-    FWY AS FWY_ID,
-    DIR AS FWY_DIR,
-    DISTRICT,
-    COUNTY,
-    CITY,
-    STATE_PM AS POSTMILE_STATE,
-    ABS_PM AS POSTMILE_ABS,
-    LATITUDE,
-    LONGITUDE,
-    LENGTH,
-    TYPE,
-    LANES,
-    NAME,
-    CAST(
-        SUBSTRING(FILENAME, POSITION('_meta_' IN FILENAME) + 6, 4) || '-'
-        || SUBSTRING(FILENAME, POSITION('_meta_' IN FILENAME) + 11, 2) || '-'
-        || SUBSTRING(FILENAME, POSITION('_meta_' IN FILENAME) + 14, 2) AS Date
-    ) AS META_DATE
-FROM RAW_PRD.CLEARINGHOUSE.STATION_META
-LIMIT 10
+with
+
+source as (
+    select * from {{ source('CLEARINGHOUSE', 'STATION_META') }}
+),
+
+stn_meta as (
+    select
+        id,
+        fwy as fwy_id,
+        dir as fwy_dir,
+        district,
+        county,
+        city,
+        state_pm as postmile_state,
+        abs_pm as postmile_abs,
+        latitude,
+        longitude,
+        length,
+        type,
+        lanes,
+        name,
+        CAST(
+            SUBSTRING(filename, POSITION('_meta_' in filename) + 6, 4) || '-'
+            || SUBSTRING(filename, POSITION('_meta_' in filename) + 11, 2) || '-'
+            || SUBSTRING(filename, POSITION('_meta_' in filename) + 14, 2) as Date
+        ) as meta_date
+    from source
+)
+
+select * from stn_meta
