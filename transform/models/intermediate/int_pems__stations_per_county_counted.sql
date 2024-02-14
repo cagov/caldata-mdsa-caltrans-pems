@@ -1,7 +1,7 @@
 with
 source as (
-    --  select * from {{ source('CLEARINGHOUSE', 'STATION_META') }}
-    select * from stg_pems__station_meta
+    select * from {{ source('CLEARINGHOUSE', 'STATION_META') }}
+   -- select * from stg_pems__station_meta
 ),
 
 station_meta_with_date as (
