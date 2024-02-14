@@ -11,3 +11,12 @@ models:
         tests:
           - not_null
           - unique
+
+  - name: int_pems__stations_per_county_counted
+    description: Intermediate model with 2023 station count by county
+    columns:
+      - name: COUNTY
+        description: "The County in California"
+        tests:
+          - not_null
+          - unique
