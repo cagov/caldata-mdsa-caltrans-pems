@@ -8,6 +8,8 @@ models:
     columns:
       - name: ID
         description: "The station ID"
+      - name: FILENAME
+        description: "FILENAME"
         # tests:
         #   - not_null
         #   - unique
