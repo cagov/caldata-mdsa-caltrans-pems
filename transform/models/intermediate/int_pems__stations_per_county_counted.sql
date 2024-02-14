@@ -15,8 +15,6 @@ select
 from County_data
 order by Station_counts desc
 
-
-
 -- select county, count(ID) as station_counts
 -- from {{ ref("stg_pems__station_meta") }}
 -- where  CAST(SUBSTRING(META_DATE, 1, 4) AS INT) = 2023
