@@ -21,7 +21,7 @@ models:
       - name: ID
         description: "The station ID"
       - name: fwy
-        description: "asdfs"
+        description: "hahahahahahahahahaha"
       # - name: FILENAME
       #   description: "FILENAME"
       #   # tests:
