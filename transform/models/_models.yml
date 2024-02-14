@@ -11,3 +11,20 @@ models:
         tests:
           - not_null
           - unique
+
+
+  - name: int_pems__stations_per_county_counted
+    description: intermediate model to count the stations for each county for 2023 data
+    config:
+      materialized: table
+    columns:
+      - name: ID
+        description: "The station ID"
+        tests:
+          - not_null
+          - unique
+
+      - name: Station_counts
+        description: "The station counts"
+        tests:
+          - not_null
