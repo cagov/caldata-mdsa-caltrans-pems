@@ -20,7 +20,7 @@ station_meta_with_date as (
         state_pm as state_postmile,
         abs_pm as absolute_postmile,
         latitude,
-        longititude,
+        LONGITUDE,
         length,
         type,
         lanes,
