@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - docs_and_package_updates
 
 permissions:
   contents: write
