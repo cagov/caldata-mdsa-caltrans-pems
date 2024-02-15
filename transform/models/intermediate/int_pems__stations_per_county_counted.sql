@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 with
 
 staging_station_meta as (
@@ -16,3 +17,8 @@ stations_per_county_counted as (
 
 select * from stations_per_county_counted
 order by station_count desc
+=======
+select *
+from stg_pems__station_meta
+limit 10
+>>>>>>> 0bc35853301c19ea648fef623700ef2611195f37
