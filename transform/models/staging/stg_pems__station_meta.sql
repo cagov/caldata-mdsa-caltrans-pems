@@ -21,5 +21,4 @@ select
 
 -- from RAW_PRD.CLEARINGHOUSE.STATION_META
 
-from {{source('CLEARINGHOUSE','STATION_META')}}
-
+from {{ source('CLEARINGHOUSE','STATION_META') }}
