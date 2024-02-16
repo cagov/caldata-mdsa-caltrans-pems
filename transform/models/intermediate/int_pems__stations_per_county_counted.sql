@@ -1,19 +1,18 @@
 with
 
-County_data as (
+county_data as (
     select
-        County,
-        COUNT(Id) as Station_counts
+        county,
+        COUNT(id) as station_counts
     from {{ ref("stg_pems__station_meta") }}
-    where Year(Meta_date) = 2023
-    group by County
-    order by Station_counts asc
+    where Year(meta_date) = 2023
+    group by county
+    order by station_counts asc
 )
 
-select
-    *
-from County_data
-order by Station_counts desc
+select *
+from county_data
+order by station_counts desc
 
 -- select county, count(ID) as station_counts
 -- from {{ ref("stg_pems__station_meta") }}

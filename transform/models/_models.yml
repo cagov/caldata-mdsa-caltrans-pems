@@ -16,6 +16,7 @@ models:
     description: intermediate model to count the stations for each county for 2023 data
     config:
       materialized: table
+      schema: geo_summary
     columns:
       - name: ID
         description: "The station ID"
