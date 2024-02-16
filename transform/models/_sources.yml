@@ -27,7 +27,7 @@ sources:
             description: The freeway where the VDS is located
           - name: ID
             description: >
-              An integer value that uniquely indenties the Station Metadata. 
+              An integer value that uniquely indenties the Station Metadata.
               Use this value to 'join' other clearinghouse files that contain Station Metadata
           - name: LANES
             description: Total number of lanes for a specific VDS
@@ -53,8 +53,8 @@ sources:
             description: User-entered string identifier
       - name: STATION_RAW
         description: >
-          Raw detector data as reported every 30 seconds by the district. 
-          Each line contains the sample timestamp and Station ID followed by flow, occupancy and speed for each lane. 
+          Raw detector data as reported every 30 seconds by the district.
+          Each line contains the sample timestamp and Station ID followed by flow, occupancy and speed for each lane.
           Note that occupancy and/or speed may be empty depending on the measurement capabilities of the detectors.
         columns:
           - name: FILENAME
