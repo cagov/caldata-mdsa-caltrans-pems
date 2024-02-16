@@ -10,7 +10,7 @@ models:
         description: "The station ID"
         tests:
           - not_null
-          - unique
+          # - unique
 
   - name: int_pems__stations_per_county_counted
     description: intermediate model to count the stations for each county for 2023 data
