@@ -1,7 +1,7 @@
 with
 source as (
     select * from {{ source('CLEARINGHOUSE', 'STATION_META') }}
-   -- select * from stg_pems__station_meta
+-- select * from stg_pems__station_meta
 ),
 
 station_meta_with_date as (
@@ -20,7 +20,7 @@ station_meta_with_date as (
         state_pm as state_postmile,
         abs_pm as absolute_postmile,
         latitude,
-        LONGITUDE,
+        longitude,
         length,
         type,
         lanes,
