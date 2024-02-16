@@ -8,7 +8,7 @@ sources:
     tables:
       - name: STATION_META
         description: >
-          Contains Vehicle Detector Station (VDS) metadata 
+          Contains Vehicle Detector Station (VDS) metadata
           related to a specific VDS which are also typically referred to as Stations
         columns:
           - name: ABS_PM
