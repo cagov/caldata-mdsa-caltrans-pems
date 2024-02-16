@@ -5,9 +5,9 @@ source as (
 ),
 
 stns_per_county as (
-    select distinct
+    select 
         county,
-        COUNT(id) as stn_count
+        COUNT(distinct id) as stn_count
     from source
     where YEAR(meta_date)::INT = 2023
     group by county
