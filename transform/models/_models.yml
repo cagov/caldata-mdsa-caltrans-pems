@@ -29,6 +29,21 @@ models:
       #   # tests:
       #   #   - not_null
       #   #   - unique
+  - name: int_station_id_new
+    description: Staging model for PeMS station metadata
+    config:
+      materialized: table
+    columns:
+      - name: ID
+        description: "The station ID"
+      - name: fwy
+        description: "hahahahahahahahahaha"
+        # - name: FILENAME
+        #   description: "FILENAME"
+        #   # tests:
+        #   #   - not_null
+        #   #   - unique
+
   # - name: int_station_id_only
   #   description: Staging model for PeMS station metadata
   #   config:
