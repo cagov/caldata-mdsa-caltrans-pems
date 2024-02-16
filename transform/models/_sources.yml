@@ -1,0 +1,85 @@
+version: 2
+
+sources:
+  - name: CLEARINGHOUSE
+    database: RAW_PRD
+    schema: CLEARINGHOUSE
+    description: Station Information
+    tables:
+      - name: STATION_META
+        description: meta data for stations
+        columns:
+          - name: FILENAME
+            description: file name
+          - name: ID
+            description: station ID
+          - name: FWY
+            description: freeway number
+          - name: DIR
+            description: traffic flow direction
+          - name: DISTRICT
+            description: district number
+          - name: COUNTY
+            description: county name
+          - name: CITY
+            description: city name
+          - name: STATE_PM
+            description: state postmile
+          - name: ABS_PM
+            description: absolute postmile
+          - name: LATITUDE
+            description: coordinate-latitude
+          - name: LONGITUDE
+            description: coordinate-longitude
+          - name: LENGTH
+            description: distance
+          - name: TYPE
+            description: <>
+          - name: LANES
+            description: number of lanes
+          - name: NAME
+            description: station name
+          - name: USER_ID_1
+            description: user id 1
+          - name: USER_ID_2
+            description: <>
+          - name: USER_ID_3
+            description: <>
+          - name: USER_ID_4
+            description: <>
+      - name: STATION_RAW
+        description: Raw traffic data collected at each station
+        columns:
+          - name: FILENAME
+            description: file name
+          - name: SAMPLE_TIMESTAMP
+            description: timestamp
+          - name: SAMPLE_DATE
+            description: date
+          - name: ID
+            description: station ID
+          - name: FLOW_1
+            description: flow in lane 1
+          - name: OCCUPANCY_1
+            description: lane 1 occupancy
+          - name: SPEED_1
+            description: average travel speed in lane 1
+          - name: FLOW_2
+            description: flow in lane 2
+          - name: OCCUPANCY_2
+            description: lane 2 occupancy
+          - name: SPEED_2
+            description: average travel speed in lane 2
+          - name: FLOW_3
+            description: flow in lane 3
+          - name: OCCUPANCY_3
+            description: lane 3 occupancy
+          - name: SPEED_3
+            description: average travel speed in lane 3
+      - name: STATION_STATUS
+        description: station status information
+        columns:
+          - name: FILENAME
+            description: file name
+          - name: CONTENT
+            description: content
