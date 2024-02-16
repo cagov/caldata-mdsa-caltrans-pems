@@ -48,10 +48,9 @@ sources:
           - name: USER_ID_4
             description: <>
 
-          # FILENAME, ID, FWY, DIR, DISTRICT, COUNTY, CITY, STATE_PM, ABS_PM, LATITUDE, LONGITUDE, LENGTH, TYPE, LANES, NAME, USER_ID_1, USER_ID_2, USER_ID_3, USER_ID_4
+          
       - name: STATION_RAW
         description: Raw traffic data collected at each station
-        #FILENAME, SAMPLE_TIMESTAMP, SAMPLE_DATE, ID, FLOW_1, OCCUPANCY_1, SPEED_1, FLOW_2, OCCUPANCY_2, SPEED_2, FLOW_3, OCCUPANCY_3, SPEED_3, FLOW_4, OCCUPANCY_4, SPEED_4, FLOW_5, OCCUPANCY_5, SPEED_5, FLOW_6, OCCUPANCY_6, SPEED_6, FLOW_7, OCCUPANCY_7, SPEED_7, FLOW_8, OCCUPANCY_8, SPEED_8
         columns:
           - name: FILENAME
             description: file name
