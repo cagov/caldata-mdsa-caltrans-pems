@@ -5,7 +5,7 @@ source as (
 ),
 
 stns_per_county as (
-    select 
+    select
         county,
         COUNT(distinct id) as stn_count
     from source
