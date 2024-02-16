@@ -10,7 +10,6 @@ models:
         description: "The station ID"
         tests:
           - not_null
-
   - name: int_pems__stations_per_county_counted
     description: Intermediate model with 2023 station count by county
     columns:
@@ -18,7 +17,6 @@ models:
         description: "The County in California"
         tests:
           - not_null
-
   - name: stg_pems__station_30SecRaw
     description: Staging model for sample count data
     config:
