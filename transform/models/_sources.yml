@@ -40,15 +40,13 @@ sources:
           - name: NAME
             description: station name
           - name: USER_ID_1
-            description: <>
+            description: user id 1
           - name: USER_ID_2
             description: <>
           - name: USER_ID_3
             description: <>
           - name: USER_ID_4
             description: <>
-
-          
       - name: STATION_RAW
         description: Raw traffic data collected at each station
         columns:
