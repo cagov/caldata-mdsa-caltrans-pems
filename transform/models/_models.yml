@@ -33,6 +33,7 @@ models:
     description: Staging model for PeMS station metadata
     config:
       materialized: table
+      schema: DBT_PXIU
     columns:
       - name: ID
         description: "The station ID"
