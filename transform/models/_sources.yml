@@ -78,7 +78,6 @@ sources:
             description: average travel speed in lane 3
       - name: STATION_STATUS
         description: station status information
-        # FILENAME, CONTENT
         columns:
           - name: FILENAME
             description: file name
