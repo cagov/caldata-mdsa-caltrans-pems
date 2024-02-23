@@ -2,8 +2,8 @@
 This SQL file will be used to count the number of 30 second raw data samples recieved
 for a variety of conditions by station, lane and date. This data will be used to run
 detector diagnostics and see if a detector is good or bad based on criteria established
-for the PeMS application. In this file we look at a specific date (in this case 2023-01-01)
-for testing. For Production this date will need to count samples for the previous day.
+for the PeMS application. In this file we look at the same day in the previous year since
+the previous days data is not currently updating at the frequency needed (as of 2/23/24).
 This count should only be done after a complete days worth of raw data has been recieved
 so the suggested interval should be once a day some time after midnight which should incude
 anytime needed for the final sample of the previous day to be sent and recieved.
@@ -21,35 +21,35 @@ select
     case
         when FLOW_1 is not null and OCCUPANCY_1 is not null then 1
         else 0
-    end as LANE_1_COUNT,
+    end as LANE_1_CNT,
     case
         when FLOW_2 is not null and OCCUPANCY_2 is not null then 1
         else 0
-    end as LANE_2_COUNT,
+    end as LANE_2_CNT,
     case
         when FLOW_3 is not null and OCCUPANCY_3 is not null then 1
         else 0
-    end as LANE_3_COUNT,
+    end as LANE_3_CNT,
     case
         when FLOW_4 is not null and OCCUPANCY_4 is not null then 1
         else 0
-    end as LANE_4_COUNT,
+    end as LANE_4_CNT,
     case
         when FLOW_5 is not null and OCCUPANCY_5 is not null then 1
         else 0
-    end as LANE_5_COUNT,
+    end as LANE_5_CNT,
     case
         when FLOW_6 is not null and OCCUPANCY_6 is not null then 1
         else 0
-    end as LANE_6_COUNT,
+    end as LANE_6_CNT,
     case
         when FLOW_7 is not null and OCCUPANCY_7 is not null then 1
         else 0
-    end as LANE_7_COUNT,
+    end as LANE_7_CNT,
     case
         when FLOW_8 is not null and OCCUPANCY_8 is not null then 1
         else 0
-    end as LANE_8_COUNT,
+    end as LANE_8_CNT,
     /*
     The following code will count how many times a 30 second raw flow value equals 0
     for a given station and associated lane
@@ -57,35 +57,35 @@ select
     case
         when FLOW_1 = 0 then 1
         else 0
-    end as LANE_1_ZEROFLOWCOUNT,
+    end as LANE_1_ZEROFLOWCNT,
     case
         when FLOW_2 = 0 then 1
         else 0
-    end as LANE_2_ZEROFLOWCOUNT,
+    end as LANE_2_ZEROFLOWCNT,
     case
         when FLOW_3 = 0 then 1
         else 0
-    end as LANE_3_ZEROFLOWCOUNT,
+    end as LANE_3_ZEROFLOWCNT,
     case
         when FLOW_4 = 0 then 1
         else 0
-    end as LANE_4_ZEROFLOWCOUNT,
+    end as LANE_4_ZEROFLOWCNT,
     case
         when FLOW_5 = 0 then 1
         else 0
-    end as LANE_5_ZEROFLOWCOUNT,
+    end as LANE_5_ZEROFLOWCNT,
     case
         when FLOW_6 = 0 then 1
         else 0
-    end as LANE_6_ZEROFLOWCOUNT,
+    end as LANE_6_ZEROFLOWCNT,
     case
         when FLOW_7 = 0 then 1
         else 0
-    end as LANE_7_ZEROFLOWCOUNT,
+    end as LANE_7_ZEROFLOWCNT,
     case
         when FLOW_8 = 0 then 1
         else 0
-    end as LANE_8_ZEROFLOWCOUNT,
+    end as LANE_8_ZEROFLOWCNT,
     /*
     The following code will count how many times a 30 second raw occupancy value equals 0
     for a given station and associated lane
@@ -93,37 +93,109 @@ select
     case
         when OCCUPANCY_1 = 0 then 1
         else 0
-    end as LANE_1_ZEROOCCCOUNT,
+    end as LANE_1_ZEROOCCCNT,
     case
         when OCCUPANCY_2 = 0 then 1
         else 0
-    end as LANE_2_ZEROOCCCOUNT,
+    end as LANE_2_ZEROOCCCNT,
     case
         when OCCUPANCY_3 = 0 then 1
         else 0
-    end as LANE_3_ZEROOCCCOUNT,
+    end as LANE_3_ZEROOCCCNT,
     case
         when OCCUPANCY_4 = 0 then 1
         else 0
-    end as LANE_4_ZEROOCCCOUNT,
+    end as LANE_4_ZEROOCCCNT,
     case
         when OCCUPANCY_5 = 0 then 1
         else 0
-    end as LANE_5_ZEROOCCCOUNT,
+    end as LANE_5_ZEROOCCCNT,
     case
         when OCCUPANCY_6 = 0 then 1
         else 0
-    end as LANE_6_ZEROOCCCOUNT,
+    end as LANE_6_ZEROOCCCNT,
     case
         when OCCUPANCY_7 = 0 then 1
         else 0
-    end as LANE_7_ZEROOCCCOUNT,
+    end as LANE_7_ZEROOCCCNT,
     case
         when OCCUPANCY_8 = 0 then 1
         else 0
-    end as LANE_8_ZEROOCCCOUNT
+    end as LANE_8_ZEROOCCCNT,
+    /*
+    This code counts a sample if the flow is 0 and occupancy value > 0
+    based on 30 second raw data recieved per station, lane and time.
+    */
+    case
+        when FLOW_1 = 0 and OCCUPANCY_1 > 0 then 1
+        else 0
+    end as LANE_1_ZF_NNO_CNT,
+    case
+        when FLOW_2 = 0 and OCCUPANCY_2 > 0 then 1
+        else 0
+    end as LANE_2_ZF_NNO_CNT,
+    case
+        when FLOW_3 = 0 and OCCUPANCY_3 > 0 then 1
+        else 0
+    end as LANE_3_ZF_NNO_CNT,
+    case
+        when FLOW_4 = 0 and OCCUPANCY_4 > 0 then 1
+        else 0
+    end as LANE_4_ZF_NNO_CNT,
+    case
+        when FLOW_5 = 0 and OCCUPANCY_5 > 0 then 1
+        else 0
+    end as LANE_5_ZF_NNO_CNT,
+    case
+        when FLOW_6 = 0 and OCCUPANCY_6 > 0 then 1
+        else 0
+    end as LANE_6_ZF_NNO_CNT,
+    case
+        when FLOW_7 = 0 and OCCUPANCY_7 > 0 then 1
+        else 0
+    end as LANE_7_ZF_NNO_CNT,
+    case
+        when FLOW_8 = 0 and OCCUPANCY_8 > 0 then 1
+        else 0
+    end as LANE_8_ZF_NNO_CNT,
+    /*
+    This code counts a sample if the occupancy is 0 and a flow value > 0
+    based on 30 second raw data recieved per station, lane and time.
+    */
+    case
+        when FLOW_1 > 0 and OCCUPANCY_1 = 0 then 1
+        else 0
+    end as LANE_1_NNF_ZO_CNT,
+    case
+        when FLOW_2 > 0 and OCCUPANCY_2 = 0 then 1
+        else 0
+    end as LANE_2_NNF_ZO_CNT,
+    case
+        when FLOW_3 > 0 and OCCUPANCY_3 = 0 then 1
+        else 0
+    end as LANE_3_NNF_ZO_CNT,
+    case
+        when FLOW_4 > 0 and OCCUPANCY_4 = 0 then 1
+        else 0
+    end as LANE_4_NNF_ZO_CNT,
+    case
+        when FLOW_5 > 0 and OCCUPANCY_5 = 0 then 1
+        else 0
+    end as LANE_5_NNF_ZO_CNT,
+    case
+        when FLOW_6 > 0 and OCCUPANCY_6 = 0 then 1
+        else 0
+    end as LANE_6_NNF_ZO_CNT,
+    case
+        when FLOW_7 > 0 and OCCUPANCY_7 = 0 then 1
+        else 0
+    end as LANE_7_NNF_ZO_CNT,
+    case
+        when FLOW_8 > 0 and OCCUPANCY_8 = 0 then 1
+        else 0
+    end as LANE_8_NNF_ZO_CNT
 /*
-The following code will count how many times a 30 second raw occupancy value is
+To be developed: Code that will count how many times a 30 second raw occupancy value is
 considered HIGH. The HIGH value used for comparison comes from the DIAGNOSTIC_THRESHOLD_VALUES
 table and is based on the stations threshold set, detector set ID
 (Urban_D11, Low_Volume, Urban, Rural, D6_Ramps as of 2/22/2024) and type (typically
@@ -131,5 +203,8 @@ ML, HOV or Ramp).
 */
 
 from {{ source("CLEARINGHOUSE", "STATION_RAW") }}
-
-where DATE(SAMPLE_TIMESTAMP) = '2023-01-01'
+/*
+Currently looks at the same day in previous year. This should be updated to
+look at the previous day once the data refresh brings in more current data
+*/
+where date(SAMPLE_TIMESTAMP) = dateadd(year, -1, current_date())
