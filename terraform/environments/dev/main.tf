@@ -116,8 +116,9 @@ resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
 
 # Main ELT architecture
 module "elt" {
-  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=74a522f"
+  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=5fe13b2"
   providers = {
+    snowflake.accountadmin = snowflake.accountadmin,
     snowflake.securityadmin = snowflake.securityadmin,
     snowflake.sysadmin      = snowflake.sysadmin,
     snowflake.useradmin     = snowflake.useradmin,
