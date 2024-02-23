@@ -146,12 +146,3 @@ sources:
             description: |
               Speed in lane 8 as measured by the detector in miles/hour.
               Empty if the detector does not report speed.
-      - name: station_status
-        description: |
-          Station status XML files from the PeMS clearinghouse.
-          These metadata contain information about how detector IDs map to station IDs.
-        columns:
-          - name: FILENAME
-            description: The name of the file in the clearinghouse where the status XML was obtained from.
-          - name: CONTENT
-            description: XML content of the file. This should be flattened in downstream models.
