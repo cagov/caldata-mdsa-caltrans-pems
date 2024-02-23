@@ -1,7 +1,0 @@
-SELECT
-    ID,
-    SAMPLE_DATE,
-    SUM(FLOW) AS FLOW
-FROM {{ ref('stg_station_raw') }}
-WHERE SAMPLE_DATE > '2023-06-01'
-GROUP BY ID, SAMPLE_DATE

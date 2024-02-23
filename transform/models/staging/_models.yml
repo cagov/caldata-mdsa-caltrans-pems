@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: stg_clearinghouse__station_meta
+    description: reformating table columns
+    config:
+      materialized: view
+      schema: CLEARINGHOUSE
+    columns:
+      - name: META_DATE
+        description: date
+      - name: ID
+        description: "station ID"
+        tests:
+          - not_null
+  - name: stg_clearinghouse__station_raw
+    description: reformating table columns
+    config:
+      materialized: view
+      schema: CLEARINGHOUSE
+    columns:
+      - name: SAMPLE_DATE
+        description: date
+      - name: ID
+        description: "station ID"
+  - name: stg_clearinghouse__station_status
+    description: reformating table columns
+    config:
+      materialized: view
+      schema: CLEARINGHOUSE
+    columns:
+      - name: SAMPLE_DATE
+        description: date
+      - name: ID
+        description: "station ID"
