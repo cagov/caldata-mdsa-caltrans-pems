@@ -15,8 +15,7 @@ select
     This code counts a sample if the flow and occupancy values contain any value
     based on 30 second raw data recieved per station, lane and time. Null values
     in flow and occupancy are currently counted as 0 but if these need to be treated
-    differently below is a code example that may be useful if needed in the future
-    when FLOW_1 is null and OCCUPANCY_1 is null then null
+    differently the code should be updated as needed to accomodate such a scenario.
     */
     case
         when FLOW_1 is not null and OCCUPANCY_1 is not null then 1
