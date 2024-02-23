@@ -2,7 +2,8 @@ version: 2
 
 models:
   - name: stg_clearinghouse__station_meta
-    description: reformating table columns
+    description: |
+      Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
     columns:
       - name: META_DATE
         description: Date of the metadata file.
@@ -39,7 +40,9 @@ models:
       - name: TYPE
         description: Two character string identify the VDS type
   - name: stg_clearinghouse__station_raw
-    description: reformating table columns
+    description: |
+      Vehicle detector station 30-second raw data from the
+      [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
     columns:
       - name: ID
         description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.
