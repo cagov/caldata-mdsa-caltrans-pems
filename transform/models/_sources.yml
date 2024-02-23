@@ -146,3 +146,12 @@ sources:
             description: |
               Speed in lane 8 as measured by the detector in miles/hour.
               Empty if the detector does not report speed.
+      - name: station_status
+        description: |
+          XML Status data from the [PeMS Clearinghouse Feeds](https://pems.dot.ca.gov/feeds/clhouse/).
+          An example is [here](https://pems.dot.ca.gov/feeds/clhouse/d07/2022/07/meta/d07_tmdd_meta_2022_07_15.xml).
+        columns:
+          - name: FILENAME
+            description: The name of the file in the clearinghouse where the metdata was obtained from.
+          - name: CONTENT
+            description: The XML content of the status metadata file.
