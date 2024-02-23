@@ -1,6 +1,7 @@
-{% set date_re = 'clhouse/meta/d\\\\d{2}/\\\\d{4}/\\\\d{2}/d\\\\d{2}_text_meta_(\\\\d{4})_(\\\\d{2})_(\\\\d{2}).txt' %}
+{% set date_re='clhouse/meta/d\\\\d{2}/\\\\d{4}/\\\\d{2}/d\\\\d{2}_text_meta_(\\\\d{4})_(\\\\d{2})_(\\\\d{2}).txt' %}
 
 SELECT
+    FILENAME,
     DATE_FROM_PARTS(
         REGEXP_SUBSTR(FILENAME, '{{ date_re }}', 1, 1, '', 1)::INT,
         REGEXP_SUBSTR(FILENAME, '{{ date_re }}', 1, 1, '', 2)::INT,
