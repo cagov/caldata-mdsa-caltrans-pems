@@ -33,28 +33,28 @@ Urban,mainline,flow_occ_pct,2
 Urban,mainline,occ_flow_pct,50
 Urban,mainline,repeat_occ,50
 Urban,ramp,high_occ,0.7
-Urban	ramp	high_flow	20
-Urban	ramp	high_flow_pct	20
-Urban	ramp	zero_flow_pct	95
-Rural	mainline	high_flow	20
-Rural	mainline	high_occ	0.7
-Rural	mainline	high_occ_pct	20
-Rural	mainline	zero_occ_pct	90
-Rural	mainline	flow_occ_pct	2
-Rural	mainline	occ_flow_pct	50
-Rural	mainline	repeat_occ	50
-Rural	ramp	high_occ	0.7
-Rural	ramp	high_flow	20
-Rural	ramp	high_flow_pct	20
-Rural	ramp	zero_flow_pct	95
-D6_Ramps	ramp	zero_flow_pct	99
-D6_Ramps	ramp	high_occ	0.7
-D6_Ramps	ramp	high_flow_pct	20
-D6_Ramps	ramp	high_flow	20
-D6_Ramps	mainline	high_flow	20
-D6_Ramps	mainline	high_occ	0.7
-D6_Ramps	mainline	high_occ_pct	20
-D6_Ramps	mainline	zero_occ_pct	59
-D6_Ramps	mainline	flow_occ_pct	2
-D6_Ramps	mainline	occ_flow_pct	50
-D6_Ramps	mainline	repeat_occ	50
+Urban,ramp,high_flow,20
+Urban,ramp,high_flow_pct,20
+Urban,ramp,zero_flow_pct,95
+Rural,mainline,high_flow,20
+Rural,mainline,high_occ,0.7
+Rural,mainline,high_occ_pct,20
+Rural,mainline,zero_occ_pct,90
+Rural,mainline,flow_occ_pct,2
+Rural,mainline,occ_flow_pct,50
+Rural,mainline,repeat_occ,50
+Rural,ramp,high_occ,0.7
+Rural,ramp,high_flow,20
+Rural,ramp,high_flow_pct,20
+Rural,ramp,zero_flow_pct,95
+D6_Ramps,ramp,zero_flow_pct,99
+D6_Ramps,ramp,high_occ,0.7
+D6_Ramps,ramp,high_flow_pct,20
+D6_Ramps,ramp,high_flow,20
+D6_Ramps,mainline,high_flow,20
+D6_Ramps,mainline,high_occ,0.7
+D6_Ramps,mainline,high_occ_pct,20
+D6_Ramps,mainline,zero_occ_pct,59
+D6_Ramps,mainline,flow_occ_pct,2
+D6_Ramps,mainline,occ_flow_pct,50
+D6_Ramps,mainline,repeat_occ,50
