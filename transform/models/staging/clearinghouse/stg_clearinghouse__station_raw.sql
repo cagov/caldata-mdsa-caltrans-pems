@@ -22,5 +22,8 @@ SELECT
     SPEED_6,
     FLOW_7,
     OCCUPANCY_7,
-    SPEED_7
+    SPEED_7,
+    FLOW_8,
+    OCCUPANCY_8,
+    SPEED_8
 FROM {{ source('clearinghouse', 'station_raw') }}
