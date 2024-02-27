@@ -1,4 +1,7 @@
+{% set district_re='clhouse/meta/d(\\\\d{2})' %}
+
 SELECT
+    SUBSTR(FILENAME, 14, 2)::INT AS DISTRICT,
     ID,
     SAMPLE_DATE,
     SAMPLE_TIMESTAMP,

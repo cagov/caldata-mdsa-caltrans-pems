@@ -1,7 +1,14 @@
 {{ config(materialized='table') }}
 
-with daily_total as (
+{% set start_date = "date('2024-01-01')" %}
+
+with date_to_meta as (
+    select * from {{ ref("int_vds__date_to_meta") }}
+),
+
+daily_total as (
     select
+        any_value(district) as district,
         id,
         sample_date,
         sum(coalesce(flow_1, 0)) as flow_1,
@@ -13,7 +20,7 @@ with daily_total as (
         sum(coalesce(flow_7, 0)) as flow_7,
         sum(coalesce(flow_8, 0)) as flow_8
     from {{ ref("stg_clearinghouse__station_raw") }}
-    where sample_date >= '2024-01-01'
+    where sample_date >= {{ start_date }}
     group by id, sample_date
     order by sample_date asc
 ),
@@ -30,6 +37,9 @@ station_data as (
         longitude,
         latitude
     from {{ ref("stg_clearinghouse__station_meta") }}
+    where meta_date in (
+        select meta_date from date_to_meta where calendar_date >= {{ start_date }}
+    )
 ),
 
 totals_with_meta as (
@@ -39,12 +49,15 @@ totals_with_meta as (
         station_data.freeway,
         station_data.direction
     from daily_total
+    left join date_to_meta
+        on
+            daily_total.sample_date = date_to_meta.calendar_date
+            and daily_total.district = date_to_meta.district
     left join station_data
-        on daily_total.id = station_data.id and daily_total.sample_date >= station_data.meta_date
-    qualify row_number() over (
-        partition by daily_total.id, daily_total.sample_date
-        order by station_data.meta_date desc nulls last
-    ) = 1
+        on
+            daily_total.id = station_data.id
+            and date_to_meta.district = station_data.district
+            and date_to_meta.meta_date = station_data.meta_date
 )
 
 select * from totals_with_meta
