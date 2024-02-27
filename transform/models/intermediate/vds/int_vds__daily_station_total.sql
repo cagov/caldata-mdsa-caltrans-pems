@@ -2,11 +2,7 @@
 
 {% set start_date = "date('2024-01-01')" %}
 
-with date_to_meta as (
-    select * from {{ ref("int_vds__date_to_meta") }}
-),
-
-daily_total as (
+with daily_total as (
     select
         any_value(district) as district,
         id,
@@ -35,8 +31,10 @@ station_data as (
         county,
         city,
         longitude,
-        latitude
-    from {{ ref("stg_clearinghouse__station_meta") }}
+        latitude,
+        _valid_from,
+        _valid_to
+    from {{ ref("int_vds__station_meta") }}
 ),
 
 totals_with_meta as (
@@ -46,15 +44,11 @@ totals_with_meta as (
         station_data.freeway,
         station_data.direction
     from daily_total
-    left join date_to_meta
-        on
-            daily_total.sample_date = date_to_meta.calendar_date
-            and daily_total.district = date_to_meta.district
     left join station_data
         on
             daily_total.id = station_data.id
-            and date_to_meta.district = station_data.district
-            and date_to_meta.meta_date = station_data.meta_date
+            and daily_total.sample_date >= station_data._valid_from
+            and daily_total.sample_date < coalesce(station_data._valid_to, dateadd(day, 1, current_date()))
 )
 
 select * from totals_with_meta
