@@ -3,7 +3,7 @@ version: 2
 seeds:
   - name: detector_station_types
     description: |
-      Data comes from the district metadata file. 
+      Data comes from the district metadata file.
       24 static records on detector and station type combinations and their descriptions.
       Reference: PeMSSampleReports.docx
     config:
@@ -19,7 +19,7 @@ seeds:
 
   - name: diagnostic_threshold_values
     description: |
-      PeMS uses 30-second or 5-minute data to calculate performance measures. 
+      PeMS uses 30-second or 5-minute data to calculate performance measures.
       59 static records that contain diagnostic threshold values by diagnostic threshold set and detector type.
       Reference: PeMSSampleReports.docx, https://pems.dot.ca.gov/?dnode=Help&content=help_calc#diag, and
       https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf
