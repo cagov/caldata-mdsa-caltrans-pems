@@ -5,7 +5,7 @@ with station_meta as (
 ),
 
 most_recent_station_meta as (
-    select * exclude (filename)
+    select * exclude (filename, _valid_from, _valid_to)
     from station_meta
     where _valid_to is null
 )

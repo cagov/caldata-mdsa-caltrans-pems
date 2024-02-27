@@ -5,7 +5,7 @@ with station_status as (
 ),
 
 most_recent_station_status as (
-    select * exclude (filename)
+    select * exclude (filename, _valid_from, _valid_to)
     from station_status
     where _valid_to is null
 )
