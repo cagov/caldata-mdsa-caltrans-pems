@@ -37,9 +37,6 @@ station_data as (
         longitude,
         latitude
     from {{ ref("stg_clearinghouse__station_meta") }}
-    where meta_date in (
-        select meta_date from date_to_meta where calendar_date >= {{ start_date }}
-    )
 ),
 
 totals_with_meta as (
