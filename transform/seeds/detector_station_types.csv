@@ -1,0 +1,25 @@
+DETECTOR_TYPE,STATION_TYPE,DESCRIPTION
+CD,CD,Collector/Distributor
+FC,CD,Off Collector/Distributor
+OC,CD,On Collector/Distributor
+HF,FF,HF
+FO,FF,Opposite Side Freeway to Freeway
+HN,FF,HN
+FF,FF,Freeway to Freeway
+HB,FF,HB
+HV,HV,HOV
+OH,HV,Opposite Side HOV
+FR,FR,Off Ramp
+OF,FR,Opposite Side Off Ramp
+RH,OR,HOV On Ramp
+OO,OR,Opposite Side On Ramp
+QU,OR,Queue
+HQ,OR,HOV Queue
+PA,OR,Passage
+HD,OR,HOV Demand
+DM,OR,Demand
+OR,OR,On Ramp
+HP,OR,HOV Passage
+OS,ML,Opposite Side Mainline
+ML,ML,Mainline
+CH,CH,Conventional Highway
