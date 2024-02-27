@@ -2,7 +2,7 @@ version: 2
 
 seeds:
   - name: detector_station_types
-    description: | 
+    description: |
       Data comes from the district metadata file. 
       24 static records on detector and station type combinations and their descriptions.
       Reference: PeMSSampleReports.docx
