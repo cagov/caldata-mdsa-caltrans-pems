@@ -1,0 +1,37 @@
+version: 2
+
+seeds:
+  - name: detector_station_types
+    description: |
+      Data comes from the district metadata file.
+      24 static records on detector and station type combinations and their descriptions.
+      Reference: PeMSSampleReports.docx
+    config:
+      schema: detector_health
+
+    columns:
+      - name: DETECTOR_TYPE
+        description: A two character code indicating the type of detector.
+      - name: STATION_TYPE
+        description: A two character code indicating the type of station.
+      - name: DESCRIPTION
+        description: The full name of the detector and station codes.
+
+  - name: diagnostic_threshold_values
+    description: |
+      PeMS uses 30-second or 5-minute data to calculate performance measures.
+      59 static records that contain diagnostic threshold values by diagnostic threshold set and detector type.
+      Reference: PeMSSampleReports.docx, https://pems.dot.ca.gov/?dnode=Help&content=help_calc#diag, and
+      https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf
+    config:
+      schema: detector_health
+
+    columns:
+      - name: DT_SET_ID
+        description: Detector Threshold Set assigned to Station.
+      - name: DT_METHOD
+        description: Detector deployment location in the field
+      - name: DT_NAME
+        description: unknown
+      - name: DT_VALUE
+        description: unknown
