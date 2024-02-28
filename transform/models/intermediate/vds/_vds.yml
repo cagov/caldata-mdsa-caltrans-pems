@@ -4,9 +4,6 @@ models:
   - name: int_vds__station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
-
-      This table is restricted to the most recent update for each district, any prior metadata
-      is ignored.
     columns:
       - name: META_DATE
         description: Date of the metadata file.
@@ -56,9 +53,6 @@ models:
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
       ID to station ID mapping.
-
-      This table is restricted to the most recent update for each district, any prior metadata
-      is ignored.
     columns:
       - name: META_DATE
         description: The date of the XML metadata file
