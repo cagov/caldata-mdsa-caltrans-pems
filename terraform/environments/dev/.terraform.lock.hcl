@@ -28,7 +28,7 @@ provider "registry.terraform.io/hashicorp/aws" {
 
 provider "registry.terraform.io/snowflake-labs/snowflake" {
   version     = "0.71.0"
-  constraints = "~> 0.61, 0.71.0"
+  constraints = "~> 0.61, 0.71.0, ~> 0.71"
   hashes = [
     "h1:OzG5BB2GnRFN5Z9UlprM1QKabM0BchFxCNbAGFZK7ug=",
     "h1:gGn8oiljlcX7AvdPpoFzQGVZ5NPJ51NycPJUQxF3US4=",
