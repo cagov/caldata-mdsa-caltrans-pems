@@ -36,13 +36,13 @@ samples_per_station as (
         SUM(lane_8_zeroocccnt) as lane8_zeroocc_cnt,
         --Sum of zero flow and not null occupancy in 30 second raw data by station and lane
         SUM(lane_1_zf_nno_cnt) as lane1_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane2_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane3_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane4_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane5_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane6_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane7_zf_nno_cnt,
-        SUM(lane_1_zf_nno_cnt) as lane8_zf_nno_cnt,
+        SUM(lane_2_zf_nno_cnt) as lane2_zf_nno_cnt,
+        SUM(lane_3_zf_nno_cnt) as lane3_zf_nno_cnt,
+        SUM(lane_4_zf_nno_cnt) as lane4_zf_nno_cnt,
+        SUM(lane_5_zf_nno_cnt) as lane5_zf_nno_cnt,
+        SUM(lane_6_zf_nno_cnt) as lane6_zf_nno_cnt,
+        SUM(lane_7_zf_nno_cnt) as lane7_zf_nno_cnt,
+        SUM(lane_8_zf_nno_cnt) as lane8_zf_nno_cnt,
         --Sum of zero occupancy and not null flow in 30 second raw data by station and lane
         SUM(lane_1_nnf_zo_cnt) as lane1_nnf_zo_cnt,
         SUM(lane_2_nnf_zo_cnt) as lane2_nnf_zo_cnt,
@@ -53,9 +53,6 @@ samples_per_station as (
         SUM(lane_7_nnf_zo_cnt) as lane7_nnf_zo_cnt,
         SUM(lane_8_nnf_zo_cnt) as lane8_nnf_zo_cnt
     from source
-    where
-        TO_TIME(sample_timestamp) >= '05:00:00'
-        and TO_TIME(sample_timestamp) <= '21:59:59'
     group by station_id
 )
 

@@ -201,9 +201,12 @@ table and is based on the stations threshold set, detector set ID
 ML, HOV or Ramp).
 */
 
-from {{ source("CLEARINGHOUSE", "STATION_RAW") }}
+from {{ source("clearinghouse", "station_raw") }}
 /*
 Currently looks at the same day in previous year. This should be updated to
 look at the previous day once the data refresh brings in more current data
 */
-where date(SAMPLE_TIMESTAMP) = dateadd(year, -1, current_date())
+where
+    date(SAMPLE_TIMESTAMP) = dateadd(year, -1, current_date())
+    and to_time(SAMPLE_TIMESTAMP) >= '05:00:00'
+    and to_time(SAMPLE_TIMESTAMP) <= '21:59:59'
