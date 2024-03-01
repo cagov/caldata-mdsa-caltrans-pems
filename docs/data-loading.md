@@ -18,7 +18,6 @@ via the [PeMS Website](https://pems.dot.ca.gov/).
 ## Data Loading Architecture
 
 ```mermaid
-
 flowchart TB
 CD{Caltrans Districts}
 subgraph Caltrans Network
@@ -55,6 +54,7 @@ OW -.-> C
 OD -.-> C
 L --> DR
 DR --> S3
+DR -- Light batching/\ntransformation --> DR
 RAW --> TRANSFORM --> ANALYTICS
 LCS --> DR
 CHP --> DR
