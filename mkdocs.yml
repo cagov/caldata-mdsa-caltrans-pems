@@ -27,3 +27,4 @@ nav:
   - Writing Documentation: writing-documentation.md
   - Data Warehouse Performance: data-warehouse-performance.md
   - dbt Project: dbt_docs/index.html
+  - Exploratory Data Analysis: exploratory-data-analysis.md
