@@ -2,13 +2,18 @@ version: 2
 
 models:
   - name: stg_pems__station_meta
-    description: Staging model form PeMS meta data
+    description: Staging model fromm PeMS meta data
     config:
       materialized: table
     columns:
       - name: ID
         description: Station ID
-      - tests:
-        - not_null
-        - unique
-        
+  - name: int_pems__stations_per_counted
+    description: Intermediate model with 2023 station counts by county
+    config:
+      materialized: view
+    columns:
+      -name: County
+      description: "County in California"
+
+

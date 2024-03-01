@@ -19,4 +19,3 @@ SELECT
     LANES,
     NAME
 FROM {{ source("CLEARINGHOUSE", "STATION_META")}}
-limit 10
