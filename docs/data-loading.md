@@ -40,6 +40,8 @@ subgraph Snowflake
     ANALYTICS[(ANALYTICS)]
 end
 
+NC((New PeMS\nWebserver))
+
 OP{Open Data}
 RESEARCH{Researchers}
 STAFF{Caltrans Traffic\nOperations}
@@ -61,8 +63,9 @@ OD -.-> DR
 OW -.-> DR
 
 ANALYTICS --> OP
-ANALYTICS --> RESEARCH
-ANALYTICS --> STAFF
+ANALYTICS --> NC
+NC --> RESEARCH
+NC --> STAFF
 ```
 
 We are shifting on-premise data pipelines to the cloud,
