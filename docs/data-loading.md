@@ -71,7 +71,7 @@ NC --> STAFF
 We are shifting on-premise data pipelines to the cloud,
 and getting data transformation logic into version control.
 
-The above diagram shows the both the prior state and the new architecture,
+The above diagram shows both the prior state and the new architecture,
 which are both running until the new state is completed and adopted.
 Dotted lines indicate data flow that we hope to deprecate.
 
