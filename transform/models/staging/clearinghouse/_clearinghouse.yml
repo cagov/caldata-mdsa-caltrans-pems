@@ -56,79 +56,79 @@ models:
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 1.
           Units are Vehicles/sample period.
-      - name: FLOW_2
+      - name: FLOW_10
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 2.
           Units are Vehicles/sample period.
-      - name: FLOW_3
+      - name: FLOW_100
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 3.
           Units are Vehicles/sample period.
-      - name: FLOW_4
+      - name: FLOW_1000
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 4.
           Units are Vehicles/sample period.
-      - name: FLOW_5
+      - name: FLOW_10000
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 5.
           Units are Vehicles/sample period.
-      - name: FLOW_6
+      - name: FLOW_100000
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 6.
           Units are Vehicles/sample period.
-      - name: FLOW_7
+      - name: FLOW_1000000
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 7.
           Units are Vehicles/sample period.
-      - name: FLOW_8
+      - name: FLOW_10000000
         description: |
           Number of vehicle that passed over the detector during the sample period for lane 8.
           Units are Vehicles/sample period.
       - name: OCCUPANCY_1
         description: Occupancy of the lane 1 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_2
+      - name: OCCUPANCY_10
         description: Occupancy of the lane 2 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_3
+      - name: OCCUPANCY_100
         description: Occupancy of the lane 3 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_4
+      - name: OCCUPANCY_1000
         description: Occupancy of the lane 4 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_5
+      - name: OCCUPANCY_10000
         description: Occupancy of the lane 5 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_6
+      - name: OCCUPANCY_100000
         description: Occupancy of the lane 6 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_7
+      - name: OCCUPANCY_1000000
         description: Occupancy of the lane 7 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_8
+      - name: OCCUPANCY_10000000
         description: Occupancy of the lane 8 during the sample period expressed as a decimal number between 0 and 1.
       - name: SPEED_1
         description: |
           Speed in lane 1 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_2
+      - name: SPEED_10
         description: |
           Speed in lane 2 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_3
+      - name: SPEED_100
         description: |
           Speed in lane 3 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_4
+      - name: SPEED_1000
         description: |
           Speed in lane 4 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_5
+      - name: SPEED_10000
         description: |
           Speed in lane 5 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_6
+      - name: SPEED_100000
         description: |
           Speed in lane 6 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_7
+      - name: SPEED_1000000
         description: |
           Speed in lane 7 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
-      - name: SPEED_8
+      - name: SPEED_10000000
         description: |
           Speed in lane 8 as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
@@ -157,6 +157,6 @@ models:
         description: The last updated time. This seems to be empty for the whole dataset.
       - name: LANE_NUMBER
         description: |
-          The lane number for the detector. This seems to be reported as
+          The lane number for the detector. These are reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
           from one.
