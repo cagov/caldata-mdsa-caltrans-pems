@@ -59,7 +59,7 @@ sources:
           depending on the measurement capabilities of the detectors.
         columns:
           - name: FILENAME
-            description: The name of the file in the clearinghouse where the metdata was obtained from.
+            description: The name of the file in the clearinghouse where the data was obtained from.
           - name: ID
             description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.
           - name: SAMPLE_DATE
