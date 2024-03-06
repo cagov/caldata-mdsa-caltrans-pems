@@ -27,3 +27,7 @@ models:
       +materialized: view
       clearinghouse:
         +schema: clearinghouse
+    intermediate:
+      +materialized: view
+      vds:
+        +schema: vds
