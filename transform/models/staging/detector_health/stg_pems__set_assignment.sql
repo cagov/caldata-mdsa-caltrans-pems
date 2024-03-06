@@ -1,9 +1,9 @@
 /*
-This SQL file assigns which sets of calculations will be used for a station
-based on information in from the station metadata
-The DET_DIAG_SET_ID varialbe assigns 1 of 5 values for detector diagnostic
-evaluations. The DET_DIAG_METHOD_ID variable assigns 1 of 2 values for detector
-diagnostic evaluations.
+This SQL file assigns which sets of calculations will be used for
+a station based on information in from the station metadata
+The DET_DIAG_SET_ID varialbe assigns 1 of 5 values for detector
+diagnostic evaluations. The DET_DIAG_METHOD_ID variable assigns
+1 of 2 values for detector diagnostic evaluations.
 */
 select
     meta_date,
@@ -11,8 +11,13 @@ select
     district,
     type,
     case
-        --when LIKE(UPPER(THRESHOLD_SET), "LOW%") then "Low_Volume" currently in district config file
-        --when LIKE(UPPER(THRESHOLD_SET), "RURAL%") then "Rural" need definition from Iteris
+        /*when LIKE(UPPER(THRESHOLD_SET), "LOW%") then "Low_Volume"
+        This value is currently in district config file but not in
+        our current metadata files
+        when LIKE(UPPER(THRESHOLD_SET), "RURAL%") then "Rural"
+        We need the definition of when a station is considered
+        Rural from Iteris
+        */
         when district = 11 then 'Urban_D11'
         when district = 6 then 'D6_Ramps'
         else 'Urban'

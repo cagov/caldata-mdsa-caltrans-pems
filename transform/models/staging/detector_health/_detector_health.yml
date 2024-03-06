@@ -13,33 +13,36 @@ models:
       - name: STATION_ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
-          Use this value to 'join' other clearinghouse files that contain Station Metadata
+          Use this value to 'join' other clearinghouse files that contain 
+          Station Metadata
         tests:
           - not_null
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: |
+          The district in which the VDS is located. Values are 1-12.
       - name: TYPE
         description: Two character string identify the VDS type
       - name: DET_DIAG_SET_ID
         description: |
-          Assigns 1 of 5 values for detector diagnostic evaluations based on 
-          station district
+          Assigns 1 of 5 values for detector diagnostic evaluations based 
+          on station district
       - name: DET_DIAG_METHOD_ID
         description: |
-          Assigns 1 of 2 values (mainline or ramp) for detector diagnostic evaluations
-          based on station type
+          Assigns 1 of 2 values (mainline or ramp) for detector diagnostic
+          evaluations based on station type
   - name: stg_pems__det_diag_threshold_station
     description: |
-      This SQL file contains station metdata values and their associated detector 
-      diagnostic threshold paramters to be used to evaluate the health of detectors
-      at a given station
+      This SQL file contains station metdata values and their associated 
+      detector diagnostic threshold paramters to be used to evaluate the 
+      health of detectors at a given station
     columns:
       - name: META_DATE
         description: Date of the metadata file.
       - name: STATION_ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
-          Use this value to 'join' other clearinghouse files that contain Station Metadata
+          Use this value to 'join' other clearinghouse files that contain 
+          Station Metadata
         tests:
           - not_null
       - name: DISTRICT
@@ -52,13 +55,15 @@ models:
           station district
       - name: DET_DIAG_METHOD_ID
         description: |
-          Assigns 1 of 2 values (mainline or ramp) for detector diagnostic evaluations
-          based on station type
+          Assigns 1 of 2 values (mainline or ramp) for detector diagnostic
+          evaluations based on station type
       - name: dt_name
         description: |
-          Contains a description of the parameter check associated with a station. The
-          values are high_flow, high_occ, high_occ_pct, zero_occ_pct, flow_occ_pct,
-          occ_flow_pct, zero_flow_pct, and repeat_occ.
+          Contains a description of the parameter check associated with a 
+          station. The values are high_flow, high_occ, high_occ_pct, 
+          zero_occ_pct, flow_occ_pct, occ_flow_pct, zero_flow_pct, and 
+          repeat_occ.
       - name: dt_value
         description: |
-          Contains the numeric parameter associated with detector diagnostic evaluations
+          Contains the numeric parameter associated with detector diagnostic 
+          evaluations
