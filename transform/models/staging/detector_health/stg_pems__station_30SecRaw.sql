@@ -1,4 +1,6 @@
 /*
+This file has been replaced using the COUNT_IF statement that is in the 
+int_pems__diagnostic_samples_per_station.sql. This is being retained for archive purposes.
 This SQL file will be used to count the number of 30 second raw data samples recieved
 for a variety of conditions by station, lane and date. This data will be used to run
 detector diagnostics and see if a detector is good or bad based on criteria established

@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: stg_pems__set_assignment
+    description: |
+      This SQL file assigns two values to a station which will be joined
+      with the diagnostic_threshold_values.csv seed file to detemine which 
+      detector diagnostic threshold paramters will be used to diagnose the 
+      health of detectors at a given station
+    columns:
+      - name: META_DATE
+        description: Date of the metadata file.
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indenties the Station Metadata.
+          Use this value to 'join' other clearinghouse files that contain Station Metadata
+        tests:
+          - not_null
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12
+      - name: TYPE
+        description: Two character string identify the VDS type
+      - name: DET_DIAG_SET_ID
+        description: |
+          Assigns 1 of 5 values for detector diagnostic evaluations based on 
+          station district
+      - name: DET_DIAG_METHOD_ID
+        description: |
+          Assigns 1 of 2 values (mainline or ramp) for detector diagnostic evaluations
+          based on station type
