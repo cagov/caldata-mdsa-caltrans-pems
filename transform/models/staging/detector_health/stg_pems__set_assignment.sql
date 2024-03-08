@@ -27,6 +27,7 @@ select
         else 'mainline'
     end as det_diag_method_id
 
-from {{ ref('stg_clearinghouse__station_meta') }}
+from {{ ref('int_vds__station_meta') }}
 where
-    DATE(meta_date) = DATEADD(year, -1, CURRENT_DATE())
+    DATEADD(year, -1, CURRENT_DATE()) >= _valid_from
+    and DATEADD(year, -1, CURRENT_DATE()) < _valid_to
