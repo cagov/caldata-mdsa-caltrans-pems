@@ -1,32 +1,45 @@
-{{ config(materialized='table') }}
+{{ config(
+        materialized='incremental',
+        unique_key=['ID', 'SAMPLE_DATE']
+    )
+}}
+
+with station_raw as (
+    select * from {{ ref('stg_clearinghouse__station_raw') }}
+    {% if is_incremental() %}
+        where sample_date > (
+            select dateadd(day, -2, max(sample_date)) from {{ this }}
+        )
+    {% endif %}
+)
 
 select
-    ID,
-    SAMPLE_DATE,
-    count(FLOW_1) as N_SAMPLES_LANE_1,
-    count(FLOW_2) as N_SAMPLES_LANE_2,
-    count(FLOW_3) as N_SAMPLES_LANE_3,
-    count(FLOW_4) as N_SAMPLES_LANE_4,
-    count(FLOW_5) as N_SAMPLES_LANE_5,
-    count(FLOW_6) as N_SAMPLES_LANE_6,
-    count(FLOW_7) as N_SAMPLES_LANE_7,
-    count(FLOW_8) as N_SAMPLES_LANE_8,
-    count_if(FLOW_1 = 0) as ZERO_FLOW_SAMPLES_LANE_1,
-    count_if(FLOW_2 = 0) as ZERO_FLOW_SAMPLES_LANE_2,
-    count_if(FLOW_3 = 0) as ZERO_FLOW_SAMPLES_LANE_3,
-    count_if(FLOW_4 = 0) as ZERO_FLOW_SAMPLES_LANE_4,
-    count_if(FLOW_5 = 0) as ZERO_FLOW_SAMPLES_LANE_5,
-    count_if(FLOW_6 = 0) as ZERO_FLOW_SAMPLES_LANE_6,
-    count_if(FLOW_7 = 0) as ZERO_FLOW_SAMPLES_LANE_7,
-    count_if(FLOW_8 = 0) as ZERO_FLOW_SAMPLES_LANE_8,
-    count_if(OCCUPANCY_1 = 0) as ZERO_OCC_SAMPLES_LANE_1,
-    count_if(OCCUPANCY_2 = 0) as ZERO_OCC_SAMPLES_LANE_2,
-    count_if(OCCUPANCY_3 = 0) as ZERO_OCC_SAMPLES_LANE_3,
-    count_if(OCCUPANCY_4 = 0) as ZERO_OCC_SAMPLES_LANE_4,
-    count_if(OCCUPANCY_5 = 0) as ZERO_OCC_SAMPLES_LANE_5,
-    count_if(OCCUPANCY_6 = 0) as ZERO_OCC_SAMPLES_LANE_6,
-    count_if(OCCUPANCY_7 = 0) as ZERO_OCC_SAMPLES_LANE_7,
-    count_if(OCCUPANCY_8 = 0) as ZERO_OCC_SAMPLES_LANE_8
-from {{ ref('stg_clearinghouse__station_raw') }}
-group by ID, SAMPLE_DATE
-having SAMPLE_DATE > '2023-11-01'
+    id,
+    sample_date,
+    count(flow_1) as n_samples_lane_1,
+    count(flow_2) as n_samples_lane_2,
+    count(flow_3) as n_samples_lane_3,
+    count(flow_4) as n_samples_lane_4,
+    count(flow_5) as n_samples_lane_5,
+    count(flow_6) as n_samples_lane_6,
+    count(flow_7) as n_samples_lane_7,
+    count(flow_8) as n_samples_lane_8,
+    count_if(flow_1 = 0) as zero_flow_samples_lane_1,
+    count_if(flow_2 = 0) as zero_flow_samples_lane_2,
+    count_if(flow_3 = 0) as zero_flow_samples_lane_3,
+    count_if(flow_4 = 0) as zero_flow_samples_lane_4,
+    count_if(flow_5 = 0) as zero_flow_samples_lane_5,
+    count_if(flow_6 = 0) as zero_flow_samples_lane_6,
+    count_if(flow_7 = 0) as zero_flow_samples_lane_7,
+    count_if(flow_8 = 0) as zero_flow_samples_lane_8,
+    count_if(occupancy_1 = 0) as zero_occ_samples_lane_1,
+    count_if(occupancy_2 = 0) as zero_occ_samples_lane_2,
+    count_if(occupancy_3 = 0) as zero_occ_samples_lane_3,
+    count_if(occupancy_4 = 0) as zero_occ_samples_lane_4,
+    count_if(occupancy_5 = 0) as zero_occ_samples_lane_5,
+    count_if(occupancy_6 = 0) as zero_occ_samples_lane_6,
+    count_if(occupancy_7 = 0) as zero_occ_samples_lane_7,
+    count_if(occupancy_8 = 0) as zero_occ_samples_lane_8
+from station_raw
+group by id, sample_date
+having sample_date > '2023-11-01'
