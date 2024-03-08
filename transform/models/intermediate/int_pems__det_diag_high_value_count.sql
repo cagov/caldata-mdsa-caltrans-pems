@@ -33,6 +33,8 @@ high_flow_samples_per_station as (
         on
             source.id = ddtv.station_id
             and ddtv.dt_name = 'high_flow'
+
+    group by source.sample_date, source.id
 ),
 
 high_occupancy_samples_per_station as (
@@ -53,6 +55,9 @@ high_occupancy_samples_per_station as (
         on
             source.id = ddtv.station_id
             and ddtv.dt_name = 'high_occ'
+
+    group by source.sample_date, source.id
+
 )
 
 select
