@@ -19,14 +19,14 @@ high_flow_samples_per_station as (
     select
         source.sample_date,
         source.id as station_id,
-        COUNT_IF(source.flow_1 >= ddtv.dt_value) as lane1_highflow_cnt,
-        COUNT_IF(source.flow_2 >= ddtv.dt_value) as lane2_highflow_cnt,
-        COUNT_IF(source.flow_3 >= ddtv.dt_value) as lane3_highflow_cnt,
-        COUNT_IF(source.flow_4 >= ddtv.dt_value) as lane4_highflow_cnt,
-        COUNT_IF(source.flow_5 >= ddtv.dt_value) as lane5_highflow_cnt,
-        COUNT_IF(source.flow_6 >= ddtv.dt_value) as lane6_highflow_cnt,
-        COUNT_IF(source.flow_7 >= ddtv.dt_value) as lane7_highflow_cnt,
-        COUNT_IF(source.flow_8 >= ddtv.dt_value) as lane8_highflow_cnt
+        COUNT_IF(source.flow_1 > ddtv.dt_value) as lane1_highflow_cnt,
+        COUNT_IF(source.flow_2 > ddtv.dt_value) as lane2_highflow_cnt,
+        COUNT_IF(source.flow_3 > ddtv.dt_value) as lane3_highflow_cnt,
+        COUNT_IF(source.flow_4 > ddtv.dt_value) as lane4_highflow_cnt,
+        COUNT_IF(source.flow_5 > ddtv.dt_value) as lane5_highflow_cnt,
+        COUNT_IF(source.flow_6 > ddtv.dt_value) as lane6_highflow_cnt,
+        COUNT_IF(source.flow_7 > ddtv.dt_value) as lane7_highflow_cnt,
+        COUNT_IF(source.flow_8 > ddtv.dt_value) as lane8_highflow_cnt
 
     from source
     inner join {{ ref("stg_pems__det_diag_threshold_station") }} as ddtv
@@ -41,14 +41,14 @@ high_occupancy_samples_per_station as (
     select
         source.sample_date,
         source.id as station_id,
-        COUNT_IF(source.occupancy_1 >= ddtv.dt_value) as lane1_highocc_cnt,
-        COUNT_IF(source.occupancy_2 >= ddtv.dt_value) as lane2_highocc_cnt,
-        COUNT_IF(source.occupancy_3 >= ddtv.dt_value) as lane3_highocc_cnt,
-        COUNT_IF(source.occupancy_4 >= ddtv.dt_value) as lane4_highocc_cnt,
-        COUNT_IF(source.occupancy_5 >= ddtv.dt_value) as lane5_highocc_cnt,
-        COUNT_IF(source.occupancy_6 >= ddtv.dt_value) as lane6_highocc_cnt,
-        COUNT_IF(source.occupancy_7 >= ddtv.dt_value) as lane7_highocc_cnt,
-        COUNT_IF(source.occupancy_8 >= ddtv.dt_value) as lane8_highocc_cnt
+        COUNT_IF(source.occupancy_1 > ddtv.dt_value) as lane1_highocc_cnt,
+        COUNT_IF(source.occupancy_2 > ddtv.dt_value) as lane2_highocc_cnt,
+        COUNT_IF(source.occupancy_3 > ddtv.dt_value) as lane3_highocc_cnt,
+        COUNT_IF(source.occupancy_4 > ddtv.dt_value) as lane4_highocc_cnt,
+        COUNT_IF(source.occupancy_5 > ddtv.dt_value) as lane5_highocc_cnt,
+        COUNT_IF(source.occupancy_6 > ddtv.dt_value) as lane6_highocc_cnt,
+        COUNT_IF(source.occupancy_7 > ddtv.dt_value) as lane7_highocc_cnt,
+        COUNT_IF(source.occupancy_8 > ddtv.dt_value) as lane8_highocc_cnt
 
     from source
     inner join {{ ref("stg_pems__det_diag_threshold_station") }} as ddtv
