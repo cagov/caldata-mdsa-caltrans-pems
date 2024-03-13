@@ -14,6 +14,7 @@ source as (
 
 samples_per_station as (
     select
+        sample_date,
         id as station_id,
         /*
         This following counts a sample if the flow and occupancy values contain any value
@@ -78,7 +79,7 @@ samples_per_station as (
         COUNT_IF(flow_7 > 0 and occupancy_7 = 0) as lane7_nnf_zo_cnt,
         COUNT_IF(flow_8 > 0 and occupancy_8 = 0) as lane8_nnf_zo_cnt
     from source
-    group by station_id
+    group by station_id, sample_date
 )
 
 select * from samples_per_station

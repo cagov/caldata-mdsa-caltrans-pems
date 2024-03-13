@@ -6,7 +6,7 @@ source as (
     look at the previous day once the data refresh brings in more current data
     */
     where
-        DATE(sample_date) = DATEADD(year, -1, CURRENT_DATE())
+        sample_date = DATEADD(year, -1, CURRENT_DATE())
         and TO_TIME(sample_timestamp) >= '05:00:00'
         and TO_TIME(sample_timestamp) <= '21:59:59'
 ),
@@ -61,6 +61,7 @@ high_occupancy_samples_per_station as (
 )
 
 select
+    hfsps.sample_date,
     hfsps.station_id,
     hfsps.lane1_highflow_cnt,
     hfsps.lane2_highflow_cnt,

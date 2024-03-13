@@ -1,0 +1,254 @@
+version: 2
+
+models:
+  - name: int_pems__det_diag_high_value_count
+    description: |
+      This SQL file counts the number of flow and occupancy values that exceed
+      detector threshold values for a station based on the station set assignment.
+    columns:
+      - name: sample_date
+        description: The date associated with raw data samples being counted
+      - name: station_id
+        description: |
+          An integer value that uniquely indenties a station
+          Use this value to 'join' other files or tables that contain the Station ID value
+        tests:
+          - not_null
+      - name: lane1_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 1 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane2_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 2 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane3_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 3 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane4_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 4 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane5_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 5 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane6_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 6 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane7_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 7 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane8_highflow_cnt
+        description: |
+          Counts the number of flow values in lane 8 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane1_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 1 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane2_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 2 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane3_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 3 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane4_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 4 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane5_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 5 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane6_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 6 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane7_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 7 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+      - name: lane8_highocc_cnt
+        description: |
+          Counts the number of occupancy values in lane 8 that exceeded the high value threshold
+          detector diagnostic parameter for a station
+  - name: int_pems__diagnostic_samples_per_station
+    description: |
+      This file contains count data by station and lane based on the number of raw data samples
+      that met a variety of flow and occupancy criteria. This data will be used to determine the
+      diagnostic value associated with a detector
+    columns:
+      - name: sample_date
+        description: The date associated with raw data samples being counted
+      - name: station_id
+        description: |
+          An integer value that uniquely indenties a station
+          Use this value to 'join' other files or tables that contain the Station ID value
+        tests:
+          - not_null
+      - name: lane1_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 1 flow and occupancy
+          values contain any value by station
+      - name: lane2_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 2 flow and occupancy
+          values contain any value by station
+      - name: lane3_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 3 flow and occupancy
+          values contain any value by station
+      - name: lane4_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 4 flow and occupancy
+          values contain any value by station
+      - name: lane5_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 5 flow and occupancy
+          values contain any value by station
+      - name: lane6_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 6 flow and occupancy
+          values contain any value by station
+      - name: lane7_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 7 flow and occupancy
+          values contain any value by station
+      - name: lane8_sample_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 8 flow and occupancy
+          values contain any value by station
+      - name: lane1_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 1 flow value
+          equals 0 by station
+      - name: lane2_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 2 flow value
+          equals 0 by station
+      - name: lane3_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 3 flow value
+          equals 0 by station
+      - name: lane4_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 4 flow value
+          equals 0 by station
+      - name: lane5_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 5 flow value
+          equals 0 by station
+      - name: lane6_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 6 flow value
+          equals 0 by station
+      - name: lane7_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 7 flow value
+          equals 0 by station
+      - name: lane8_zeroflow_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 8 flow value
+          equals 0 by station
+      - name: lane1_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 1 occupancy
+          value equals 0 by station
+      - name: lane2_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 2 occupancy
+          value equals 0 by station
+      - name: lane3_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 3 occupancy
+          value equals 0 by station
+      - name: lane4_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 4 occupancy
+          value equals 0 by station
+      - name: lane5_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 5 occupancy
+          value equals 0 by station
+      - name: lane6_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 6 occupancy
+          value equals 0 by station
+      - name: lane7_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 7 occupancy
+          value equals 0 by station
+      - name: lane8_zeroocc_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 8 occupancy
+          value equals 0 by station
+      - name: lane1_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 1 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane2_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 2 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane3_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 3 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane4_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 4 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane5_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 5 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane6_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 6 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane7_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 7 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane8_zf_nno_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 8 flow
+          value equals 0 but occupancy is greater than 0 by station
+      - name: lane1_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 1 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane2_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 2 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane3_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 3 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane4_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 4 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane5_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 5 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane6_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 6 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane7_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 7 occupancy
+          value equals 0 but flow is greater than 0 by station
+      - name: lane8_nnf_zo_cnt
+        description: |
+          This value counts the number of raw data samples where the lane 8 occupancy
+          value equals 0 but flow is greater than 0 by station
