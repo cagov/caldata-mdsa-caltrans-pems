@@ -33,8 +33,8 @@ while true; do
   for topic in "${ADDR[@]}"; do
     echo "Now start uploading $topic"
     echo "Executing script below:"
-    echo python3 topic_aws_uploader.py --topic $topic
-    python3 topic_aws_uploader.py --topic $topic
+    echo python3 topic_aws_uploader.py --topic $topic --date_time default
+    python3 topic_aws_uploader.py --topic $topic --date_time default
   done
 
   # Wait for 10 minutes before the next iteration

@@ -72,7 +72,7 @@ class loguru_custom_encoder(json.JSONEncoder):
             return str(obj)
         elif isinstance(obj, str):
             return obj
-        elif isinstance(obj, datetime):
+        elif isinstance(obj, datetime.datetime):
             return obj.isoformat()
         elif isinstance(obj, datetime.timedelta):
             return str(obj)
@@ -315,7 +315,7 @@ def inner_loop_crawl_operation(crawl_task):
                 database_mapper = {"PEMS": "DWO", "PEMS_DB96": "DB96"}
                 logger.info(f"Executing sql_query {sql_query}")
                 df = Get_Data_From_PeMS(
-                    database_mapper(crawl_task["v5_Database"]), sql_query
+                    database_mapper[crawl_task["v5_Database"]], sql_query
                 )
                 if df is not None:
                     logger.debug(f"git(GITHASH_PLACEHOLDER) df at outter {df.head()}")
@@ -346,9 +346,22 @@ def inner_loop_crawl_operation(crawl_task):
                             latest_schema = response_obj["schema"]
                             from deepdiff import DeepDiff
 
+                            known_fields_lookup = {
+                                "serialized_json": True,
+                                "meta": True,
+                            }
+
                             diff = DeepDiff(
-                                json.loads(latest_schema)["fields"],
-                                json.loads(target_schema)["fields"],
+                                [
+                                    o
+                                    for o in json.loads(latest_schema)["fields"]
+                                    if known_fields_lookup[o["name"]]
+                                ],
+                                [
+                                    o
+                                    for o in json.loads(target_schema)["fields"]
+                                    if known_fields_lookup[o["name"]]
+                                ],
                             )
 
                             if diff != {}:
@@ -402,15 +415,14 @@ def inner_loop_crawl_operation(crawl_task):
 
                         for index, row_chunk in df.iterrows():
                             # Convert row (a Series) to a DataFrame
-                            crawl_task = pd.DataFrame(row_chunk)
+                            row_chunk_obj = pd.DataFrame(row_chunk)
                             # Convert the DataFrame to JSON
-                            json_data = crawl_task.to_json()
+                            json_data = row_chunk_obj.to_json()
                             # Send data to Kafka topic
                             import json
 
                             dict_data = json.loads(json_data)
                             json_data = list(dict_data.values())[0]
-                            json_data = json.dumps(json_data)
 
                             import random
 
@@ -644,14 +656,14 @@ def crawl_oracle():
     lock = Lock(zk, lock_path)
     with lock:
         logger.info(
-            f"I'm the only one running agent_oracle_puller.py under lock path {lock_path}"
+            f"I'm the only one running oracle_puller_daemon.py under lock path {lock_path}"
         )
         while True:
             try:
                 logger.info("start iter")
                 # Attempt to pull a new message from the Kafka topic
                 message = crawl_task_queue_consumer.poll(10)
-                kafka_hl.flush()
+                kafka_log_handler.flush()
                 save_offset_info_as_json(message)
 
                 if message is None:
