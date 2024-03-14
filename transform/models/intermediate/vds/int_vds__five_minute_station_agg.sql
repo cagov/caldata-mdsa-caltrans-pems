@@ -2,6 +2,7 @@
     materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["ID", "SAMPLE_TIMESTAMP"],
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with station_raw as (
