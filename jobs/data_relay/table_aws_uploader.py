@@ -72,8 +72,8 @@ class log_message_producer:
 
 
 logger.add(
-    f"/tmp/append_to_crawl_queue.log",
-    level="INFO",
+    f"/tmp/table_aws_uploader.log",
+    level="DEBUG",
     format="{time} {level} {file}:{line} {message}",
     rotation="500 MB",
     retention="10 days",
@@ -130,7 +130,7 @@ parser.add_argument(
     "--window",
     default=600,
     type=int,
-    help=f" The seconds the uploader is spending for finishing each chunking. ",
+    help=f" The seconds the uploader is spending for finishing each chunking. Default to 600 sec. ",
 )
 args = parser.parse_args()
 
@@ -436,6 +436,7 @@ def pull():
                 time.sleep(3)
                 continue
             else:
+
                 offset_info["partition_offsets"][message.partition()] = message.offset()
                 new_offset_details = True
                 with open(output_path, "a") as f:
@@ -678,7 +679,8 @@ def fetch_parquet_schema_from_local_file(topic):
 
 def transform_table_to_schema(topic, df, schema_option):
     """
-    This function converts a pandas dataframe to a specified schema.
+    This function converts a pandas dataframe to a specified schema,
+      and split into dates specified in the meta.Date field.
 
     Parameters:
         topic (string): Represents the topic that schema_option is associated with.
@@ -687,7 +689,7 @@ def transform_table_to_schema(topic, df, schema_option):
             to comply with.
 
     Returns:
-         df (pandas.DataFrame): Dataframe that has been transformed to comply with
+         df_dates (list[tuple(pandas.DataFrame, datetime)]): Dataframe that has been transformed to comply with
          the specified schema.
 
     Raises:
@@ -726,6 +728,18 @@ def transform_table_to_schema(topic, df, schema_option):
         flattened = pd.json_normalize(df["serialized_json"])
         # Join back to the original dataset
         df = df.drop("serialized_json", axis=1).join(flattened)
+        # Flatten the column
+
+        df["meta"] = df["meta"].apply(json.loads)
+        flattened_meta = pd.json_normalize(df["meta"])
+        flattened_meta.rename(columns={"dt": "Date_internal"}, inplace=True)
+        logger.debug(f"columss: {','.join(flattened_meta.columns)}")
+
+        flattened_meta["Date_internal"] = pd.to_datetime(
+            flattened_meta["Date_internal"]
+        ).dt.date
+
+        df = df.join(flattened_meta)
 
     # Column wise type casting
     type_lookup = {
@@ -744,8 +758,17 @@ def transform_table_to_schema(topic, df, schema_option):
 
             df[column] = np.nan
 
-    df = df[schema_option.names]
-    return df
+    df["meta"] = df["meta"].apply(json.dumps)
+    df = df[schema_option.names + ["Date_internal"]]
+    # Initialize an empty list to store the tuples
+    df_segments_by_date = []
+
+    # Group the DataFrame by 'Date_internal' and iterate over the groups
+    for date, group in df.groupby("Date_internal"):
+        # Append a tuple of the group (df_segment) and the date to the list
+        df_segments_by_date.append((group.drop("Date_internal", axis=1), date))
+
+    return df_segments_by_date
 
 
 def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
@@ -767,7 +790,10 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
     raw_data_in_json (str): The raw_data_in_json to read the raw file from.
 
     Returns:
-       dataframe: the parsed data from the raw_data_in_json
+       dataframe_dates: (list[tuple(pandas.DataFrame, datetime)]) the parsed data from the
+                        raw_data_in_json,
+                        splitted into multiple dataframes each corresponding to a date,
+                        (the date is from the row's meta field's Date (dt) field)
        schema_option: if None, this is raw dataframe with no schema
                       Otherwise, this is a schema object that is used
                        for governing the downstream (like parquet output)
@@ -795,8 +821,8 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
         logger.info(
             "Also convert the raw dataframe into typed version, schema from registry"
         )
-        df = transform_table_to_schema(topic, df, schema_option)
-        return df, schema_option
+        df_dates = transform_table_to_schema(topic, df, schema_option)
+        return df_dates, schema_option
     elif args.parquet_schema_registry_only:
         logger.error("parquet_schema_registry_only specified but fail to get schema")
         raise ValueError("no schema")
@@ -815,8 +841,8 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
             "Also convert the raw dataframe into typed version , schema from local file"
         )
 
-        df = transform_table_to_schema(topic, df, schema_option)
-        return df, schema_option
+        df_dates = transform_table_to_schema(topic, df, schema_option)
+        return df_dates, schema_option
     elif args.parquet_schema_file_only:
         logger.error("parquet_schema_file_only specified but fail to get schema")
         raise ValueError("no schema")
@@ -880,8 +906,8 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
             "Also convert the raw dataframe into typed version, schema from custom logic"
         )
 
-        df = transform_table_to_schema(topic, df, schema_option)
-        return df, schema_option
+        df_dates = transform_table_to_schema(topic, df, schema_option)
+        return df_dates, schema_option
     elif args.parquet_schema_logic_only:
         logger.error("parquet_schema_logic_only specified but fail to get schema")
         raise ValueError("no schema")
@@ -892,15 +918,19 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
     logger.info(
         "No schema detected, then this function `read_raw_data_with_schema_parsing_attempt` return original data"
     )
-    return df, None
+    return [(df, None)], None
 
 
 def upload(output_path, date_string, topic):
     """
      This function uploads files located in an output path (with parquet format) to the AWS
      bucket 'caltrans-pems-dev-us-west-2-raw/db96_export_staging_area'. The directory
-     location to upload to within the bucket is determined by the date_string
-     and the topic passed to the function.
+     location to upload to within the bucket is determined by the Date.
+      By default the date is from the date_string passed in,
+      However, for custom logic, date maybe overriden.
+      For example, in VDS30SEC, the Date is actually coming from the meta field dt field
+        of each row. (Therefore, for VDS30SEC, there may be multiple files uploaded due
+        to the fact that there may be different meta dates (dt) among rows)
 
     Parameters:
     :param output_path: A string denoting the file or directory path to be uploaded.
@@ -983,22 +1013,32 @@ def upload(output_path, date_string, topic):
 
         logger.debug(f"output_path {output_path}")
 
-        df, schema_option = read_raw_data_with_schema_parsing_attempt(
+        df_dates, schema_option = read_raw_data_with_schema_parsing_attempt(
             topic, output_path
         )
-        logger.debug(f"df before the schema-ed pyarrow table conversion {df.head()}")
-        table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
-        parquet_output = f"{output_path.replace('.json', '')}.parquet"
-        pq.write_table(table, parquet_output)
-        logger.info(
-            f"Json format {output_path} is converted into parquet format {parquet_output}"
+        logger.debug(
+            f"df before the schema-ed pyarrow table conversion {df_dates[0][0].head()}"
         )
-        ssh_command = (
-            f"/usr/local/bin/aws s3 cp {parquet_output} "
-            "s3://caltrans-pems-dev-us-west-2-raw/db96_export_staging_area"
-            f"/tables/{final_topic}/{district_folder_substring}{date_folder_substring}"
-            f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
-        )
+
+        for df, date in df_dates:
+            if date:
+                year = date.year
+                month = date.month
+                day = date.day
+                date_folder_substring = f"year={year}/month={month}/day={day}/"
+
+            table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
+            parquet_output = f"{output_path.replace('.json', '')}.parquet"
+            pq.write_table(table, parquet_output)
+            logger.info(
+                f"Json format {output_path} is converted into parquet format {parquet_output}"
+            )
+            ssh_command = (
+                f"/usr/local/bin/aws s3 cp {parquet_output} "
+                "s3://caltrans-pems-dev-us-west-2-raw/db96_export_staging_area"
+                f"/tables/{final_topic}/{district_folder_substring}{date_folder_substring}"
+                f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
+            )
     else:
 
         ssh_command = (

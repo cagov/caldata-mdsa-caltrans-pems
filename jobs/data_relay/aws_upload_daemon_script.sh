@@ -13,7 +13,8 @@
 # For example:
 # ```
 # ./aws_upload_daemon_script.sh "topic1,topic2,topic3"
-# ./aws_upload_daemon_script.sh "D3.VDS30SEC,D4.VDS30SEC"
+# ./aws_upload_daemon_script.sh "D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC"
+#
 # ```
 # Make sure that `topic_aws_uploader.py` is available for the script to run successfully.
 #
@@ -33,8 +34,8 @@ while true; do
   for topic in "${ADDR[@]}"; do
     echo "Now start uploading $topic"
     echo "Executing script below:"
-    echo python3 topic_aws_uploader.py --topic $topic --date_time default
-    python3 topic_aws_uploader.py --topic $topic --date_time default
+    echo python3 table_aws_uploader.py --topic $topic --date_time default
+    python3 table_aws_uploader.py --topic $topic --date_time default
   done
 
   # Wait for 10 minutes before the next iteration
