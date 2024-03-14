@@ -9,3 +9,4 @@ rules:
   truthy:
     allowed-values: ["true", "false"]
 trailing-spaces: disable
+new-lines: disable
