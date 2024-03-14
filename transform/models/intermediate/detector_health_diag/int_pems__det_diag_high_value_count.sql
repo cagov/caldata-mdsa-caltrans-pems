@@ -1,6 +1,7 @@
 with
 source as (
-    select * from {{ source("clearinghouse", "station_raw") }}
+    select * from {{ ref("stg_clearinghouse__station_raw") }}
+
     /*
     Currently looks at the same day in previous year. This should be updated to
     look at the previous day once the data refresh brings in more current data
