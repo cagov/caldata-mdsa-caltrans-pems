@@ -27,7 +27,4 @@ select
         else 'mainline'
     end as det_diag_method_id
 
-from {{ ref('int_vds__station_meta') }}
-where
-    DATEADD(year, -1, CURRENT_DATE()) >= _valid_from
-    and DATEADD(year, -1, CURRENT_DATE()) < _valid_to
+from {{ ref('int_vds__most_recent_station_meta') }}
