@@ -767,6 +767,8 @@ def transform_table_to_schema(topic, df, schema_option):
     for col in df.columns:
         if col.startswith("LOOP"):
             df[col] = df[col].astype(float)
+        if col.endswith("VOL"):
+            df[col] = df[col].round().astype("Int64")
 
     # Initialize an empty list to store the tuples
     df_segments_by_date = []
