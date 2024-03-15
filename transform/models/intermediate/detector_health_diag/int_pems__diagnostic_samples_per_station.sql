@@ -1,15 +1,20 @@
-with
+{{ config(
+        materialized='incremental',
+        unique_key=['id', 'sample_date']
+    )
+}}
 
+with
 source as (
     select * from {{ source("clearinghouse", "station_raw") }}
-    /*
-    Currently looks at the same day in previous year. This should be updated to
-    look at the previous day once the data refresh brings in more current data
-    */
-    where
-        DATE(sample_date) = DATEADD(year, -1, CURRENT_DATE())
-        and TO_TIME(sample_timestamp) >= '05:00:00'
-        and TO_TIME(sample_timestamp) <= '21:59:59'
+    {% if is_incremental() %}
+        where sample_date > (
+            select dateadd(day, -2, max(sample_date)) 
+            and TO_TIME(sample_timestamp) >= '05:00:00'
+            and TO_TIME(sample_timestamp) <= '21:59:59'            
+            from {{ this }}
+        )
+    {% endif %}
 ),
 
 samples_per_station as (
@@ -79,8 +84,35 @@ samples_per_station as (
         COUNT_IF(flow_7 > 0 and occupancy_7 = 0) as lane7_nnf_zo_cnt,
         COUNT_IF(flow_8 > 0 and occupancy_8 = 0) as lane8_nnf_zo_cnt
     from source
-    group by station_id, sample_date
+    group by id, sample_date
+),
+
+det_diag_too_few_samples as (
+    select
+        sample_date,
+        station_id,
+        -- # of samples < 60% of the max collected samples during the test period
+        -- max value: 2 samples per minute times 60 mins/hr times 17 hours in a day which == 1224
+        -- btwn 1 and 1224 is too few samples
+        COALESCE(lane1_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane1_too_few_samples,
+        COALESCE(lane2_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane2_too_few_samples,
+        COALESCE(lane3_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane3_too_few_samples,
+        COALESCE(lane4_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane4_too_few_samples,
+        COALESCE(lane5_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane5_too_few_samples,
+        COALESCE(lane6_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane6_too_few_samples,
+        COALESCE(lane7_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane7_too_few_samples,
+        COALESCE(lane8_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane8_too_few_samples
+
+    from samples_per_station
+    group by all
 )
 
-select * from samples_per_station
-order by station_id desc
+select
+    sps.*,
+    ddtfs.* exclude (sample_date, station_id)
+
+from samples_per_station as sps
+left join det_diag_too_few_samples as ddtfs
+    on sps.station_id = ddtfs.station_id
+    and sps.sample_date = ddtfs.sample_date
+order by sps.station_id desc
