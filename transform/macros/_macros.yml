@@ -1,7 +1,7 @@
 version: 2
 
 macros:
-  - name: get_snowflake_refresh_warehouse()
+  - name: get_snowflake_refresh_warehouse
     description: |
       Full refreshes of incremental models sometimes need a little bit of
       extra firepower. This returns an appropriate (i.e. 4XL) warehouse
