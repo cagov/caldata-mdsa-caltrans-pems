@@ -199,19 +199,3 @@ models:
         description: The average of the occupancy values over the sample period.
       - name: OCCUPANCY_8
         description: The average of the occupancy values over the sample period.
-      - name: SPEED_1
-        description: The average of the speed values over the sample period.
-      - name: SPEED_2
-        description: The average of the speed values over the sample period.
-      - name: SPEED_3
-        description: The average of the speed values over the sample period.
-      - name: SPEED_4
-        description: The average of the speed values over the sample period.
-      - name: SPEED_5
-        description: The average of the speed values over the sample period.
-      - name: SPEED_6
-        description: The average of the speed values over the sample period.
-      - name: SPEED_7
-        description: The average of the speed values over the sample period.
-      - name: SPEED_8
-        description: The average of the speed values over the sample period.

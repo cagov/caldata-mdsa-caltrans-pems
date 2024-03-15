@@ -50,16 +50,7 @@ aggregated as (
         avg(occupancy_5) as occupancy_5,
         avg(occupancy_6) as occupancy_6,
         avg(occupancy_7) as occupancy_7,
-        avg(occupancy_8) as occupancy_8,
-        -- Average of all the speed values
-        avg(speed_1) as speed_1,
-        avg(speed_2) as speed_2,
-        avg(speed_3) as speed_3,
-        avg(speed_4) as speed_4,
-        avg(speed_5) as speed_5,
-        avg(speed_6) as speed_6,
-        avg(speed_7) as speed_7,
-        avg(speed_8) as speed_8
+        avg(occupancy_8) as occupancy_8
     from station_raw
     group by id, sample_date, sample_timestamp_trunc
 )
