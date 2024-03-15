@@ -719,13 +719,15 @@ def transform_table_to_schema(topic, df, schema_option):
                 json.loads
             )  # Convert the column to json
         except:
-            logger.warning(
+            logger.trace(
                 f"Tried to json parse the field serialized_json but it turned out already parsed. "
                 "This is not necessarily an error, but indicating the data might be slightly varied "
                 "in terms of being processed by json.dumps() or not."
             )
         # Flatten the column
         flattened = pd.json_normalize(df["serialized_json"])
+        pd.set_option("display.max_columns", None)
+        logger.debug(f"flattened: {flattened.head()}")
         # Join back to the original dataset
         df = df.drop("serialized_json", axis=1).join(flattened)
         # Flatten the column
@@ -751,8 +753,8 @@ def transform_table_to_schema(topic, df, schema_option):
 
     for column in schema_option.names:
         if column not in df.columns:
-            logger.warning(
-                f"df.columns: {','.join(df.columns)} does not match schema_option {schema_option} but I assign None"
+            logger.trace(
+                f"column {column} not in df.columns: {','.join(df.columns)} does not match schema_option {schema_option} but I assign None"
             )
             import numpy as np
 
@@ -760,11 +762,18 @@ def transform_table_to_schema(topic, df, schema_option):
 
     df["meta"] = df["meta"].apply(json.dumps)
     df = df[schema_option.names + ["Date_internal"]]
+    df["SAMPLE_TIME"] = pd.to_datetime(df["SAMPLE_TIME"], unit="ms")
+    df["RECV_TIME"] = pd.to_datetime(df["RECV_TIME"], unit="ms")
+    for col in df.columns:
+        if col.startswith("LOOP"):
+            df[col] = df[col].astype(float)
+
     # Initialize an empty list to store the tuples
     df_segments_by_date = []
 
     # Group the DataFrame by 'Date_internal' and iterate over the groups
     for date, group in df.groupby("Date_internal"):
+        logger.debug(f"date {date} types: {group.dtypes} dataframe: {group.head()}")
         # Append a tuple of the group (df_segment) and the date to the list
         df_segments_by_date.append((group.drop("Date_internal", axis=1), date))
 
@@ -1027,9 +1036,9 @@ def upload(output_path, date_string, topic):
                 day = date.day
                 date_folder_substring = f"year={year}/month={month}/day={day}/"
 
-            table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
+            # table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
             parquet_output = f"{output_path.replace('.json', '')}.parquet"
-            pq.write_table(table, parquet_output)
+            df.to_parquet(parquet_output)
             logger.info(
                 f"Json format {output_path} is converted into parquet format {parquet_output}"
             )
