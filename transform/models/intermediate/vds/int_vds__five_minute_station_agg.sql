@@ -23,7 +23,7 @@ with station_raw as (
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
         where sample_date > (
-            select dateadd(day, -1, max(sample_date)) from {{ this }}
+            select dateadd(day, -2, max(sample_date)) from {{ this }}
         )
     {% endif %}
 ),
