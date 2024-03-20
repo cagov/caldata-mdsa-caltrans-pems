@@ -155,3 +155,47 @@ models:
           The lane number for the detector. This seems to be reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
           from one.
+
+  - name: int_vds__five_minute_station_agg
+    description: |
+      Raw 30 second sample data aggregated to the 5 minute level.
+      Flow/volume numbers are summed, occupancy and speed numbers are averaged.
+    columns:
+      - name: ID
+        description: The station ID
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: FLOW_1
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_2
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_3
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_4
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_5
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_6
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_7
+        description: The sum of the flow values over the sample period.
+      - name: FLOW_8
+        description: The sum of the flow values over the sample period.
+      - name: OCCUPANCY_1
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_2
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_3
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_4
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_5
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_1
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_7
+        description: The average of the occupancy values over the sample period.
+      - name: OCCUPANCY_8
+        description: The average of the occupancy values over the sample period.
