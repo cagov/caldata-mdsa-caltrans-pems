@@ -1,7 +1,7 @@
 {{ config(materialized="ephemeral") }}
 
 with station_meta as (
-    select * from {{ ref("int_vds__station_meta") }}
+    select * from {{ ref("int_clearinghouse__station_meta") }}
 ),
 
 most_recent_station_meta as (
