@@ -6,14 +6,13 @@
 
 with
 source as (
-    select * from {{ source("clearinghouse", "station_raw") }}
+    select * from {{ ref ('stg_clearinghouse__station_raw') }}
     {% if is_incremental() %}
-        where sample_date > (
-            select dateadd(day, -2, max(sample_date)) 
-            and TO_TIME(sample_timestamp) >= '05:00:00'
-            and TO_TIME(sample_timestamp) <= '21:59:59'            
+        where sample_date > 
+            (select dateadd(day, -2, max(sample_date))
             from {{ this }}
-        )
+            where TO_TIME(sample_timestamp) >= '05:00:00'
+            and TO_TIME(sample_timestamp) <= '21:59:59')            
     {% endif %}
 ),
 
@@ -89,8 +88,7 @@ samples_per_station as (
 
 det_diag_too_few_samples as (
     select
-        sample_date,
-        station_id,
+        sps.*,
         -- # of samples < 60% of the max collected samples during the test period
         -- max value: 2 samples per minute times 60 mins/hr times 17 hours in a day which == 1224
         -- btwn 1 and 1224 is too few samples
@@ -103,16 +101,9 @@ det_diag_too_few_samples as (
         COALESCE(lane7_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane7_too_few_samples,
         COALESCE(lane8_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as lane8_too_few_samples
 
-    from samples_per_station
-    group by all
+    from samples_per_station as sps
+--    group by all
 )
 
-select
-    sps.*,
-    ddtfs.* exclude (sample_date, station_id)
-
-from samples_per_station as sps
-left join det_diag_too_few_samples as ddtfs
-    on sps.station_id = ddtfs.station_id
-    and sps.sample_date = ddtfs.sample_date
-order by sps.station_id desc
+select * from det_diag_too_few_samples
+order by station_id desc

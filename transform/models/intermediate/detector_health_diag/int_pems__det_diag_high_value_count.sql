@@ -109,27 +109,15 @@ high_occupancy_samples_per_station as (
 
     group by source.sample_date, source.id
 
-),
-
-high_values_per_station as (
-    select
-        hfsps.sample_date,
-        hfsps.station_id,
-        (hfsps.lane1_highflow_cnt + hosps.lane1_highocc_cnt) as lane1_high_value_cnt,
-        (hfsps.lane2_highflow_cnt + hosps.lane2_highocc_cnt) as lane2_high_value_cnt,
-        (hfsps.lane3_highflow_cnt + hosps.lane3_highocc_cnt) as lane3_high_value_cnt,
-        (hfsps.lane4_highflow_cnt + hosps.lane4_highocc_cnt) as lane4_high_value_cnt,
-        (hfsps.lane5_highflow_cnt + hosps.lane5_highocc_cnt) as lane5_high_value_cnt,
-        (hfsps.lane6_highflow_cnt + hosps.lane6_highocc_cnt) as lane6_high_value_cnt,
-        (hfsps.lane7_highflow_cnt + hosps.lane7_highocc_cnt) as lane7_high_value_cnt,
-        (hfsps.lane8_highflow_cnt + hosps.lane8_highocc_cnt) as lane8_high_value_cnt
-
-    from high_flow_samples_per_station as hfsps
-    inner join high_occupancy_samples_per_station as hosps
-        on
-            hfsps.station_id = hosps.station_id
-            and hfsps.sample_date = hosps.sample_date
 )
 
-select * from high_values_per_station
+select 
+    hfsps.*,
+    hosps.* exclude(station_id, sample_date)
+
+from high_flow_samples_per_station as hfsps
+left join high_occupancy_samples_per_station as hosps
+    on
+        hfsps.station_id = hosps.station_id
+        and hfsps.sample_date = hosps.sample_date
 order by station_id desc
