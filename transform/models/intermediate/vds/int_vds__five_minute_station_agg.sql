@@ -34,9 +34,10 @@ aggregated as (
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
-        sum(flow) as flow, -- Sum of all the flow values
+        sum(volume) as volume, -- Sum of all the flow values
         avg(occupancy) as occupancy -- Average of all the occupancy values
     from station_raw
+    where sample_date > '2024-03-14'
     group by id, lane, sample_date, sample_timestamp_trunc
 )
 
