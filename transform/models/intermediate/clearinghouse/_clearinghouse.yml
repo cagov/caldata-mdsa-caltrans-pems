@@ -154,4 +154,22 @@ models:
         description: |
           The lane number for the detector. This seems to be reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
-          from one.
+          from one
+  - name: int_clearinghouse__five_minute_station_agg
+    description: |
+      Raw 30 second sample data aggregated to the 5 minute level.
+      Volume values are summed, occupancy is averaged.
+    columns:
+      - name: ID
+        description: The station ID
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1
+      - name: VOLUME
+        description: The sum of the flow values for a detector over the sample period.
+      - name: OCCUPANCY
+        description: The average of the occupancy values over the sample period.
