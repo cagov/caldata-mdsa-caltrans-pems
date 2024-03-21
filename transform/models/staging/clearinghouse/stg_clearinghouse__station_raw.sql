@@ -1,32 +1,36 @@
 {% set district_re='clhouse/meta/d(\\\\d{2})' %}
 
-SELECT
-    SUBSTR(FILENAME, 14, 2)::INT AS DISTRICT,
-    ID,
-    SAMPLE_DATE,
-    SAMPLE_TIMESTAMP,
-    FLOW_1,
-    OCCUPANCY_1,
-    SPEED_1,
-    FLOW_2,
-    OCCUPANCY_2,
-    SPEED_2,
-    FLOW_3,
-    OCCUPANCY_3,
-    SPEED_3,
-    FLOW_4,
-    OCCUPANCY_4,
-    SPEED_4,
-    FLOW_5,
-    OCCUPANCY_5,
-    SPEED_5,
-    FLOW_6,
-    OCCUPANCY_6,
-    SPEED_6,
-    FLOW_7,
-    OCCUPANCY_7,
-    SPEED_7,
-    FLOW_8,
-    OCCUPANCY_8,
-    SPEED_8
-FROM {{ source('clearinghouse', 'station_raw') }}
+select
+    substr(s.filename, 14, 2)::int as district,
+    s.id,
+    s.sample_date,
+    s.sample_timestamp,
+    lane.value as lane,
+    -- neat trick to flatten multiple columns at once rather than using UNPIVOT:
+    -- https://stackoverflow.com/questions/36798558/lateral-flatten-two-columns-without-repetition-in-snowflake
+    [
+        s.flow_1,
+        s.flow_2,
+        s.flow_3,
+        s.flow_4,
+        s.flow_5,
+        s.flow_6,
+        s.flow_7,
+        s.flow_8
+    ][
+        lane.index
+    ] as volume,
+    [
+        s.occupancy_1,
+        s.occupancy_2,
+        s.occupancy_3,
+        s.occupancy_4,
+        s.occupancy_5,
+        s.occupancy_6,
+        s.occupancy_7,
+        s.occupancy_8
+    ][
+        lane.index
+    ] as occupancy
+from {{ source('clearinghouse', 'station_raw') }} as s,
+    lateral flatten([1, 2, 3, 4, 5, 6, 7, 8]) as lane
