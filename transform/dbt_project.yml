@@ -31,5 +31,3 @@ models:
       +materialized: view
       clearinghouse:
         +schema: clearinghouse
-      vds:
-        +schema: vds
