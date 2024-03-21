@@ -31,6 +31,18 @@ select
         s.occupancy_8
     ][
         lane.index
-    ] as occupancy
+    ] as occupancy,
+    [
+        s.speed_1,
+        s.speed_2,
+        s.speed_3,
+        s.speed_4,
+        s.speed_5,
+        s.speed_6,
+        s.speed_7,
+        s.speed_8
+    ][
+        lane.index
+    ] as speed
 from {{ source('clearinghouse', 'station_raw') }} as s,
     lateral flatten([1, 2, 3, 4, 5, 6, 7, 8]) as lane
