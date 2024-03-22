@@ -52,85 +52,17 @@ models:
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD.
       - name: SAMPLE_TIMESTAMP
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD HH24:MI:SS.
-      - name: FLOW_1
+      - name: LANE
+        description: The lane number for the detector, starting from 1.
+      - name: VOLUME
         description: |
-          Number of vehicle that passed over the detector during the sample period for lane 1.
+          Number of vehicle that passed over the detector during the sample period for the lane.
           Units are Vehicles/sample period.
-      - name: FLOW_2
+      - name: OCCUPANCY
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
+      - name: SPEED
         description: |
-          Number of vehicle that passed over the detector during the sample period for lane 2.
-          Units are Vehicles/sample period.
-      - name: FLOW_3
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 3.
-          Units are Vehicles/sample period.
-      - name: FLOW_4
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 4.
-          Units are Vehicles/sample period.
-      - name: FLOW_5
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 5.
-          Units are Vehicles/sample period.
-      - name: FLOW_6
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 6.
-          Units are Vehicles/sample period.
-      - name: FLOW_7
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 7.
-          Units are Vehicles/sample period.
-      - name: FLOW_8
-        description: |
-          Number of vehicle that passed over the detector during the sample period for lane 8.
-          Units are Vehicles/sample period.
-      - name: OCCUPANCY_1
-        description: Occupancy of the lane 1 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_2
-        description: Occupancy of the lane 2 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_3
-        description: Occupancy of the lane 3 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_4
-        description: Occupancy of the lane 4 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_5
-        description: Occupancy of the lane 5 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_6
-        description: Occupancy of the lane 6 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_7
-        description: Occupancy of the lane 7 during the sample period expressed as a decimal number between 0 and 1.
-      - name: OCCUPANCY_8
-        description: Occupancy of the lane 8 during the sample period expressed as a decimal number between 0 and 1.
-      - name: SPEED_1
-        description: |
-          Speed in lane 1 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_2
-        description: |
-          Speed in lane 2 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_3
-        description: |
-          Speed in lane 3 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_4
-        description: |
-          Speed in lane 4 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_5
-        description: |
-          Speed in lane 5 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_6
-        description: |
-          Speed in lane 6 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_7
-        description: |
-          Speed in lane 7 as measured by the detector in miles/hour.
-          Empty if the detector does not report speed.
-      - name: SPEED_8
-        description: |
-          Speed in lane 8 as measured by the detector in miles/hour.
+          Speed in the lane as measured by the detector in miles/hour.
           Empty if the detector does not report speed.
   - name: stg_clearinghouse__station_status
     description: |
