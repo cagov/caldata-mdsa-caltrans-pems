@@ -68,6 +68,6 @@ models:
       - name: too_few_samples
         description: |
           Counts the number of samples less than 60% of the max collected samples during the test period.
-          The max value is calculated by taking 2 samples per minute and multiplying it times 60 mins/hr 
+          The max value is calculated by taking 2 samples per minute and multiplying it times 60 mins/hr
           then multiplying that result by 17 hours in a day which equates to 1224.
           Therefore, between 1 and 1224 is too few samples.
