@@ -30,7 +30,7 @@ det_diag_set_assign as (
             else 'mainline'
         end as det_diag_method_id
 
-    from {{ ref('int_vds__most_recent_station_meta') }}
+    from {{ ref('int_clearinghouse__most_recent_station_meta') }}
 ),
 
 det_diag_threshold_values as (
