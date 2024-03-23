@@ -1,21 +1,20 @@
--- {{ config(
---     materialized="incremental",
---     cluster_by=["sample_date"],
---     unique_key=["station_id", "sample_date", "lane"],
---     snowflake_warehouse=get_snowflake_refresh_warehouse()
--- ) }}
+{{ config(
+    materialized="incremental",
+    cluster_by=["sample_date"],
+    unique_key=["station_id", "sample_date", "lane"],
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
+) }}
 
 with
 source as (
     select * from {{ ref ('stg_clearinghouse__station_raw') }}
     where
         TO_TIME(sample_timestamp) >= '05:00:00' and TO_TIME(sample_timestamp) <= '21:59:59'
-        and sample_date >= DATEADD(year, -1, CURRENT_DATE())
-    -- {% if is_incremental() %}
-    --     where sample_date > 
-    --         (select dateadd(day, -2, max(sample_date))
-    --         from {{ this }})            
-    -- {% endif %}
+    {% if is_incremental() %}
+        where sample_date > 
+            (select dateadd(day, -2, max(sample_date))
+            from {{ this }})            
+    {% endif %}
 ),
 
 samples_per_station as (
