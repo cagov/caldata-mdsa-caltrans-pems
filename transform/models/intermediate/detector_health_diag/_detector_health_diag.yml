@@ -11,8 +11,6 @@ models:
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
-          - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
@@ -25,7 +23,6 @@ models:
         description: unknown
       - name: dt_value
         description: unknown
-
   - name: int_pems__diagnostic_samples_per_station
     description: |
       This file contains count data by station and lane based on the number of raw data samples
@@ -72,5 +69,5 @@ models:
         description: |
           Counts the number of samples less than 60% of the max collected samples during the test period.
           The max value is calculated by taking 2 samples per minute and multiplying it times 60 mins/hr 
-          then multiplying that result by 17 hours in a day which equates to 1224. 
+          then multiplying that result by 17 hours in a day which equates to 1224.
           Therefore, between 1 and 1224 is too few samples.

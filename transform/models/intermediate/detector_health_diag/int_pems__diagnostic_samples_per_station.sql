@@ -74,7 +74,7 @@ det_diag_too_few_samples as (
         -- # of samples < 60% of the max collected samples during the test period
         -- max value: 2 samples per minute times 60 mins/hr times 17 hours in a day which == 1224
         -- btwn 1 and 1224 is too few samples
-        COALESCE(lane_sample_cnt between 1 and (0.6 * (2 * 60 * 17)), false) as too_few_samples
+        COALESCE(sample_ct between 1 and (0.6 * (2 * 60 * 17)), false) as too_few_samples
 
     from samples_per_station
 )
