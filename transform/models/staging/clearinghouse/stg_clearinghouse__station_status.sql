@@ -1,3 +1,4 @@
+{{ config(materialized="table") }}
 {% set
   date_re='clhouse/status/d\\\\d{2}/\\\\d{4}/\\\\d{2}/d(\\\\d{2})_tmdd_meta_(\\\\d{4})_(\\\\d{2})_(\\\\d{2}).xml'
 %}
@@ -13,7 +14,7 @@ SELECT
         REGEXP_SUBSTR(STATUS.FILENAME, '{{ date_re }}', 1, 1, '', 4)::INT
     ) AS META_DATE,
     REGEXP_SUBSTR(STATUS.FILENAME, '{{ date_re }}', 1, 1, '', 1)::INT AS DISTRICT,
-    XMLGET(STATUS.CONTENT, 'station-id'):"$" AS STATION_ID,
+    XMLGET(STATUS.CONTENT, 'station-id'):"$"::VARCHAR AS STATION_ID,
     XMLGET(XMLGET(DETECTOR.VALUE, 'detector'), 'detector-id'):"$"::VARCHAR AS DETECTOR_ID,
     XMLGET(XMLGET(DETECTOR.VALUE, 'detector'), 'detector-name'):"$"::VARCHAR AS DETECTOR_NAME,
     XMLGET(XMLGET(DETECTOR.VALUE, 'detector'), 'detector-status'):"$"::VARCHAR AS DETECTOR_STATUS,
