@@ -20,9 +20,9 @@ models:
       - name: det_diag_method_id
         description: Detector deployment location in the field.
       - name: dt_name
-        description: unknown
+        description: name of the diagnostic test condition associated with the station
       - name: dt_value
-        description: unknown
+        description: threshold value associated with the diagnostic test condition
   - name: int_pems__diagnostic_samples_per_station
     description: |
       This file contains count data by station and lane based on the number of raw data samples
