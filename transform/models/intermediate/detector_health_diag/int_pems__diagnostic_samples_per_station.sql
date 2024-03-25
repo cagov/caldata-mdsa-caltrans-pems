@@ -11,7 +11,7 @@ source as (
     where TO_TIME(sample_timestamp) >= '05:00:00' and TO_TIME(sample_timestamp) <= '21:59:59'
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
-        where sample_date > (
+        and sample_date > (
             select dateadd(day, -2, max(sample_date)) from {{ this }}
         )
     {% endif %}
@@ -80,4 +80,3 @@ det_diag_too_few_samples as (
 )
 
 select * from det_diag_too_few_samples
-order by station_id desc
