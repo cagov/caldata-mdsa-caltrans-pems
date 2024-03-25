@@ -5,7 +5,7 @@
   {% else %}
     {% set suffix = 'DEV' %}
   {% endif %}
-  {% if flags.FULL_REFRESH or relation is none %}
+  {% if flags.FULL_REFRESH %}
     {% set size = '4XL' %}
   {% else %}
     {% set size = 'XS' %}
