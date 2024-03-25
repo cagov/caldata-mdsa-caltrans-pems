@@ -31,7 +31,7 @@ with station_raw as (
 aggregated as (
     select
         id,
-        sample_date,
+        dateadd('day', 1, sample_date) as sample_date, -- pretend today is tomorrow
         sample_timestamp_trunc as sample_timestamp,
         lane,
         sum(volume) as volume, -- Sum of all the flow values
