@@ -1,4 +1,5 @@
 {{ config(
+    enabled=false,
     materialized="incremental",
     cluster_by=['sample_date'],
     unique_key=['station_id', 'sample_date', 'lane'],
