@@ -46,6 +46,3 @@ select
     ] as speed
 from {{ source('clearinghouse', 'station_raw') }} as s,
     lateral flatten([1, 2, 3, 4, 5, 6, 7, 8]) as lane
-{% if target.name == 'dev' %}
-    where s.sample_date >= dateadd('day', 31, current_date())
-{% endif %}
