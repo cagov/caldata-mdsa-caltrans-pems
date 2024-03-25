@@ -1,4 +1,4 @@
-{% macro get_snowflake_refresh_warehouse() %}
+{% macro get_snowflake_refresh_warehouse(big="4XL", small="XS") %}
   {% set relation = adapter.get_relation(this.database, this.schema, this.table) %}
   {% if target.name == 'prd' %}
     {% set suffix = 'PRD' %}
@@ -8,7 +8,7 @@
   {% if flags.FULL_REFRESH %}
     {% set size = '4XL' %}
   {% else %}
-    {% set size = 'XS' %}
+    {% set size = 'XL' %}
   {% endif %}
   {% set warehouse = 'TRANSFORMING_' ~ size ~ '_' ~ suffix %}
   {{ return(warehouse) }}
