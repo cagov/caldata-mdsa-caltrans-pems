@@ -2,19 +2,23 @@
     materialized="incremental",
     cluster_by=['sample_date'],
     unique_key=['station_id', 'sample_date', 'lane'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
 source as (
     select * from {{ ref ('stg_clearinghouse__station_raw') }}
-    where TO_TIME(sample_timestamp) >= '05:00:00' and TO_TIME(sample_timestamp) <= '21:59:59'
-    {% if is_incremental() %}
-        -- Look back two days to account for any late-arriving data
-        and sample_date > (
-            select dateadd(day, -2, max(sample_date)) from {{ this }}
-        )
-    {% endif %}
+    where
+        TO_TIME(sample_timestamp) >= '05:00:00' and TO_TIME(sample_timestamp) <= '21:59:59'
+        {% if is_incremental() %}
+            -- Look back two days to account for any late-arriving data
+            and sample_date > (
+                select DATEADD(day, -2, max(sample_date)) from {{ this }}
+            )
+        {% endif %}
+        {% if target.name == 'dev' %}
+            and sample_date >= DATEADD('day', -14, CURRENT_DATE())
+        {% endif %}
 ),
 
 samples_per_station as (
