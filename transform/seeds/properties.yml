@@ -32,6 +32,6 @@ seeds:
       - name: DT_METHOD
         description: Detector deployment location in the field
       - name: DT_NAME
-        description: unknown
+        description: Name of the diagnostic test condition associated with the station
       - name: DT_VALUE
-        description: unknown
+        description: Threshold value associated with the diagnostic test condition

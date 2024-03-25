@@ -1,0 +1,73 @@
+version: 2
+
+models:
+  - name: int_pems__det_diag_set_assignment
+    description: |
+      This SQL file assigns the correct values to appropriate districts and types.
+    columns:
+      - name: meta_date
+        description: Date of the metadata file.
+      - name: id
+        description: |
+          An integer value that uniquely indenties the Station Metadata.
+          Use this value to 'join' other clearinghouse files that contain Station Metadata.
+      - name: district
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: type
+        description: Two character string identify the VDS type.
+      - name: det_diag_set_id
+        description: Detector threshold set assigned to station.
+      - name: det_diag_method_id
+        description: Detector deployment location in the field.
+      - name: dt_name
+        description: Name of the diagnostic test condition associated with the station
+      - name: dt_value
+        description: Threshold value associated with the diagnostic test condition
+  - name: int_pems__diagnostic_samples_per_station
+    description: |
+      This file contains count data by station and lane based on the number of raw data samples
+      that met a variety of flow and occupancy criteria. This data will be used to determine the
+      diagnostic value associated with a detector.
+    columns:
+      - name: sample_date
+        description: The date associated with raw data samples being counted.
+      - name: station_id
+        description: |
+          An integer value that uniquely indenties a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+        tests:
+          - not_null
+      - name: sample_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) and occupancy
+          values contain any value by station.
+      - name: zero_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) value
+          equals 0 by station.
+      - name: zero_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy
+          value equals 0 by station.
+      - name: zero_vol_pos_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow)
+          value equals 0 but occupancy is greater than 0 by station.
+      - name: zero_occ_pos_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy
+          value equals 0 but volume (flow) is greater than 0 by station.
+      - name: high_vol_ct
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high value threshold
+          detector diagnostic parameter for a station.
+      - name: high_occ_ct
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value threshold
+          detector diagnostic parameter for a station.
+      - name: too_few_samples
+        description: |
+          Counts the number of samples less than 60% of the max collected samples during the test period.
+          The max value is calculated by taking 2 samples per minute and multiplying it times 60 mins/hr
+          then multiplying that result by 17 hours in a day which equates to 1224.
+          Therefore, between 1 and 1224 is too few samples.
