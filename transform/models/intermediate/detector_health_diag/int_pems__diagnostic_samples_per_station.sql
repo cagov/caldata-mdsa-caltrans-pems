@@ -1,5 +1,4 @@
 {{ config(
-    enabled=false,
     materialized="incremental",
     cluster_by=['sample_date'],
     unique_key=['station_id', 'sample_date', 'lane'],
@@ -14,7 +13,7 @@ source as (
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
-                select DATEADD(day, -2, max(sample_date)) from {{ this }}
+                select DATEADD(day, -2, MAX(sample_date)) from {{ this }}
             )
         {% endif %}
         {% if target.name == 'dev' %}
@@ -63,8 +62,8 @@ samples_per_station as (
         This SQL file counts the number of volume (flow) and occupancy values that exceed
         detector threshold values for a station based on the station set assignment.
         */
-        COUNT_IF(source.volume > set_assgnmt.dt_value and set_assgnmt.dt_name = 'high_flow') as high_vol_ct,
-        COUNT_IF(source.occupancy > set_assgnmt.dt_value and set_assgnmt.dt_name = 'high_occ') as high_occ_ct
+        COUNT_IF(source.volume > set_assgnmt.high_flow) as high_vol_ct,
+        COUNT_IF(source.occupancy > set_assgnmt.high_occupancy) as high_occupancy_ct
 
     from source
     left join {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
