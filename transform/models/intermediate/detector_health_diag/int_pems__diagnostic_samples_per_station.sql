@@ -62,7 +62,7 @@ samples_per_station as (
         This SQL file counts the number of volume (flow) and occupancy values that exceed
         detector threshold values for a station based on the station set assignment.
         */
-        COUNT_IF(source.volume > set_assgnmt.high_flow) as high_vol_ct,
+        COUNT_IF(source.volume > set_assgnmt.high_flow) as high_volume_ct,
         COUNT_IF(source.occupancy > set_assgnmt.high_occupancy) as high_occupancy_ct
 
     from source

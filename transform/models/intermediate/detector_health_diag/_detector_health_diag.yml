@@ -7,7 +7,7 @@ models:
     columns:
       - name: meta_date
         description: Date of the metadata file.
-      - name: id
+      - name: station_id
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
@@ -15,14 +15,22 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
         description: Two character string identify the VDS type.
-      - name: det_diag_set_id
+      - name: station_diagnostic_set_id
         description: Detector threshold set assigned to station.
-      - name: det_diag_method_id
+      - name: station_diagnostic_method_id
         description: Detector deployment location in the field.
-      - name: dt_name
-        description: Name of the diagnostic test condition associated with the station
-      - name: dt_value
-        description: Threshold value associated with the diagnostic test condition
+      - name: high_occupancy
+        description: |
+          The high-occupancy threshold for station diagnostics, above which the
+          values are considered suspicious.
+      - name: high_flow
+        description: |
+          The high-flow threshold for station diagnostics, above which the
+          values are considered suspicious.
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('int_clearinghouse__most_recent_station_meta')
+
   - name: int_pems__diagnostic_samples_per_station
     description: |
       This file contains count data by station and lane based on the number of raw data samples
@@ -57,11 +65,11 @@ models:
         description: |
           Counts the number of raw data samples where a lane's occupancy
           value equals 0 but volume (flow) is greater than 0 by station.
-      - name: high_vol_ct
+      - name: high_volume_ct
         description: |
           Counts the number of volume (flow) values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
-      - name: high_occ_ct
+      - name: high_occupancy_ct
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
