@@ -1,12 +1,12 @@
 with
 
-det_diag_set_assign as (
+station_diagnostic_set_assign as (
     /*
     This SQL file assigns which sets of calculations will be used for
     a station based on information in from the station metadata
-    The DET_DIAG_SET_ID varialbe assigns 1 of 5 values for detector
-    diagnostic evaluations. The DET_DIAG_METHOD_ID variable assigns
-    1 of 2 values for detector diagnostic evaluations.
+    The station_DIAGNOSTIC_SET_ID variable assigns 1 of 5 values for station
+    diagnostic evaluations. The station_DIAGNOSTIC_METHOD_ID variable assigns
+    1 of 2 values for station diagnostic evaluations.
     */
     select
         meta_date,
@@ -24,30 +24,36 @@ det_diag_set_assign as (
             when district = 11 then 'Urban_D11'
             when district = 6 then 'D6_Ramps'
             else 'Urban'
-        end as det_diag_set_id,
+        end as station_diagnostic_set_id,
         case
             when type = 'OR' then 'ramp'
             else 'mainline'
-        end as det_diag_method_id
+        end as station_diagnostic_method_id
 
     from {{ ref('int_clearinghouse__most_recent_station_meta') }}
 ),
 
-det_diag_threshold_values as (
+diagnostic_threshold_values as (
+    select *
+    from {{ ref('diagnostic_threshold_values') }}
+    pivot (avg(dt_value) for dt_name in ('high_occ', 'high_flow'))
+        as p (dt_set_id, dt_method, high_occupancy, high_flow)
+),
+
+station_diagnostic_threshold_values as (
     /*
-    This SQL file assigns which detector threshold values will be used
+    This SQL file assigns which station threshold values will be used
     for a station based on information from the station metadata.
     */
     select
-        ddsa.*,
-        dtv.dt_name,
-        dtv.dt_value
-
-    from det_diag_set_assign as ddsa
-    inner join {{ ref('diagnostic_threshold_values') }} as dtv
+        station_diagnostic_set_assign.*,
+        diagnostic_threshold_values.high_occupancy,
+        diagnostic_threshold_values.high_flow
+    from station_diagnostic_set_assign
+    inner join diagnostic_threshold_values
         on
-            ddsa.det_diag_set_id = dtv.dt_set_id
-            and ddsa.det_diag_method_id = dtv.dt_method
+            station_diagnostic_set_assign.station_diagnostic_set_id = diagnostic_threshold_values.dt_set_id
+            and station_diagnostic_set_assign.station_diagnostic_method_id = diagnostic_threshold_values.dt_method
 )
 
-select * from det_diag_threshold_values
+select * from station_diagnostic_threshold_values
