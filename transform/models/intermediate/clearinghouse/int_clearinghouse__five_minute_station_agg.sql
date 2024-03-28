@@ -1,5 +1,5 @@
 {{ config(
-    materialized="table",
+    materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["ID", "LANE", "SAMPLE_TIMESTAMP"],
     snowflake_warehouse=get_snowflake_refresh_warehouse()
@@ -20,15 +20,12 @@ with station_raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
-    -- Looking at one day only for testing/validation
-    where sample_date = '2023-03-26'--dateadd(year, -1, current_date())
-    /*{% if is_incremental() %}
+    {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
         where sample_date > (
             select dateadd(day, -2, max(sample_date)) from {{ this }}
         )
     {% endif %}
-    */
 ),
 
 aggregated as (
@@ -38,8 +35,7 @@ aggregated as (
         sample_timestamp_trunc as sample_timestamp,
         lane,
         sum(volume) as volume, -- Sum of all the flow values
-        avg(occupancy) as occupancy, -- Average of all the occupancy values
-        max(occupancy) as max_occupancy -- Maximum of all the occupancy values
+        avg(occupancy) as occupancy -- Average of all the occupancy values
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
@@ -57,8 +53,7 @@ aggregated_speed as (
         case
             when volume = 0 or occupancy = 0 then 0
             when volume is null or occupancy is null then null
-            else (volume * 22) / max_occupancy * (1 / 5280) * 12
-            --else volume / occupancy / 600
+            else (volume * 22) / occupancy * (1 / 5280) * 12
         end as speed
     from aggregated
 )
