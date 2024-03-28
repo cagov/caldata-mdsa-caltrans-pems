@@ -1,0 +1,12 @@
+version: 2
+
+macros:
+  - name: get_snowflake_refresh_warehouse
+    description: |
+      Full refreshes of incremental models sometimes need a little bit of
+      extra firepower. This returns an appropriate (i.e. 4XL) warehouse
+      for that case. Use it with caution! This returns large if either of
+      the following conditions are met:
+
+      * The target table doesn't exist (i.e., hasn't been built yet)
+      * the `--full-refresh` flag is set via the CLI.

@@ -29,5 +29,7 @@ models:
         +schema: clearinghouse
     intermediate:
       +materialized: view
-      vds:
-        +schema: vds
+      clearinghouse:
+        +schema: clearinghouse
+      detector_health_diag:
+        +schema: detector_health

@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_vds__station_meta
+  - name: int_clearinghouse__station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
     columns:
@@ -49,7 +49,7 @@ models:
           The date that this metadata became *invalid*.
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
-  - name: int_vds__station_status
+  - name: int_clearinghouse__station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
       ID to station ID mapping.
@@ -85,7 +85,7 @@ models:
           The date that this metadata became *invalid*.
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
-  - name: int_vds__most_recent_station_meta
+  - name: int_clearinghouse__most_recent_station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
 
@@ -126,7 +126,7 @@ models:
         description: A descriptive name assocaited with a VDS
       - name: TYPE
         description: Two character string identify the VDS type
-  - name: int_vds__most_recent_station_status
+  - name: int_clearinghouse__most_recent_station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
       ID to station ID mapping.
@@ -154,4 +154,22 @@ models:
         description: |
           The lane number for the detector. This seems to be reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
-          from one.
+          from one
+  - name: int_clearinghouse__five_minute_station_agg
+    description: |
+      Raw 30 second sample data aggregated to the 5 minute level.
+      Volume values are summed, occupancy is averaged.
+    columns:
+      - name: ID
+        description: The station ID
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1
+      - name: VOLUME
+        description: The sum of the flow values for a detector over the sample period.
+      - name: OCCUPANCY
+        description: The average of the occupancy values over the sample period.
