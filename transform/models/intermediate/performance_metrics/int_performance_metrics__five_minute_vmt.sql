@@ -5,6 +5,9 @@
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
+
+
+
 with station_meta as (
     select
         ID,
@@ -15,6 +18,17 @@ with station_meta as (
         _VALID_FROM,
         _VALID_TO
     from {{ ref('int_clearinghouse__station_meta') }}
+    WHERE TYPE = "ML"
+
+),
+
+fivemin_agg as (
+    SELECT 
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume
+    FROM {{ ref('int_clearinghouse__five_minute_station_agg') }}
 
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
@@ -22,24 +36,23 @@ with station_meta as (
             select dateadd(day, -2, max(sample_date)) from {{ this }}
         )
     {% endif %}
-),
-
-vmt_aggregated as (
-    select
-        id,
-        sample_date,
-        sample_timestamp_trunc as sample_timestamp,
-        lane,
-        sum(volume) as volume, -- Sum of all the flow values
-        avg(occupancy) as occupancy -- Average of all the occupancy values
-
-        # VMT calculation here func(fivemin_agg.flow)
-
-    from station_meta
-    left join fivemin_agg
-    where station_meta.ID = fivemin_agg.ID and Lane, 
-
-    group by id, lane, sample_date, sample_timestamp_trunc
 )
 
-select * from vmt_aggregated
+
+vmt_agg_5min as (
+    select
+        station_meta.ID,
+        fivemin_agg.lane,
+        fivemin_agg.sample_date,
+        fivemin_agg.sample_timestamp,
+        -- VMT calculation (5 min agg volume * station coverage length)
+        fivemin_agg.volume * station_meta.LENGTH as VMT 
+    from  fivemin_agg 
+    left join station_meta
+        where station_meta.ID = fivemin_agg.ID 
+            and station_meta.Lane = fivemin_agg.lane
+    group by id, lane, sample_date, sample_timestamp
+
+)
+
+select * from vmt_agg_5min
