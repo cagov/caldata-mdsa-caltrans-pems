@@ -176,5 +176,5 @@ models:
       - name: SPEED
         description: |
           Preliminary speed calculation in miles/hour based on the simplified version
-          of the speed formula located at 
+          of the speed formula located at
           https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf

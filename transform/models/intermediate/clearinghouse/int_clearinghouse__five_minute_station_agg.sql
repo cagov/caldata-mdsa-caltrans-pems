@@ -25,6 +25,11 @@ with station_raw as (
         where sample_date > (
             select dateadd(day, -2, max(sample_date)) from {{ this }}
         )
+        {% if target.name != 'prd' %}
+            and sample_date >= dateadd('day', -14, current_date())
+        {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd('day', -14, current_date())
     {% endif %}
 ),
 
@@ -43,11 +48,11 @@ aggregated as (
 aggregated_speed as (
     select
         *,
-        --For speed I used the following formula to get speed: 
-        --SPEED = SUM(FLOW)/AVG(OCCUPANCY)/600 which resulted in 
+        --For speed I used the following formula to get speed:
+        --SPEED = SUM(FLOW)/AVG(OCCUPANCY)/600 which resulted in
         --values from 0 to 5
         --On 3/22/24 I updated the formula to use a vehicle effective length
-        --of 22 feet (16 ft vehicle + 6 ft detector zone) feet and using 
+        --of 22 feet (16 ft vehicle + 6 ft detector zone) feet and using
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
         case
