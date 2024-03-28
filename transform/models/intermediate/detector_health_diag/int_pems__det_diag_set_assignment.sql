@@ -36,8 +36,30 @@ station_diagnostic_set_assign as (
 diagnostic_threshold_values as (
     select *
     from {{ ref('diagnostic_threshold_values') }}
-    pivot (avg(dt_value) for dt_name in ('high_occ', 'high_flow'))
-        as p (dt_set_id, dt_method, high_occupancy, high_flow)
+    pivot (avg(dt_value) for dt_name in (
+        'high_occ',
+        'high_flow',
+        'high_occ_pct',
+        'zero_occ_pct',
+        'flow_occ_pct',
+        'occ_flow_pct',
+        'repeat_occ',
+        'high_flow_pct',
+        'zero_flow_pct'
+    ))
+        as p (
+            dt_set_id,
+            dt_method,
+            high_occupancy,
+            high_flow,
+            high_occupancy_percent,
+            zero_occupancy_percent,
+            flow_occupancy_percent,
+            occupancy_flow_percent,
+            repeat_occupancy,
+            high_flow_percent,
+            zero_flow_percent
+        )
 ),
 
 station_diagnostic_threshold_values as (
@@ -47,8 +69,7 @@ station_diagnostic_threshold_values as (
     */
     select
         station_diagnostic_set_assign.*,
-        diagnostic_threshold_values.high_occupancy,
-        diagnostic_threshold_values.high_flow
+        diagnostic_threshold_values.* exclude (dt_set_id, dt_method)
     from station_diagnostic_set_assign
     inner join diagnostic_threshold_values
         on
