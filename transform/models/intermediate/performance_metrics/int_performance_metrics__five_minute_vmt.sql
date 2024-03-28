@@ -5,9 +5,6 @@
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
-
-
-
 with station_meta as (
     select
         ID,
