@@ -173,3 +173,8 @@ models:
         description: The sum of the flow values for a detector over the sample period.
       - name: OCCUPANCY
         description: The average of the occupancy values over the sample period.
+      - name: SPEED
+        description: |
+          Preliminary speed calculation in miles/hour based on the simplified version
+          of the speed formula located at
+          https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
