@@ -27,6 +27,43 @@ models:
         description: |
           The high-flow threshold for station diagnostics, above which the
           values are considered suspicious.
+      - name: high_occ_pct
+        description: |
+          The high occupancy percentage threshold for station diagnostics above which
+          the number of high occupancy values that occur at a station are suspect
+          No. of high occ samples > % of the max collected samples during the test period
+      - name: zero_occ_pct
+        description: |
+          The zero occupancy percentage threshold for station diagnostics above which
+          the number of zero occupancy values that occur at a station are suspect
+          No. of zero occ samples > % of the max collected samples during the test period
+      - name: flow_occ_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of
+          flow = 0 and occupancy > 0 values that occur at a station are suspect
+          No. of flow-occ mismatch samples > % of the max collected samples during the
+          test period.
+      - name: occ_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of
+          occupany = 0 and flow > 0 values that occur at a station are suspect
+          No. of flow-occ mismatch samples > % of the max collected samples during the
+          test period.
+      - name: repeat_occ
+        description: |
+          The high-occupancy threshold for station diagnostics, above which the
+          values are considered suspicious
+          No. of repeated occupancy values > 5-min samples
+      - name: high_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of high flow
+          values that occur at a station are suspect
+          No. of high flow samples > % of the max collected samples during the test period
+      - name: zero_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of zero flow
+          values that occur at a station are suspect
+          No. of zero flow samples > % of the max collected samples during the test period
     tests:
       - dbt_utils.equal_rowcount:
           compare_model: ref('int_clearinghouse__most_recent_station_meta')
