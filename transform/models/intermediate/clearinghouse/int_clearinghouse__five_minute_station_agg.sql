@@ -55,11 +55,7 @@ aggregated_speed as (
         --of 22 feet (16 ft vehicle + 6 ft detector zone) feet and using
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
-        case
-            when volume = 0 or occupancy = 0 then 0
-            when volume is null or occupancy is null then null
-            else (volume * 22) / occupancy * (1 / 5280) * 12
-        end as speed
+        (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
     from aggregated
 )
 
