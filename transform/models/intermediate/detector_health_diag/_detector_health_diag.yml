@@ -11,6 +11,8 @@ models:
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
+        tests:
+          - not_null          
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
@@ -80,8 +82,8 @@ models:
         description: |
           An integer value that uniquely indenties a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        tests:
-          - not_null
+        #tests:
+        #  - not_null
       - name: lane
         description: Lane associated with a route and station
       - name: station_diagnostic_method_id

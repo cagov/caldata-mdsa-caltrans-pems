@@ -65,8 +65,8 @@ samples_per_station as (
         COUNT_IF(source.volume > set_assgnmt.high_flow) as high_volume_ct,
         COUNT_IF(source.occupancy > set_assgnmt.high_occupancy) as high_occupancy_ct
 
-    from source
-    left join {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
+    from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
+    left join source
         on source.id = set_assgnmt.station_id
 
     group by source.id, source.sample_date, source.lane
