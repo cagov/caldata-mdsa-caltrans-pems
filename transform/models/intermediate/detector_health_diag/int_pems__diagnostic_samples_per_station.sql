@@ -17,7 +17,7 @@ source as (
             )
     {% endif %}
     {% if target.name != 'prd' %}
-            and sample_date >= DATEADD('day', -14, CURRENT_DATE())
+            and sample_date = DATEADD('day', -2, CURRENT_DATE())
     {% endif %}
 ),
 
@@ -68,7 +68,10 @@ samples_per_station as (
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
     left join source
         on source.id = set_assgnmt.station_id
-
+    --Look only at the previous day to determine a detectors status
+    --for development we use 2 days but the final code should be updated
+    --from -2 to -1 or use PREVIOUS_DAY in Snowflake
+    where source.sample_date = DATEADD('day', -2, CURRENT_DATE())
     group by set_assgnmt.station_id, source.lane, source.sample_date
 )
 
