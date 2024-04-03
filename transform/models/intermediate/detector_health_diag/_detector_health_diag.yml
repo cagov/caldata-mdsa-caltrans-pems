@@ -80,7 +80,7 @@ models:
         description: The date associated with raw data samples being counted.
       - name: station_id
         description: |
-          An integer value that uniquely indenties a station.
+          An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
         #tests:
         #  - not_null

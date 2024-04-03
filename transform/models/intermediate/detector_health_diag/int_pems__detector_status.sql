@@ -52,8 +52,8 @@ detector_status as (
             --Feed unstable case needed
             else 'Good'
         end as status
-    from det_diag_sample_count as ddsc
-    left join {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
+    from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
+    inner join det_diag_sample_count as ddsc
         on ddsc.station_id = set_assgnmt.station_id
 )
 

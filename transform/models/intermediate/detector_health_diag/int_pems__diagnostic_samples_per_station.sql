@@ -23,9 +23,9 @@ source as (
 
 samples_per_station as (
     select
-        source.sample_date,
-        source.id as station_id,
+        set_assgnmt.station_id as station_id,
         source.lane,
+        source.sample_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
         based on 30 second raw data recieved per station, lane and time. Null values
@@ -69,7 +69,7 @@ samples_per_station as (
     left join source
         on source.id = set_assgnmt.station_id
 
-    group by source.id, source.sample_date, source.lane
+    group by set_assgnmt.station_id, source.lane, source.sample_date
 )
 
 select * from samples_per_station
