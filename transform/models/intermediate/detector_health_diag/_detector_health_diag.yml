@@ -70,7 +70,7 @@ models:
       - dbt_utils.equal_rowcount:
           compare_model: ref('int_clearinghouse__most_recent_station_meta')
 
-  - name: int_pems__diagnostic_samples_per_station
+  - name: int_pems__detector_status
     description: |
       This file contains count data by station and lane based on the number of raw data samples
       that met a variety of flow and occupancy criteria. This data will be used to determine the
@@ -82,8 +82,8 @@ models:
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        #tests:
-        #  - not_null
+        tests:
+          - not_null
       - name: lane
         description: Lane associated with a route and station
       - name: station_diagnostic_method_id
