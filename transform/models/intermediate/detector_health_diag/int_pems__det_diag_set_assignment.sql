@@ -1,5 +1,15 @@
 with
 
+detector_source as (
+    select
+        station_id,
+        detector_id,
+        detector_name,
+        detector_status,
+        length(lane_number) as lane_num
+    from {{ ref('int_clearinghouse__most_recent_station_status') }}
+),
+
 station_diagnostic_set_assign as (
     /*
     This SQL file assigns which sets of calculations will be used for
@@ -9,7 +19,6 @@ station_diagnostic_set_assign as (
     1 of 2 values for station diagnostic evaluations.
     */
     select
-        meta_date,
         id as station_id,
         district,
         type,
@@ -69,12 +78,15 @@ station_diagnostic_threshold_values as (
     */
     select
         station_diagnostic_set_assign.*,
-        diagnostic_threshold_values.* exclude (dt_set_id, dt_method)
+        diagnostic_threshold_values.* exclude (dt_set_id, dt_method),
+        detector_source.* exclude (station_id)
     from station_diagnostic_set_assign
     inner join diagnostic_threshold_values
         on
             station_diagnostic_set_assign.station_diagnostic_set_id = diagnostic_threshold_values.dt_set_id
             and station_diagnostic_set_assign.station_diagnostic_method_id = diagnostic_threshold_values.dt_method
+    inner join detector_source
+        on station_diagnostic_set_assign.station_id = detector_source.station_id
 )
 
 select * from station_diagnostic_threshold_values
