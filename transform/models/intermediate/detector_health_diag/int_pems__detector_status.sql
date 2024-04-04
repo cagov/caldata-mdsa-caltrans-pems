@@ -1,5 +1,7 @@
 {{ config(
     materialized="incremental",
+    cluster_by=['sample_count_date'],
+    unique_key=['station_id', 'sample_count_date', 'lane_num'],
     snowflake_warehouse="transforming_xl_dev"
 ) }}
 
