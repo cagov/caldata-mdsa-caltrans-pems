@@ -11,6 +11,8 @@ detector_status as (
     select
         sps.*,
         case
+            when sps.district_feed_working = 'No'
+                then 'District Feed Down'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
             -- # of samples < 60% of the max collected samples during the test period
