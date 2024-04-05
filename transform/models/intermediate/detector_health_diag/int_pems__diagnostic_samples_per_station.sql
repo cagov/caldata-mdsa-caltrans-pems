@@ -7,26 +7,11 @@ source as (
         and sample_date = DATEADD('day', -2, CURRENT_DATE())
 ),
 
-district_feed_check as (
-    select
-        d.district_id as district,
-        case
-            when (COUNT_IF(sps.sample_ct > 0)) > 0 then 'Yes'
-            else 'No'
-        end as district_feed_working
-    from {{ ref('districts') }} as d
-    inner join {{ ref('int_pems__diagnostic_samples_per_station') }} as sps
-        on d.district_id = sps.district
-    group by district_id
-),
-
 samples_per_station as (
     select
-        set_assgnmt.district,
+        set_assgnmt.district as district,
         set_assgnmt.station_id as station_id,
         set_assgnmt.lane_num,
-        source.sample_date,
-        dfc.district_feed_working,
         COALESCE(source.sample_date, DATEADD('day', -2, CURRENT_DATE())) as sample_count_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
@@ -72,9 +57,26 @@ samples_per_station as (
         on
             source.id = set_assgnmt.station_id
             and source.lane = set_assgnmt.lane_num
-    inner join district_feed_check as dfc
-        on set_assgnmt.district = dfc.district
-    group by set_assgnmt.district, set_assgnmt.station_id, set_assgnmt.lane_num, sample_count_date, dfc.district_feed_working
+    group by
+        set_assgnmt.district, set_assgnmt.station_id, set_assgnmt.lane_num, sample_count_date
+),
+
+district_feed_check as (
+    select
+        samples_per_station.district,
+        case
+            when (COUNT_IF(samples_per_station.sample_ct > 0)) > 0 then 'Yes'
+            else 'No'
+        end as district_feed_working
+    from samples_per_station
+    inner join {{ ref('districts') }} as d
+        on d.district_id = samples_per_station.district
+    group by samples_per_station.district
 )
 
-select * from samples_per_station
+select
+    sps.*,
+    dfc.district_feed_working
+from samples_per_station as sps
+inner join district_feed_check as dfc
+    on sps.district = dfc.district
