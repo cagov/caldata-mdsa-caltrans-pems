@@ -1,17 +1,32 @@
+{{ config(
+    materialized="incremental",
+    cluster_by=['sample_count_date'],
+    unique_key=['station_id', 'sample_count_date', 'lane_num'],
+    snowflake_warehouse="transforming_xl_dev"
+) }}
+
 with
 
 source as (
     select * from {{ ref ('stg_clearinghouse__station_raw') }}
     where
         TO_TIME(sample_timestamp) >= '05:00:00' and TO_TIME(sample_timestamp) <= '21:59:59'
-        and sample_date = DATEADD('day', -2, CURRENT_DATE())
+        {% if is_incremental() %}
+            -- Look back two days to account for any late-arriving data
+            and sample_date > (
+                select DATEADD(day, -2, MAX(sample_date)) from {{ this }}
+            )
+        {% endif %}
+        {% if target.name != 'prd' %}
+            and sample_date >= DATEADD('day', -7, CURRENT_DATE())
+        {% endif %}
 ),
 
 samples_per_station as (
     select
         set_assgnmt.district as district,
         set_assgnmt.station_id as station_id,
-        set_assgnmt.lane_num,
+        source.lane,
         COALESCE(source.sample_date, DATEADD('day', -2, CURRENT_DATE())) as sample_count_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
@@ -56,9 +71,13 @@ samples_per_station as (
     left join source
         on
             source.id = set_assgnmt.station_id
-            and source.lane = set_assgnmt.lane_num
+    where
+        (
+            set_assgnmt._valid_from <= source.sample_date
+            and (set_assgnmt._valid_to >= source.sample_date or set_assgnmt._valid_to is null)
+        )
     group by
-        set_assgnmt.district, set_assgnmt.station_id, set_assgnmt.lane_num, sample_count_date
+        set_assgnmt.district, set_assgnmt.station_id, source.lane, sample_count_date
 ),
 
 district_feed_check as (

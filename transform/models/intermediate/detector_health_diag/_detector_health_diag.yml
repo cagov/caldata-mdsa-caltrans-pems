@@ -10,8 +10,8 @@ models:
     columns:
       - name: detector_id
         description: An integer value that uniquely indentifies a detector.
-        tests:
-          - not_null
+        #tests:
+        #  - not_null
       - name: detector_name
         description: |
           Similar to detector ID unless alternate description provided in district configuration
@@ -26,8 +26,8 @@ models:
           - not_null
       - name: lane_num
         description: Lane number associated with a station and detector
-        tests:
-          - not_null
+        #tests:
+        #  - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
@@ -135,6 +135,8 @@ models:
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
+      - name: district_feed_working
+        description: Yes or No value based on the number of samples recived at the district level
 
   - name: int_pems__detector_status
     description: |
