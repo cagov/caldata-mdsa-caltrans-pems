@@ -44,7 +44,8 @@ detector_status as (
                 set_assgnmt.station_diagnostic_method_id = 'mainline'
                 and sps.zero_occ_pos_vol_ct / (2 * 60 * 17) > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            --constant occupancy case needed
+            when sps.constant_occupancy = true
+                then 'Constant'
             --Feed unstable case needed
             else 'Good'
         end as status

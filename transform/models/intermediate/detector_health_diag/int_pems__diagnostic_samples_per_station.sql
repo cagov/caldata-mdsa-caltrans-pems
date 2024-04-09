@@ -72,11 +72,28 @@ district_feed_check as (
     inner join {{ ref('districts') }} as d
         on d.district_id = samples_per_station.district
     group by samples_per_station.district
+),
+
+occupancy_is_constant as (
+    select
+        source.id,
+        source.sample_timestamp,
+        source.occupancy,
+        LAG(source.occupancy) over (
+            partition by FLOOR((date_part('epoch', source.sample_timestamp) - date_part('epoch', DATEADD(second, 14400, source.sample_timestamp))) / 14400) order by source.sample_timestamp
+        ) as prev_occ
+    from source
 )
 
 select
     sps.*,
-    dfc.district_feed_working
+    dfc.district_feed_working,
+    ois.sample_timestamp,
+    ois.occupancy,
+    COALESCE((SUM(case when ois.occupancy = ois.prev_occ then 1 else 0 end) / COUNT(*)) >= 0.6, false) as constant_occupancy
 from samples_per_station as sps
 inner join district_feed_check as dfc
     on sps.district = dfc.district
+left join occupancy_is_constant as ois
+    on sps.station_id = ois.id
+group by all
