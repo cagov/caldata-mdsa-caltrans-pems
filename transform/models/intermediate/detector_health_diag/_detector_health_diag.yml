@@ -137,7 +137,7 @@ models:
           detector diagnostic parameter for a station.
       - name: constant_occupancy
         description: |
-          Counts the number of samples of occupancy for a 4-hour window that are constant and 
+          Counts the number of samples of occupancy for a 4-hour window that are constant and
           evaluates to True if the constancy is 60% or more of the total samples for that period.
 
   - name: int_pems__detector_status

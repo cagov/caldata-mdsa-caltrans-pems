@@ -80,7 +80,7 @@ occupancy_is_constant as (
         source.sample_timestamp,
         source.occupancy,
         LAG(source.occupancy) over (
-            partition by FLOOR((date_part('epoch', source.sample_timestamp) - date_part('epoch', DATEADD(second, 14400, source.sample_timestamp))) / 14400) order by source.sample_timestamp
+            partition by FLOOR((DATE_PART('epoch', source.sample_timestamp) - DATE_PART('epoch', DATEADD(second, 14400, source.sample_timestamp))) / 14400) order by source.sample_timestamp
         ) as prev_occ
     from source
 )
