@@ -5,10 +5,13 @@ with nearby_stations as (
         id,
         other_id
     from {{ ref('int_clearinghouse__nearby_stations') }}
-    -- only choose stations where they are actually reasonably close to each other
-    where delta_postmile < 20
+    -- only choose stations where they are actually reasonably close to each other,
+    -- arbitrarily choose 10 miles
+    where delta_postmile < 10
 ),
 
+-- TODO: we should filter by the status of a station so that we are only trying to regress
+-- between stations that are presumed operational
 station_status as (
     select 
         detector_id,
@@ -23,6 +26,8 @@ station_counts as (
     where sample_date = '2024-04-01'::date
 ),
 
+-- Inner join on the station_status table to get rid of non-existent
+-- lane numbers (e.g., the eighth lane on a two lane road)
 station_counts_real_lanes as (
     select
         station_counts.*,
@@ -33,7 +38,10 @@ station_counts_real_lanes as (
         and station_counts.lane = station_status.lane
 ),
 
--- TODO: include same station
+-- Self-join the 5-minute aggregated data with itself,
+-- joining on the whether a station is itself or one
+-- of it's neighbors. This is a big table, as we get
+-- the product of all of the lanes in nearby stations
 station_counts_pairwise as (
     select
         a.id,
@@ -55,6 +63,8 @@ station_counts_pairwise as (
         and a.sample_timestamp = b.sample_timestamp
 ),
 
+-- Aggregate the self-joined table to get the slope
+-- and intercept of the regression.
 station_counts_regression as (
     select
         id,
@@ -66,14 +76,12 @@ station_counts_regression as (
         regr_intercept(volume, other_volume) as volume_intercept,
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept,
-        avg(volume) as volume,
-        avg(other_volume) as other_volume,
-        count(volume) as cv,
-        count(other_volume) as cov
     from station_counts_pairwise
     group by id, other_id, lane, other_lane, district
-    having count(volume) > 0 and count(other_volume) > 0
+    -- No point in regressing if the variables are all null,
+    -- this saves a lot of time.
+    having (count(volume) > 0 and count(other_volume) > 0)
+        or (count(occupancy) > 0 and count(other_occupancy) > 0)
 )
 
 select * from station_counts_regression
-

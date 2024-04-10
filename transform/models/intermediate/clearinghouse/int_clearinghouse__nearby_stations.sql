@@ -15,7 +15,7 @@ station_pairs as (
         b.absolute_postmile - a.absolute_postmile as delta_postmile
     from station_meta as a
     inner join station_meta as b
-        on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.id != b.id
+        on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type
     -- TODO: distance comparisons don't seem appropriate for all station types,
     -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
     -- types. Is this the right set?
@@ -26,6 +26,7 @@ nearest_downstream_station_pairs as (
     select *
     from station_pairs
     where delta_postmile > 0
+        and id != other_id
     qualify row_number() over (partition by id order by delta_postmile asc) = 1
 
 ),
@@ -34,11 +35,21 @@ nearest_upstream_station_pairs as (
     select *
     from station_pairs
     where delta_postmile < 0
+        and id != other_id
     qualify row_number() over (partition by id order by abs(delta_postmile) asc) = 1
 
 ),
 
+self_pairs as (
+    select *
+    from station_pairs
+    where id = other_id
+),
+
 nearest_station_pairs as (
+    select *
+    from self_pairs
+    union all
     select *
     from nearest_downstream_station_pairs
     union all
