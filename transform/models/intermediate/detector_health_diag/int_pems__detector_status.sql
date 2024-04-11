@@ -1,8 +1,5 @@
 {{ config(
-    materialized="incremental",
-    cluster_by=['sample_count_date'],
-    unique_key=['station_id', 'sample_count_date', 'lane_num'],
-    snowflake_warehouse="transforming_xl_dev"
+    materialized="table"
 ) }}
 
 with
@@ -11,8 +8,6 @@ detector_status as (
     select
         sps.*,
         case
-            when sps.district_feed_working = 'No'
-                then 'District Feed Down'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
             -- # of samples < 60% of the max collected samples during the test period
@@ -49,10 +44,15 @@ detector_status as (
             else 'Good'
         end as status
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
-    inner join {{ ref('int_pems__diagnostic_samples_per_station') }} as sps
+    left join {{ ref ('int_pems__diagnostic_samples_per_station') }} as sps
         on
-            sps.station_id = set_assgnmt.station_id
-            and sps.lane_num = set_assgnmt.lane_num
+            set_assgnmt.station_id = sps.station_id
+            and set_assgnmt.station_valid_from <= sps.sample_date
+            and
+            (
+                set_assgnmt.station_valid_to > sps.sample_date
+                or set_assgnmt.station_valid_to is null
+            )
 )
 
 select * from detector_status

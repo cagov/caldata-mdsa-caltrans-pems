@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
-    cluster_by=['sample_count_date'],
-    unique_key=['station_id', 'sample_count_date', 'lane_num'],
+    cluster_by=['sample_date'],
+    unique_key=['station_id', 'sample_date', 'lane'],
     snowflake_warehouse="transforming_xl_dev"
 ) }}
 
@@ -24,10 +24,10 @@ source as (
 
 samples_per_station as (
     select
-        set_assgnmt.district as district,
-        set_assgnmt.station_id as station_id,
+        source.district,
+        source.id as station_id,
         source.lane,
-        COALESCE(source.sample_date, DATEADD('day', -2, CURRENT_DATE())) as sample_count_date,
+        source.sample_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
         based on 30 second raw data recieved per station, lane and time. Null values
@@ -62,40 +62,16 @@ samples_per_station as (
 
         /*
         This SQL file counts the number of volume (flow) and occupancy values that exceed
-        detector threshold values for a station based on the station set assignment.
+        detector threshold values for a station based on the station set assignment. For
+        processing optimization a high flow value or 20 and high occupancy value of 0.7
+        have been hardcoded in the formulas below to avoid joining the set assignment model
         */
-        COUNT_IF(source.volume > set_assgnmt.high_flow) as high_volume_ct,
-        COUNT_IF(source.occupancy > set_assgnmt.high_occupancy) as high_occupancy_ct
+        COUNT_IF(source.volume > 20) as high_volume_ct,
+        COUNT_IF(source.occupancy > 0.7) as high_occupancy_ct
 
-    from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
-    left join source
-        on
-            source.id = set_assgnmt.station_id
-    where
-        (
-            set_assgnmt._valid_from <= source.sample_date
-            and (set_assgnmt._valid_to >= source.sample_date or set_assgnmt._valid_to is null)
-        )
+    from source
     group by
-        set_assgnmt.district, set_assgnmt.station_id, source.lane, sample_count_date
-),
-
-district_feed_check as (
-    select
-        samples_per_station.district,
-        case
-            when (COUNT_IF(samples_per_station.sample_ct > 0)) > 0 then 'Yes'
-            else 'No'
-        end as district_feed_working
-    from samples_per_station
-    inner join {{ ref('districts') }} as d
-        on d.district_id = samples_per_station.district
-    group by samples_per_station.district
+        source.district, source.id, source.lane, source.sample_date
 )
 
-select
-    sps.*,
-    dfc.district_feed_working
-from samples_per_station as sps
-inner join district_feed_check as dfc
-    on sps.district = dfc.district
+select * from samples_per_station
