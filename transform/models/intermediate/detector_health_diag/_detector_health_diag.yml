@@ -7,7 +7,7 @@ models:
     columns:
       - name: meta_date
         description: Date of the metadata file.
-      - name: id
+      - name: station_id
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
@@ -15,14 +15,59 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
         description: Two character string identify the VDS type.
-      - name: det_diag_set_id
+      - name: station_diagnostic_set_id
         description: Detector threshold set assigned to station.
-      - name: det_diag_method_id
+      - name: station_diagnostic_method_id
         description: Detector deployment location in the field.
-      - name: dt_name
-        description: Name of the diagnostic test condition associated with the station
-      - name: dt_value
-        description: Threshold value associated with the diagnostic test condition
+      - name: high_occupancy
+        description: |
+          The high-occupancy threshold for station diagnostics, above which the
+          values are considered suspicious.
+      - name: high_flow
+        description: |
+          The high-flow threshold for station diagnostics, above which the
+          values are considered suspicious.
+      - name: high_occ_pct
+        description: |
+          The high occupancy percentage threshold for station diagnostics above which
+          the number of high occupancy values that occur at a station are suspect
+          No. of high occ samples > % of the max collected samples during the test period
+      - name: zero_occ_pct
+        description: |
+          The zero occupancy percentage threshold for station diagnostics above which
+          the number of zero occupancy values that occur at a station are suspect
+          No. of zero occ samples > % of the max collected samples during the test period
+      - name: flow_occ_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of
+          flow = 0 and occupancy > 0 values that occur at a station are suspect
+          No. of flow-occ mismatch samples > % of the max collected samples during the
+          test period.
+      - name: occ_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of
+          occupany = 0 and flow > 0 values that occur at a station are suspect
+          No. of flow-occ mismatch samples > % of the max collected samples during the
+          test period.
+      - name: repeat_occ
+        description: |
+          The high-occupancy threshold for station diagnostics, above which the
+          values are considered suspicious
+          No. of repeated occupancy values > 5-min samples
+      - name: high_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of high flow
+          values that occur at a station are suspect
+          No. of high flow samples > % of the max collected samples during the test period
+      - name: zero_flow_pct
+        description: |
+          The percentage threshold for station diagnostics where the number of zero flow
+          values that occur at a station are suspect
+          No. of zero flow samples > % of the max collected samples during the test period
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('int_clearinghouse__most_recent_station_meta')
+
   - name: int_pems__diagnostic_samples_per_station
     description: |
       This file contains count data by station and lane based on the number of raw data samples
@@ -57,11 +102,11 @@ models:
         description: |
           Counts the number of raw data samples where a lane's occupancy
           value equals 0 but volume (flow) is greater than 0 by station.
-      - name: high_vol_ct
+      - name: high_volume_ct
         description: |
           Counts the number of volume (flow) values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
-      - name: high_occ_ct
+      - name: high_occupancy_ct
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
