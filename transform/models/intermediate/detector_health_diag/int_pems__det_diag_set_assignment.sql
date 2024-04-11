@@ -36,7 +36,7 @@ station_diagnostic_set_assign as (
 
 diagnostic_threshold_values as (
     -- Pivot the data in the diagnostic_threshold_value seed file so
-    -- subsequent joins create wide instead of long tables 
+    -- subsequent joins create wide instead of long tables
     select *
     from {{ ref('diagnostic_threshold_values') }}
     pivot (AVG(dt_value) for dt_name in (
