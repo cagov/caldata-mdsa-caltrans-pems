@@ -10,34 +10,40 @@ detector_status as (
         case
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
-            -- # of samples < 60% of the max collected samples during the test period
-            -- max value: 2 samples per minute times 60 mins/hr times 17 hours in a day which == 1224
-            -- btwn 1 and 1224 is too few samples
-            when sps.sample_ct between 1 and (0.6 * (2 * 60 * 17))
+            /* # of samples < 60% of the max collected during the test period
+            max value: 2 samples per min * 60 mins/hr * 17 hrs in a day == 1224
+            btwn 1 and 1224 is too few samples */
+            when sps.sample_ct between 1 and (0.6 * ({{ var("detector_status_max_sample_value") }}))
                 then 'Insufficient Data'
             when
                 set_assgnmt.station_diagnostic_method_id = 'ramp'
-                and sps.zero_vol_ct / (2 * 60 * 17) > (set_assgnmt.zero_flow_percent / 100)
+                and sps.zero_vol_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.zero_flow_percent / 100)
                 then 'Card Off'
             when
                 set_assgnmt.station_diagnostic_method_id = 'mainline'
-                and sps.zero_occ_ct / (2 * 60 * 17) > (set_assgnmt.zero_occupancy_percent / 100)
+                and sps.zero_occ_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.zero_occupancy_percent / 100)
                 then 'Card Off'
             when
                 set_assgnmt.station_diagnostic_method_id = 'ramp'
-                and sps.high_volume_ct / (2 * 60 * 17) > (set_assgnmt.high_flow_percent / 100)
+                and sps.high_volume_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.high_flow_percent / 100)
                 then 'High Val'
             when
                 set_assgnmt.station_diagnostic_method_id = 'mainline'
-                and sps.high_occupancy_ct / (2 * 60 * 17) > (set_assgnmt.high_occupancy_percent / 100)
+                and sps.high_occupancy_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.high_occupancy_percent / 100)
                 then 'High Val'
             when
                 set_assgnmt.station_diagnostic_method_id = 'mainline'
-                and sps.zero_vol_pos_occ_ct / (2 * 60 * 17) > (set_assgnmt.flow_occupancy_percent / 100)
+                and sps.zero_vol_pos_occ_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.flow_occupancy_percent / 100)
                 then 'Intermittent'
             when
                 set_assgnmt.station_diagnostic_method_id = 'mainline'
-                and sps.zero_occ_pos_vol_ct / (2 * 60 * 17) > (set_assgnmt.occupancy_flow_percent / 100)
+                and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
+                > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
             --constant occupancy case needed
             --Feed unstable case needed
