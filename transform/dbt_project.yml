@@ -21,6 +21,17 @@ clean-targets: # directories to be removed by `dbt clean`
   - target
   - dbt_packages
 
+vars:
+  #max_value comes from the detector_status model.
+  #max value is calculated by taking 2 samples per min * 60 mins/hr * 17 hrs in a day == 1224
+  detector_status_max_sample_value: 2 * 60 * 17
+  high_volume_threshold: 20
+  high_occupancy_threshold: 0.7
+  incremental_model_look_back: -2
+  dev_model_look_back: -7
+  day_start: "'05:00:00'"
+  day_end: "'21:59:59'"
+
 models:
   caldata_mdsa_caltrans_pems:
     staging:
