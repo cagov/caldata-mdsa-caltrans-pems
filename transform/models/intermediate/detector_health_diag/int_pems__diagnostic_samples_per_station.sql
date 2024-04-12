@@ -15,11 +15,11 @@ source as (
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
-                select DATEADD(day, {{ var("previous_two_days") }}, MAX(sample_date)) from {{ this }}
+                select DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date)) from {{ this }}
             )
         {% endif %}
         {% if target.name != 'prd' %}
-            and sample_date >= DATEADD('day', {{ var("previous_week") }}, CURRENT_DATE())
+            and sample_date >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
         {% endif %}
 ),
 
