@@ -15,11 +15,13 @@ source as (
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
-                select DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date)) from {{ this }}
+                select DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                from {{ this }}
             )
         {% endif %}
         {% if target.name != 'prd' %}
-            and sample_date >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
+            and sample_date
+            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
         {% endif %}
 ),
 
@@ -80,26 +82,38 @@ samples_per_station as (
         source.district, source.id, source.lane, source.sample_date
 ),
 
-occupancy_is_constant as (
+previous_occupancy_check as (
     select
-        source.id,
-        source.sample_timestamp,
-        source.occupancy,
-        LAG(source.occupancy) over (
-            partition by FLOOR((DATE_PART('epoch', source.sample_timestamp) - DATE_PART('epoch', DATEADD(second, 14400, source.sample_timestamp))) / 14400) order by source.sample_timestamp
-        ) as prev_occ
-    from source
+        f.id,
+        f.sample_date,
+        f.occupancy,
+        LAG(f.occupancy) over (order by f.sample_date) as previous_occupancy
+    from {{ ref("int_clearinghouse__five_minute_station_agg") }} as f
+),
+
+constant_occupany_check as (
+    select
+        *,
+        COUNT(occupancy = previous_occupancy)
+            over (order by sample_date rows between 47 preceding and current row)
+            as constant_occupancy_count
+    from previous_occupancy_check
+),
+
+constant_occupany_sum as (
+    select
+        *,
+        SUM(constant_occupancy_count)
+            over (order by sample_date rows between 47 preceding and current row)
+            as constant_occupancy_summed
+    from constant_occupany_check
 )
 
 select
     sps.*,
-    dfc.district_feed_working,
-    ois.sample_timestamp,
-    ois.occupancy,
-    COALESCE((SUM(case when ois.occupancy = ois.prev_occ then 1 else 0 end) / COUNT(*)) >= 0.6, false) as constant_occupancy
+    c.*,
+    COALESCE(c.constant_occupancy_summed > 28, false) as constant_occupancy
 from samples_per_station as sps
-inner join district_feed_check as dfc
-    on sps.district = dfc.district
-left join occupancy_is_constant as ois
-    on sps.station_id = ois.id
+inner join constant_occupany_sum as c
+    on sps.station_id = c.id
 group by all
