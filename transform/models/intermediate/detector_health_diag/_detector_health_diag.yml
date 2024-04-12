@@ -3,31 +3,22 @@ version: 2
 models:
   - name: int_pems__det_diag_set_assignment
     description: |
-      This SQL file assigns diagnostic threshold values used for detector healh at the
-      station level based on the district and type of station while also bringing in
-      operational detector data for each station where health is being calculated.
-      each station.
+      This SQL file assigns the correct values to appropriate districts and types.
     columns:
+      - name: meta_date
+        description: Date of the metadata file.
       - name: station_id
         description: |
-          An integer value that uniquely indentifies the Station Metadata.
+          An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
-          - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
       - name: type
         description: Two character string identify the VDS type.
-        tests:
-          - not_null
       - name: station_diagnostic_set_id
         description: Detector threshold set assigned to station.
-        tests:
-          - not_null
       - name: station_diagnostic_method_id
-        description: Detector threshold method assigned to station.
-        tests:
-          - not_null
+        description: Detector deployment location in the field.
       - name: high_occupancy
         description: |
           The high-occupancy threshold for station diagnostics, above which the
@@ -36,52 +27,46 @@ models:
         description: |
           The high-flow threshold for station diagnostics, above which the
           values are considered suspicious.
-      - name: high_occupancy_percent
+      - name: high_occ_pct
         description: |
           The high occupancy percentage threshold for station diagnostics above which
           the number of high occupancy values that occur at a station are suspect
           No. of high occ samples > % of the max collected samples during the test period
-      - name: zero_occupancy_percent
+      - name: zero_occ_pct
         description: |
           The zero occupancy percentage threshold for station diagnostics above which
           the number of zero occupancy values that occur at a station are suspect
           No. of zero occ samples > % of the max collected samples during the test period
-      - name: flow_occupancy_percent
+      - name: flow_occ_pct
         description: |
           The percentage threshold for station diagnostics where the number of
           flow = 0 and occupancy > 0 values that occur at a station are suspect
           No. of flow-occ mismatch samples > % of the max collected samples during the
           test period.
-      - name: occupancy_flow_percent
+      - name: occ_flow_pct
         description: |
           The percentage threshold for station diagnostics where the number of
           occupany = 0 and flow > 0 values that occur at a station are suspect
           No. of flow-occ mismatch samples > % of the max collected samples during the
           test period.
-      - name: repeat_occupancy
+      - name: repeat_occ
         description: |
           The high-occupancy threshold for station diagnostics, above which the
           values are considered suspicious
-      - name: high_flow_percent
+          No. of repeated occupancy values > 5-min samples
+      - name: high_flow_pct
         description: |
           The percentage threshold for station diagnostics where the number of high flow
           values that occur at a station are suspect
           No. of high flow samples > % of the max collected samples during the test period
-      - name: zero_flow_percent
+      - name: zero_flow_pct
         description: |
           The percentage threshold for station diagnostics where the number of zero flow
           values that occur at a station are suspect
           No. of zero flow samples > % of the max collected samples during the test period
-      - name: station_valid_to
-        description: |
-          The date that this metadata became *invalid*.
-          Finding the right metadata for a date should involve a check with
-          `_VALID_FROM <= date < _VALID_TO`.
-      - name: station_valid_from
-        description: |
-          The date that this metadata became valid. Should be the same as `META_DATE`.
-          Finding the right metadata for a date should involve a check with
-          `_VALID_FROM <= date < _VALID_TO`.
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('int_clearinghouse__most_recent_station_meta')
 
   - name: int_pems__diagnostic_samples_per_station
     description: |
@@ -91,38 +76,32 @@ models:
     columns:
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
-          - not_null
-      - name: district
-        description: The district in which the VDS is located. Values are 1-12.
       - name: station_id
         description: |
-          An integer value that uniquely indentifies a station.
+          An integer value that uniquely indenties a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
         tests:
           - not_null
-      - name: lane
-        description: Lane associated with a route and station from raw data
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) and occupancy
-          values contain any non-null value
+          values contain any value by station.
       - name: zero_vol_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) value
-          equals 0
+          equals 0 by station.
       - name: zero_occ_ct
         description: |
           Counts the number of raw data samples where a lane's occupancy
-          value equals 0
+          value equals 0 by station.
       - name: zero_vol_pos_occ_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow)
-          value equals 0 but occupancy is greater than 0
+          value equals 0 but occupancy is greater than 0 by station.
       - name: zero_occ_pos_vol_ct
         description: |
           Counts the number of raw data samples where a lane's occupancy
-          value equals 0 but volume (flow) is greater than 0
+          value equals 0 but volume (flow) is greater than 0 by station.
       - name: high_volume_ct
         description: |
           Counts the number of volume (flow) values in a lane that exceeded the high value threshold
@@ -131,15 +110,9 @@ models:
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
-
-  - name: int_pems__detector_status
-    description: |
-      This file contains count data by station and lane based on the 30 second raw data
-      along with a diagnostic value associated with the station type and count results.
-    columns:
-      - name: status
+      - name: too_few_samples
         description: |
-          The detector health value based on a series of validations made from
-          sample counts
-        tests:
-          - not_null
+          Counts the number of samples less than 60% of the max collected samples during the test period.
+          The max value is calculated by taking 2 samples per minute and multiplying it times 60 mins/hr
+          then multiplying that result by 17 hours in a day which equates to 1224.
+          Therefore, between 1 and 1224 is too few samples.

@@ -9,11 +9,10 @@ station_diagnostic_set_assign as (
     1 of 2 values for station diagnostic evaluations.
     */
     select
+        meta_date,
         id as station_id,
         district,
         type,
-        _valid_from as station_valid_from,
-        _valid_to as station_valid_to,
         case
             /*when LIKE(UPPER(THRESHOLD_SET), "LOW%") then "Low_Volume"
             This value is currently in district config file but not in
@@ -31,15 +30,13 @@ station_diagnostic_set_assign as (
             else 'mainline'
         end as station_diagnostic_method_id
 
-    from {{ ref ('int_clearinghouse__station_meta') }}
+    from {{ ref('int_clearinghouse__most_recent_station_meta') }}
 ),
 
 diagnostic_threshold_values as (
-    -- Pivot the data in the diagnostic_threshold_value seed file so
-    -- subsequent joins create wide instead of long tables
     select *
     from {{ ref('diagnostic_threshold_values') }}
-    pivot (AVG(dt_value) for dt_name in (
+    pivot (avg(dt_value) for dt_name in (
         'high_occ',
         'high_flow',
         'high_occ_pct',
