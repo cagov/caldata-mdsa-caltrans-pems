@@ -98,22 +98,13 @@ constant_occupany_check as (
             over (order by sample_date rows between 47 preceding and current row)
             as constant_occupancy_count
     from previous_occupancy_check
-),
-
-constant_occupany_sum as (
-    select
-        *,
-        SUM(constant_occupancy_count)
-            over (order by sample_date rows between 47 preceding and current row)
-            as constant_occupancy_summed
-    from constant_occupany_check
 )
 
 select
     sps.*,
     c.* exclude (id, sample_date),
-    COALESCE(c.constant_occupancy_summed > 28, false) as constant_occupancy
+    COALESCE(c.constant_occupancy_count > 28, false) as constant_occupancy
 from samples_per_station as sps
-inner join constant_occupany_sum as c
+inner join constant_occupany_check as c
     on sps.station_id = c.id and sps.sample_date = c.sample_date
 group by all
