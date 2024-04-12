@@ -8,24 +8,10 @@ models:
       operational detector data for each station where health is being calculated.
       each station.
     columns:
-      - name: detector_id
-        description: An integer value that uniquely indentifies a detector.
-        tests:
-          - not_null
-      - name: detector_name
-        description: |
-          Similar to detector ID unless alternate description provided in district configuration
-          file
-      - name: detector_status
-        description: A string used to identify a detectors status
       - name: station_id
         description: |
           An integer value that uniquely indentifies the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
-          - not_null
-      - name: lane_num
-        description: Lane number associated with a station and detector
         tests:
           - not_null
       - name: district
@@ -86,6 +72,16 @@ models:
           The percentage threshold for station diagnostics where the number of zero flow
           values that occur at a station are suspect
           No. of zero flow samples > % of the max collected samples during the test period
+      - name: station_valid_to
+        description: |
+          The date that this metadata became *invalid*.
+          Finding the right metadata for a date should involve a check with
+          `_VALID_FROM <= date < _VALID_TO`.
+      - name: station_valid_from
+        description: |
+          The date that this metadata became valid. Should be the same as `META_DATE`.
+          Finding the right metadata for a date should involve a check with
+          `_VALID_FROM <= date < _VALID_TO`.
 
   - name: int_pems__diagnostic_samples_per_station
     description: |
@@ -93,7 +89,7 @@ models:
       that met a variety of flow and occupancy criteria. This data will be used to determine the
       diagnostic value associated with a detector.
     columns:
-      - name: sample_count_date
+      - name: sample_date
         description: The date associated with raw data samples being counted.
         tests:
           - not_null
@@ -105,28 +101,28 @@ models:
           Use this value to 'join' other files or tables that contain the Station ID value.
         tests:
           - not_null
-      - name: lane_num
-        description: Lane associated with a route and station
+      - name: lane
+        description: Lane associated with a route and station from raw data
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) and occupancy
-          values contain any value by station.
+          values contain any non-null value
       - name: zero_vol_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) value
-          equals 0 by station.
+          equals 0
       - name: zero_occ_ct
         description: |
           Counts the number of raw data samples where a lane's occupancy
-          value equals 0 by station.
+          value equals 0
       - name: zero_vol_pos_occ_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow)
-          value equals 0 but occupancy is greater than 0 by station.
+          value equals 0 but occupancy is greater than 0
       - name: zero_occ_pos_vol_ct
         description: |
           Counts the number of raw data samples where a lane's occupancy
-          value equals 0 but volume (flow) is greater than 0 by station.
+          value equals 0 but volume (flow) is greater than 0
       - name: high_volume_ct
         description: |
           Counts the number of volume (flow) values in a lane that exceeded the high value threshold

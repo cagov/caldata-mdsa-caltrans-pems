@@ -1,15 +1,5 @@
 with
 
-detector_source as (
-    select
-        station_id,
-        detector_id,
-        detector_name,
-        detector_status,
-        length(lane_number) as lane_num
-    from {{ ref('int_clearinghouse__most_recent_station_status') }}
-),
-
 station_diagnostic_set_assign as (
     /*
     This SQL file assigns which sets of calculations will be used for
@@ -22,6 +12,8 @@ station_diagnostic_set_assign as (
         id as station_id,
         district,
         type,
+        _valid_from as station_valid_from,
+        _valid_to as station_valid_to,
         case
             /*when LIKE(UPPER(THRESHOLD_SET), "LOW%") then "Low_Volume"
             This value is currently in district config file but not in
@@ -39,13 +31,15 @@ station_diagnostic_set_assign as (
             else 'mainline'
         end as station_diagnostic_method_id
 
-    from {{ ref('int_clearinghouse__most_recent_station_meta') }}
+    from {{ ref ('int_clearinghouse__station_meta') }}
 ),
 
 diagnostic_threshold_values as (
+    -- Pivot the data in the diagnostic_threshold_value seed file so
+    -- subsequent joins create wide instead of long tables
     select *
     from {{ ref('diagnostic_threshold_values') }}
-    pivot (avg(dt_value) for dt_name in (
+    pivot (AVG(dt_value) for dt_name in (
         'high_occ',
         'high_flow',
         'high_occ_pct',
@@ -78,15 +72,12 @@ station_diagnostic_threshold_values as (
     */
     select
         station_diagnostic_set_assign.*,
-        diagnostic_threshold_values.* exclude (dt_set_id, dt_method),
-        detector_source.* exclude (station_id)
+        diagnostic_threshold_values.* exclude (dt_set_id, dt_method)
     from station_diagnostic_set_assign
     inner join diagnostic_threshold_values
         on
             station_diagnostic_set_assign.station_diagnostic_set_id = diagnostic_threshold_values.dt_set_id
             and station_diagnostic_set_assign.station_diagnostic_method_id = diagnostic_threshold_values.dt_method
-    inner join detector_source
-        on station_diagnostic_set_assign.station_id = detector_source.station_id
 )
 
 select * from station_diagnostic_threshold_values
