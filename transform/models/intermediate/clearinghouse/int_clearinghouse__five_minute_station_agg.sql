@@ -23,13 +23,13 @@ with station_raw as (
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
         where sample_date > (
-            select dateadd(day, -2, max(sample_date)) from {{ this }}
+            select dateadd(day, {{ var("previous_two_days") }}, max(sample_date)) from {{ this }}
         )
         {% if target.name != 'prd' %}
-            and sample_date >= dateadd('day', -14, current_date())
+            and sample_date >= dateadd('day', {{ var("previous_two_weeks") }}, current_date())
         {% endif %}
     {% elif target.name != 'prd' %}
-        where sample_date >= dateadd('day', -14, current_date())
+        where sample_date >= dateadd('day', {{ var("previous_two_weeks") }}, current_date())
     {% endif %}
 ),
 
