@@ -111,9 +111,9 @@ constant_occupany_sum as (
 
 select
     sps.*,
-    c.*,
+    c.* exclude (id, sample_date),
     COALESCE(c.constant_occupancy_summed > 28, false) as constant_occupancy
 from samples_per_station as sps
 inner join constant_occupany_sum as c
-    on sps.station_id = c.id
+    on sps.station_id = c.id and sps.sample_date = c.sample_date
 group by all
