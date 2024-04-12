@@ -10,8 +10,8 @@ with
 source as (
     select * from {{ ref ('stg_clearinghouse__station_raw') }}
     where
-        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+        TO_TIME(sample_timestamp) >= '{{ var("day_start") }}'
+        and TO_TIME(sample_timestamp) <= '{{ var("day_end") }}'
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
