@@ -31,6 +31,7 @@ samples_per_station as (
         source.district,
         source.id as station_id,
         source.lane,
+        source.sample_timestamp,
         source.sample_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
@@ -80,7 +81,7 @@ samples_per_station as (
 
     from source
     group by
-        source.district, source.id, source.lane, source.sample_date
+        source.district, source.id, source.lane, source.sample_timestamp, source.sample_date
 )
 
 select
