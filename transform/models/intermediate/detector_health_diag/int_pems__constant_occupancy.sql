@@ -32,20 +32,26 @@ calculate_occupancy_difference as (
         sample_timestamp,
         sample_date,
         occupancy,
-        case
-            when occupancy != 0
-                then occupancy - LAG(occupancy) over (partition by id, sample_timestamp order by sample_timestamp)
-        end as occupancy_difference
+        occupancy - LAG(occupancy) over (partition by id order by sample_timestamp) as occupancy_difference
     from source
-    group by id, sample_timestamp, sample_date, occupancy
     order by sample_timestamp
+), 
 
+sum_occupancy_difference as (
+select
+    *,
+    ABS(occupancy_difference) as abs_val_occupancy_difference,
+    SUM(abs_val_occupancy_difference) over (partition by id order by sample_timestamp rows between 47 preceding and current row) as abs_val_occupancy_difference_summed
+from calculate_occupancy_difference
+order by sample_timestamp
 )
 
 select
     *,
-    ABS(occupancy_difference) as constant_occupancy
-from calculate_occupancy_difference
-qualify
-    SUM(constant_occupancy) over (partition by id, sample_timestamp order by sample_timestamp rows between 47 preceding and current row) = 0
+    case
+    when abs_val_occupancy_difference_summed = 0 then true
+    else false
+    end as constant_occupancy
+from sum_occupancy_difference
+where occupancy != 0 or occupancy != null 
 order by sample_timestamp
