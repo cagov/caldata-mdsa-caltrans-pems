@@ -15,7 +15,8 @@ source as (
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
-                select DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                select
+                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
                 from {{ this }}
             )
         {% endif %}
@@ -80,31 +81,11 @@ samples_per_station as (
     from source
     group by
         source.district, source.id, source.lane, source.sample_date
-),
-
-previous_occupancy_check as (
-    select
-        f.id,
-        f.sample_date,
-        f.occupancy,
-        LAG(f.occupancy) over (order by f.sample_date) as previous_occupancy
-    from {{ ref("int_clearinghouse__five_minute_station_agg") }} as f
-),
-
-constant_occupany_check as (
-    select
-        *,
-        COUNT(occupancy = previous_occupancy)
-            over (order by sample_date rows between 47 preceding and current row)
-            as constant_occupancy_count
-    from previous_occupancy_check
 )
 
 select
     sps.*,
-    c.* exclude (id, sample_date),
-    COALESCE(c.constant_occupancy_count > 28, false) as constant_occupancy
+    co.abs_val_occupancy_difference as constant_occupancy
 from samples_per_station as sps
-inner join constant_occupany_check as c
-    on sps.station_id = c.id and sps.sample_date = c.sample_date
-group by all
+inner join {{ ref("int_pems__diagnostic_constant_occupancy") }} as co
+    on sps.station_id = co.id and sps.sample_timestamp = co.sample_timestamp
