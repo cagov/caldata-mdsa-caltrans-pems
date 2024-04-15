@@ -88,5 +88,5 @@ select
     sps.*,
     co.constant_occupancy
 from samples_per_station as sps
-left join {{ ref("int_pems__diagnostic_constant_occupancy") }} as co
+left join {{ ref("int_pems__constant_occupancy") }} as co
     on sps.station_id = co.id and sps.sample_timestamp = co.sample_timestamp
