@@ -44,8 +44,8 @@ calculate_occupancy_difference as (
 
 select
     *,
-    ABS(occupancy_difference) as abs_val_occupancy_difference
+    ABS(occupancy_difference) as constant_occupancy
 from calculate_occupancy_difference
 qualify
-    SUM(abs_val_occupancy_difference) over (partition by id, sample_timestamp order by sample_timestamp rows between 47 preceding and current row) = 0
+    SUM(constant_occupancy) over (partition by id, sample_timestamp order by sample_timestamp rows between 47 preceding and current row) = 0
 order by sample_timestamp

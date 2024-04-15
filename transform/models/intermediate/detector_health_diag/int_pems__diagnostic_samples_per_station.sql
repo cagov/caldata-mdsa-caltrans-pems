@@ -86,7 +86,7 @@ samples_per_station as (
 
 select
     sps.*,
-    co.abs_val_occupancy_difference as constant_occupancy
+    co.constant_occupancy
 from samples_per_station as sps
-inner join {{ ref("int_pems__diagnostic_constant_occupancy") }} as co
+left join {{ ref("int_pems__diagnostic_constant_occupancy") }} as co
     on sps.station_id = co.id and sps.sample_timestamp = co.sample_timestamp
