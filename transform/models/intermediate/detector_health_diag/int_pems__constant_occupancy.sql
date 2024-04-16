@@ -50,7 +50,8 @@ sum_occupancy_difference as (
         ABS(occupancy_difference) as abs_val_occupancy_difference,
         SUM(abs_val_occupancy_difference)
             over (
-                partition by id order by sample_timestamp rows between 47 preceding and current row
+                partition by id
+                order by sample_timestamp rows between 47 preceding and current row
             )
             as abs_val_occupancy_difference_summed
     from calculate_occupancy_difference
@@ -59,10 +60,7 @@ sum_occupancy_difference as (
 
 select
     *,
-    case
-        when abs_val_occupancy_difference_summed = 0 then true
-        else false
-    end as constant_occupancy,
+    COALESCE(abs_val_occupancy_difference_summed = 0, false) as constant_occupancy,
     COUNT_IF(constant_occupancy) as constant_occupancy_count
 from sum_occupancy_difference
 where occupancy != 0 or occupancy is not null
