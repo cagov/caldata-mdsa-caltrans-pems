@@ -45,7 +45,7 @@ detector_status as (
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
                 > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            when co.constant_occupancy = true
+            when COALESCE(co.constant_occupancy = 0, false)
                 then 'Constant'
             --Feed unstable case needed
             else 'Good'
