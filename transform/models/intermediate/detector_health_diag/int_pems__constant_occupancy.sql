@@ -17,7 +17,9 @@ source as (
             and sample_date > (
                 select
                     DATEADD(
-                        day, {{ var("incremental_model_look_back") }}, MAX(sample_date)
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        MAX(sample_date)
                     )
                 from {{ this }}
             )
@@ -35,7 +37,9 @@ calculate_occupancy_difference as (
         sample_date,
         occupancy,
         occupancy
-        - LAG(occupancy) over (partition by id order by sample_timestamp) as occupancy_difference
+        - LAG(occupancy)
+            over (partition by id order by sample_timestamp)
+            as occupancy_difference
     from source
     order by sample_timestamp
 ),
@@ -45,19 +49,18 @@ sum_occupancy_difference as (
         *,
         ABS(occupancy_difference) as abs_val_occupancy_difference,
         SUM(abs_val_occupancy_difference)
-        over (partition by id order by sample_timestamp rows between 47 preceding and current row)
-        as abs_val_occupancy_difference_summed
+            over (
+                partition by id order by sample_timestamp rows between 47 preceding and current row
+            )
+            as abs_val_occupancy_difference_summed
     from calculate_occupancy_difference
     order by sample_timestamp
 )
 
 select
     *,
-    case
-        when abs_val_occupancy_difference_summed = 0 then true
-        else false
-    end as constant_occupancy,
-    count_if(constant_occupancy) as constant_occupancy_count
+    COALESCE(abs_val_occupancy_difference_summed = 0, false) as constant_occupancy,
+    COUNT_IF(constant_occupancy) as constant_occupancy_count
 from sum_occupancy_difference
 where occupancy != 0 or occupancy is not null
 group by all
