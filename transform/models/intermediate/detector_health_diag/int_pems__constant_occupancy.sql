@@ -16,7 +16,9 @@ source as (
             -- Look back two days to account for any late-arriving data
             and sample_date > (
                 select
-                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                    DATEADD(
+                        day, {{ var("incremental_model_look_back") }}, MAX(sample_date)
+                    )
                 from {{ this }}
             )
         {% endif %}
@@ -32,26 +34,32 @@ calculate_occupancy_difference as (
         sample_timestamp,
         sample_date,
         occupancy,
-        occupancy - LAG(occupancy) over (partition by id order by sample_timestamp) as occupancy_difference
+        occupancy
+        - LAG(occupancy) over (partition by id order by sample_timestamp) as occupancy_difference
     from source
     order by sample_timestamp
-), 
+),
 
 sum_occupancy_difference as (
-select
-    *,
-    ABS(occupancy_difference) as abs_val_occupancy_difference,
-    SUM(abs_val_occupancy_difference) over (partition by id order by sample_timestamp rows between 47 preceding and current row) as abs_val_occupancy_difference_summed
-from calculate_occupancy_difference
-order by sample_timestamp
+    select
+        *,
+        ABS(occupancy_difference) as abs_val_occupancy_difference,
+        SUM(abs_val_occupancy_difference)
+        over (partition by id order by sample_timestamp rows between 47 preceding and current row)
+        as abs_val_occupancy_difference_summed
+    from calculate_occupancy_difference
+    order by sample_timestamp
 )
 
 select
     *,
     case
-    when abs_val_occupancy_difference_summed = 0 then true
-    else false
-    end as constant_occupancy
+        when abs_val_occupancy_difference_summed = 0 then true
+        else false
+    end as constant_occupancy,
+    count_if(constant_occupancy) as constant_occupancy_count
 from sum_occupancy_difference
-where occupancy != 0 or occupancy != null 
+where occupancy != 0 or occupancy is not null
+group by all
+having constant_occupancy_count > 28
 order by sample_timestamp
