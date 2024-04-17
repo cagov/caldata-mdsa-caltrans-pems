@@ -4,7 +4,7 @@ models:
   - name: int_performance__five_min_perform_metrics
     description: |
       This file contains performance metrics by station and lane based on data from
-      the station_meta and five_minute_agg models. This data forms the basis for 
+      the station_meta and five_minute_agg models. This data forms the basis for
       performance metrics that will be aggregated over various spatial/temporal
       segments/timeframes
     columns:
@@ -39,18 +39,18 @@ models:
           time and a given section of the freeway
       - name: vht
         description: |
-          Vehicle Hours Travelled (VHT) is calculated over a given unit of time and a 
-          given section of freeway. VHT is the amount of time spent by all of the 
+          Vehicle Hours Travelled (VHT) is calculated over a given unit of time and a
+          given section of freeway. VHT is the amount of time spent by all of the
           vehicles on the freeway.
       - name: q-value
         description: |
-          Q is the sum of the VMT in a spatial and temporal region divided by the sum of 
-          the VHT in the same region. For a single location its interpretation is the 
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region. For a single location its interpretation is the
           average speed.
       - name: tti
         description: |
           The Travel Time Index (TTI) is the ratio of the average travel time for all users
           across a region to the free-flow travel time. The free-flow travel time is taken
-          to be the time to traverse the link when traveling at 60MPH. For loop-based 
-          performance measures, the TTI is simply the free-flow speed divided by the 
+          to be the time to traverse the link when traveling at 60MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
           performance measure Q.
