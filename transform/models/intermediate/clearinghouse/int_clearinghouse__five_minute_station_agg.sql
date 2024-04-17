@@ -66,44 +66,6 @@ aggregated_speed as (
         --    as speed
         (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
     from aggregated
-),
-
-station_meta as (
-    select
-        aspd.*,
-        sm.* exclude (id, meta_date, filename)
-    from {{ ref ('int_clearinghouse__station_meta') }} as sm
-    inner join aggregated_speed as aspd
-        on
-            sm.id = aspd.id
-            and sm._valid_from <= aspd.sample_date
-            and
-            (
-                sm._valid_to > aspd.sample_date
-                or sm._valid_to is null
-            )
-),
-
-vmt_vht_metrics as (
-    select
-        *,
-        volume * length as vmt, --vehicle-miles/5-min
-        volume * length / nullifzero(speed) as vht --vehicle-hours/5-min
-    from station_meta
-),
-
-q_metric as (
-    select
-        *,
-        vmt / nullifzero(vht) as q_value
-    from vmt_vht_metrics
-),
-
-tti_metric as (
-    select
-        *,
-        60 / nullifzero(q_value) as tti
-    from q_metric
 )
 
-select * from tti_metric
+select * from aggregated_speed

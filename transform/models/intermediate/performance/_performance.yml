@@ -1,0 +1,56 @@
+version: 1
+
+models:
+  - name: int_performance__five_min_perform_metrics
+    description: |
+      This file contains performance metrics by station and lane based on data from
+      the station_meta and five_minute_agg models. This data forms the basis for 
+      performance metrics that will be aggregated over various spatial/temporal
+      segments/timeframes
+    columns:
+      - name: sample_date
+        description: The date associated with five minute aggregated data samples.
+        tests:
+          - not_null
+      - name: id
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+        tests:
+          - not_null
+      - name: lane
+        description: Lane associated with a route and station from raw data
+      - name: sample_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) and occupancy
+          values contain any non-null value
+      - name: volume
+        description: The sum of the flow values for a detector over the sample period.
+      - name: occupancy
+        description: The average of the occupancy values over the sample period.
+      - name: speed
+        description: |
+          Preliminary speed calculation in miles/hour based on the simplified version
+          of the speed formula located at
+          https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
+      - name: vmt
+        description: |
+          The sum of the miles of freeway driven by each vehicle for a given unit of
+          time and a given section of the freeway
+      - name: vht
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated over a given unit of time and a 
+          given section of freeway. VHT is the amount of time spent by all of the 
+          vehicles on the freeway.
+      - name: q-value
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of 
+          the VHT in the same region. For a single location its interpretation is the 
+          average speed.
+      - name: tti
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60MPH. For loop-based 
+          performance measures, the TTI is simply the free-flow speed divided by the 
+          performance measure Q.
