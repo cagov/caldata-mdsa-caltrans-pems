@@ -32,8 +32,16 @@ with station_raw as (
                     )
                 from {{ this }}
             )
+            {% if target.name != 'prd' %}
+                and sample_date
+                >= dateadd(
+                    day,
+                    {{ var("dev_model_look_back") }},
+                    current_date()
+                )
+            {% endif %}
     {% elif target.name != 'prd' %}
-        where sample_date >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
 
@@ -62,7 +70,8 @@ aggregated_speed as (
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
         --The following code may be used if we want to use speed from raw data
-        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12))
+        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy) 
+        --* (1 / 5280) * 12))
         --    as speed
         (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
     from aggregated
