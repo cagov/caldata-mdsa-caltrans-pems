@@ -47,8 +47,8 @@ aggregated as (
             as sample_ct, --Number of raw data samples
         sum(volume) as volume, -- Sum of all the flow values
         avg(occupancy) as occupancy -- Average of all the occupancy values
-        -- avg(speed) as speed_raw -- This code could be used if we use 
-        -- actual speeds reported from raw data 
+        -- avg(speed) as speed_raw -- This code could be used if we use
+        -- actual speeds reported from raw data
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
@@ -56,8 +56,8 @@ aggregated as (
 aggregated_speed as (
     select
         *,
-        --A preliminary speed calcuation was developed on 3/22/24 
-        --using a vehicle effective length of 22 feet 
+        --A preliminary speed calcuation was developed on 3/22/24
+        --using a vehicle effective length of 22 feet
         --(16 ft vehicle + 6 ft detector zone) feet and using
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
