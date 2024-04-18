@@ -5,7 +5,7 @@
 # Ensure the oracle crawler is running (machine jupyter@D1)
 0 */5 * * * pgrep -f oracle_puller_daemon.py > /dev/null || python3 /data/projects/crawler/oracle_puller_daemon.py
 
-# Ensure the aws uploader is running (machine s159123@D2)
-0 */5 * * * pgrep -f aws_upload_daemon_script.sh > /dev/null || sh /nfsdata/dataop/uploader/aws_upload_daemon_script.sh "D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC"
+# Scheduling the aws uploader, every 6 hours.
+0 */6 * * * /nfsdata/dataop/uploader/aws_upload_daemon_script.sh "D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC"
 
 

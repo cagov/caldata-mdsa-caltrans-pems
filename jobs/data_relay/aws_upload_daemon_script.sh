@@ -22,6 +22,7 @@
 #
 #
 
+cd /nfsdata/dataop/uploader
 # Assuming the TOPICs you want to copy are passed in as the first command line argument. 
 # Eg: "topic1,topic2,topic3"
 topics=$1  
@@ -29,16 +30,20 @@ topics=$1
 IFS=',' read -ra ADDR <<< "$topics"
 
 # Start an infinite loop
-while true; do
-  # Traverse through each TOPIC and run the copy command
-  for topic in "${ADDR[@]}"; do
-    echo "Now start uploading $topic"
-    echo "Executing script below:"
-    echo python3 table_aws_uploader.py --topic $topic --date_time default
-    python3 table_aws_uploader.py --topic $topic --date_time default
-  done
-
-  # Wait for 10 minutes before the next iteration
-  echo "Waiting for 10 minutes before the next iteration..."
-  sleep 10m
+# Traverse through each TOPIC and run the copy command
+for topic in "${ADDR[@]}"; do
+echo "Now start uploading $topic"
+echo "Executing script below:"
+echo python3 table_aws_uploader.py --topic $topic --date_time default --window 21600
+python3 table_aws_uploader.py --topic $topic --date_time default --window 21600
 done
+
+
+/tmp/table_aws_uploader.log:2024-03-20T17:33:59.874139-0700 INFO table_aws_uploader.py:1062 Exe
+cuting command/usr/local/bin/aws s3 cp /nfsdata/dataop/uploader/tmp/D4.VDS30SEC/D4.VDS30SEC_dum
+p_20240320T234819Z_21b93a5fbcdfea92.parquet s3://caltrans-pems-dev-us-west-2-raw/db96_export_st
+aging_area/tables/VDS30SEC/district=D4/year=2024/month=3/day=14/ --ca-bundle /etc/pki/ca-trust/
+extracted/openssl/ca-bundle.trust.crt
+
+
+

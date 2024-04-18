@@ -98,6 +98,13 @@ config = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--topic", help="Topic i.e. D3.VDS30SEC", required=True)
+parser.add_argument("--debug", \
+                    help="Debugger config string, if specified, should take the form like key=value,key1=value1. Example key includes `signature` ")
+parser.add_argument(
+    "--limit_rows",
+    type=int,
+    help=" if specified, will regulate the maximal size of rows the whole script can handle before exiting. ",
+)
 parser.add_argument(
     "--date_time",
     required=True,
@@ -411,20 +418,30 @@ def pull():
     move_to_aws_consumer.subscribe([args.topic])
 
     offset_info = load_previous_offset_info(args.topic)
-    force_start_at_offset(move_to_aws_consumer, offset_info)
+    if False:
+        force_start_at_offset(move_to_aws_consumer, offset_info)
+    else:
+        logger.info("Force start at offset skipped.")
     new_offset_details = None
     import time
 
     last_saved_time = time.time()
+    messages_in_batch = 0
+    buffer = []
     while True:
         current_time = time.time()
         try:
             # Attempt to pull a new message from the Kafka topic
             message = move_to_aws_consumer.poll(10)
+            messages_in_batch = messages_in_batch + 1
             if message is None:
                 logger.info("Message is None, break")
                 time.sleep(0)
                 if new_offset_details:
+                    with open(output_path, "a") as f:
+                        for row in buffer:
+                            f.write(json.dumps(row) + "\n")
+                    buffer.clear()
                     upload(output_path, args.date_time, args.topic)
                     output_path = get_output_path()
                     ensure_dir(output_path)
@@ -439,11 +456,17 @@ def pull():
 
                 offset_info["partition_offsets"][message.partition()] = message.offset()
                 new_offset_details = True
-                with open(output_path, "a") as f:
-                    f.write(json.dumps(message.value()) + "\n")
                 if (
-                    current_time - last_saved_time >= delta_upload_seconds
+                    current_time - last_saved_time >= delta_upload_seconds \
+                        or (args.limit_rows and messages_in_batch > int(args.limit_rows))
                 ):  # if `delta_upload_seconds` or more seconds have passed
+                    buffer.append(message.value())
+
+                    # dump the remaining backlog buffer to the file
+                    with open(output_path, "a") as f:
+                        for row in buffer:
+                            f.write(json.dumps(row) + "\n")
+                    buffer.clear()
                     last_saved_time = current_time
                     # Perform the action here. For this example, we're just printing a statement
                     logger.info(f"{delta_upload_seconds} seconds have passed, save.")
@@ -451,7 +474,16 @@ def pull():
                     output_path = get_output_path()
                     ensure_dir(output_path)
                     save_offset_details_as_json(message, offset_info)
+                    break
                 else:
+                    buffer.append(message.value())
+
+                    # Access to the IO only reaches certain batch
+                    if len(buffer) > 1000:
+                        with open(output_path, "a") as f:
+                            for row in buffer:
+                                f.write(json.dumps(row) + "\n")
+                        buffer.clear()
                     # Continue to accumulate before sending
                     pass
 
@@ -782,7 +814,7 @@ def transform_table_to_schema(topic, df, schema_option):
     return df_segments_by_date
 
 
-def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
+def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
     """
     This function reads raw data from a given topic and parses
       the schema of that data. The Schema comes from the difference sources
@@ -811,7 +843,11 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_in_json):
     """
     import pandas as pd
 
-    df = pd.read_json(raw_data_in_json, lines=True)
+    df = pd.read_json(raw_data_path_in_json, lines=True, dtype_backend="pyarrow")
+    logger.debug(f"df.dtypes {df.dtypes}")
+    logger.debug(f"df.memory_usage {df.memory_usage()}")
+
+
     logger.debug(f"type df {type(df)}")
 
     schema_option = fetch_parquet_schema_from_registry(topic)
@@ -1111,21 +1147,61 @@ def start_zoo_client_with_retry(zk, retries=3, delay=5):
 
 
 if __name__ == "__main__":
-    zk = KazooClient(hosts=ZOOKEEPER_CLUSTER)
-    if not start_zoo_client_with_retry(zk):
-        logger.error("Unable to connect after multiple retries")
+    if not args.debug:
+        zk = KazooClient(hosts=ZOOKEEPER_CLUSTER)
+        if not start_zoo_client_with_retry(zk):
+            logger.error("Unable to connect after multiple retries")
+            kafka_log_handler.flush()
+            raise ValueError("cannot start zookeeper")
+        from kazoo.recipe.lock import Lock
+        lock_path = "/var/coordinator/my_instance_lock_for_aws_uploader"
+        logger.info(f"I'm about to enter an section of lock ({lock_path}) ")
         kafka_log_handler.flush()
-        raise ValueError("cannot start zookeeper")
-    from kazoo.recipe.lock import Lock
+        lock = Lock(zk, lock_path)
+        with lock:
+            logger.info(
+                f"I'm the only one running table_aws_uploader.py under lock path {lock_path}"
+            )
+            pull()
+    elif 'signature' in args.debug:
+        # example of debugging string
+        args_debug = args.debug
+        # extract 'signature' from args.debug string
+        args_debug_list = args_debug.split(',')
+        debug_dict = dict((k.strip(), v.strip()) for k, v in
+                          (item.split('=') for item in args_debug_list))
+        signature = debug_dict['signature']
+        # search file for line matching 'signature'
+        with open('/tmp/table_aws_uploader.log', 'r') as file:
+            for line_num, line in enumerate(file, 1):
+                if signature in line:
+                    parts = line.split('output_path ')
+                    json_path = parts[1].strip()
+                    if 'head' not in debug_dict:
+                        upload(json_path, args.date_time, args.topic)
+                    else:
+                        import json
 
-    lock_path = "/var/coordinator/my_instance_lock_for_aws_uploader"
-    logger.info(f"I'm about to enter an section of lock ({lock_path}) ")
-    kafka_log_handler.flush()
-    lock = Lock(zk, lock_path)
-    with lock:
-        logger.info(
-            f"I'm the only one running table_aws_uploader.py under lock path {lock_path}"
-        )
-        pull()
+                        def copy_file_path(input_path):
+                            # Separate the directory path and file name to extract the timestamp
+                            parts = input_path.split('/')
+                            # Extract the timestamp from the file name
+                            timestamp = parts[-1].split('_')[-1].split('.')[0]
+                            # Reconstruct the output path with the desired changes
+                            output_path = '/'.join(parts[:-1]) + '/bk.' + parts[-1]
+                            # Return the output path
+                            return output_path
+                        new_path = copy_file_path(json_path)
+                        def copy_json_lines(json_path, n):
+                            with open(json_path, 'r') as file:
+                                lines = file.readlines()[:n]
+
+                            with open(new_path, 'w') as new_file:
+                                for line in lines:
+                                    new_file.write(line)
+                        copy_json_lines(json_path, int(debug_dict['head']))
+                        upload(new_path, args.date_time, args.topic)
+
+                    break  # remove break if searching for all lines with 'signature'
 
 kafka_log_handler.flush()
