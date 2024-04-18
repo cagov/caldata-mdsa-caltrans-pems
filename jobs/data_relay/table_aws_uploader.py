@@ -550,9 +550,10 @@ def table_specific_schema_reconstruction(df, topic):
             return int("0" + "".join(re.findall("\d+", string)))
 
         lookup = {extract_digits(o): True for o in other_cols}
-        for d in range(2, 15):
+        for d in range(1, 15):
             if not lookup.get(d):
-                other_cols.extend([f"LOOP{d}_VOL", f"LOOP{d}_OCC"])
+                other_cols.extend([f"LOOP{d}_VOL", f"LOOP{d}_OCC", f"LOOP{d}_SPD"])
+        other_cols = sorted(set(other_cols))
         other_cols = sorted(other_cols)
 
         # Ensure no column starts with "Loop" among the first three
