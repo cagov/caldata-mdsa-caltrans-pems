@@ -7,6 +7,7 @@ with
 detector_status as (
     select
         sps.*,
+        co.constant_occupancy,
         case
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
@@ -45,13 +46,13 @@ detector_status as (
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
                 > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            when COALESCE(co.constant_occupancy = 0, false)
+            when COALESCE(co.min_delta_occupancy = 0, false)
                 then 'Constant'
             --Feed unstable case needed
             else 'Good'
         end as status
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
-    left join {{ ref ('int_pems__diagnostic_samples_per_station') }} as sps
+    left join {{ ref('int_pems__diagnostic_samples_per_station') }} as sps
     left join {{ ref('int_pems__constant_occupancy') }} as co
         on
             set_assgnmt.station_id = sps.station_id
