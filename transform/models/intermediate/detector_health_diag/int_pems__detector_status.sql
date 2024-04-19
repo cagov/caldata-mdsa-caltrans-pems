@@ -69,7 +69,7 @@ detector_status as (
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
             {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
-            and sample_date > (
+            and sps.sample_date > (
                 select
                     DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sps.sample_date))
                 from {{ this }}
