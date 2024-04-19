@@ -70,7 +70,7 @@ aggregated_speed as (
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
         --The following code may be used if we want to use speed from raw data
-        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy) 
+        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
         --* (1 / 5280) * 12))
         --    as speed
         (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
