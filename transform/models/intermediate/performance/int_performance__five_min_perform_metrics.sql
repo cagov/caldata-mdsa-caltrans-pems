@@ -64,18 +64,4 @@ vmt_vht_metrics as (
     from five_minute_agg_with_station_meta
 )
 
--- q_metric as (
---     select
---         *,
---         vmt / nullifzero(vht) as q_value
---     from vmt_vht_metrics
--- ),
-
--- tti_metric as (
---     select
---         *,
---         60 / nullifzero(q_value) as tti
---     from q_metric
--- )
-
 select * from vmt_vht_metrics
