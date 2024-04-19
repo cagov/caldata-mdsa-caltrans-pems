@@ -1,0 +1,24 @@
+# version: 2
+models:
+  - name: stg_renaming_columns_and_extract_the_date
+    description: PeMS vehicle meta data
+    config:
+      materialized: table
+    columns:
+      - name: META_DATE
+        description: "data collection data"
+        tests:
+          - not_null
+          - unique
+  - name: int_pems_station_per_county_counted
+    description: Station Counts by Caltrans county
+    config:
+      materialized: table
+    columns:
+      - name: COUNTY
+        description: "Caltrans Geographical County"
+  - name: STATION_COUNTS
+    description: "Total Number of Counts per county"
+    tests:
+      - unique
+      - not_null
