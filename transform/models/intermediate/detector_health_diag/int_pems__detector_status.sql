@@ -53,22 +53,16 @@ detector_status as (
         end as status
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
     left join {{ ref('int_pems__diagnostic_samples_per_station') }} as sps
-    left join {{ ref('int_pems__constant_occupancy') }} as co
         on
             set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.station_id = co.id
             and set_assgnmt.station_valid_from <= sps.sample_date
             and
             (
                 set_assgnmt.station_valid_to > sps.sample_date
                 or set_assgnmt.station_valid_to is null
             )
-            and set_assgnmt.station_valid_from <= co.sample_date
-            and
-            (
-                set_assgnmt.station_valid_to > co.sample_date
-                or set_assgnmt.station_valid_to is null
-            )
+    left join {{ ref('int_pems__constant_occupancy') }} as co
+        on sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
 )
 
 select * from detector_status
