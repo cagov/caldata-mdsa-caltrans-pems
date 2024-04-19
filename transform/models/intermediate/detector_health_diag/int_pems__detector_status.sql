@@ -7,7 +7,7 @@ with
 detector_status as (
     select
         sps.*,
-        co.constant_occupancy,
+        co.min_delta_occupancy,
         case
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
