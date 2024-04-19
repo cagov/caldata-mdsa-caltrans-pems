@@ -63,7 +63,7 @@ select
     id,
     sample_date,
     lane,
-    MIN(abs_val_occupancy_delta_summed) as min_delta_occupancy
+    MIN(abs_val_occupancy_delta_summed) as min_occupancy_delta
 from sum_occupancy_delta
 where occupancy != 0 or occupancy is not null
 group by id, lane, sample_date
