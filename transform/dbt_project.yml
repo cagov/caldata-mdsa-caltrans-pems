@@ -44,3 +44,5 @@ models:
         +schema: clearinghouse
       detector_health_diag:
         +schema: detector_health
+      performance:
+        +schema: performance
