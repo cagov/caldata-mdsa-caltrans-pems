@@ -57,6 +57,7 @@ sum_occupancy_delta as (
             )
             as abs_val_occupancy_delta_summed
     from calculate_occupancy_delta
+    qualify occupancy != 0 or occupancy is not null
 )
 
 select
@@ -64,7 +65,6 @@ select
     sample_date,
     lane,
     MIN(abs_val_occupancy_delta_summed) as min_occupancy_delta
-from sum_occupancy_delta
-where occupancy != 0 or occupancy is not null
+from sum_occupancy_delta 
 group by id, lane, sample_date
 order by sample_date
