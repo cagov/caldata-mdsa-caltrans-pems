@@ -137,6 +137,11 @@ models:
       This file contains count data by station and lane based on the 30 second raw data
       along with a diagnostic value associated with the station type and count results.
     columns:
+      - name: active_date
+        description: |
+          Date a station is considered active based on the meta data configuration file from district. 
+          This value determines what calculations or diagnostics are associated with a station and it's 
+          assocaited detectors on any given date while it is active.
       - name: status
         description: |
           The detector health value based on a series of validations made from

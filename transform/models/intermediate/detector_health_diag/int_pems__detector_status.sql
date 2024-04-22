@@ -1,13 +1,62 @@
 {{ config(
-    materialized="table"
+    materialized="incremental",
+    cluster_by=["sample_date"],
+    unique_key=["id", "lane", "sample_timestamp"],
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
+samples_per_station as (
+    select * from {{ ref ('int_pems__diagnostic_samples_per_station') }}
+    {% if is_incremental() %}
+        -- Look back to account for any late-arriving data
+        where
+            sample_date > (
+                select
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
+                from {{ this }}
+            )
+            {% if target.name != 'prd' %}
+                and sample_date >= (
+                    dateadd(
+                        day,
+                        {{ var("dev_model_look_back") }},
+                        current_date()
+                    )
+                )
+            {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
+    {% endif %}
+),
+
+district_feed_check as (
+    select
+        samples_per_station.district,
+        case
+            when (count_if(samples_per_station.sample_ct > 0)) > 0 then 'Yes'
+            else 'No'
+        end as district_feed_working
+    from samples_per_station
+    inner join {{ ref('districts') }} as d
+        on d.district_id = samples_per_station.district
+    group by samples_per_station.district
+),
 
 detector_status as (
     select
-        sps.*,
+        set_assgnmt.active_date,
+        set_assgnmt.station_id,
+        set_assgnmt.district,
+        set_assgnmt.type,
+        sps.* exclude (district, station_id),
+        dfc.district_feed_working,
         case
+            when dfc.district_feed_working = 'No' then 'District Feed Down'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
             /* # of samples < 60% of the max collected during the test period
@@ -50,15 +99,12 @@ detector_status as (
             else 'Good'
         end as status
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
-    left join {{ ref ('int_pems__diagnostic_samples_per_station') }} as sps
+    left join samples_per_station as sps
         on
             set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.station_valid_from <= sps.sample_date
-            and
-            (
-                set_assgnmt.station_valid_to > sps.sample_date
-                or set_assgnmt.station_valid_to is null
-            )
+            and set_assgnmt.active_date = sps.sample_date
+    inner join district_feed_check as dfc
+        on set_assgnmt.district = dfc.district
 )
 
 select * from detector_status
