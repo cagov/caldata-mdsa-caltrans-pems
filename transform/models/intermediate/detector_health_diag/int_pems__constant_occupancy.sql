@@ -42,7 +42,6 @@ calculate_occupancy_delta as (
             over (partition by id, lane, sample_date order by sample_timestamp)
             as occupancy_delta
     from source
-    order by sample_timestamp
 ),
 
 sum_occupancy_delta as (
@@ -50,13 +49,14 @@ sum_occupancy_delta as (
         *,
         ABS(occupancy_delta) as abs_val_occupancy_delta,
         SUM(abs_val_occupancy_delta)
+        /* we are looking at a window of 48 rows because that is a 4 hour window
+        (5 min data * 12 = 60 (one hour) then 12 * 4 = 48 which is 4 hours) */
             over (
                 partition by id, lane, sample_date
                 order by sample_timestamp rows between 47 preceding and current row
             )
             as abs_val_occupancy_delta_summed
     from calculate_occupancy_delta
-    order by sample_timestamp
 )
 
 select

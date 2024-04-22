@@ -7,6 +7,25 @@
 
 with
 
+source as (
+    select * from {{ ref('int_pems__diagnostic_samples_per_station') }}
+    where
+        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
+        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+        {% if is_incremental() %}
+            -- Look back two days to account for any late-arriving data
+            and sample_date > (
+                select
+                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                from {{ this }}
+            )
+        {% endif %}
+        {% if target.name != 'prd' %}
+            and sample_date
+            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
+        {% endif %}
+),
+
 detector_status as (
     select
         sps.*,
@@ -55,7 +74,7 @@ detector_status as (
             else 'Good'
         end as status
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
-    left join {{ ref('int_pems__diagnostic_samples_per_station') }} as sps
+    left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
             and set_assgnmt.station_valid_from <= sps.sample_date
@@ -67,18 +86,6 @@ detector_status as (
     left join {{ ref('int_pems__constant_occupancy') }} as co
         on
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
-            {% if is_incremental() %}
-            -- Look back two days to account for any late-arriving data
-            and sps.sample_date > (
-                select
-                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sps.sample_date))
-                from {{ this }}
-            )
-        {% endif %}
-            {% if target.name != 'prd' %}
-                and sps.sample_date
-                >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
-            {% endif %}
 )
 
 select * from detector_status
