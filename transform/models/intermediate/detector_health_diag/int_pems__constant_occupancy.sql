@@ -65,6 +65,6 @@ select
     sample_date,
     lane,
     MIN(abs_val_occupancy_delta_summed) as min_occupancy_delta
-from sum_occupancy_delta 
+from sum_occupancy_delta
 group by id, lane, sample_date
 order by sample_date
