@@ -9,21 +9,30 @@ with
 
 source as (
     select * from {{ ref('int_pems__diagnostic_samples_per_station') }}
-    where
-        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
-        {% if is_incremental() %}
-            -- Look back two days to account for any late-arriving data
-            and sample_date > (
+    {% if is_incremental() %}
+        -- Look back to account for any late-arriving data
+        where
+            sample_date > (
                 select
-                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
                 from {{ this }}
             )
-        {% endif %}
-        {% if target.name != 'prd' %}
-            and sample_date
-            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
-        {% endif %}
+            {% if target.name != 'prd' %}
+                and sample_date >= (
+                    dateadd(
+                        day,
+                        {{ var("dev_model_look_back") }},
+                        current_date()
+                    )
+                )
+            {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
+    {% endif %}
 ),
 
 detector_status as (
@@ -68,7 +77,7 @@ detector_status as (
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
                 > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            when COALESCE(co.min_occupancy_delta = 0, false)
+            when coalesce(co.min_occupancy_delta = 0, false)
                 then 'Constant'
             --Feed unstable case needed
             else 'Good'
