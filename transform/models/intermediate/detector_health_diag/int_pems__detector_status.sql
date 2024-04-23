@@ -1,8 +1,8 @@
 {{ config(
     materialized="incremental",
-    cluster_by=["sample_date"],
-    unique_key=["id", "lane", "sample_timestamp"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    cluster_by=['sample_date'],
+    unique_key=['station_id', 'lane', 'sample_date'],
+    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
@@ -55,6 +55,7 @@ detector_status as (
         set_assgnmt.type,
         sps.* exclude (district, station_id),
         dfc.district_feed_working,
+        co.min_occupancy_delta,
         case
             when dfc.district_feed_working = 'No' then 'District Feed Down'
             when sps.sample_ct = 0 or sps.sample_ct is null
@@ -94,7 +95,8 @@ detector_status as (
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
                 > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            --constant occupancy case needed
+            when coalesce(co.min_occupancy_delta = 0, false)
+                then 'Constant'
             --Feed unstable case needed
             else 'Good'
         end as status
@@ -105,6 +107,9 @@ detector_status as (
             and set_assgnmt.active_date = sps.sample_date
     inner join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
+    left join {{ ref('int_pems__constant_occupancy') }} as co
+        on
+            sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
 )
 
 select * from detector_status
