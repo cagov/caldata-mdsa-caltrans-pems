@@ -139,8 +139,8 @@ models:
     columns:
       - name: active_date
         description: |
-          Date a station is considered active based on the meta data configuration file from district. 
-          This value determines what calculations or diagnostics are associated with a station and it's 
+          Date a station is considered active based on the meta data configuration file from district.
+          This value determines what calculations or diagnostics are associated with a station and it's
           assocaited detectors on any given date while it is active.
       - name: status
         description: |
