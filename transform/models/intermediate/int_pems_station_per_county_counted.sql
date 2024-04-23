@@ -1,4 +1,4 @@
-{{config(materialized='table')}}
+{{ config(materialized='table') }}
 with
 COUNTY_DATA as (
     select
@@ -11,10 +11,9 @@ COUNTY_DATA as (
 )
 
 select
-    COUNTY, 
-    CAST(COUNT(ID) as integer) as STATION_COUNTS
+    COUNTY,
+    cast(count(ID) as integer) as STATION_COUNTS
 from COUNTY_DATA
 group by COUNTY
 order by STATION_COUNTS desc
 limit 30
-

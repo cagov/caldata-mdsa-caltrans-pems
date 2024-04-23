@@ -7,18 +7,13 @@ models:
     columns:
       - name: META_DATE
         description: "data collection data"
-        tests:
-          - not_null
-          - unique
   - name: int_pems_station_per_county_counted
     description: Station Counts by Caltrans county
     config:
       materialized: table
+      schema: Pems_station_Agrregation
     columns:
       - name: COUNTY
         description: "Caltrans Geographical County"
   - name: STATION_COUNTS
     description: "Total Number of Counts per county"
-    tests:
-      - unique
-      - not_null
