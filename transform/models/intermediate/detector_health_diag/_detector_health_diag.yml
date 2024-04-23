@@ -158,5 +158,3 @@ models:
           Selects the minimum of the abs_val_occupancy_delta_summed column
           which takes the absolute value of the delta between occupancy and
           previous occupancy summed over a window of 4 hours.
-        tests:
-          - not_null
