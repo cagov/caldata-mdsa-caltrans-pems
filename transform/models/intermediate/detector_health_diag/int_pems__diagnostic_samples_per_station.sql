@@ -23,7 +23,7 @@ source as (
                 >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
             {% endif %}
         {% elif target.name != 'prd' %}
-            and sample_date 
+            and sample_date
             >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
         {% endif %}
 ),
