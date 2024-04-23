@@ -131,10 +131,6 @@ models:
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
-      - name: constant_occupancy
-        description: |
-          Counts the number of samples of occupancy for a 4-hour window that are constant and
-          evaluates to True if the constancy is 60% or more of the total samples for that period.
 
   - name: int_pems__detector_status
     description: |
@@ -145,5 +141,22 @@ models:
         description: |
           The detector health value based on a series of validations made from
           sample counts
+        tests:
+          - not_null
+
+  - name: int_pems__constant_occupancy
+    description: |
+      This model calculates constant occupancy by first calculating the delta
+      between occupancy and previous occupancy. It then takes the absolute
+      value of that delta and sums that over a window of 48 rows which equates
+      to 4 hours (5 min data * 12 = 60 (one hour) then 12 * 4 = 48 which is 4
+      hours) where occupancy is not null and not zero. Finally it outputs the
+      minimum value grouped by id, lane, sample_date.
+    columns:
+      - name: min_occupancy_delta
+        description: |
+          Selects the minimum of the abs_val_occupancy_delta_summed column
+          which takes the absolute value of the delta between occupancy and
+          previous occupancy summed over a window of 4 hours.
         tests:
           - not_null
