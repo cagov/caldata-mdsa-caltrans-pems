@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-""" table_aws_uploader.py
+"""
+table_aws_uploader.py
 This utility retrieves all the remaining contents from a Kafka topic
 that hosts temporary data from a database table and uploads it to AWS
 under a specific date_time folder in a bucket.
 """
+import subprocess
+from datetime import datetime, timedelta
 from time import sleep
 
 import loguru._recattrs
-import subprocess
-
 import requests
-
-from datetime import datetime
-from datetime import timedelta
 
 KAFKA_SERVERS = (
     "PLAINTEXT://svgcmdl03:9092, PLAINTEXT://svgcmdl04:9092, PLAINTEXT://svgcmdl05:9092"
@@ -22,9 +20,10 @@ ELASTIC_SEARCH_SERVER = "http://svgcmdl02:9200"
 
 # Use loguru for logging.
 # loguru produces developer friendly format such as coloring, highlighting etc.
+import json
+
 import loguru
 from loguru import logger
-import json
 
 
 class loguru_custom_encoder(json.JSONEncoder):
@@ -41,9 +40,7 @@ class loguru_custom_encoder(json.JSONEncoder):
             return json.dumps({"name": obj.name, "path": obj.path})
         elif isinstance(obj, loguru._recattrs.RecordLevel):
             return json.dumps({"name": obj.name, "no": obj.no, "icon": obj.icon})
-        elif isinstance(obj, loguru._recattrs.RecordProcess):
-            return json.dumps({"id": obj.id, "name": obj.name})
-        elif isinstance(obj, loguru._recattrs.RecordThread):
+        elif isinstance(obj, (loguru._recattrs.RecordProcess, loguru._recattrs.RecordThread)):
             return json.dumps({"id": obj.id, "name": obj.name})
         elif isinstance(obj, type(None)):
             return None
@@ -53,8 +50,9 @@ class loguru_custom_encoder(json.JSONEncoder):
 
 class log_message_producer:
     def __init__(self, topic, bootstrap_servers):
-        from confluent_kafka import Producer
         import socket
+
+        from confluent_kafka import Producer
 
         self.producer = Producer(**{"bootstrap.servers": bootstrap_servers})
         self.topic = topic
@@ -72,7 +70,7 @@ class log_message_producer:
 
 
 logger.add(
-    f"/tmp/table_aws_uploader.log",
+    "/tmp/table_aws_uploader.log",
     level="DEBUG",
     format="{time} {level} {file}:{line} {message}",
     rotation="500 MB",
@@ -121,23 +119,23 @@ parser.add_argument(
 parser.add_argument(
     "--parquet_schema_registry_only",
     action="store_true",
-    help=f"If set, the parquet schema, when publishing to AWS, will strictly use schema_registry ",
+    help="If set, the parquet schema, when publishing to AWS, will strictly use schema_registry ",
 )
 parser.add_argument(
     "--parquet_schema_file_only",
     action="store_true",
-    help=f"If set, the parquet schema, when publishing to AWS, will strictly use file ",
+    help="If set, the parquet schema, when publishing to AWS, will strictly use file ",
 )
 parser.add_argument(
     "--parquet_schema_logic_only",
     action="store_true",
-    help=f"If set, the parquet schema, when publishing to AWS, will strictly use custom logic in this file ",
+    help="If set, the parquet schema, when publishing to AWS, will strictly use custom logic in this file ",
 )
 parser.add_argument(
     "--window",
     default=600,
     type=int,
-    help=f" The seconds the uploader is spending for finishing each chunking. Default to 600 sec. ",
+    help=" The seconds the uploader is spending for finishing each chunking. Default to 600 sec. ",
 )
 args = parser.parse_args()
 
@@ -151,12 +149,15 @@ def get_partition_num_for_initialization(topic_name):
      This function takes a topic name as input and returns
      the number of partitions for that topic.
 
-    Parameters:
+    Parameters
+    ----------
     topic_name (str): The name of the topic for which to get the partition count.
-    Returns:
-    int: The number of partitions for the specified topic.
-    """
 
+    Returns
+    -------
+    int: The number of partitions for the specified topic.
+
+    """
     from confluent_kafka.admin import AdminClient
 
     # Configure the AdminClient with your broker endpoints here
@@ -178,8 +179,11 @@ def load_previous_offset_info(topic) -> dict:
     Load the previous offset information from Elasticsearch for the specified topic.
 
     Args:
+    ----
     - topic (str): The topic for which offset information needs to be loaded.
+
     Returns:
+    -------
     - dict: A dictionary containing the offset information for the specified topic.
     This function connects to the Elasticsearch instance and retrieves the offset
      information for the specified topic.
@@ -193,14 +197,14 @@ def load_previous_offset_info(topic) -> dict:
       'ELASTIC_SEARCH_SERVER', and 'ES_KEY'.
     :param topic:
     :return:
-    """
 
+    """
     # connect to the Elasticsearch instance
     if args.override_checkpoint:
         logger.warning("Note: you are going to override (and update) the existing ES")
         # From file to ES
         # From file to downstream
-        with open(config["json_draft_for_checkpoint"], "r") as json_file:
+        with open(config["json_draft_for_checkpoint"]) as json_file:
             offsets_json = json.load(json_file)
             if "num_partitions" not in offsets_json:
                 logger.error(
@@ -307,9 +311,9 @@ def force_start_at_offset(consumer, offset_info):
             raise ValueError("should have ensured the new offset schema by this point")
 
         topic_parts = []
-        logger.debug(f"the offset_info is {str(offset_info)}")
+        logger.debug(f"the offset_info is {offset_info!s}")
         logger.debug(
-            f"the offset_details partition_offsets is {str(offset_info['partition_offsets'])}"
+            f"the offset_details partition_offsets is {offset_info['partition_offsets']!s}"
         )
         for k, v in offset_info.get("partition_offsets").items():
             topic_parts.append(TopicPartition(offset_info.get("topic"), int(k), v))
@@ -401,7 +405,6 @@ def pull():
 
     :return:
     """
-
     from confluent_kafka.avro import AvroConsumer
 
     output_path = get_output_path()
@@ -449,7 +452,7 @@ def pull():
                 # Note: this is *the one and only one* exit of the while loop.
                 break
             elif message.error():
-                logger.info("AvroConsumer error: {}".format(message.error()))
+                logger.info(f"AvroConsumer error: {message.error()}")
                 time.sleep(3)
                 continue
             else:
@@ -519,8 +522,8 @@ def table_specific_schema_reconstruction(df, topic):
         schema_option  return a schema object if there is a defined
                branch that handles the topic, or None if no such business logic
     """
-    import pyarrow as pa
     import pandas as pd
+    import pyarrow as pa
 
     if "VDS30SEC" in topic:
         logger.debug(f"Peek the df for schema construct (before flatten): {df.head()}")
@@ -547,7 +550,7 @@ def table_specific_schema_reconstruction(df, topic):
         def extract_digits(string) -> int:
             import re
 
-            return int("0" + "".join(re.findall("\d+", string)))
+            return int("0" + "".join(re.findall(r"\d+", string)))
 
         lookup = {extract_digits(o): True for o in other_cols}
         for d in range(1, 15):
@@ -571,7 +574,7 @@ def table_specific_schema_reconstruction(df, topic):
                         else (col, pa.int32()) if col == "VDS_ID" else None
                     )
                 )
-                for col, typ in zip(specified_cols, specified_cols_types)
+                for col, typ in zip(specified_cols, specified_cols_types, strict=False)
             ]
         )
         list_columns_types.extend(
@@ -602,19 +605,22 @@ def update_schema_with_parquet_schema(schema_option, topic):
      The updated Avro schema is then published back to the Kafka schema registry.
 
     Args:
+    ----
         schema_option (object): Python object representing Parquet
           schema which will be pickled and base64 encoded.
         topic (str): Kafka topic name for which the schema needs to be updated.
 
     Raises:
+    ------
         Exception: Raises an exception if there is any error in the process
          of updating the schema.
-    """
 
-    import requests
+    """
+    import base64
     import json
     import pickle
-    import base64
+
+    import requests
 
     # First, get the latest version data
     response = requests.get(
@@ -652,7 +658,8 @@ def fetch_parquet_schema_from_registry(topic):
     schema registry to locate the required schema (a custom field `pickle_schema_for_parquet`)
     based on the specific topic provided as a parameter.
 
-    Parameters:
+    Parameters
+    ----------
     - `topic` : required, a string that represents the name of the topic for which the Parquet schema is needed.
 
     Return:
@@ -665,11 +672,11 @@ def fetch_parquet_schema_from_registry(topic):
       or if the schema returned by the registry is malformed or not found.
 
     """
-
-    import requests
+    import base64
     import json
     import pickle
-    import base64
+
+    import requests
 
     url = f"{KAFKA_SCHEMA_REGISTRY_SERVER}/subjects/{topic}-value/versions/latest"
     response = requests.get(url)
@@ -686,19 +693,18 @@ def fetch_parquet_schema_from_registry(topic):
         base64_decoded = base64.b64decode(pickle_schema_for_parquet)
         schema_option = pickle.loads(base64_decoded)
         logger.info(
-            f"fetch_parquet_schema_from_registry found the existing schema_option"
+            "fetch_parquet_schema_from_registry found the existing schema_option"
         )
         return schema_option
     else:
         logger.info(
-            f"fetch_parquet_schema_from_registry does not find any parquet related schema"
+            "fetch_parquet_schema_from_registry does not find any parquet related schema"
         )
-        return
+        return None
 
 
 def fetch_parquet_schema_from_local_file(topic):
     """Function that fetches the schema_option from a .pkl file"""
-
     import pickle
 
     try:
@@ -715,33 +721,35 @@ def transform_table_to_schema(topic, df, schema_option):
     This function converts a pandas dataframe to a specified schema,
       and split into dates specified in the meta.Date field.
 
-    Parameters:
+    Parameters
+    ----------
         topic (string): Represents the topic that schema_option is associated with.
         df (pandas.DataFrame): Original DataFrame that needs to be converted.
         schema_option (pyarrow.Schema): A PyArrow schema object specifying the format and datatypes
             to comply with.
 
-    Returns:
+    Returns
+    -------
          df_dates (list[tuple(pandas.DataFrame, datetime)]): Dataframe that has been transformed to comply with
          the specified schema.
 
-    Raises:
+    Raises
+    ------
         KeyError: In case when column in the actual dataframe does not exist
          in the proposed schema.
 
-    Notes:
+    Notes
+    -----
         * For the 'VDS30SEC' topic, the 'serialized_json' field is converted into json and then flattened.
         * The provided schema should dictate the output dataframe columns.
         * Each column in the dataframe is type casted according to the data type specified
            in the schema.
-    """
 
+    """
     import pandas as pd
-    import pyarrow as pa
-    import pyarrow.parquet as pq
 
     if not schema_option:
-        logger.info(f"No schema specified so return original df")
+        logger.info("No schema specified so return original df")
         return df
 
     # Depending on `topic`, the custom conversion logic goes here
@@ -753,7 +761,7 @@ def transform_table_to_schema(topic, df, schema_option):
             )  # Convert the column to json
         except:
             logger.trace(
-                f"Tried to json parse the field serialized_json but it turned out already parsed. "
+                "Tried to json parse the field serialized_json but it turned out already parsed. "
                 "This is not necessarily an error, but indicating the data might be slightly varied "
                 "in terms of being processed by json.dumps() or not."
             )
@@ -778,7 +786,7 @@ def transform_table_to_schema(topic, df, schema_option):
 
     # Column wise type casting
     type_lookup = {
-        column: dtype for column, dtype in zip(schema_option.names, schema_option.types)
+        column: dtype for column, dtype in zip(schema_option.names, schema_option.types, strict=False)
     }
     import numpy as np
 
@@ -829,11 +837,13 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
       (4) If none of the above, then pass along the raw dataframe, with schema_option assigned
               to a None value.
 
-    Parameters:
+    Parameters
+    ----------
     topic (str): The topic to read data from. (Corresponding to the Kafka topic)
     raw_data_in_json (str): The raw_data_in_json to read the raw file from.
 
-    Returns:
+    Returns
+    -------
        dataframe_dates: (list[tuple(pandas.DataFrame, datetime)]) the parsed data from the
                         raw_data_in_json,
                         splitted into multiple dataframes each corresponding to a date,
@@ -841,6 +851,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
        schema_option: if None, this is raw dataframe with no schema
                       Otherwise, this is a schema object that is used
                        for governing the downstream (like parquet output)
+
     """
     import pandas as pd
 
@@ -912,8 +923,9 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
         with open(f"schema_option_{topic}.pkl", "wb") as f:
             pickle.dump(schema_option, f)
         import base64
-        import requests
         import json
+
+        import requests
         from deepdiff import DeepDiff
 
         # Task 1: Make the request
@@ -936,7 +948,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
             # Task 7: If there's a difference, publish to schema registry
             if diff:
                 logger.info(
-                    f"Detected difference then we need to update the schema registry with pickle_schema_for_parquet"
+                    "Detected difference then we need to update the schema registry with pickle_schema_for_parquet"
                 )
                 # Publish the new schema to schema registry
                 # Assuming you have a function called publish_schema
@@ -947,7 +959,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
                 )
         else:
             logger.info(
-                f"There is no prior `pickle_schema_for_parquet`. Then we update schema to include this"
+                "There is no prior `pickle_schema_for_parquet`. Then we update schema to include this"
             )
             update_schema_with_parquet_schema(schema_option, topic)
 
@@ -981,15 +993,19 @@ def upload(output_path, date_string, topic):
         of each row. (Therefore, for VDS30SEC, there may be multiple files uploaded due
         to the fact that there may be different meta dates (dt) among rows)
 
-    Parameters:
+    Parameters
+    ----------
     :param output_path: A string denoting the file or directory path to be uploaded.
     :param date_string: A string in the format of "YYYY-MM-DD HH:MM" which sets
       a folder path structure of "year=year/month=month/day=day/".
     :param topic: A string containing information about the relevant topic of the
       data being uploaded. If the topic string contains 'VDS30SEC', it refers to a
       district which sets a folder path structure of "district=district_num/".
-    Returns:
+
+    Returns
+    -------
       None
+
     """
     if date_string == "default":
         import datetime
@@ -1056,9 +1072,6 @@ def upload(output_path, date_string, topic):
     final_topic = topic
     if "VDS30SEC" in final_topic:
         final_topic = "VDS30SEC"
-        import pandas as pd
-        import pyarrow as pa
-        import pyarrow.parquet as pq
 
         logger.debug(f"output_path {output_path}")
 
@@ -1107,6 +1120,26 @@ def upload(output_path, date_string, topic):
             except Exception as e:
                 logger.error(f"An unexpected error occurred: {e}")
 
+            ssh_command = (
+                f"/usr/local/bin/aws s3 cp --profile prod {parquet_output} "
+                "s3://caltrans-pems-prd-us-west-2-raw/db96_export_staging_area"
+                f"/tables/{final_topic}/{district_folder_substring}{date_folder_substring}"
+                f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
+            )
+            try:
+                logger.info("Executing command" + ssh_command)
+                completed_process = subprocess.run(ssh_command, check=True, shell=True)
+                stdout = completed_process.stdout
+                stderr = completed_process.stderr
+                logger.debug(stdout)
+                logger.debug(stderr)
+                logger.info("Command executed successfully")
+            except subprocess.CalledProcessError as e:
+                print(f"An error occurred: {e}")
+                logger.error(f"An error occurred: {e}")
+            except Exception as e:
+                logger.error(f"An unexpected error occurred: {e}")
+
     else:
 
         ssh_command = (
@@ -1129,6 +1162,25 @@ def upload(output_path, date_string, topic):
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
 
+        ssh_command = (
+            f"/usr/local/bin/aws s3 cp --profile prod {output_path} "
+            "s3://caltrans-pems-prd-us-west-2-raw/db96_export_staging_area"
+            f"/tables/{final_topic}/{date_folder_substring}{district_folder_substring}"
+            f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
+        )
+        try:
+            logger.info("Executing command" + ssh_command)
+            completed_process = subprocess.run(ssh_command, check=True, shell=True)
+            stdout = completed_process.stdout
+            stderr = completed_process.stderr
+            logger.debug(stdout)
+            logger.debug(stderr)
+            logger.info("Command executed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
 
 from kazoo.client import KazooClient
 
@@ -1141,23 +1193,25 @@ def start_zoo_client_with_retry(zk, retries=3, delay=5):
     """
     This function starts a Zookeeper client with the given number of retries and delay in between retries. It will try to start the client 'retries' number of times, with a 'delay' in seconds between each retry. If the client is successfully started, it will return True. If it fails to start after all retries, it will return False.
 
-    Parameters:
+    Parameters
+    ----------
     - zk: Zookeeper client object
     - retries: Number of times to retry starting the client (default is 3)
     - delay: Delay in seconds between retries (default is 5)
 
-    Returns:
+    Returns
+    -------
     - True if the client is successfully started
     - False if the client fails to start after all retries
-    """
 
+    """
     for i in range(retries):
         try:
             zk.start()
             logger.info("Zookeeper client started successfully")
             return True
         except Exception as e:  # adjust this with the right exception type
-            logger.error(f"{str(e)}")
+            logger.error(f"{e!s}")
             if i < retries - 1:  # if it's not the last retry
                 sleep(delay)  # wait for a bit before retrying
                 logger.error("continuing retry")
@@ -1193,7 +1247,7 @@ if __name__ == "__main__":
                           (item.split('=') for item in args_debug_list))
         signature = debug_dict['signature']
         # search file for line matching 'signature'
-        with open('/tmp/table_aws_uploader.log', 'r') as file:
+        with open('/tmp/table_aws_uploader.log') as file:
             for line_num, line in enumerate(file, 1):
                 if signature in line:
                     parts = line.split('output_path ')
@@ -1214,7 +1268,7 @@ if __name__ == "__main__":
                             return output_path
                         new_path = copy_file_path(json_path)
                         def copy_json_lines(json_path, n):
-                            with open(json_path, 'r') as file:
+                            with open(json_path) as file:
                                 lines = file.readlines()[:n]
 
                             with open(new_path, 'w') as new_file:
