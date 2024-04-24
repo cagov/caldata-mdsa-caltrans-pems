@@ -870,6 +870,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
             "Also convert the raw dataframe into typed version, schema from registry"
         )
         df_dates = transform_table_to_schema(topic, df, schema_option)
+        logger.debug(f"df_dates: {df_dates}")
         return df_dates, schema_option
     elif args.parquet_schema_registry_only:
         logger.error("parquet_schema_registry_only specified but fail to get schema")
@@ -1068,6 +1069,7 @@ def upload(output_path, date_string, topic):
             f"df before the schema-ed pyarrow table conversion {df_dates[0][0].head()}"
         )
 
+        logger.info(f"There are {len(df_dates)} dates in the output results")
         for df, date in df_dates:
             if date:
                 year = date.year
@@ -1081,12 +1083,30 @@ def upload(output_path, date_string, topic):
             logger.info(
                 f"Json format {output_path} is converted into parquet format {parquet_output}"
             )
+            logger.info(
+                f"Current date is {date} and df first row's date is {df['SAMPLE_TIME'].iloc[0]} and df last row's date is {df['SAMPLE_TIME'].iloc[-1]} and total size is {len(df)}"
+            )
+
             ssh_command = (
                 f"/usr/local/bin/aws s3 cp {parquet_output} "
                 "s3://caltrans-pems-dev-us-west-2-raw/db96_export_staging_area"
                 f"/tables/{final_topic}/{district_folder_substring}{date_folder_substring}"
                 f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
             )
+            try:
+                logger.info("Executing command" + ssh_command)
+                completed_process = subprocess.run(ssh_command, check=True, shell=True)
+                stdout = completed_process.stdout
+                stderr = completed_process.stderr
+                logger.debug(stdout)
+                logger.debug(stderr)
+                logger.info("Command executed successfully")
+            except subprocess.CalledProcessError as e:
+                print(f"An error occurred: {e}")
+                logger.error(f"An error occurred: {e}")
+            except Exception as e:
+                logger.error(f"An unexpected error occurred: {e}")
+
     else:
 
         ssh_command = (
@@ -1095,19 +1115,19 @@ def upload(output_path, date_string, topic):
             f"/tables/{final_topic}/{date_folder_substring}{district_folder_substring}"
             f" --ca-bundle /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt"
         )
-    try:
-        logger.info("Executing command" + ssh_command)
-        completed_process = subprocess.run(ssh_command, check=True, shell=True)
-        stdout = completed_process.stdout
-        stderr = completed_process.stderr
-        logger.debug(stdout)
-        logger.debug(stderr)
-        logger.info("Command executed successfully")
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred: {e}")
-        logger.error(f"An error occurred: {e}")
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")
+        try:
+            logger.info("Executing command" + ssh_command)
+            completed_process = subprocess.run(ssh_command, check=True, shell=True)
+            stdout = completed_process.stdout
+            stderr = completed_process.stderr
+            logger.debug(stdout)
+            logger.debug(stderr)
+            logger.info("Command executed successfully")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
 
 
 from kazoo.client import KazooClient
