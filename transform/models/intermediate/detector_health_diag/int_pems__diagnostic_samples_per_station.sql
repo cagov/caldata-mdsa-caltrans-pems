@@ -2,7 +2,7 @@
     materialized="incremental",
     cluster_by=['sample_date'],
     unique_key=['station_id', 'sample_date', 'lane'],
-    snowflake_warehouse="transforming_xl_dev"
+    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
@@ -10,16 +10,19 @@ with
 source as (
     select * from {{ ref ('stg_clearinghouse__station_raw') }}
     where
-        TO_TIME(sample_timestamp) >= '{{ var("day_start") }}'
-        and TO_TIME(sample_timestamp) <= '{{ var("day_end") }}'
+        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
+        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
-                select DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date)) from {{ this }}
+                select
+                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
+                from {{ this }}
             )
         {% endif %}
         {% if target.name != 'prd' %}
-            and sample_date >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
+            and sample_date
+            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
         {% endif %}
 ),
 
