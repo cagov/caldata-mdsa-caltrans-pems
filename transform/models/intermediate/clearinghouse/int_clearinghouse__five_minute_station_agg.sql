@@ -52,9 +52,8 @@ aggregated as (
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
--- Number of raw data samples
-        count_if(volume is not null and occupancy is not null)
         -- Number of raw data samples
+        count_if(volume is not null and occupancy is not null)
             as sample_ct,
         -- Sum of all the flow values
         sum(volume) as volume_sum,
@@ -73,7 +72,8 @@ aggregated_metrics as (
             when
                 -- average occupancy should not be null and zero
                 -- sum of the volume should not be null and zero
-                (average_occupancy is not null and average_occupancy != 0) and (volume_sum is not null and volume_sum != 0) 
+                (average_occupancy is not null and average_occupancy != 0)
+                and (volume_sum is not null and volume_sum != 0)
                 then
                     weighted_speed
         end as five_mins_speed
