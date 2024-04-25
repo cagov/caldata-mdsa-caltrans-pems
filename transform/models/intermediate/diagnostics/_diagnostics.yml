@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_pems__det_diag_set_assignment
+  - name: int_diagnostics__det_diag_set_assignment
     description: |
       This SQL file assigns diagnostic threshold values used for detector healh at the
       station level based on the district and type of station while also bringing in
@@ -83,7 +83,7 @@ models:
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
 
-  - name: int_pems__diagnostic_samples_per_station
+  - name: int_diagnostics__diagnostic_samples_per_station
     description: |
       This file contains count data by station and lane based on the number of raw data samples
       that met a variety of flow and occupancy criteria. This data will be used to determine the
@@ -132,7 +132,7 @@ models:
           Counts the number of occupancy values in a lane that exceeded the high value threshold
           detector diagnostic parameter for a station.
 
-  - name: int_pems__detector_status
+  - name: int_diagnostics__detector_status
     description: |
       This file contains count data by station and lane based on the 30 second raw data
       along with a diagnostic value associated with the station type and count results.
@@ -144,7 +144,7 @@ models:
         tests:
           - not_null
 
-  - name: int_pems__constant_occupancy
+  - name: int_diagnostics__constant_occupancy
     description: |
       This model calculates constant occupancy by first calculating the delta
       between occupancy and previous occupancy. It then takes the absolute
