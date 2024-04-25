@@ -55,7 +55,8 @@ aggregated as (
         count_if(volume is not null and occupancy is not null)
             -- Number of raw data samples
             as sample_ct,
-        sum(volume) as volume_sum, -- Sum of all the flow values
+        -- Sum of all the flow values
+        sum(volume) as volume_sum,
         -- Average of all the occupancy values
         avg(occupancy) as average_occupancy,
         -- weighted speed provides more accurate aggregation than average speed, therefore we will weighted speed
