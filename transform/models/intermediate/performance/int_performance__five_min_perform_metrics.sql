@@ -85,7 +85,7 @@ delay_metrics as (
         V = the current speed
         V_t = the threshold speed */
 
-        flow * (60 -) as delay_one,
+        flow * () as delay_one,
         flow * (length / speed - length /{{ var("V_t") }}) as delay_two
 
 
