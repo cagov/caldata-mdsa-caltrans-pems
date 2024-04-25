@@ -53,7 +53,7 @@ aggregated as (
         sample_timestamp_trunc as sample_timestamp,
         lane,
         count_if(volume is not null and occupancy is not null)
-            -- Number of raw data samples
+        -- Number of raw data samples
             as sample_ct,
         -- Sum of all the flow values
         sum(volume) as volume_sum,
