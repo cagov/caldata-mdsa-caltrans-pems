@@ -65,7 +65,6 @@ aggregated as (
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
 
--- select * from aggregated
 aggregated_metrics as (
     select
         *,
