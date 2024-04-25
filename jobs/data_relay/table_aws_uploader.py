@@ -1,16 +1,25 @@
 #!/usr/bin/env python3
+
 """
 table_aws_uploader.py
 This utility retrieves all the remaining contents from a Kafka topic
 that hosts temporary data from a database table and uploads it to AWS
 under a specific date_time folder in a bucket.
 """
+import argparse
+
+# Use loguru for logging.
+# loguru produces developer friendly format such as coloring, highlighting etc.
+import json
 import subprocess
 from datetime import datetime, timedelta
 from time import sleep
 
+import loguru
 import loguru._recattrs
 import requests
+from kazoo.client import KazooClient
+from loguru import logger
 
 KAFKA_SERVERS = (
     "PLAINTEXT://svgcmdl03:9092, PLAINTEXT://svgcmdl04:9092, PLAINTEXT://svgcmdl05:9092"
@@ -18,12 +27,6 @@ KAFKA_SERVERS = (
 KAFKA_SCHEMA_REGISTRY_SERVER = "http://svgcmdl04:8092"
 ELASTIC_SEARCH_SERVER = "http://svgcmdl02:9200"
 
-# Use loguru for logging.
-# loguru produces developer friendly format such as coloring, highlighting etc.
-import json
-
-import loguru
-from loguru import logger
 
 
 class loguru_custom_encoder(json.JSONEncoder):
@@ -40,8 +43,10 @@ class loguru_custom_encoder(json.JSONEncoder):
             return json.dumps({"name": obj.name, "path": obj.path})
         elif isinstance(obj, loguru._recattrs.RecordLevel):
             return json.dumps({"name": obj.name, "no": obj.no, "icon": obj.icon})
-        elif isinstance(obj, (loguru._recattrs.RecordProcess, loguru._recattrs.RecordThread)):
+        elif isinstance(obj, loguru._recattrs.RecordProcess):
             return json.dumps({"id": obj.id, "name": obj.name})
+        elif isinstance(obj, loguru._recattrs.RecordThread):
+            return json.dumps({"id": obj.id, "thread": obj.name})
         elif isinstance(obj, type(None)):
             return None
         else:
@@ -50,6 +55,12 @@ class loguru_custom_encoder(json.JSONEncoder):
 
 class log_message_producer:
     def __init__(self, topic, bootstrap_servers):
+        """
+        Create a log message producer with kafka capability.
+
+        :param topic:
+        :param bootstrap_servers:
+        """
         import socket
 
         from confluent_kafka import Producer
@@ -85,8 +96,6 @@ logger.add(
 )
 
 
-import argparse
-import json
 
 config = {
     "output_path": "/nfsdata/dataop/uploader/tmp",
@@ -146,7 +155,7 @@ delta_upload_seconds = args.window
 
 def get_partition_num_for_initialization(topic_name):
     """
-     This function takes a topic name as input and returns
+     Takes a topic name as input and returns
      the number of partitions for that topic.
 
     Parameters
@@ -389,7 +398,7 @@ def get_output_path():
 
 def pull():
     """
-    This function sets up an Avro Kafka Consumer subscribes to the specified topic
+    Sets up an Avro Kafka Consumer subscribes to the specified topic
     (for example, D3.VDS30SEC)
     and polls messages from it. There are two scenarios:
       1. Before the end: if a new message is found, it appends the message
@@ -477,7 +486,6 @@ def pull():
                     output_path = get_output_path()
                     ensure_dir(output_path)
                     save_offset_details_as_json(message, offset_info)
-                    break
                 else:
                     buffer.append(message.value())
 
@@ -504,8 +512,8 @@ def pull():
 
 def table_specific_schema_reconstruction(df, topic):
     """
-    The function `table_specific_schema_reconstruction` takes a DataFrame `df`
-     and a `topic` as input parameters. It reconstructs a specific schema
+    Takes a DataFrame `df`
+     and a `topic` as input parameters, reconstructs a specific schema
      based on the `topic` provided.
 
      For example, if the `topic` contains the string 'VDS30SEC',
@@ -584,15 +592,16 @@ def table_specific_schema_reconstruction(df, topic):
             ]
         )
 
-        schema = pa.schema(list_columns_types)
-        return schema
+        return pa.schema(list_columns_types)
+    return None
 
 
 def update_schema_with_parquet_schema(schema_option, topic):
     """
     Updates an existing Avro schema in the Kafka schema registry by
      adding a new field to it for parquet schema.
-     Note that this parquet schema is for information purpose only,
+
+    Note that this parquet schema is for information purpose only,
      and it does not play active role on Avro typing that Schema Registry
      originally purpose.
 
@@ -652,8 +661,7 @@ def update_schema_with_parquet_schema(schema_option, topic):
 
 def fetch_parquet_schema_from_registry(topic):
     """
-    The `fetch_parquet_schema_from_registry` function is a utility function
-    used to retrieve the corresponding Parquet schema from the Kafka schema registry
+    Retrieve the corresponding Parquet schema from the Kafka schema registry
     for a given topic. The function performs an HTTP GET request to the
     schema registry to locate the required schema (a custom field `pickle_schema_for_parquet`)
     based on the specific topic provided as a parameter.
@@ -704,13 +712,12 @@ def fetch_parquet_schema_from_registry(topic):
 
 
 def fetch_parquet_schema_from_local_file(topic):
-    """Function that fetches the schema_option from a .pkl file"""
+    """Fetches the schema_option from a .pkl file."""
     import pickle
 
     try:
         with open(f"schema_option_{topic}.pkl", "rb") as f:
-            schema_option = pickle.load(f)
-        return schema_option
+            return pickle.load(f)
     except FileNotFoundError:
         logger.info(f"No file found for topic: {topic}")
         return None
@@ -718,7 +725,7 @@ def fetch_parquet_schema_from_local_file(topic):
 
 def transform_table_to_schema(topic, df, schema_option):
     """
-    This function converts a pandas dataframe to a specified schema,
+    Converts a pandas dataframe to a specified schema,
       and split into dates specified in the meta.Date field.
 
     Parameters
@@ -759,7 +766,7 @@ def transform_table_to_schema(topic, df, schema_option):
             df["serialized_json"] = df["serialized_json"].apply(
                 json.loads
             )  # Convert the column to json
-        except:
+        except Exception:
             logger.trace(
                 "Tried to json parse the field serialized_json but it turned out already parsed. "
                 "This is not necessarily an error, but indicating the data might be slightly varied "
@@ -784,10 +791,6 @@ def transform_table_to_schema(topic, df, schema_option):
 
         df = df.join(flattened_meta)
 
-    # Column wise type casting
-    type_lookup = {
-        column: dtype for column, dtype in zip(schema_option.names, schema_option.types, strict=False)
-    }
     import numpy as np
 
     df = df.replace(np.nan, np.nan)
@@ -802,7 +805,7 @@ def transform_table_to_schema(topic, df, schema_option):
             df[column] = np.nan
 
     df["meta"] = df["meta"].apply(json.dumps)
-    df = df[schema_option.names + ["Date_internal"]]
+    df = df[[*schema_option.names, "Date_internal"]]
     df["SAMPLE_TIME"] = pd.to_datetime(df["SAMPLE_TIME"], unit="ms")
     df["RECV_TIME"] = pd.to_datetime(df["RECV_TIME"], unit="ms")
     for col in df.columns:
@@ -825,7 +828,7 @@ def transform_table_to_schema(topic, df, schema_option):
 
 def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
     """
-    This function reads raw data from a given topic and parses
+    Reads raw data from a given topic and parses
       the schema of that data. The Schema comes from the difference sources
       with a priority order:
       (1) Check the schema registry, on whether there is an aws_schema or like in the doc.
@@ -984,14 +987,14 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
 
 def upload(output_path, date_string, topic):
     """
-     This function uploads files located in an output path (with parquet format) to the AWS
+     Uploads files located in an output path (with parquet format) to the AWS
      bucket 'caltrans-pems-dev-us-west-2-raw/db96_export_staging_area'. The directory
      location to upload to within the bucket is determined by the Date.
       By default the date is from the date_string passed in,
       However, for custom logic, date maybe overriden.
       For example, in VDS30SEC, the Date is actually coming from the meta field dt field
         of each row. (Therefore, for VDS30SEC, there may be multiple files uploaded due
-        to the fact that there may be different meta dates (dt) among rows)
+        to the fact that there may be different meta dates (dt) among rows).
 
     Parameters
     ----------
@@ -1016,8 +1019,7 @@ def upload(output_path, date_string, topic):
             # Get only the date part and manually set the time part to 00:00
             yesterday_midnight = datetime.datetime(now.year, now.month, now.day, 0, 0)
             # Format the datetime into desired format
-            formatted_datetime = yesterday_midnight.strftime("%Y-%m-%d %H:%M")
-            return formatted_datetime
+            return yesterday_midnight.strftime("%Y-%m-%d %H:%M")
 
         actual_date_time = get_today_start()
         logger.debug(f"default to actual_date_time {actual_date_time}")
@@ -1182,7 +1184,6 @@ def upload(output_path, date_string, topic):
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
 
-from kazoo.client import KazooClient
 
 ZOOKEEPER_CLUSTER = (
     "svgcmdl03:2181,svgcmdl04:2181,svgcmdl05:2181,svgcmdl01:2181,svgcmdl02:2181"
@@ -1191,7 +1192,7 @@ ZOOKEEPER_CLUSTER = (
 
 def start_zoo_client_with_retry(zk, retries=3, delay=5):
     """
-    This function starts a Zookeeper client with the given number of retries and delay in between retries. It will try to start the client 'retries' number of times, with a 'delay' in seconds between each retry. If the client is successfully started, it will return True. If it fails to start after all retries, it will return False.
+    Starts a Zookeeper client with the given number of retries and delay in between retries.
 
     Parameters
     ----------
@@ -1215,7 +1216,6 @@ def start_zoo_client_with_retry(zk, retries=3, delay=5):
             if i < retries - 1:  # if it's not the last retry
                 sleep(delay)  # wait for a bit before retrying
                 logger.error("continuing retry")
-                continue
             else:
                 return False
     return False
@@ -1243,12 +1243,12 @@ if __name__ == "__main__":
         args_debug = args.debug
         # extract 'signature' from args.debug string
         args_debug_list = args_debug.split(',')
-        debug_dict = dict((k.strip(), v.strip()) for k, v in
-                          (item.split('=') for item in args_debug_list))
+        debug_dict = {k.strip(): v.strip() for k, v in
+                          (item.split('=') for item in args_debug_list)}
         signature = debug_dict['signature']
         # search file for line matching 'signature'
         with open('/tmp/table_aws_uploader.log') as file:
-            for line_num, line in enumerate(file, 1):
+            for _line_num, line in enumerate(file, 1):
                 if signature in line:
                     parts = line.split('output_path ')
                     json_path = parts[1].strip()
@@ -1261,20 +1261,19 @@ if __name__ == "__main__":
                             # Separate the directory path and file name to extract the timestamp
                             parts = input_path.split('/')
                             # Extract the timestamp from the file name
-                            timestamp = parts[-1].split('_')[-1].split('.')[0]
+                            parts[-1].split('_')[-1].split('.')[0]
                             # Reconstruct the output path with the desired changes
-                            output_path = '/'.join(parts[:-1]) + '/bk.' + parts[-1]
+                            return '/'.join(parts[:-1]) + '/bk.' + parts[-1]
                             # Return the output path
-                            return output_path
                         new_path = copy_file_path(json_path)
-                        def copy_json_lines(json_path, n):
+                        def copy_json_lines(json_path, new_path, n):
                             with open(json_path) as file:
                                 lines = file.readlines()[:n]
 
                             with open(new_path, 'w') as new_file:
                                 for line in lines:
                                     new_file.write(line)
-                        copy_json_lines(json_path, int(debug_dict['head']))
+                        copy_json_lines(json_path, new_path, int(debug_dict['head']))
                         upload(new_path, args.date_time, args.topic)
 
                     break  # remove break if searching for all lines with 'signature'
