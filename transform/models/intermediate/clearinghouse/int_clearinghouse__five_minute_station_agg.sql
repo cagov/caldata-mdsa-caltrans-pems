@@ -45,6 +45,7 @@ with station_raw as (
     {% endif %}
 ),
 
+
 aggregated as (
     select
         id,
@@ -53,28 +54,27 @@ aggregated as (
         lane,
         count_if(volume is not null and occupancy is not null)
             as sample_ct, --Number of raw data samples
-        sum(volume) as volume, -- Sum of all the flow values
-        avg(occupancy) as occupancy -- Average of all the occupancy values
-        -- avg(speed) as speed_raw -- This code could be used if we use
-        -- actual speeds reported from raw data
+        sum(volume) as volume_sum, -- Sum of all the flow values
+        avg(occupancy) as average_occupancy, -- Average of all the occupancy values
+        -- weighted speed provides more accurate aggregation than average speed, therefore we will weighted speed
+        sum(volume * speed) / nullifzero(sum(volume)) as weighted_speed
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
 
-aggregated_speed as (
+-- select * from aggregated
+aggregated_metrics as (
     select
         *,
-        --A preliminary speed calcuation was developed on 3/22/24
-        --using a vehicle effective length of 22 feet
-        --(16 ft vehicle + 6 ft detector zone) feet and using
-        --a conversion to get miles per hour (5280 ft / mile and 12
-        --5-minute intervals in an hour).
-        --The following code may be used if we want to use speed from raw data
-        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
-        --* (1 / 5280) * 12))
-        --    as speed
-        (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
+        case
+            when
+                --average occupancy should not be null and zero
+                (average_occupancy is not null and average_occupancy != 0)
+                and (volume_sum is not null and volume_sum != 0) --sum of the volume should not be null and zero
+                then
+                    weighted_speed
+        end as five_mins_speed
     from aggregated
 )
 
-select * from aggregated_speed
+select * from aggregated_metrics
