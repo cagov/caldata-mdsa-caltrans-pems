@@ -68,7 +68,7 @@ aggregated_metrics as (
         *,
         case
             when
-                --average occupancy should not be null and zero
+                -- average occupancy should not be null and zero
                 (average_occupancy is not null and average_occupancy != 0)
 -- sum of the volume should not be null and zero
                 and (volume_sum is not null and volume_sum != 0) 
