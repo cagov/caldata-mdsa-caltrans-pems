@@ -52,6 +52,7 @@ aggregated as (
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
+-- Number of raw data samples
         count_if(volume is not null and occupancy is not null)
         -- Number of raw data samples
             as sample_ct,
