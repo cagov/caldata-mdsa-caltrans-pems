@@ -2,7 +2,7 @@
 templater = dbt
 dialect = snowflake
 max_line_length = 120
-[sqlfluff] ignore = templating
+ignore = templating
 
 # I decide my column ordering, not you!
 exclude_rules = structure.column_order
