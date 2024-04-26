@@ -45,11 +45,11 @@ five_minute_agg_with_station_meta as (
     from five_minute_agg as fma
     inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
         on
-            sm.id = fma.id
-            and sm._valid_from <= fma.sample_date
+            fma.id = sm.id
+            and fma.sample_date >= sm._valid_from
             and
             (
-                sm._valid_to > fma.sample_date
+                fma.sample_date < sm._valid_to
                 or sm._valid_to is null
             )
 ),
