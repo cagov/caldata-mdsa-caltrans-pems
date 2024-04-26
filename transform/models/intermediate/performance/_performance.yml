@@ -54,3 +54,14 @@ models:
           to be the time to traverse the link when traveling at 60MPH. For loop-based
           performance measures, the TTI is simply the free-flow speed divided by the
           performance measure Q.
+      - name: delay
+        description: |
+          The Delay performance metric is the amount of additional time spent by the 
+          vehicles on a section of road due to congestion. This is the difference 
+          between the travel time at a non-congestion speed and the current speed. 
+          The congestion, or threshold, speed is usually 35MPH but in PeMS we compute 
+          the delay for a number of different thresholds so that we can accommodate 
+          different definitions of delay. The threshold values used are 35, 40, 45, 50, 
+          55, and 60 MPH. The formula is: F * (L/V - L/V_t). The formula is: 
+          F * (L/V - L/V_t). F = flow (volume), L = length of the segment, V = current speed, 
+          and V_t = threshold speed. Delay can never be negative
