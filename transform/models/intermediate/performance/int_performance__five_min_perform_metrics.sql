@@ -5,8 +5,6 @@
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
-{% set V_t_list = var('V_t') %}
-
 with
 
 five_minute_agg as (
