@@ -8,7 +8,7 @@
 with
 
 source as (
-    select * from {{ ref('int_pems__diagnostic_samples_per_station') }}
+    select * from {{ ref('int_diagnostics__samples_per_station') }}
     {% if is_incremental() %}
         -- Look back to account for any late-arriving data
         where
@@ -82,7 +82,7 @@ detector_status as (
             --Feed unstable case needed
             else 'Good'
         end as status
-    from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
+    from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
     left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
@@ -92,7 +92,7 @@ detector_status as (
                 set_assgnmt.station_valid_to > sps.sample_date
                 or set_assgnmt.station_valid_to is null
             )
-    left join {{ ref('int_pems__constant_occupancy') }} as co
+    left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
 )
