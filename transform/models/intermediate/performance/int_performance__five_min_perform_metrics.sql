@@ -5,6 +5,8 @@
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
+{% set V_t_list = var('V_t') %}
+
 with
 
 five_minute_agg as (
@@ -69,13 +71,15 @@ delay_metrics as (
         vvm.*,
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
-    {% for value in var("V_t") %}
-        vvm.volume * (vvm.length / vvm.speed) - (vvm.length / {{ value }}) as delay_{{ value }}_mph{% if not loop.last %},
-        {% endif %}
-    {% endfor %}
+        {% for value in var("V_t") %}
+            vvm.volume * (vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }}) as delay_{{ value }}_mph
+            {% if not loop.last %}
+                ,
+            {% endif %}
+
+        {% endfor %}
 
     from vmt_vht_metrics as vvm
-
 )
 
 select * from delay_metrics
