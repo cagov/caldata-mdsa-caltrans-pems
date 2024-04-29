@@ -6,8 +6,14 @@
 ) }}
 
 with
+<<<<<<< HEAD:transform/models/intermediate/detector_health_diag/int_pems__detector_status.sql
 samples_per_station as (
     select * from {{ ref ('int_pems__diagnostic_samples_per_station') }}
+=======
+
+source as (
+    select * from {{ ref('int_diagnostics__samples_per_station') }}
+>>>>>>> 3408e378b448bb7af14834eb9649d533b81503cb:transform/models/intermediate/diagnostics/int_diagnostics__detector_status.sql
     {% if is_incremental() %}
         -- Look back to account for any late-arriving data
         where
@@ -100,6 +106,7 @@ detector_status as (
             --Feed unstable case needed
             else 'Good'
         end as status
+<<<<<<< HEAD:transform/models/intermediate/detector_health_diag/int_pems__detector_status.sql
     from {{ ref('int_pems__det_diag_set_assignment') }} as set_assgnmt
     left join samples_per_station as sps
         on
@@ -108,6 +115,19 @@ detector_status as (
     inner join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
     left join {{ ref('int_pems__constant_occupancy') }} as co
+=======
+    from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
+    left join source as sps
+        on
+            set_assgnmt.station_id = sps.station_id
+            and set_assgnmt.station_valid_from <= sps.sample_date
+            and
+            (
+                set_assgnmt.station_valid_to > sps.sample_date
+                or set_assgnmt.station_valid_to is null
+            )
+    left join {{ ref('int_diagnostics__constant_occupancy') }} as co
+>>>>>>> 3408e378b448bb7af14834eb9649d533b81503cb:transform/models/intermediate/diagnostics/int_diagnostics__detector_status.sql
         on
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
 )
