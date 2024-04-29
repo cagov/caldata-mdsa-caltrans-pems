@@ -66,15 +66,15 @@ vmt_vht_metrics as (
 
 delay_metrics as (
     select
-        *,
+        vvm.*,
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
     {% for value in var("V_t") %}
-        volume * (length / speed) - (length / {{ value }}) as delay_{{ value }}_mph{% if not loop.last %},
+        vvm.volume * (vvm.length / vvm.speed) - (vvm.length / {{ value }}) as delay_{{ value }}_mph{% if not loop.last %},
         {% endif %}
     {% endfor %}
 
-    from vmt_vht_metrics
+    from vmt_vht_metrics as vvm
 
 )
 
