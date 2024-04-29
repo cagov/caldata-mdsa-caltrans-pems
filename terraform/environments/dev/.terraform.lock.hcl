@@ -31,6 +31,8 @@ provider "registry.terraform.io/snowflake-labs/snowflake" {
   constraints = "~> 0.61, 0.89.0, ~> 0.89"
   hashes = [
     "h1:okjX8DLD74nTNEBP6a3aatPu4B9aw8ZUyxXDV94B6AI=",
+    "h1:tM3FnXRv+Qqq/bUf2hFG/fPkEB/HS42bXWo2grDETio=",
+    "h1:tTQp5qleQdtwAelvvgN3EMe9wVKONm4jq8GZDfKSrTc=",
     "zh:0da825045df5407039cc277af030504ed70eef0453cca4836c4a9826851027a7",
     "zh:49acc9a1926cd8b19913dc4e17e9db6ab5c739ff6df3da5d5360870299196d5b",
     "zh:714f917c2d1722c811f8b9d6db9c993006e5781ce8b720e29b4f2c6eb16601de",
