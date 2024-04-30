@@ -4,6 +4,7 @@ from (
         metadata$filename as filename,
         try_to_timestamp_ntz($1:"SAMPLE_TIME"::string) as sample_time,
         try_to_timestamp_ntz($1:"RECV_TIME"::string) as recv_time,
+        try_to_date($1:"SAMPLE_TIME"::string) as sample_date,
         $1:"meta" as meta,
         $1:"VDS_ID"::int as vds_id,
         $1:"LOOP1_VOL"::int as volume_1,
