@@ -42,5 +42,7 @@ models:
       +materialized: view
       clearinghouse:
         +schema: clearinghouse
-      detector_health_diag:
-        +schema: detector_health
+      diagnostics:
+        +schema: diagnostics
+      performance:
+        +schema: performance

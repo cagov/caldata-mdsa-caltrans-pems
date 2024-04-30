@@ -1,8 +1,8 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["ID", "LANE", "SAMPLE_TIMESTAMP"],
-    snowflake_warehouse=get_snowflake_refresh_warehouse()
+    unique_key=["id", "lane", "sample_timestamp"],
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with station_raw as (
@@ -25,15 +25,23 @@ with station_raw as (
         where
             sample_date > (
                 select
-                    dateadd(day, {{ var("incremental_model_look_back") }}, max(sample_date))
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
                 from {{ this }}
             )
             {% if target.name != 'prd' %}
                 and sample_date
-                >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
+                >= dateadd(
+                    day,
+                    {{ var("dev_model_look_back") }},
+                    current_date()
+                )
             {% endif %}
     {% elif target.name != 'prd' %}
-        where sample_date >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
 
@@ -43,8 +51,12 @@ aggregated as (
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
+        count_if(volume is not null and occupancy is not null)
+            as sample_ct, --Number of raw data samples
         sum(volume) as volume, -- Sum of all the flow values
         avg(occupancy) as occupancy -- Average of all the occupancy values
+        -- avg(speed) as speed_raw -- This code could be used if we use
+        -- actual speeds reported from raw data
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
@@ -52,13 +64,15 @@ aggregated as (
 aggregated_speed as (
     select
         *,
-        --For speed I used the following formula to get speed:
-        --SPEED = SUM(FLOW)/AVG(OCCUPANCY)/600 which resulted in
-        --values from 0 to 5
-        --On 3/22/24 I updated the formula to use a vehicle effective length
-        --of 22 feet (16 ft vehicle + 6 ft detector zone) feet and using
+        --A preliminary speed calcuation was developed on 3/22/24
+        --using a vehicle effective length of 22 feet
+        --(16 ft vehicle + 6 ft detector zone) feet and using
         --a conversion to get miles per hour (5280 ft / mile and 12
         --5-minute intervals in an hour).
+        --The following code may be used if we want to use speed from raw data
+        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
+        --* (1 / 5280) * 12))
+        --    as speed
         (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
     from aggregated
 )
