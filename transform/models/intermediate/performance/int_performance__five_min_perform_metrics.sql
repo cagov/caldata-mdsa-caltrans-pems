@@ -64,13 +64,13 @@ vmt_vht_metrics as (
     from five_minute_agg_with_station_meta
 ),
 
-delay_metrics as (
+many_delay_metrics as (
     select
         vvm.*,
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
         {% for value in var("V_t") %}
-            greatest(vvm.volume * (vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})) as delay_{{ value }}_mph
+            vvm.volume * (vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }}) as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
             {% endif %}
@@ -78,6 +78,14 @@ delay_metrics as (
         {% endfor %}
 
     from vmt_vht_metrics as vvm
+),
+
+one_delay_metric as (
+    select
+        *,
+        greatest(delay_35_mph, delay_40_mph, delay_45_mph, delay_50_mph, delay_55_mph, delay_60_mph) as delay
+
+    from many_delay_metrics
 )
 
-select * from delay_metrics
+select * from one_delay_metric
