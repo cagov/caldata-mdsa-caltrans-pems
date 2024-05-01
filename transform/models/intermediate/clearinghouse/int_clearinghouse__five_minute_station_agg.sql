@@ -44,6 +44,7 @@ with station_raw as (
         where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
+    
 aggregated as (
     select
         id,
@@ -62,6 +63,7 @@ aggregated as (
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
+    
 aggregated_speed as (
     select
         *,
