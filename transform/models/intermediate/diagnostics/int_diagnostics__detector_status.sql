@@ -106,15 +106,13 @@ detector_status as (
     left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.station_valid_from <= sps.sample_date
-            and
-            (
-                set_assgnmt.station_valid_to > sps.sample_date
-                or set_assgnmt.station_valid_to is null
-            )
+            and set_assgnmt.active_date = sps.sample_date
+
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
+    left join district_feed_check as dfc
+        on set_assgnmt.district = dfc.district
 )
 
 select * from detector_status
