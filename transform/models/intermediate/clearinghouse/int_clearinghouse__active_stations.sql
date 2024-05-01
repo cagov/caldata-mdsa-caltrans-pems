@@ -18,7 +18,7 @@ station_meta as (
 active_station as (
     select
         dr.*,
-        sm.* exclude _valid_to,
+        sm.*,
         coalesce(sm._valid_to, current_date + 1) as valid_to
         --valid_to is used to place an actual date that can be used in
         --the on/between statement below. A NULL value in the _valid_to
