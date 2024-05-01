@@ -44,7 +44,7 @@ with station_raw as (
         where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
-    
+
 aggregated as (
     select
         id,
@@ -53,7 +53,7 @@ aggregated as (
         lane,
         --Number of raw data samples
         count_if(volume is not null and occupancy is not null)
-        as sample_ct,
+            as sample_ct,
         -- Sum of all the flow values 
         sum(volume) as volume_sum,
         -- Average of all the occupancy values 
@@ -63,7 +63,7 @@ aggregated as (
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
-    
+
 aggregated_speed as (
     select
         *,
@@ -80,4 +80,5 @@ aggregated_speed as (
         coalesce(weighted_speed, (volume_sum * 22) / nullifzero(average_occupancy) * (1 / 5280) * 12) as imputed_speed
     from aggregated
 )
+
 select * from aggregated_speed
