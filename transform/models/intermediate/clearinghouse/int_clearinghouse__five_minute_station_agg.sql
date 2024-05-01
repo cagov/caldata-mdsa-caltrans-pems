@@ -55,9 +55,9 @@ aggregated as (
         count_if(volume is not null and occupancy is not null)
             as sample_ct,
         -- Sum of all the flow values 
-        sum(volume) as volume,
+        sum(volume) as volume_sum,
         -- Average of all the occupancy values 
-        avg(occupancy) as occupancy,
+        avg(occupancy) as average_occupancy,
         -- calculate_weighted_speed
         sum(volume * speed) / nullifzero(sum(volume)) as weighted_speed
     from station_raw
@@ -77,7 +77,7 @@ aggregated_speed as (
         --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
         --* (1 / 5280) * 12))
         --impute five minutes missing speed
-        coalesce(weighted_speed, (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12) as imputed_speed
+        coalesce(weighted_speed, (volume_sum * 22) / nullifzero(average_occupancy) * (1 / 5280) * 12) as imputed_speed
     from aggregated
 )
 
