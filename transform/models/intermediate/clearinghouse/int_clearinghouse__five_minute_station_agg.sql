@@ -59,25 +59,10 @@ aggregated as (
         sum(volume) as volume_sum,
         -- Average of all the occupancy values
         avg(occupancy) as average_occupancy,
-        -- weighted speed provides more accurate aggregation than average speed, therefore we will weighted speed
+        -- weighted speed provides more accurate aggregation than average speed, therefore we will use weighted speed
         sum(volume * speed) / nullifzero(sum(volume)) as weighted_speed
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
-),
-
-aggregated_metrics as (
-    select
-        *,
-        case
-            when
-                -- average occupancy should not be null and zero
-                -- sum of the volume should not be null and zero
-                (average_occupancy is not null and average_occupancy != 0)
-                and (volume_sum is not null and volume_sum != 0)
-                then
-                    weighted_speed
-        end as five_mins_speed
-    from aggregated
 )
 
-select * from aggregated_metrics
+select * from aggregated
