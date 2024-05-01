@@ -1,11 +1,14 @@
-with
+with date_range as (
+        {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="to_date('01/01/2023', 'mm/dd/yyyy')",
+        end_date= "current_date + 1 "
+        )
+        }}
+),
 
-recursive date_range as (
-    select dateadd(day, {{ var("dev_model_look_back", current_date) }}, current_date) as active_date
-    union all
-    select dateadd(day, 1, active_date) as active_date
-    from date_range
-    where active_date < current_date
+date_range_updated as (
+    select date_{{ "day" }} as active_date from date_range
 ),
 
 station_meta as (
@@ -15,9 +18,13 @@ station_meta as (
 active_station as (
     select
         dr.*,
-        sm.*,
+        sm.* exclude _valid_to,
         coalesce(sm._valid_to, current_date + 1) as valid_to
-    from date_range as dr
+        --valid_to is used to place an actual date that can be used in
+        --the on/between statement below. A NULL value in the _valid_to
+        --field is typically associated with a currently active station
+        --but is not a valid value in this CTE
+    from date_range_updated as dr
     inner join
         station_meta as sm
         on
