@@ -53,7 +53,7 @@ aggregated as (
         lane,
         --Number of raw data samples
         count_if(volume is not null and occupancy is not null)
-            as sample_ct,
+        as sample_ct,
         -- Sum of all the flow values 
         sum(volume) as volume_sum,
         -- Average of all the occupancy values 
