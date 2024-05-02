@@ -53,9 +53,9 @@ aggregated as (
         lane,
         --Number of raw data samples
         count_if(volume is not null and occupancy is not null) as sample_ct,
-        -- Sum of all the flow values 
+        -- Sum_of_all_the_flow_values 
         sum(volume) as volume_sum,
-        -- Average of all the occupancy values 
+        -- Average_of_all_the_occupancy_values 
         avg(occupancy) as average_occupancy,
         -- calculate_weighted_speed
         sum(volume * speed) / nullifzero(sum(volume)) as weighted_speed
