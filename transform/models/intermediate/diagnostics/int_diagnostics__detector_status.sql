@@ -37,15 +37,15 @@ source as (
 
 district_feed_check as (
     select
-        samples_per_station.district,
+        source.district,
         case
-            when (count_if(samples_per_station.sample_ct > 0)) > 0 then 'Yes'
+            when (count_if(source.sample_ct > 0)) > 0 then 'Yes'
             else 'No'
         end as district_feed_working
-    from samples_per_station
+    from source
     inner join {{ ref('districts') }} as d
-        on d.district_id = samples_per_station.district
-    group by samples_per_station.district
+        on source.district = d.district_id
+    group by source.district
 ),
 
 detector_status as (
