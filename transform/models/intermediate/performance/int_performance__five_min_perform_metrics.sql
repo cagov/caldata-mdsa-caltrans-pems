@@ -59,9 +59,9 @@ vmt_vht_metrics as (
         *,
         --vehicle-miles/5-min
         volume_five_mins * length as vmt,
-        --vehicle-hours/5-min 
+        --vehicle-hours/5-min
         volume_five_mins * length / nullifzero(speed_five_mins) as vht,
-        --vehicle-hours/5-min 
+        --vehicle-hours/5-min
         vmt / nullifzero(vht) as q_value,
         -- travel time
         60 / nullifzero(q_value) as tti
