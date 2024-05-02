@@ -54,9 +54,9 @@ aggregated as (
         --Number of raw data samples
         count_if(volume is not null and occupancy is not null)
             as sample_ct,
-        -- Sum of all the flow values 
+        -- Sum of all the flow values
         sum(volume) as volume_five_mins,
-        -- Average of all the occupancy values 
+        -- Average of all the occupancy values
         avg(occupancy) as occupancy_five_mins,
         -- calculate_weighted_speed
         sum(volume * speed) / nullifzero(sum(volume)) as speed_wt_five_mins
