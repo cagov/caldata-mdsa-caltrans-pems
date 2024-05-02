@@ -58,16 +58,13 @@ vmt_vht_metrics as (
     select
         *,
         --vehicle-miles/5-min
-        volume_sum * length as vmt,
+        volume_five_mins * length as vmt,
         --vehicle-hours/5-min 
-        volume_sum * length / nullifzero(weighted_speed) as observed_vht,
-        volume_sum * length / nullifzero(imputed_speed) as imputed_vht,
+        volume_five_mins * length / nullifzero(speed_five_mins) as vht,
         --vehicle-hours/5-min 
-        vmt / nullifzero(observed_vht) as observed_q_value,
-        vmt / nullifzero(imputed_vht) as imputed_q_value,
+        vmt / nullifzero(vht) as q_value,
         -- travel time
-        60 / nullifzero(observed_q_value) as observed_tti,
-        60 / nullifzero(imputed_q_value) as imputed_tti
+        60 / nullifzero(q_value) as tti
     from five_minute_agg_with_station_meta
 )
 

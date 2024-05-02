@@ -55,11 +55,11 @@ aggregated as (
         count_if(volume is not null and occupancy is not null)
             as sample_ct,
         -- Sum of all the flow values 
-        sum(volume) as volume_sum,
+        sum(volume) as volume_five_mins,
         -- Average of all the occupancy values 
-        avg(occupancy) as average_occupancy,
+        avg(occupancy) as occupancy_five_mins,
         -- calculate_weighted_speed
-        sum(volume * speed) / nullifzero(sum(volume)) as weighted_speed
+        sum(volume * speed) / nullifzero(sum(volume)) as speed_wt_five_mins
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
 ),
@@ -76,7 +76,8 @@ aggregated_speed as (
         --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
         --* (1 / 5280) * 12))
         --impute five minutes missing speed
-        coalesce(weighted_speed, (volume_sum * 22) / nullifzero(average_occupancy) * (1 / 5280) * 12) as imputed_speed
+        coalesce(speed_wt_five_mins, (volume_five_mins * 22) / nullifzero(occupancy_five_mins) * (1 / 5280) * 12)
+            as speed_five_mins
     from aggregated
 )
 
