@@ -45,11 +45,11 @@ five_minute_agg_with_station_meta as (
     from five_minute_agg as fma
     inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
         on
-            sm.id = fma.id
-            and sm._valid_from <= fma.sample_date
+            fma.id = sm.id
+            and fma.sample_date >= sm._valid_from
             and
             (
-                sm._valid_to > fma.sample_date
+                fma.sample_date < sm._valid_to
                 or sm._valid_to is null
             )
 ),
@@ -57,11 +57,19 @@ five_minute_agg_with_station_meta as (
 vmt_vht_metrics as (
     select
         *,
-        volume * length as vmt, --vehicle-miles/5-min
-        volume * length / nullifzero(speed) as vht, --vehicle-hours/5-min
-        vmt / nullifzero(vht) as q_value,
-        60 / nullifzero(q_value) as tti
+        --vehicle-miles/5-min
+        volume_sum * length as vmt,
+        --vehicle-hours/5-min 
+        volume_sum * length / nullifzero(weighted_speed) as observed_vht,
+        volume_sum * length / nullifzero(imputed_speed) as imputed_vht,
+        --vehicle-hours/5-min 
+        vmt / nullifzero(observed_vht) as observed_q_value,
+        vmt / nullifzero(imputed_vht) as imputed_q_value,
+        -- travel time
+        60 / nullifzero(observed_q_value) as observed_tti,
+        60 / nullifzero(imputed_q_value) as imputed_tti
     from five_minute_agg_with_station_meta
 )
 
 select * from vmt_vht_metrics
+,
