@@ -67,7 +67,6 @@ aggregated as (
 aggregated_speed as (
     select
         *,
-
         --A preliminary speed calcuation was developed on 3/22/24
         --using a vehicle effective length of 22 feet
         --(16 ft vehicle + 6 ft detector zone) feet and using
