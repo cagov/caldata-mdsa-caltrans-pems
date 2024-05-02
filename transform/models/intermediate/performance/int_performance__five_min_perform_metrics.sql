@@ -72,4 +72,3 @@ vmt_vht_metrics as (
 )
 
 select * from vmt_vht_metrics
-,
