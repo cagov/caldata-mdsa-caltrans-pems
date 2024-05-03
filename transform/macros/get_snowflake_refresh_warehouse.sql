@@ -6,11 +6,10 @@
     {% set suffix = 'DEV' %}
   {% endif %}
   {% if flags.FULL_REFRESH %}
-    {% set size = '4XL' %}
+    {% set size = big %}
   {% else %}
-    {% set size = 'XL' %}
+    {% set size = small %}
   {% endif %}
   {% set warehouse = 'TRANSFORMING_' ~ size ~ '_' ~ suffix %}
   {{ return(warehouse) }}
 {% endmacro %}
-
