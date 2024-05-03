@@ -70,7 +70,8 @@ delay_metrics as (
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
         {% for value in var("V_t") %}
-            greatest(vvm.volume * ((vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})), 0) as delay_{{ value }}_mph
+            greatest(vvm.volume * ((vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})), 0)
+                as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
             {% endif %}
