@@ -45,11 +45,11 @@ five_minute_agg_with_station_meta as (
     from five_minute_agg as fma
     inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
         on
-            sm.id = fma.id
-            and sm._valid_from <= fma.sample_date
+            fma.id = sm.id
+            and fma.sample_date >= sm._valid_from
             and
             (
-                sm._valid_to > fma.sample_date
+                fma.sample_date < sm._valid_to
                 or sm._valid_to is null
             )
 ),
@@ -62,6 +62,23 @@ vmt_vht_metrics as (
         vmt / nullifzero(vht) as q_value,
         60 / nullifzero(q_value) as tti
     from five_minute_agg_with_station_meta
+),
+
+delay_metrics as (
+    select
+        vvm.*,
+        /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
+        L = length of the segment, V = current speed, and V_t = threshold speed. */
+        {% for value in var("V_t") %}
+            greatest(vvm.volume * ((vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})), 0)
+                as delay_{{ value }}_mph
+            {% if not loop.last %}
+                ,
+            {% endif %}
+
+        {% endfor %}
+
+    from vmt_vht_metrics as vvm
 )
 
-select * from vmt_vht_metrics
+select * from delay_metrics
