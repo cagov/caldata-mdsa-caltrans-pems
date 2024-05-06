@@ -25,7 +25,7 @@ station_pairs as (
 nearest_stations_within_five_miles as (
     select *
     from station_pairs
-    -- select the stations that is within 5 miles upstream and downstream of the station
+    -- select the stations those are within 5 miles upstream and downstream of the station
     where delta_postmile >= -5.0 and delta_postmile <= 5.0 and id != other_id
 ),
 
