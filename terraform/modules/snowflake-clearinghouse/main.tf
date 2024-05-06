@@ -6,7 +6,7 @@ terraform {
   required_providers {
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = "~> 0.71"
+      version = "~> 0.89"
       configuration_aliases = [
         snowflake.accountadmin,
         snowflake.securityadmin,
@@ -18,11 +18,19 @@ terraform {
   required_version = ">= 1.0"
 }
 
-# Schema for raw PeMS data
-resource "snowflake_schema" "pems_raw" {
+# Schema for raw clearninghouse data
+resource "snowflake_schema" "pems_clearinghouse" {
   provider            = snowflake.sysadmin
   database            = "RAW_${var.environment}"
   name                = "CLEARINGHOUSE"
+  data_retention_days = 14
+}
+
+# Schema for raw data relay server data
+resource "snowflake_schema" "pems_db96" {
+  provider            = snowflake.sysadmin
+  database            = "RAW_${var.environment}"
+  name                = "DB96"
   data_retention_days = 14
 }
 
@@ -49,8 +57,8 @@ resource "snowflake_stage" "pems_raw" {
   provider            = snowflake.sysadmin
   name                = "PEMS_RAW_${var.environment}"
   url                 = var.s3_url
-  database            = snowflake_schema.pems_raw.database
-  schema              = snowflake_schema.pems_raw.name
+  database            = snowflake_schema.pems_clearinghouse.database
+  schema              = snowflake_schema.pems_clearinghouse.name
   storage_integration = snowflake_storage_integration.pems_raw.name
 }
 
@@ -67,16 +75,16 @@ resource "snowflake_stage_grant" "pems_raw" {
 # Pipes
 resource "snowflake_pipe" "station_raw_pipe" {
   provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
+  database    = snowflake_schema.pems_clearinghouse.database
+  schema      = snowflake_schema.pems_clearinghouse.name
   name        = "STATION_RAW"
   auto_ingest = true
 
   copy_statement = templatefile(
     "${path.module}/raw_pipe.sql.tplfile",
     {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
+      database    = snowflake_schema.pems_clearinghouse.database
+      schema      = snowflake_schema.pems_clearinghouse.name
       table       = "STATION_RAW"
       stage       = snowflake_stage.pems_raw.name
       file_format = "STATION_RAW"
@@ -86,16 +94,16 @@ resource "snowflake_pipe" "station_raw_pipe" {
 
 resource "snowflake_pipe" "station_meta_pipe" {
   provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
+  database    = snowflake_schema.pems_clearinghouse.database
+  schema      = snowflake_schema.pems_clearinghouse.name
   name        = "STATION_META"
   auto_ingest = true
 
   copy_statement = templatefile(
     "${path.module}/meta_pipe.sql.tplfile",
     {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
+      database    = snowflake_schema.pems_clearinghouse.database
+      schema      = snowflake_schema.pems_clearinghouse.name
       table       = "STATION_META"
       stage       = snowflake_stage.pems_raw.name
       file_format = "STATION_META"
@@ -105,19 +113,38 @@ resource "snowflake_pipe" "station_meta_pipe" {
 
 resource "snowflake_pipe" "station_status_pipe" {
   provider    = snowflake.sysadmin
-  database    = snowflake_schema.pems_raw.database
-  schema      = snowflake_schema.pems_raw.name
+  database    = snowflake_schema.pems_clearinghouse.database
+  schema      = snowflake_schema.pems_clearinghouse.name
   name        = "STATION_STATUS"
   auto_ingest = true
 
   copy_statement = templatefile(
     "${path.module}/status_pipe.sql.tplfile",
     {
-      database    = snowflake_schema.pems_raw.database
-      schema      = snowflake_schema.pems_raw.name
+      database    = snowflake_schema.pems_clearinghouse.database
+      schema      = snowflake_schema.pems_clearinghouse.name
       table       = "STATION_STATUS"
       stage       = snowflake_stage.pems_raw.name
       file_format = "STATION_STATUS"
+    },
+  )
+}
+
+resource "snowflake_pipe" "vds30sec_pipe" {
+  provider    = snowflake.sysadmin
+  database    = snowflake_schema.pems_db96.database
+  schema      = snowflake_schema.pems_db96.name
+  name        = "VDS30SEC"
+  auto_ingest = true
+
+  copy_statement = templatefile(
+    "${path.module}/vds30sec_pipe.sql.tplfile",
+    {
+      database    = snowflake_schema.pems_db96.database
+      schema      = snowflake_schema.pems_db96.name
+      table       = "VDS30SEC"
+      stage       = snowflake_stage.pems_raw.name
+      file_format = "VDS30SEC"
     },
   )
 }
