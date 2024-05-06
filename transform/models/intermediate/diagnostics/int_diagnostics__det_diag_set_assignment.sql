@@ -9,6 +9,7 @@ station_diagnostic_set_assign as (
     1 of 2 values for station diagnostic evaluations.
     */
     select
+        active_date,
         id as station_id,
         district,
         type,
@@ -31,7 +32,7 @@ station_diagnostic_set_assign as (
             else 'mainline'
         end as station_diagnostic_method_id
 
-    from {{ ref ('int_clearinghouse__station_meta') }}
+    from {{ ref ('int_clearinghouse__active_stations') }}
 ),
 
 diagnostic_threshold_values as (
