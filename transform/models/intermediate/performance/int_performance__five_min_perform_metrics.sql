@@ -68,7 +68,8 @@ aggregated_speed as (
         coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         -- create a boolean function to track wheather speed is imputed or not
-        coalesce(speed_five_mins != speed_weighted or speed_five_mins is not null and speed_weighted is null, false)
+        coalesce(speed_five_mins != speed_weighted or (speed_five_mins is not null and speed_weighted is null), false)
+        -- coalesce(speed_weighted is null, false)
             as is_speed_calculated
     from five_minute_agg_with_station_meta
 ),
@@ -80,7 +81,7 @@ vmt_vht_metrics as (
         volume_sum * length as vmt,
         --vehicle-hours/5-min
         volume_sum * length / nullifzero(speed_five_mins) as vht,
-        --vehicle-hours/5-min
+        --q is in miles per hour for single station
         vmt / nullifzero(vht) as q_value,
         -- travel time
         60 / nullifzero(q_value) as tti
