@@ -45,36 +45,23 @@ with station_raw as (
     {% endif %}
 ),
 
-aggregated as (
+aggregated_speed as (
     select
         id,
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
+        --Number of raw data samples
         count_if(volume is not null and occupancy is not null)
-            as sample_ct, --Number of raw data samples
-        sum(volume) as volume, -- Sum of all the flow values
-        avg(occupancy) as occupancy -- Average of all the occupancy values
-        -- avg(speed) as speed_raw -- This code could be used if we use
-        -- actual speeds reported from raw data
+            as sample_ct,
+        -- Sum of all the flow values
+        sum(volume) as volume_sum,
+        -- Average of all the occupancy values
+        avg(occupancy) as occupancy_avg,
+        -- calculate_weighted_speed
+        sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
-),
-
-aggregated_speed as (
-    select
-        *,
-        --A preliminary speed calcuation was developed on 3/22/24
-        --using a vehicle effective length of 22 feet
-        --(16 ft vehicle + 6 ft detector zone) feet and using
-        --a conversion to get miles per hour (5280 ft / mile and 12
-        --5-minute intervals in an hour).
-        --The following code may be used if we want to use speed from raw data
-        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
-        --* (1 / 5280) * 12))
-        --    as speed
-        (volume * 22) / nullifzero(occupancy) * (1 / 5280) * 12 as speed
-    from aggregated
 )
 
 select * from aggregated_speed
