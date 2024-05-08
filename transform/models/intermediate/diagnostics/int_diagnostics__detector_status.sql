@@ -35,11 +35,30 @@ source as (
     {% endif %}
 ),
 
+district_feed_check as (
+    select
+        source.district,
+        case
+            when (count_if(source.sample_ct > 0)) > 0 then 'Yes'
+            else 'No'
+        end as district_feed_working
+    from source
+    inner join {{ ref('districts') }} as d
+        on source.district = d.district_id
+    group by source.district
+),
+
 detector_status as (
     select
-        sps.*,
+        set_assgnmt.active_date,
+        set_assgnmt.station_id,
+        set_assgnmt.district,
+        set_assgnmt.type,
+        sps.* exclude (district, station_id),
+        dfc.district_feed_working,
         co.min_occupancy_delta,
         case
+            when dfc.district_feed_working = 'No' then 'District Feed Down'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
             /* # of samples < 60% of the max collected during the test period
@@ -82,19 +101,18 @@ detector_status as (
             --Feed unstable case needed
             else 'Good'
         end as status
+
     from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
     left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.station_valid_from <= sps.sample_date
-            and
-            (
-                set_assgnmt.station_valid_to > sps.sample_date
-                or set_assgnmt.station_valid_to is null
-            )
+            and set_assgnmt.active_date = sps.sample_date
+
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
+    left join district_feed_check as dfc
+        on set_assgnmt.district = dfc.district
 )
 
 select * from detector_status
