@@ -56,7 +56,6 @@ station_counts_pairwise as (
 
 -- now it seems that some of the station within the buffer have missing volume and occupancy
 -- we will drop all the Null volumns and occupancy before developing multiple linear regression for the day
-
 cleaned_model_data as (
     select *
     from station_counts_pairwise
@@ -75,7 +74,7 @@ station_counts_regression_model as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from cleaned_model_data
-    group by id, lane,other_id, district, sample_date
+    group by id, lane, other_id, district, sample_date
 )
 
 select * from station_counts_regression_model
