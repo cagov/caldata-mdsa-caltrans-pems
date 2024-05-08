@@ -69,7 +69,7 @@ aggregated_speed as (
             as speed_five_mins,
         -- create a boolean function to track wheather speed is imputed or not
         coalesce(speed_five_mins != speed_weighted or speed_five_mins is not null and speed_weighted is null, false)
-            as is_speed_imputed
+            as is_speed_calculated
     from five_minute_agg_with_station_meta
 ),
 
@@ -93,7 +93,7 @@ delay_metrics as (
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
         {% for value in var("V_t") %}
-            greatest(vvm.volume * ((vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})), 0)
+            greatest(vvm.volume_sum * ((vvm.length / nullifzero(vvm.speed_five_mins)) - (vvm.length / {{ value }})), 0)
                 as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
