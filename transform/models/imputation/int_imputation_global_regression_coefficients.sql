@@ -39,10 +39,12 @@ station_counts_pairwise as (
         a.district,
         a.sample_date,
         a.sample_timestamp,
-        a.volume,
-        b.volume as other_volume,
-        a.occupancy,
-        b.occupancy as other_occupancy
+        a.lane,
+        b.lane as other_lane,
+        a.volume_sum as volume,
+        b.volume_sum as other_volume,
+        a.occupancy_avg as occupancy,
+        b.occupancy_avg as other_occupancy
     from station_counts_real_lanes as a
     left join nearby_stations on a.id = nearby_stations.id
     left join station_counts_real_lanes as b
@@ -67,12 +69,13 @@ station_counts_regression_model as (
         district,
         sample_date,
         lane,
+        other_id,
         regr_slope(volume, other_volume) as volume_slope,
         regr_intercept(volume, other_volume) as volume_intercept,
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from cleaned_model_data
-    group by id, district, sample_date
+    group by id, lane,other_id, district, sample_date
 )
 
 select * from station_counts_regression_model
