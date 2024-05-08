@@ -1,3 +1,5 @@
+{{ config(materialized="table") }}
+
 with station_meta as (
     select * from {{ ref('int_clearinghouse__most_recent_station_meta') }}
 ),
