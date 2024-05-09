@@ -24,14 +24,14 @@ models:
         description: |
           Counts the number of raw data samples where a lane's volume (flow) and occupancy
           values contain any non-null value
-      - name: volume
+      - name: volume_sum
         description: The sum of the flow values for a detector over the sample period.
-      - name: occupancy
+      - name: occupancy_avg
         description: The average of the occupancy values over the sample period.
-      - name: speed
+      - name: speed_five_mins
         description: |
-          Preliminary speed calculation in miles/hour based on the simplified version
-          of the speed formula located at
+          Actual reported speed if available otherwise the preliminary speed calculation 
+          in miles/hour based on the simplified version of the speed formula located at
           https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
       - name: vmt
         description: |
@@ -65,3 +65,17 @@ models:
           55, and 60 MPH. The formula is: F * (L/V - L/V_t). The formula is:
           F * (L/V - L/V_t). F = flow (volume), L = length of the segment, V = current speed,
           and V_t = threshold speed. Delay can never be negative.
+      - name: lost_productivity
+        description: |
+          The Productivity perfromance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions. When the freeway is in congestion - which we take to be when the speed
+          is below a certain, user-selectable, threshold - we find the ratio between the
+          measured flow and the capacity for this location. This drop in capacity is due to
+          the fact that the freeway is operating in congested conditions instead of in free-flow.
+          We then multiply one minus this ratio by the length of the segment to determine the
+          number of equivalent lane-miles-hours of freeway which this represents. For the
+          capacity we look at the historical measured data for each location and determine the
+          maximum observed 15-minute flow. We use the maximum of this value and 2076 v/l/h
+          as the capacity at each location. The threshold values used are 35, 40, 45, 50, 55,
+          and 60 MPH.

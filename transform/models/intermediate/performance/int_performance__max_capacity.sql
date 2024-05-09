@@ -5,10 +5,6 @@ actual 15-minute flow value and 2076 v/l/h as the capacity at each location. Thi
 to detemine the productivity performance metric.
 */
 
-{{ config(
-    materialized="table"
-) }}
-
 with
 
 source as (
