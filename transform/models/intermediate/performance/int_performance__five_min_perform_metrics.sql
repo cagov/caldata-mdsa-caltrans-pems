@@ -113,9 +113,9 @@ productivity_metrics as (
         */
         {% for value in var("V_t") %}
             case
-                when dm.speed >= {{ value }}
+                when dm.speed_five_mins >= {{ value }}
                     then 0
-                else dm.length * (1 - (dm.volume / mc.max_capacity_5min))
+                else dm.length * (1 - (dm.volume_sum / mc.max_capacity_5min))
             end
                 as lost_productivity_{{ value }}_mph
             {% if not loop.last %}

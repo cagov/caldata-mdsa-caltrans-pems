@@ -17,14 +17,14 @@ source as (
         sample_timestamp,
         sample_date,
         lane,
-        volume
+        volume_sum
     from {{ ref("int_clearinghouse__five_minute_station_agg") }}
 ),
 
 sum_volume as (
     select
         *,
-        SUM(volume)
+        SUM(volume_sum)
         /* we are looking at a window of 3 rows because that is a 15-minute window
         (5-min data * 3 = 15 minutes) */
             over (
@@ -33,7 +33,7 @@ sum_volume as (
             )
             as volume_summed
     from source
-    qualify volume is not null
+    qualify volume_sum is not null
 )
 
 select
