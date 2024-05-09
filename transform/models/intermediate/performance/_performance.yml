@@ -30,7 +30,7 @@ models:
         description: The average of the occupancy values over the sample period.
       - name: speed_five_mins
         description: |
-          Actual reported speed if available otherwise the preliminary speed calculation 
+          Actual reported speed if available otherwise the preliminary speed calculation
           in miles/hour based on the simplified version of the speed formula located at
           https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
       - name: vmt
