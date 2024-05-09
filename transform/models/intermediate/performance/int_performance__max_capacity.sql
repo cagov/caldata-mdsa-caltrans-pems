@@ -1,6 +1,6 @@
 /*
 This model develops the maximum capacity of a station and lane based on the historical measured
-raw data and determines the maximum observed 15-minute flow. We use the maximum of this
+raw data and determines the maximum observed 15-minute flow. We use the maximum of the
 actual 15-minute flow value and 2076 v/l/h as the capacity at each location. This will be used
 to detemine the productivity performance metric.
 */
