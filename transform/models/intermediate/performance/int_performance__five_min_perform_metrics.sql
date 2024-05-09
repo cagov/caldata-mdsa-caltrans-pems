@@ -79,6 +79,30 @@ delay_metrics as (
         {% endfor %}
 
     from vmt_vht_metrics as vvm
+),
+
+productivity_metrics as (
+    select
+        dm.*,
+        /*
+        The formula for Productivity is: Length * (1 - (actual flow / flow capacity))
+        */
+        {% for value in var("V_t") %}
+            case
+                when dm.speed >= {{ value }}
+                    then 0
+                else dm.length * (1 - (dm.volume / mc.max_capacity_5min))
+            end
+                as lost_productivity_{{ value }}_mph
+            {% if not loop.last %}
+                ,
+            {% endif %}
+
+        {% endfor %}
+
+    from delay_metrics as dm
+    inner join {{ ref("int_performance__max_capacity") }} as mc
+        on dm.id = mc.id and dm.lane = mc.lane
 )
 
-select * from delay_metrics
+select * from productivity_metrics

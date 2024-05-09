@@ -1,3 +1,10 @@
+/*
+This model develops the maximum capacity of a station and lane based on the historical measured
+raw data and determines the maximum observed 15-minute flow. We use the maximum of this
+actual 15-minute flow value and 2076 v/l/h as the capacity at each location. This will be used
+to detemine the productivity performance metric.
+*/
+
 {{ config(
     materialized="table"
 ) }}
@@ -36,9 +43,8 @@ select
     Use max of 2076 v/l/h or 15 minute historical highest flow as the capacity
     at each location per PeMS website:
     https://pems.dot.ca.gov/?dnode=Help&content=help_calc#perf
-    Max 15 minute flow / 3 = Max 5 minute flow
     2076 v/l/h / 12 = 173 v/l/5-min
     */
-    GREATEST(MAX(volume_summed) / 3, 173) as max_volume_5min
+    GREATEST(MAX(volume_summed), 173) as max_capacity_5min
 from sum_volume
 group by id, lane
