@@ -61,7 +61,10 @@ station_counts_pairwise as (
 cleaned_model_data as (
     select *
     from station_counts_pairwise
-    where (volume is not null and other_volume is not null) and (occupancy is not null and other_occupancy is not null) and (speed is not null and other_speed is not null)
+    where
+        (volume is not null and other_volume is not null)
+        and (occupancy is not null and other_occupancy is not null)
+        and (speed is not null and other_speed is not null)
 ),
 
 station_counts_regression_model as (
