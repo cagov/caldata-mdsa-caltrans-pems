@@ -6,7 +6,6 @@
 ) }}
 
 with
-
 five_minute_agg as (
     select * from {{ ref ('int_clearinghouse__five_minute_station_agg') }}
     {% if is_incremental() %}
@@ -54,14 +53,39 @@ five_minute_agg_with_station_meta as (
             )
 ),
 
+aggregated_speed as (
+    select
+        *,
+        --A preliminary speed calcuation was developed on 3/22/24
+        --using a vehicle effective length of 22 feet
+        --(16 ft vehicle + 6 ft detector zone) feet and using
+        --a conversion to get miles per hour (5280 ft / mile and 12
+        --5-minute intervals in an hour).
+        --The following code may be used if we want to use speed from raw data
+        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
+        --* (1 / 5280) * 12))
+        --impute five minutes missing speed
+        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins,
+        -- create a boolean function to track wheather speed is imputed or not
+        coalesce(speed_five_mins != speed_weighted or (speed_five_mins is not null and speed_weighted is null), false)
+        -- coalesce(speed_weighted is null, false)
+            as is_speed_calculated
+    from five_minute_agg_with_station_meta
+),
+
 vmt_vht_metrics as (
     select
         *,
-        volume * length as vmt, --vehicle-miles/5-min
-        volume * length / nullifzero(speed) as vht, --vehicle-hours/5-min
+        --vehicle-miles/5-min
+        volume_sum * length as vmt,
+        --vehicle-hours/5-min
+        volume_sum * length / nullifzero(speed_five_mins) as vht,
+        --q is in miles per hour for single station
         vmt / nullifzero(vht) as q_value,
+        -- travel time
         60 / nullifzero(q_value) as tti
-    from five_minute_agg_with_station_meta
+    from aggregated_speed
 ),
 
 delay_metrics as (
@@ -70,7 +94,7 @@ delay_metrics as (
         /*  The formula for delay is: F * (L/V - L/V_t). F = flow (volume),
         L = length of the segment, V = current speed, and V_t = threshold speed. */
         {% for value in var("V_t") %}
-            greatest(vvm.volume * ((vvm.length / nullifzero(vvm.speed)) - (vvm.length / {{ value }})), 0)
+            greatest(vvm.volume_sum * ((vvm.length / nullifzero(vvm.speed_five_mins)) - (vvm.length / {{ value }})), 0)
                 as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
