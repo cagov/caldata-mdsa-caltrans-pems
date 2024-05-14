@@ -21,7 +21,7 @@ nearest_stations_within_five_miles as (
     -- TODO: distance comparisons don't seem appropriate for all station types,
     -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
     -- types. Is this the right set?
-    where a.type in ('HV', 'ML') and abs(delta_postmile) <= 5.0 and a.id != b.id
+    where a.type in ('HV', 'ML') and abs(delta_postmile) <= 10.0 and a.id != b.id
 ),
 
 nearest_stations_within_five_miles_count as (

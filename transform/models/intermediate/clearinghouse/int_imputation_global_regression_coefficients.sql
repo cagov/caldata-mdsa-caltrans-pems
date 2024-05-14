@@ -85,7 +85,7 @@ station_counts_regression_model as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from cleaned_model_data
-    group by id, lane,other_lane, other_id, district, sample_date
+    group by id, lane, other_lane, other_id, district, sample_date
 )
 
 select * from station_counts_regression_model
