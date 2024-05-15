@@ -1,11 +1,10 @@
 {{ config(materialized='table') }}
-{% set sample_date = "'2024-05-05'::date" %}
 
 --  lets consider the unimputed dataframe
 
 with unimputed as (
     select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = {{ sample_date }}
+    where sample_date = current_date - interval '4 day'
 ),
 
 -- read the global model
@@ -193,5 +192,4 @@ global_regression_imputed_value as (
 
 )
 
-select * from global_regression_imputed_value
-
+select * from global_regression_imputed_value 

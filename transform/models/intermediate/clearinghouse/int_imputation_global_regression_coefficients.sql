@@ -13,7 +13,7 @@ with station_status as (
 
 station_counts as (
     select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = '2024-05-05'::date
+    where sample_date = current_date - interval '4 day'
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
