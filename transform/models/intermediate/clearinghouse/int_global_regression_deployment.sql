@@ -8,47 +8,37 @@ with unimputed as (
     where sample_date = {{ sample_date }}
 ),
 
---  filter out the bad data that needs imputation
-status as (
-    select * from {{ ref('int_diagnostics__detector_status') }}
-    where
-        status != 'Good'
-        and sample_date = {{ sample_date }}
-),
-
 -- read the global model
 coeffs as (
     select * from {{ ref('int_imputation_global_regression_coefficients') }}
 ),
 
---  merge the unimputed dataframe with the dataframe that needs imputation
-unimputed_with_status as (
-    select
-        unimputed.*,
-        status.status
-    from unimputed
-    inner join status
-        on
-            unimputed.sample_date = status.sample_date
-            and unimputed.id = status.station_id
-            and unimputed.lane = status.lane
-),
-
--- separate the dataframe that have only volume and occupancy missing
+-- separate the dataframe that have missing volume and occupancy
 missing_vol_occ as (
-    select * exclude (speed_five_mins)
-    from unimputed_with_status
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg
+    from unimputed
     where volume_sum is null and occupancy_avg is null
 ),
 
 -- separate the dataframe that have only speed missing
 missing_speed as (
-    select * exclude (volume_sum, occupancy_avg)
-    from unimputed_with_status
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        speed_five_mins
+    from unimputed
     where speed_five_mins is null
 ),
 
--- join the coeeficent with volume and occupancy missing dataframe
+-- join the coeeficent with missing volume and occupancy dataframe
 missing_vol_occ_with_coeffs as (
     select
         missing_vol_occ.*,
@@ -63,9 +53,10 @@ missing_vol_occ_with_coeffs as (
         on
             missing_vol_occ.id = coeffs.id
             and missing_vol_occ.lane = coeffs.lane
+            and missing_vol_occ.sample_date = coeffs.sample_date
 ),
 
--- join the coeeficent with speed missing dataframe
+-- join the coeeficent with missing speed dataframe
 missing_speed_with_coeffs as (
     select
         missing_speed.*,
@@ -78,6 +69,7 @@ missing_speed_with_coeffs as (
         on
             missing_speed.id = coeffs.id
             and missing_speed.lane = coeffs.lane
+            and missing_speed.sample_date = coeffs.sample_date
 ),
 
 --  read the neighbours that have volume and occupancy data
@@ -116,9 +108,9 @@ missing_imputed_vol_occ as (
         lane,
         sample_date,
         sample_timestamp,
-        greatest(median(volume_slope * volume_sum + volume_intercept), 0) as imputed_volume,
-        least(greatest(median(occupancy_slope * occupancy_avg + occupancy_intercept), 0), 1) as imputed_occupancy,
-        true as imputed
+        greatest(median(volume_slope * volume_sum + volume_intercept), 0) as volume_sum,
+        least(greatest(median(occupancy_slope * occupancy_avg + occupancy_intercept), 0), 1) as occupancy_avg,
+        true as imputed_vol_occ
     from missing_vol_occ_with_neighbors
     group by id, lane, sample_date, sample_timestamp
 ),
@@ -130,39 +122,76 @@ missing_imputed_speed as (
         lane,
         sample_date,
         sample_timestamp,
-        least(greatest(median(speed_slope * speed_five_mins + speed_intercept), 0), 100) as imputed_speed_five_mins,
-        true as imputed
+        least(greatest(median(speed_slope * speed_five_mins + speed_intercept), 0), 100) as speed_five_mins,
+        true as imputed_speed
     from missing_speed_with_neighbors
     group by id, lane, sample_date, sample_timestamp
 ),
 
--- Join speed prediction dataframe with predicted volume plus occupancy dataframe
-imputed_vol_occ_speed_fused as (
+-- separate the dataframe that have missing volume and occupancy
+non_missing_vol_occ as (
     select
-        missing_imputed_vol_occ.*,
-        missing_imputed_speed.*
-    from missing_imputed_vol_occ
-    left join missing_imputed_speed
-        on
-            missing_imputed_vol_occ.sample_date = missing_imputed_speed.sample_date
-            and missing_imputed_vol_occ.id = missing_imputed_speed.id
-            and missing_imputed_vol_occ.lane = missing_imputed_speed.lane
-            and missing_imputed_vol_occ.sample_timestamp = missing_imputed_speed.sample_timestamp
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg,
+        false as imputed_vol_occ
+    from unimputed
+    where volume_sum is not null and occupancy_avg is not null
 ),
 
--- -- join imputed volume and occupancy with unimputed data
-imputed_vol_occ_speed as (
+-- separate the dataframe that have only speed missing
+non_missing_speed as (
     select
-        unimputed.*,
-        imputed_vol_occ_speed_fused.*
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        speed_five_mins,
+        false as imputed_speed
     from unimputed
-    left join imputed_vol_occ_speed_fused
+    where speed_five_mins is not null
+),
+
+--  combined imputed and non-imputed volume and occupancy dataframe together
+imputed_non_imputed_speed as (
+    select * from missing_imputed_speed
+    union all
+    select * from non_missing_speed
+),
+
+
+
+-- combine imputed and non-imputed volume and occupancy data frame together
+imputed_non_imputed_vol_occ as (
+    select * from missing_imputed_vol_occ
+    union all
+    select * from non_missing_vol_occ
+),
+
+-- now left join the 'speed' and 'vol and occupancy' dataframe together
+global_regression_imputed_value as (
+    select
+        imputed_non_imputed_vol_occ.id,
+        imputed_non_imputed_vol_occ.lane,
+        imputed_non_imputed_vol_occ.sample_date,
+        imputed_non_imputed_vol_occ.sample_timestamp,
+        imputed_non_imputed_vol_occ.volume_sum,
+        imputed_non_imputed_vol_occ.occupancy_avg,
+        imputed_non_imputed_vol_occ.imputed_vol_occ,
+        imputed_non_imputed_speed.speed_five_mins,
+        imputed_non_imputed_speed.imputed_speed
+    from imputed_non_imputed_vol_occ
+    left join imputed_non_imputed_speed
         on
-            unimputed.sample_date = imputed_vol_occ_speed_fused.sample_date
-            and unimputed.id = imputed_vol_occ_speed_fused.id
-            and unimputed.lane = imputed_vol_occ_speed_fused.lane
-            and unimputed.sample_timestamp = imputed_vol_occ_speed_fused.sample_timestamp
+            imputed_non_imputed_vol_occ.id = imputed_non_imputed_speed.id
+            and imputed_non_imputed_vol_occ.lane = imputed_non_imputed_speed.lane
+            and imputed_non_imputed_vol_occ.sample_date = imputed_non_imputed_speed.sample_date
+            and imputed_non_imputed_vol_occ.sample_timestamp = imputed_non_imputed_speed.sample_timestamp
+
 )
 
--- -- read the imputed outcomes
-select * from imputed_vol_occ_speed
+select * from global_regression_imputed_value
+
