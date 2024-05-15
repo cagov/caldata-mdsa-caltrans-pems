@@ -1,3 +1,4 @@
+{{ config(materialized="table") }}
 with station_meta as (
     select * from {{ ref('int_clearinghouse__most_recent_station_meta') }}
 ),
@@ -19,13 +20,14 @@ station_pairs as (
     -- TODO: distance comparisons don't seem appropriate for all station types,
     -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
     -- types. Is this the right set?
-    where a.type in ('HV', 'ML', 'CH', 'CD')
+    where a.type in ('HV', 'ML')
 ),
 
 nearest_downstream_station_pairs as (
     select *
     from station_pairs
-    where delta_postmile > 0
+    where
+        delta_postmile > 0
         and id != other_id
     qualify row_number() over (partition by id order by delta_postmile asc) = 1
 
@@ -34,7 +36,8 @@ nearest_downstream_station_pairs as (
 nearest_upstream_station_pairs as (
     select *
     from station_pairs
-    where delta_postmile < 0
+    where
+        delta_postmile < 0
         and id != other_id
     qualify row_number() over (partition by id order by abs(delta_postmile) asc) = 1
 
