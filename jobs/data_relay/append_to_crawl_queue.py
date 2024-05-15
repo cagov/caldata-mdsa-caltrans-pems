@@ -19,7 +19,7 @@ KAFKA_CLIENT_CONFIG = {
 }
 CRAWL_QUEUE_KAFKA_TOPIC = "oracle_crawl_queue_topic"
 
-CRAWL_QUEUE_TOPIC_CURRENT_SCHEMA = """ 
+CRAWL_QUEUE_TOPIC_CURRENT_SCHEMA = """
 {
   "name": "PEMS_Oracle_Crawl_Queue",
   "namespace": "com.caltrans.bia",
@@ -367,17 +367,17 @@ parser.add_argument(
     "--githash",
     type=str,
     required=True,
-    help="""Specify the Git hash associated with the generation script. 
+    help="""Specify the Git hash associated with the generation script.
     The githash will be included as a data column in all crawled tables for diagnostic purposes.""",
 )
 parser.add_argument(
     "--crawl_window_start",
     type=str,
     default=None,
-    help="""A timestamp in string format of yyyy-MM-dd hh:mm:ss for the start of the timewindow. 
-          For example, if `2024-03-01 18:00:00` is specified, then the script will generate crawl tasks with time 
+    help="""A timestamp in string format of yyyy-MM-dd hh:mm:ss for the start of the timewindow.
+          For example, if `2024-03-01 18:00:00` is specified, then the script will generate crawl tasks with time
           starting from 2024-03-01 18:00:00 PST.
-            If it is unspecified (default to None), then 
+            If it is unspecified (default to None), then
              it will be overriden with the yesterday's starting time: 00:00:00.001
      """,
 )
@@ -386,8 +386,8 @@ parser.add_argument(
     "--day_partition_number",
     type=int,
     default=1,
-    help=""" 
-      Default is 1.  
+    help="""
+      Default is 1.
         If 2 is specified, then the time window will be 1/2 of a day
         If 3 is specified, the time window will be 1/3 of a day, so on so forth...
      """,

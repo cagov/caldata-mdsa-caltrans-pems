@@ -23,9 +23,9 @@
 #
 
 cd /nfsdata/dataop/uploader
-# Assuming the TOPICs you want to copy are passed in as the first command line argument. 
+# Assuming the TOPICs you want to copy are passed in as the first command line argument.
 # Eg: "topic1,topic2,topic3"
-topics=$1  
+topics=$1
 
 IFS=',' read -ra ADDR <<< "$topics"
 

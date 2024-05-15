@@ -28,7 +28,6 @@ KAFKA_SCHEMA_REGISTRY_SERVER = "http://svgcmdl04:8092"
 ELASTIC_SEARCH_SERVER = "http://svgcmdl02:9200"
 
 
-
 class loguru_custom_encoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, int):
@@ -96,7 +95,6 @@ logger.add(
 )
 
 
-
 config = {
     "output_path": "/nfsdata/dataop/uploader/tmp",
     "checkpoint_prefix": "_checkpoint",
@@ -105,8 +103,10 @@ config = {
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--topic", help="Topic i.e. D3.VDS30SEC", required=True)
-parser.add_argument("--debug", \
-                    help="Debugger config string, if specified, should take the form like key=value,key1=value1. Example key includes `signature` ")
+parser.add_argument(
+    "--debug",
+    help="Debugger config string, if specified, should take the form like key=value,key1=value1. Example key includes `signature` ",
+)
 parser.add_argument(
     "--limit_rows",
     type=int,
@@ -465,12 +465,10 @@ def pull():
                 time.sleep(3)
                 continue
             else:
-
                 offset_info["partition_offsets"][message.partition()] = message.offset()
                 new_offset_details = True
-                if (
-                    current_time - last_saved_time >= delta_upload_seconds \
-                        or (args.limit_rows and messages_in_batch > int(args.limit_rows))
+                if current_time - last_saved_time >= delta_upload_seconds or (
+                    args.limit_rows and messages_in_batch > int(args.limit_rows)
                 ):  # if `delta_upload_seconds` or more seconds have passed
                     buffer.append(message.value())
 
@@ -579,7 +577,9 @@ def table_specific_schema_reconstruction(df, topic):
                     else (
                         (col, pa.string())
                         if col == "meta"
-                        else (col, pa.int32()) if col == "VDS_ID" else None
+                        else (col, pa.int32())
+                        if col == "VDS_ID"
+                        else None
                     )
                 )
                 for col, typ in zip(specified_cols, specified_cols_types, strict=False)
@@ -862,7 +862,6 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
     logger.debug(f"df.dtypes {df.dtypes}")
     logger.debug(f"df.memory_usage {df.memory_usage()}")
 
-
     logger.debug(f"type df {type(df)}")
 
     schema_option = fetch_parquet_schema_from_registry(topic)
@@ -1143,7 +1142,6 @@ def upload(output_path, date_string, topic):
                 logger.error(f"An unexpected error occurred: {e}")
 
     else:
-
         ssh_command = (
             f"/usr/local/bin/aws s3 cp {output_path} "
             "s3://caltrans-pems-dev-us-west-2-raw/db96_export_staging_area"
@@ -1229,6 +1227,7 @@ if __name__ == "__main__":
             kafka_log_handler.flush()
             raise ValueError("cannot start zookeeper")
         from kazoo.recipe.lock import Lock
+
         lock_path = "/var/coordinator/my_instance_lock_for_aws_uploader"
         logger.info(f"I'm about to enter an section of lock ({lock_path}) ")
         kafka_log_handler.flush()
@@ -1238,42 +1237,47 @@ if __name__ == "__main__":
                 f"I'm the only one running table_aws_uploader.py under lock path {lock_path}"
             )
             pull()
-    elif 'signature' in args.debug:
+    elif "signature" in args.debug:
         # example of debugging string
         args_debug = args.debug
         # extract 'signature' from args.debug string
-        args_debug_list = args_debug.split(',')
-        debug_dict = {k.strip(): v.strip() for k, v in
-                          (item.split('=') for item in args_debug_list)}
-        signature = debug_dict['signature']
+        args_debug_list = args_debug.split(",")
+        debug_dict = {
+            k.strip(): v.strip()
+            for k, v in (item.split("=") for item in args_debug_list)
+        }
+        signature = debug_dict["signature"]
         # search file for line matching 'signature'
-        with open('/tmp/table_aws_uploader.log') as file:
+        with open("/tmp/table_aws_uploader.log") as file:
             for _line_num, line in enumerate(file, 1):
                 if signature in line:
-                    parts = line.split('output_path ')
+                    parts = line.split("output_path ")
                     json_path = parts[1].strip()
-                    if 'head' not in debug_dict:
+                    if "head" not in debug_dict:
                         upload(json_path, args.date_time, args.topic)
                     else:
                         import json
 
                         def copy_file_path(input_path):
                             # Separate the directory path and file name to extract the timestamp
-                            parts = input_path.split('/')
+                            parts = input_path.split("/")
                             # Extract the timestamp from the file name
-                            parts[-1].split('_')[-1].split('.')[0]
+                            parts[-1].split("_")[-1].split(".")[0]
                             # Reconstruct the output path with the desired changes
-                            return '/'.join(parts[:-1]) + '/bk.' + parts[-1]
+                            return "/".join(parts[:-1]) + "/bk." + parts[-1]
                             # Return the output path
+
                         new_path = copy_file_path(json_path)
+
                         def copy_json_lines(json_path, new_path, n):
                             with open(json_path) as file:
                                 lines = file.readlines()[:n]
 
-                            with open(new_path, 'w') as new_file:
+                            with open(new_path, "w") as new_file:
                                 for line in lines:
                                     new_file.write(line)
-                        copy_json_lines(json_path, new_path, int(debug_dict['head']))
+
+                        copy_json_lines(json_path, new_path, int(debug_dict["head"]))
                         upload(new_path, args.date_time, args.topic)
 
                     break  # remove break if searching for all lines with 'signature'

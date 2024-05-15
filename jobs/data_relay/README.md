@@ -1,18 +1,18 @@
 
 
 ## Big picture of data relay
-The data relay process employs a task queue model, wherein a specific crawl task 
-is outlined as an entry in the task queue. This model enables the system to continuously 
-poll for new tasks, executing each crawl task as it appears. Intermediate data from the 
-crawl tasks is saved into the Kafka. Another function, known as the topic_uploader, polls 
+The data relay process employs a task queue model, wherein a specific crawl task
+is outlined as an entry in the task queue. This model enables the system to continuously
+poll for new tasks, executing each crawl task as it appears. Intermediate data from the
+crawl tasks is saved into the Kafka. Another function, known as the topic_uploader, polls
 the Kafka for this intermediate data, uploading it to AWS.
 
 
-The adoption of Kafka offers numerous advantages. Primarily, it improves latency as the 
-crawling service operates on a continual basis rather than at scheduled intervals. 
-It also promotes robustness, allowing the system to restart and resume from the previous 
-point in case of any disruptions. Additionally, Kafka eases the process of extending 
-new functionality, meaning the incorporation of new data sources does not disrupt 
+The adoption of Kafka offers numerous advantages. Primarily, it improves latency as the
+crawling service operates on a continual basis rather than at scheduled intervals.
+It also promotes robustness, allowing the system to restart and resume from the previous
+point in case of any disruptions. Additionally, Kafka eases the process of extending
+new functionality, meaning the incorporation of new data sources does not disrupt
 the existing processes.
 
 ```mermaid
@@ -28,7 +28,7 @@ end
 airflowCron[Airflow/Cron]
 airflowCron --> append
 append -- Generates --> CTQ((Crawl Task Queue))
-CTQ --> oracleP 
+CTQ --> oracleP
 oracleP --> TIK((Buffered Data in Kafka))
 TIK --> awsUpload
 awsUpload --> tableAWS
@@ -51,7 +51,7 @@ source /home/jupyter/.bashrc
 cd /data/projects/crawler
 python3 oracle_puller_daemon.py
 ```
-Make necessary `chmod` `chown` etc. 
+Make necessary `chmod` `chown` etc.
 
 Then, edit `/etc/systemd/system/oracle_puller.service`
 ```bash
@@ -66,11 +66,11 @@ User=<your-user> # Change <your-user> with your username.
 [Install]
 WantedBy=multi-user.target
 ```
-This configuration tells systemd to always restart the service after it exits, 
-regardless of whether it was clean or unclean, success or not. 
-`After=network.target` ensures that your service will start after the 
+This configuration tells systemd to always restart the service after it exits,
+regardless of whether it was clean or unclean, success or not.
+`After=network.target` ensures that your service will start after the
 network has been set up.
-Make necessary `chmod` `chown` etc. 
+Make necessary `chmod` `chown` etc.
 
 4. Enable the service so that it starts automatically at boot:
 ```bash
