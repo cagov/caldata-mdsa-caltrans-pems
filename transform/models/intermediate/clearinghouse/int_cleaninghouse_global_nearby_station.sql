@@ -23,4 +23,5 @@ nearest_stations_within_five_miles as (
     -- types. Is this the right set?
     where a.type in ('HV', 'ML') and abs(delta_postmile) <= 5.0 and a.id != b.id
 )
+
 select * from nearest_stations_within_five_miles
