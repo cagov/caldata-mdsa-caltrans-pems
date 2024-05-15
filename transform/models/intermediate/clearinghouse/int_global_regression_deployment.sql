@@ -190,4 +190,4 @@ global_regression_imputed_value as (
 
 )
 
-select * from global_regression_imputed_value 
+select * from global_regression_imputed_value
