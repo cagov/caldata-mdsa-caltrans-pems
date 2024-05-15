@@ -161,8 +161,6 @@ imputed_non_imputed_speed as (
     select * from non_missing_speed
 ),
 
-
-
 -- combine imputed and non-imputed volume and occupancy data frame together
 imputed_non_imputed_vol_occ as (
     select * from missing_imputed_vol_occ
