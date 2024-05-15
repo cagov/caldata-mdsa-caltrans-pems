@@ -10,7 +10,7 @@ coeffs as (
     select * from {{ ref('int_imputation__local_regression_coefficients') }}
 ),
 
--- separate the dataframe that have missing volume and occupancy
+-- separate the dataframe that have missing volume, occupancy and speed
 missing_vol_occ_speed as (
     select
         id,
@@ -27,7 +27,7 @@ missing_vol_occ_speed as (
     where volume_sum is null and occupancy_avg is null and speed_five_mins is null
 ),
 
--- join the coeeficent with missing volume and occupancy dataframe
+-- join the coeeficent with missing volume,occupancy and speed dataframe
 missing_vol_occ_speed_with_coeffs as (
     select
         missing_vol_occ_speed.*,
@@ -46,7 +46,7 @@ missing_vol_occ_speed_with_coeffs as (
             and missing_vol_occ_speed.lane = coeffs.lane
 ),
 
---  read the neighbours that have volume and occupancy data
+--  read the neighbours that have volume, occupancy and speed data
 missing_vol_occ_speed_with_neighbors as (
     select
         missing_vol_occ_speed_with_coeffs.* exclude (volume_sum, occupancy_avg, speed_five_mins),
@@ -62,7 +62,7 @@ missing_vol_occ_speed_with_neighbors as (
             and missing_vol_occ_speed_with_coeffs.sample_timestamp = unimputed.sample_timestamp
 ),
 
--- apply volume and occupancy imputation model
+-- apply the models to impute missing volume, occupancy and speed
 missing_imputed_vol_occ_speed as (
     select
         id,
@@ -77,7 +77,7 @@ missing_imputed_vol_occ_speed as (
     group by id, lane, sample_date, sample_timestamp
 ),
 
--- separate the dataframe that have missing volume and occupancy
+-- separate the dataframe that have alread volume, occupancy and speed present
 non_missing_vol_occ_speed as (
     select
         id,
@@ -92,7 +92,7 @@ non_missing_vol_occ_speed as (
     where volume_sum is not null and occupancy_avg is not null
 ),
 
--- combine imputed and non-imputed volume and occupancy data frame together
+-- combine imputed and non-imputed dataframe together
 local_regression_imputed_value as (
     select * from missing_imputed_vol_occ_speed
     union all
