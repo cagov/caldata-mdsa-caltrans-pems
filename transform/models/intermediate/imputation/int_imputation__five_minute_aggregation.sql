@@ -24,7 +24,7 @@ missing_vol_occ_speed as (
     -- when volume and occupancy is present we already used the formula to calculate the speed
     -- here we will impute where all three has null value
     -- however, we will not impute where volime zero, occupancy zero and speed is null
-    where volume_sum is null and occupancy_avg is null and speed_five_mins is null
+    where (volume_sum is null and occupancy_avg is null and speed_five_mins is null)
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
