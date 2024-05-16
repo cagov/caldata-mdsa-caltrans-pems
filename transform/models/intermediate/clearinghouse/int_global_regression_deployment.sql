@@ -4,7 +4,7 @@
 
 with unimputed as (
     select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = current_date - interval '4 day'
+    where sample_date = dateadd (day, -5, current_date)
 ),
 
 -- read the global model
@@ -60,7 +60,6 @@ missing_vol_occ_speed_with_neighbors as (
         on
             missing_vol_occ_speed_with_coeffs.other_id = unimputed.id
             and missing_vol_occ_speed_with_coeffs.other_lane = unimputed.lane
-            and missing_vol_occ_speed_with_coeffs.sample_date = unimputed.sample_date
             and missing_vol_occ_speed_with_coeffs.sample_timestamp = unimputed.sample_timestamp
 ),
 
