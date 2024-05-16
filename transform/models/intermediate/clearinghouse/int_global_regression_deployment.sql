@@ -3,7 +3,7 @@
 --  lets consider the unimputed dataframe
 with unimputed as (
     select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = dateadd (day, -5, current_date)
+    where sample_date = dateadd(day, -5, current_date)
 ),
 
 -- read the global model
