@@ -11,9 +11,9 @@ coeffs as (
 ),
 
 -- separate the dataframe that have missing volume, occupancy and speed
-    -- when volume and occupancy is present we already used the formula to calculate the speed
-    -- here we will impute where all three has null value
-    -- however, we will not impute where volime zero, occupancy zero and speed is null
+-- when volume and occupancy is present we already used the formula to calculate the speed
+-- here we will impute where all three has null value
+-- however, we will not impute where volime zero, occupancy zero and speed is null
 missing_vol_occ_speed as (
     select
         id,
