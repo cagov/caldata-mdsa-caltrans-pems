@@ -49,10 +49,27 @@ calculate_speed_delta as (
     select
         *,
         speed_five_mins
-        - lag(speed_five_mins)
+        - LAG(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, type, lane order by distance_rank)
             as speed_delta_from_previous
     from five_minute_agg_with_distance
 )
+
+-- speed_window as (
+--     select
+--         *,
+--         SUM(
+--             case
+--                 when speed_five_mins < 40 then 1
+--                 else 0
+--             end
+--         )
+--             over
+--             (
+--                 partition by sample_date, freeway, direction, type, lane order by sample_timestamp
+--                 rows between 6 preceding and current row
+--             ) as count_leq_40
+--     from calculate_speed_delta
+-- )
 
 select * from calculate_speed_delta
