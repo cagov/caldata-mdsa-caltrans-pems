@@ -1,14 +1,14 @@
 {{ config(materialized="table") }}
 
--- identify the station that is operational
+-- identify the station that is good
 with station_status as (
     select
         detector_id,
         station_id,
         district,
         len(lane_number) as lane
-    from {{ ref('int_clearinghouse__most_recent_station_status') }}
-    where detector_status = 'operational'
+    from {{ ref('int_diagnostics__detector_status') }}
+    where status = 'good'
 ),
 
 station_counts as (
