@@ -3,12 +3,13 @@
 -- identify the station that is good
 with station_status as (
     select
-        detector_id,
         station_id,
         district,
-        len(lane_number) as lane
+        sample_date,
+        lane
     from {{ ref('int_diagnostics__detector_status') }}
-    where status = 'good'
+    -- lets consider only good status sensor
+    where sample_date = current_date - interval '5 day' and status = 'Good'
 ),
 
 station_counts as (
@@ -29,7 +30,20 @@ station_counts_real_lanes as (
             and station_counts.lane = station_status.lane
 ),
 
-nearby_stations as (select * from {{ ref('int_cleaninghouse_global_nearby_station') }}),
+
+-- now it seems that some of the station within the buffer have missing volume and occupancy
+-- we will drop all the Null volumns and occupancy before developing multiple linear regression for the day
+cleaned_null_data as (
+    select *
+    from station_counts_real_lanes
+    where
+        volume_sum is not null
+        and occupancy_avg is not null
+        and speed_five_mins is not null
+),
+
+-- read the stations that is within five mile buffer
+nearby_stations as (select * from {{ ref('int_clearinghouse__global_nearby_stations') }}),
 
 -- pair the performance metrics from nearest and distance detectors within five miles buffer
 station_counts_pairwise as (
@@ -47,26 +61,16 @@ station_counts_pairwise as (
         b.volume_sum as other_volume,
         a.occupancy_avg as occupancy,
         b.occupancy_avg as other_occupancy
-    from station_counts_real_lanes as a
+    from cleaned_null_data as a
     left join nearby_stations on a.id = nearby_stations.id
-    left join station_counts_real_lanes as b
+    left join cleaned_null_data as b
         on
             nearby_stations.other_id = b.id
             and a.sample_date = b.sample_date
             and a.sample_timestamp = b.sample_timestamp
 ),
 
--- now it seems that some of the station within the buffer have missing volume and occupancy
--- we will drop all the Null volumns and occupancy before developing multiple linear regression for the day
-cleaned_model_data as (
-    select *
-    from station_counts_pairwise
-    where
-        (volume is not null and other_volume is not null)
-        and (occupancy is not null and other_occupancy is not null)
-        and (speed is not null and other_speed is not null)
-),
-
+-- develop the simple linear regression model
 station_counts_regression_model as (
     select
         id,
@@ -84,8 +88,9 @@ station_counts_regression_model as (
         -- occupancy regression model
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
-    from cleaned_model_data
+    from station_counts_pairwise
     group by id, lane, other_lane, other_id, district, sample_date
 )
 
+-- select * from station_counts_regression_model
 select * from station_counts_regression_model
