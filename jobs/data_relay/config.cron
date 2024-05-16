@@ -1,0 +1,11 @@
+
+# For queue generating:
+0 */4 * * * cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue && python3 append_to_crawl_queue.py --append_to_queue --githash '3110c63' --day_partition_number 6 --crawl_window_start "$(date -u -d '24 hours ago' +'%Y-%m-%d %H:%M:%S')"
+
+# Ensure the oracle crawler is running (machine jupyter@D1)
+0 */5 * * * pgrep -f oracle_puller_daemon.py > /dev/null || python3 /data/projects/crawler/oracle_puller_daemon.py
+
+# Scheduling the aws uploader, every 6 hours.
+0 */6 * * * /nfsdata/dataop/uploader/aws_upload_daemon_script.sh "D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC"
+
+
