@@ -6,6 +6,22 @@ with unimputed as (
     where sample_date = dateadd(day, -5, current_date)
 ),
 
+counts_with_imputation_status as (
+    select
+        unimputed.*,
+        case
+            -- when volume and occupancy is present we already used the formula to calculate the speed
+            -- here we will impute where all three has null value
+            -- however, we will not impute where volime zero, occupancy zero and speed is null
+            when
+                unimputed.volume_sum is null and unimputed.occupancy_avg is null and unimputed.speed_five_mins is null
+                then 'yes'
+            else 'no'
+        end as is_imputation_required
+    from unimputed
+),
+
+
 -- read the global model
 coeffs as (
     select * from {{ ref('int_imputation_global_regression_coefficients') }}
@@ -21,11 +37,8 @@ missing_vol_occ_speed as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
-    -- when volume and occupancy is present we already used the formula to calculate the speed
-    -- here we will impute where all three has null value
-    -- however, we will not impute where volime zero, occupancy zero and speed is null
-    where volume_sum is null and occupancy_avg is null and speed_five_mins is null
+    from counts_with_imputation_status
+    where is_imputation_required = 'yes'
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
@@ -88,8 +101,8 @@ non_missing_vol_occ_speed as (
         occupancy_avg,
         speed_five_mins,
         false as is_imputed
-    from unimputed
-    where volume_sum is not null and occupancy_avg is not null
+    from counts_with_imputation_status
+    where is_imputation_required = 'no'
 ),
 
 -- combine imputed and non-imputed dataframe together
