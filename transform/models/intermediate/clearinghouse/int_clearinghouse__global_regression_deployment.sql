@@ -2,7 +2,17 @@
 
 --  lets consider the unimputed dataframe
 with unimputed as (
-    select * from {{ ref('int_performance__five_min_perform_metrics') }}
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg,
+        speed_weighted,
+        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins
+    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
     where sample_date = dateadd(day, -5, current_date)
 ),
 
@@ -21,12 +31,6 @@ counts_with_imputation_status as (
     from unimputed
 ),
 
-
--- read the global model
-coeffs as (
-    select * from {{ ref('int_imputation_global_regression_coefficients') }}
-),
-
 -- separate the dataframe that have missing volume,occupancy and speed
 missing_vol_occ_speed as (
     select
@@ -39,6 +43,26 @@ missing_vol_occ_speed as (
         speed_five_mins
     from counts_with_imputation_status
     where is_imputation_required = 'yes'
+),
+
+-- separate the dataframe that have already device recorded volume, speed and occ
+non_missing_vol_occ_speed as (
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg,
+        speed_five_mins,
+        false as is_imputed
+    from counts_with_imputation_status
+    where is_imputation_required = 'no'
+),
+
+-- read the global model
+coeffs as (
+    select * from {{ ref('int_clearinghouse__global_regression_coefficients') }}
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
@@ -64,15 +88,15 @@ missing_vol_occ_speed_with_coeffs as (
 missing_vol_occ_speed_with_neighbors as (
     select
         missing_vol_occ_speed_with_coeffs.* exclude (volume_sum, occupancy_avg, speed_five_mins),
-        unimputed.speed_five_mins,
-        unimputed.volume_sum,
-        unimputed.occupancy_avg
+        non_missing_vol_occ_speed.speed_five_mins,
+        non_missing_vol_occ_speed.volume_sum,
+        non_missing_vol_occ_speed.occupancy_avg
     from missing_vol_occ_speed_with_coeffs
-    inner join unimputed
+    inner join non_missing_vol_occ_speed
         on
-            missing_vol_occ_speed_with_coeffs.other_id = unimputed.id
-            and missing_vol_occ_speed_with_coeffs.other_lane = unimputed.lane
-            and missing_vol_occ_speed_with_coeffs.sample_timestamp = unimputed.sample_timestamp
+            missing_vol_occ_speed_with_coeffs.other_id = non_missing_vol_occ_speed.id
+            and missing_vol_occ_speed_with_coeffs.other_lane = non_missing_vol_occ_speed.lane
+            and missing_vol_occ_speed_with_coeffs.sample_timestamp = non_missing_vol_occ_speed.sample_timestamp
 ),
 
 -- apply imputation models to impute volume, occupancy and speed
@@ -90,21 +114,6 @@ missing_imputed_vol_occ_speed as (
     group by id, lane, sample_date, sample_timestamp
 ),
 
--- separate the dataframe that have already device recorded volume, speed and occ
-non_missing_vol_occ_speed as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_five_mins,
-        false as is_imputed
-    from counts_with_imputation_status
-    where is_imputation_required = 'no'
-),
-
 -- combine imputed and non-imputed dataframe together
 global_regression_imputed_value as (
     select * from missing_imputed_vol_occ_speed
@@ -112,4 +121,5 @@ global_regression_imputed_value as (
     select * from non_missing_vol_occ_speed
 )
 
-select * from global_regression_imputed_value
+-- select * from global_regression_imputed_value
+select count(id) from global_regression_imputed_value

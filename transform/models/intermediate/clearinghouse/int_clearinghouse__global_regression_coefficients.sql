@@ -9,12 +9,22 @@ with station_status as (
         lane
     from {{ ref('int_diagnostics__detector_status') }}
     -- lets consider only good status sensor
-    where sample_date = current_date - interval '5 day' and status = 'Good'
+    where sample_date = dateadd(day, -5, current_date) and status = 'Good'
 ),
 
 station_counts as (
-    select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = current_date - interval '5 day'
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg,
+        speed_weighted,
+        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins
+    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    where sample_date = dateadd(day, -5, current_date)
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
