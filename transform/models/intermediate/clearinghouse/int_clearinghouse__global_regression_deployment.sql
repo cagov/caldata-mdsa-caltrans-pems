@@ -14,7 +14,7 @@ with unimputed as (
         coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where sample_date = dateadd(day, -6, current_date)
+    where sample_date = dateadd(day, -9, current_date)
 ),
 
 counts_with_imputation_status as (
@@ -96,7 +96,7 @@ missing_vol_occ_speed_with_coeffs as (
     left join coeffs
         on
             missing_vol_occ_speed.id = coeffs.id
-            and missing_vol_occ_speed.lane = coeffs.lane
+            -- and missing_vol_occ_speed.lane = coeffs.lane
 ),
 
 --  Only 6444 rows out of 29 millions can be imputed by lane, lets consider without lane matching
@@ -123,7 +123,8 @@ missing_imputed_vol_occ_speed as (
         sample_date,
         sample_timestamp,
         -- Volume calculation
-        coalesce(volume_sum, greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0)) as volume_sum_imp,
+        coalesce(volume_sum, greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0))
+            as volume_sum_imp,
         -- Flag for volume imputation
         coalesce(volume_sum is null, false) as is_imputed_volume,
         -- Occupancy calculation
@@ -135,7 +136,7 @@ missing_imputed_vol_occ_speed as (
         coalesce(occupancy_avg is null, false) as is_imputed_occupancy,
         -- Speed calculation
         case
-            when speed_five_mins is null and volume_sum != 0 and occupancy_avg != 0
+            when speed_five_mins is null and volume_sum > 0 and occupancy_avg > 0
                 then least(greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0), 100)
             else speed_five_mins
         end as speed_five_mins_imp,
@@ -143,39 +144,40 @@ missing_imputed_vol_occ_speed as (
         coalesce(speed_five_mins is null, false) as is_imputed_speed
     from
         missing_vol_occ_speed_with_neighbors
-    group by id, lane, sample_date, sample_timestamp
+    group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
 )
-
-
 
 -- -- combine imputed and non-imputed dataframe together
-global_regression_imputed_value as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum_imp as volume_sum,
-        occupancy_avg_imp as occupancy_avg,
-        speed_five_mins_imp as speed_five_mins,
-        is_imputed_volume,
-        is_imputed_occupancy,
-        is_imputed_speed
-    from missing_imputed_vol_occ_speed
-    union all
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_five_mins,
-        false as is_imputed_volume,
-        false as is_imputed_occupancy,
-        false as is_imputed_speed
-    from non_missing_vol_occ_speed
-)
+-- global_regression_imputed_value as (
+--     select
+--         id,
+--         lane,
+--         sample_date,
+--         sample_timestamp,
+--         volume_sum_imp as volume_sum,
+--         occupancy_avg_imp as occupancy_avg,
+--         speed_five_mins_imp as speed_five_mins
+--         -- is_imputed_volume,
+--         -- is_imputed_occupancy,
+--         -- is_imputed_speed
+--     from missing_imputed_vol_occ_speed
+--     union all
+--     select
+--         id,
+--         lane,
+--         sample_date,
+--         sample_timestamp,
+--         volume_sum,
+--         occupancy_avg,
+--         speed_five_mins
+--         -- false as is_imputed_volume,
+--         -- false as is_imputed_occupancy,
+--         -- false as is_imputed_speed
+--     from non_missing_vol_occ_speed
+-- )
 
-select * from global_regression_imputed_value
-
+-- select * from global_regression_imputed_value
+-- select count(*) from non_missing_vol_occ_speed
+-- select count(*) from missing_vol_occ_speed_with_coeffs
+-- select count(*) from missing_vol_occ_speed_with_neighbors
+select * from missing_imputed_vol_occ_speed
