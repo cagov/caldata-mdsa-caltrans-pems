@@ -17,6 +17,7 @@ with unimputed as (
     where sample_date = dateadd(day, -3, current_date)
 ),
 
+-- classify the data that needs imputation
 counts_with_imputation_status as (
     select
         unimputed.*,
@@ -96,11 +97,9 @@ missing_vol_occ_speed_with_coeffs as (
     left join coeffs
         on
             missing_vol_occ_speed.id = coeffs.id
-            -- and missing_vol_occ_speed.lane = coeffs.lane
 ),
 
---  Only 6444 rows out of 29 millions can be imputed by lane, lets consider without lane matching
--- Consider the entire district
+-- join with the neighbours that have volume, occ and speed data
 missing_vol_occ_speed_with_neighbors as (
     select
         missing_vol_occ_speed_with_coeffs.*,
@@ -111,11 +110,10 @@ missing_vol_occ_speed_with_neighbors as (
     inner join non_missing_vol_occ_speed
         on
             missing_vol_occ_speed_with_coeffs.other_id = non_missing_vol_occ_speed.id
-            -- five mins temporal matching provides very limitted matching, lets expand temporal time to an hour
             and missing_vol_occ_speed_with_coeffs.sample_timestamp = non_missing_vol_occ_speed.sample_timestamp
 ),
 
--- apply imputation models to impute volume, occupancy and speed
+-- apply imputation models to impute volume, occupancy and speed and flag id imputed
 missing_imputed_vol_occ_speed as (
     select
         id,
@@ -178,4 +176,5 @@ global_regression_imputed_value as (
     from non_missing_vol_occ_speed
 )
 
+-- read the imputed and non-imputed dataframe
 select * from global_regression_imputed_value

@@ -1,6 +1,6 @@
 {{ config(materialized="table") }}
 
--- identify the station that is good
+-- read the active stations only
 with station_status as (
     select
         id,
@@ -8,10 +8,10 @@ with station_status as (
         active_date as sample_date,
         lanes as lane
     from {{ ref('int_clearinghouse__active_stations') }}
-    -- lets consider only good status sensor
     where sample_date = dateadd(day, -3, current_date)
 ),
 
+-- read five mins agg table and calculate five mins speed using formula
 station_counts as (
     select
         id,
