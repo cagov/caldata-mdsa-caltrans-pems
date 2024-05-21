@@ -147,6 +147,30 @@ missing_imputed_vol_occ_speed as (
     group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
 ),
 
+-- due to having some model parameter nulls e.g. speed slope is null,
+--  then you will get null prediction
+-- We will flag all null prediction
+missing_imputed_vol_occ_speed_flag as (
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum_imp,
+        speed_five_mins_imp,
+        occupancy_avg_imp,
+        case
+            when volume_sum_imp is not null then is_imputed_volume else false
+        end as is_imputed_volume,
+        case
+            when occupancy_avg_imp is not null then is_imputed_occupancy else false
+        end as is_imputed_occupancy,
+        case
+            when speed_five_mins_imp is not null then is_imputed_speed else false
+        end as is_imputed_speed
+    from missing_imputed_vol_occ_speed
+),
+
 -- -- combine imputed and non-imputed dataframe together
 global_regression_imputed_value as (
     select
@@ -160,7 +184,7 @@ global_regression_imputed_value as (
         is_imputed_volume,
         is_imputed_occupancy,
         is_imputed_speed
-    from missing_imputed_vol_occ_speed
+    from missing_imputed_vol_occ_speed_flag
     union all
     select
         id,

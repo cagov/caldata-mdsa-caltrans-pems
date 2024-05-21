@@ -100,6 +100,10 @@ station_counts_regression_model as (
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from station_counts_pairwise
     group by id, lane, other_lane, other_id, district, sample_date
+    having
+        (count(volume) > 0 and count(other_volume) > 0)
+        or (count(occupancy) > 0 and count(other_occupancy) > 0)
+        or (count(speed) > 0 and count(other_speed) > 0)
 )
 
 select * from station_counts_regression_model
