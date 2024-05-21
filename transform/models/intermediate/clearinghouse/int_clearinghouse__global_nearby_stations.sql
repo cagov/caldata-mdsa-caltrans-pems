@@ -23,7 +23,6 @@ nearest_stations_within_beffer as (
     -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
     -- types. Is this the right set?
     where a.type in ('HV', 'ML') and a.id != b.id and abs(delta_postmile) <= 5
-    -- where a.type in ('HV', 'ML') and a.id != b.id 
 )
 
 select * from nearest_stations_within_beffer

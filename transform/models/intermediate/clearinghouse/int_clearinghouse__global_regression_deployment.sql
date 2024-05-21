@@ -22,7 +22,7 @@ counts_with_imputation_status as (
         unimputed.*,
         case
             -- when volume and occupancy is present we already used the formula to calculate the speed
-            -- here we will impute where all three has null value, 
+            -- here we will impute where all three has null value
             -- where either volume or occupany only null along with null speed
             -- however, we will not impute where volime zero, occupancy zero and speed is null
             when
@@ -100,7 +100,7 @@ missing_vol_occ_speed_with_coeffs as (
 ),
 
 --  Only 6444 rows out of 29 millions can be imputed by lane, lets consider without lane matching
--- Consider the entire district 
+-- Consider the entire district
 missing_vol_occ_speed_with_neighbors as (
     select
         missing_vol_occ_speed_with_coeffs.*,
