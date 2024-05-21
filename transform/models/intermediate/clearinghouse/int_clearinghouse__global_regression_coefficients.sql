@@ -9,7 +9,7 @@ with station_status as (
         lanes as lane
     from {{ ref('int_clearinghouse__active_stations') }}
     -- lets consider only good status sensor
-    where sample_date = dateadd(day, -9, current_date)
+    where sample_date = dateadd(day, -3, current_date)
 ),
 
 station_counts as (
@@ -24,7 +24,7 @@ station_counts as (
         coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where sample_date = dateadd(day, -9, current_date)
+    where sample_date = dateadd(day, -3, current_date)
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
@@ -102,5 +102,4 @@ station_counts_regression_model as (
     group by id, lane, other_lane, other_id, district, sample_date
 )
 
--- select * from station_counts_regression_model
 select * from station_counts_regression_model
