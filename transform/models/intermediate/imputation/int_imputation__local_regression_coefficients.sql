@@ -6,24 +6,35 @@ with nearby_stations as (
         other_id
     from {{ ref('int_clearinghouse__nearby_stations') }}
     -- only choose stations where they are actually reasonably close to each other,
-    -- arbitrarily choose 10 miles
-    where delta_postmile < 10
+    -- arbitrarily choose 1 mile
+    where abs(delta_postmile) <= 1
 ),
 
 -- TODO: we should filter by the status of a station so that we are only trying to regress
 -- between stations that are presumed operational
 station_status as (
     select
-        detector_id,
-        station_id,
+        id,
         district,
-        len(lane_number) as lane
-    from {{ ref('int_clearinghouse__most_recent_station_status') }}
+        active_date as sample_date,
+        lanes as lane
+    from {{ ref('int_clearinghouse__active_stations') }}
+    where sample_date = dateadd(day, -3, current_date)
 ),
 
 station_counts as (
-    select * from {{ ref('int_performance__five_min_perform_metrics') }}
-    where sample_date = dateadd(day, -5, current_date)
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        volume_sum,
+        occupancy_avg,
+        speed_weighted,
+        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins
+    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    where sample_date = dateadd(day, -3, current_date)
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
@@ -35,7 +46,7 @@ station_counts_real_lanes as (
     from station_counts
     inner join station_status
         on
-            station_counts.id = station_status.station_id
+            station_counts.id = station_status.id
             and station_counts.lane = station_status.lane
 ),
 
