@@ -24,13 +24,18 @@ station_pairs as (
 ),
 
 nearest_downstream_station_pairs as (
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile
     from station_pairs
     where
-        delta_postmile > 0
-        and id != other_id
+        delta_postmile > 0 and id != other_id
     qualify row_number() over (partition by id order by delta_postmile asc) = 1
-
 ),
 
 nearest_upstream_station_pairs as (
@@ -40,7 +45,6 @@ nearest_upstream_station_pairs as (
         delta_postmile < 0
         and id != other_id
     qualify row_number() over (partition by id order by abs(delta_postmile) asc) = 1
-
 ),
 
 self_pairs as (
@@ -60,4 +64,5 @@ nearest_station_pairs as (
     order by district asc, freeway asc, id asc
 )
 
-select * from nearest_station_pairs
+-- select * from nearest_station_pairs
+select * from station_pairs
