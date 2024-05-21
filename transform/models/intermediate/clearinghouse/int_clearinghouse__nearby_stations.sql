@@ -65,4 +65,4 @@ nearest_station_pairs as (
 )
 
 -- select * from nearest_station_pairs
-select * from station_pairs
+select * from nearest_station_pairs
