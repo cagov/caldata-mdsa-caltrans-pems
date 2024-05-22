@@ -47,7 +47,7 @@ hourly_temporal_metrics as (
     group by id, sample_date, sample_hour, lane
 ),
 
--- read spatial characteristics 
+-- read spatial characteristics
 hourly_spatial_temporal_metrics as (
     select
         hourly_temporal_metrics.id,
