@@ -39,7 +39,14 @@ nearest_downstream_station_pairs as (
 ),
 
 nearest_upstream_station_pairs as (
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile
     from station_pairs
     where
         delta_postmile < 0
