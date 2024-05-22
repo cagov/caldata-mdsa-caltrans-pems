@@ -1,5 +1,7 @@
 {{ config(materialized="table") }}
 
+{% set regression_date = "'2024-02-01'::date" %}
+
 with nearby_stations as (
     select
         id,
@@ -7,19 +9,24 @@ with nearby_stations as (
     from {{ ref('int_clearinghouse__nearby_stations') }}
     -- only choose stations where they are actually reasonably close to each other,
     -- arbitrarily choose 1 mile
-    where abs(delta_postmile) <= 1
+    where
+        abs(delta_postmile) <= 1
+        and {{ regression_date }} >= _valid_from
+        and {{ regression_date }} < coalesce(_valid_to, current_date)
 ),
 
 -- TODO: we should filter by the status of a station so that we are only trying to regress
 -- between stations that are presumed operational
 station_status as (
     select
-        id,
+        detector_id,
+        station_id,
         district,
-        active_date as sample_date,
-        lanes as lane
-    from {{ ref('int_clearinghouse__active_stations') }}
-    where sample_date = dateadd(day, -3, current_date)
+        len(lane_number) as lane
+    from {{ ref('int_clearinghouse__station_status') }}
+    where
+        {{ regression_date }} >= _valid_from
+        and {{ regression_date }} < coalesce(_valid_to, current_date)
 ),
 
 station_counts as (
@@ -34,7 +41,9 @@ station_counts as (
         coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where sample_date = dateadd(day, -3, current_date)
+    where
+        sample_date >= {{ regression_date }}
+        and sample_date < dateadd(day, 7, {{ regression_date }})
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
@@ -46,7 +55,7 @@ station_counts_real_lanes as (
     from station_counts
     inner join station_status
         on
-            station_counts.id = station_status.id
+            station_counts.id = station_status.station_id
             and station_counts.lane = station_status.lane
 ),
 
@@ -86,6 +95,7 @@ station_counts_regression as (
         other_id,
         lane,
         other_lane,
+        {{ regression_date }} as regression_date,
         district,
         -- speed regression model
         regr_slope(speed, other_speed) as speed_slope,
