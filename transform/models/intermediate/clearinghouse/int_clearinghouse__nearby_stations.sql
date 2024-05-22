@@ -71,5 +71,4 @@ nearest_station_pairs as (
     order by district asc, freeway asc, id asc
 )
 
--- select * from nearest_station_pairs
 select * from nearest_station_pairs
