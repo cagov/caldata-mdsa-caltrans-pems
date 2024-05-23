@@ -41,8 +41,8 @@ samples_not_requiring_imputation as (
         occupancy_avg,
         speed_five_mins,
         false as is_imputed
-    from counts_with_imputation_status
-    where is_imputation_required = 'no'
+    from unimputed
+    where not imputation_required
 ),
 
 -- read the model co-efficients
