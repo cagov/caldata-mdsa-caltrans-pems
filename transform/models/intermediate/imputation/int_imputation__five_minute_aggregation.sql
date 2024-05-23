@@ -95,15 +95,11 @@ imputed as (
         -- Volume calculation
         coalesce(volume_sum, greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0))
             as volume_sum_imp,
-        -- Flag for volume imputation
-        coalesce(volume_sum is null, false) as is_imputed_volume,
         -- Occupancy calculation
         coalesce(
             occupancy_avg,
             least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
         ) as occupancy_avg_imp,
-        -- Flag for occupancy imputation
-        coalesce(occupancy_avg is null, false) as is_imputed_occupancy,
         -- Speed calculation
         case
             when
@@ -111,38 +107,10 @@ imputed as (
                 or (speed_five_mins is null and volume_sum is null and occupancy_avg is null)
                 then least(greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0), 100)
             else speed_five_mins
-        end as speed_five_mins_imp,
-        -- Flag for speed imputation
-        coalesce(speed_five_mins is null, false) as is_imputed_speed,
-        any_value(regression_date) as regression_date
+        end as speed_five_mins_imp
     from
         samples_requiring_imputation_with_neighbors
     group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
-),
-
--- due to having some model parameter nulls e.g. speed slope is null,
---  then you will get null prediction
--- We will flag all null prediction
-imputed_flag as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum_imp,
-        speed_five_mins_imp,
-        occupancy_avg_imp,
-        case
-            when volume_sum_imp is not null then is_imputed_volume else false
-        end as is_imputed_volume,
-        case
-            when occupancy_avg_imp is not null then is_imputed_occupancy else false
-        end as is_imputed_occupancy,
-        case
-            when speed_five_mins_imp is not null then is_imputed_speed else false
-        end as is_imputed_speed,
-        regression_date
-    from imputed
 ),
 
 -- combine imputed and non-imputed dataframe together
@@ -150,20 +118,20 @@ imputed_flag as (
 local_regression_imputed_value as (
     select
         unimputed.*,
-        imputed_flag.volume_sum_imp,
-        imputed_flag.occupancy_avg_imp,
-        imputed_flag.speed_five_mins_imp,
-        imputed_flag.is_imputed_volume,
-        imputed_flag.is_imputed_occupancy,
-        imputed_flag.is_imputed_speed,
-        imputed_flag.regression_date
+        imputed.volume_sum_imp,
+        imputed.occupancy_avg_imp,
+        imputed.speed_five_mins_imp,
+        imputed.is_imputed_volume,
+        imputed.is_imputed_occupancy,
+        imputed.is_imputed_speed,
+        imputed.regression_date
     from unimputed
-    left join imputed_flag
+    left join imputed
         on
-            unimputed.id = imputed_flag.id
-            and unimputed.lane = imputed_flag.lane
-            and unimputed.sample_date = imputed_flag.sample_date
-            and unimputed.sample_timestamp = imputed_flag.sample_timestamp
+            unimputed.id = imputed.id
+            and unimputed.lane = imputed.lane
+            and unimputed.sample_date = imputed.sample_date
+            and unimputed.sample_timestamp = imputed.sample_timestamp
 )
 
 -- read the imputed and non-imputed dataframe
