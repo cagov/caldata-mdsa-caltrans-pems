@@ -1,49 +1,70 @@
-{{ config(materialized="table") }}
+{{ config(
+    materialized="table",
+    snowflake_warehouse="transforming_xl_dev",
+) }}
 
-{% set regression_date = "'2024-02-01'::date" %}
+with regression_dates as (
+    select value::date as regression_date from table(
+        flatten(
+            [
+                '2023-02-03'::date,
+                '2023-05-03'::date,
+                '2023-08-03'::date,
+                '2023-11-03'::date
+            ]
+        )
+    )
+),
 
-with nearby_stations as (
+nearby_stations as (
     select
-        id,
-        other_id
-    from {{ ref('int_clearinghouse__nearby_stations') }}
+        nearby.id,
+        nearby.other_id
+    from {{ ref('int_clearinghouse__nearby_stations') }} as nearby
+    inner join regression_dates
+        on
+            nearby._valid_from <= regression_dates.regression_date
+            and regression_dates.regression_date < coalesce(nearby._valid_to, current_date)
     -- only choose stations where they are actually reasonably close to each other,
     -- arbitrarily choose 1 mile
     where
-        abs(delta_postmile) <= 1
-        and {{ regression_date }} >= _valid_from
-        and {{ regression_date }} < coalesce(_valid_to, current_date)
+        abs(nearby.delta_postmile) <= 1
 ),
 
 -- TODO: we should filter by the status of a station so that we are only trying to regress
 -- between stations that are presumed operational
 station_status as (
     select
-        detector_id,
-        station_id,
-        district,
-        len(lane_number) as lane
-    from {{ ref('int_clearinghouse__station_status') }}
-    where
-        {{ regression_date }} >= _valid_from
-        and {{ regression_date }} < coalesce(_valid_to, current_date)
+        status.detector_id,
+        status.station_id,
+        status.district,
+        len(status.lane_number) as lane,
+        status._valid_from,
+        status._valid_to
+    from {{ ref('int_clearinghouse__station_status') }} as status
+    inner join regression_dates
+        on
+            status._valid_from <= regression_dates.regression_date
+            and regression_dates.regression_date < coalesce(status._valid_to, current_date)
 ),
 
 station_counts as (
     select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_weighted,
-        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
-            as speed_five_mins
-    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where
-        sample_date >= {{ regression_date }}
-        and sample_date < dateadd(day, 7, {{ regression_date }})
+        agg.id,
+        agg.lane,
+        agg.sample_date,
+        agg.sample_timestamp,
+        agg.volume_sum,
+        agg.occupancy_avg,
+        agg.speed_weighted,
+        coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins,
+        regression_dates.regression_date
+    from {{ ref('int_clearinghouse__five_minute_station_agg') }} as agg
+    inner join regression_dates
+        on
+            agg.sample_date >= regression_dates.regression_date
+            and agg.sample_date < dateadd(day, 7, regression_dates.regression_date)
 ),
 
 -- Inner join on the station_status table to get rid of non-existent
@@ -57,6 +78,8 @@ station_counts_real_lanes as (
         on
             station_counts.id = station_status.station_id
             and station_counts.lane = station_status.lane
+            and station_counts.sample_date >= station_status._valid_from
+            and station_counts.sample_date < coalesce(station_status._valid_to, current_date)
 ),
 
 -- Self-join the 5-minute aggregated data with itself,
@@ -68,8 +91,7 @@ station_counts_pairwise as (
         a.id,
         b.id as other_id,
         a.district,
-        a.sample_date,
-        a.sample_timestamp,
+        a.regression_date,
         a.lane,
         b.lane as other_lane,
         a.speed_five_mins as speed,
@@ -95,8 +117,9 @@ station_counts_regression as (
         other_id,
         lane,
         other_lane,
-        {{ regression_date }} as regression_date,
+        -- regression_date,
         district,
+        regression_date,
         -- speed regression model
         regr_slope(speed, other_speed) as speed_slope,
         regr_intercept(speed, other_speed) as speed_intercept,
@@ -107,7 +130,8 @@ station_counts_regression as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from station_counts_pairwise
-    group by id, other_id, lane, other_lane, district
+    where not (id = other_id and lane = other_lane)
+    group by id, other_id, lane, other_lane, district, regression_date
     -- No point in regressing if the variables are all null,
     -- this saves a lot of time.
     having

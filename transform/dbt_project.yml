@@ -48,3 +48,5 @@ models:
         +schema: diagnostics
       performance:
         +schema: performance
+      imputation:
+        +schema: imputation
