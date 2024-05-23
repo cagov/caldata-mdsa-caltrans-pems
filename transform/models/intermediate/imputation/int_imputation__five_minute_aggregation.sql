@@ -90,11 +90,12 @@ missing_vol_occ_speed_with_coeffs as (
         coeffs.volume_slope,
         coeffs.volume_intercept,
         coeffs.occupancy_slope,
-        coeffs.occupancy_intercept
+        coeffs.occupancy_intercept,
+        coeffs.regression_date
     from missing_vol_occ_speed
-    left join coeffs
-        on
-            missing_vol_occ_speed.id = coeffs.id
+    asof join coeffs
+        match_condition(missing_vol_occ_speed.sample_date >= coeffs.regression_date)
+        on missing_vol_occ_speed.id = coeffs.id
 ),
 
 --  read the neighbours that have volume, occupancy and speed data
@@ -140,7 +141,8 @@ missing_imputed_vol_occ_speed as (
             else speed_five_mins
         end as speed_five_mins_imp,
         -- Flag for speed imputation
-        coalesce(speed_five_mins is null, false) as is_imputed_speed
+        coalesce(speed_five_mins is null, false) as is_imputed_speed,
+        any_value(regression_date) as regression_date
     from
         missing_vol_occ_speed_with_neighbors
     group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
@@ -166,7 +168,8 @@ missing_imputed_vol_occ_speed_flag as (
         end as is_imputed_occupancy,
         case
             when speed_five_mins_imp is not null then is_imputed_speed else false
-        end as is_imputed_speed
+        end as is_imputed_speed,
+        regression_date
     from missing_imputed_vol_occ_speed
 ),
 
@@ -183,7 +186,8 @@ local_regression_imputed_value as (
         speed_five_mins_imp as speed_five_mins,
         is_imputed_volume,
         is_imputed_occupancy,
-        is_imputed_speed
+        is_imputed_speed,
+        regression_date
     from missing_imputed_vol_occ_speed_flag
     union all
     select
@@ -196,7 +200,8 @@ local_regression_imputed_value as (
         speed_five_mins,
         false as is_imputed_volume,
         false as is_imputed_occupancy,
-        false as is_imputed_speed
+        false as is_imputed_speed,
+        null as regression_date
     from non_missing_vol_occ_speed
 )
 
