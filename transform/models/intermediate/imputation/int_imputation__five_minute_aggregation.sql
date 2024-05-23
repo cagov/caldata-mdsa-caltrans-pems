@@ -93,8 +93,9 @@ missing_vol_occ_speed_with_coeffs as (
         coeffs.occupancy_intercept,
         coeffs.regression_date
     from missing_vol_occ_speed
-    asof join coeffs
-        match_condition(missing_vol_occ_speed.sample_date >= coeffs.regression_date)
+    -- TODO: update sqlfluff to support asof joins
+    asof join coeffs  -- noqa
+        match_condition(missing_vol_occ_speed.sample_date >= coeffs.regression_date)  -- noqa
         on missing_vol_occ_speed.id = coeffs.id
 ),
 
