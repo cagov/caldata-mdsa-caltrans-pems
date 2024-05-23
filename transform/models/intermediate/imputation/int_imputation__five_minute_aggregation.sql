@@ -149,32 +149,21 @@ imputed_flag as (
 -- -- combine imputed and non-imputed dataframe together
 local_regression_imputed_value as (
     select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum_imp as volume_sum,
-        occupancy_avg_imp as occupancy_avg,
-        speed_five_mins_imp as speed_five_mins,
-        is_imputed_volume,
-        is_imputed_occupancy,
-        is_imputed_speed,
-        regression_date
-    from imputed_flag
-    union all
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_five_mins,
-        false as is_imputed_volume,
-        false as is_imputed_occupancy,
-        false as is_imputed_speed,
-        null as regression_date
-    from samples_not_requiring_imputation
+        unimputed.*,
+        imputed_flag.volume_sum_imp,
+        imputed_flag.occupancy_avg_imp,
+        imputed_flag.speed_five_mins_imp,
+        imputed_flag.is_imputed_volume,
+        imputed_flag.is_imputed_occupancy,
+        imputed_flag.is_imputed_speed,
+        imputed_flag.regression_date
+    from unimputed
+    left join imputed_flag
+        on
+            unimputed.id = imputed_flag.id
+            and unimputed.lane = imputed_flag.lane
+            and unimputed.sample_date = imputed_flag.sample_date
+            and unimputed.sample_timestamp = imputed_flag.sample_timestamp
 )
 
 -- read the imputed and non-imputed dataframe
