@@ -31,24 +31,16 @@ nearby_stations as (
         abs(nearby.delta_postmile) <= 1
 ),
 
--- TODO: we should filter by the status of a station so that we are only trying to regress
--- between stations that are presumed operational
-station_status as (
+good_detectors as (
     select
-        status.detector_id,
-        status.station_id,
-        status.district,
-        len(status.lane_number) as lane,
-        status._valid_from,
-        status._valid_to
-    from {{ ref('int_clearinghouse__station_status') }} as status
-    inner join regression_dates
-        on
-            status._valid_from <= regression_dates.regression_date
-            and regression_dates.regression_date < coalesce(status._valid_to, current_date)
+        station_id,
+        lane,
+        district,
+        sample_date
+    from {{ ref("int_diagnostics__good_detectors") }}
 ),
 
-station_counts as (
+detector_counts as (
     select
         agg.id,
         agg.lane,
@@ -57,6 +49,7 @@ station_counts as (
         agg.volume_sum,
         agg.occupancy_avg,
         agg.speed_weighted,
+        good_detectors.district,
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates.regression_date
@@ -65,28 +58,18 @@ station_counts as (
         on
             agg.sample_date >= regression_dates.regression_date
             and agg.sample_date < dateadd(day, 7, regression_dates.regression_date)
-),
-
--- Inner join on the station_status table to get rid of non-existent
--- lane numbers (e.g., the eighth lane on a two lane road)
-station_counts_real_lanes as (
-    select
-        station_counts.*,
-        station_status.district
-    from station_counts
-    inner join station_status
+    inner join good_detectors
         on
-            station_counts.id = station_status.station_id
-            and station_counts.lane = station_status.lane
-            and station_counts.sample_date >= station_status._valid_from
-            and station_counts.sample_date < coalesce(station_status._valid_to, current_date)
+            agg.id = good_detectors.station_id
+            and agg.lane = good_detectors.lane
+            and agg.sample_date = good_detectors.sample_date
 ),
 
 -- Self-join the 5-minute aggregated data with itself,
 -- joining on the whether a station is itself or one
 -- of it's neighbors. This is a big table, as we get
 -- the product of all of the lanes in nearby stations
-station_counts_pairwise as (
+detector_counts_pairwise as (
     select
         a.id,
         b.id as other_id,
@@ -100,9 +83,9 @@ station_counts_pairwise as (
         b.volume_sum as other_volume,
         a.occupancy_avg as occupancy,
         b.occupancy_avg as other_occupancy
-    from station_counts_real_lanes as a
+    from detector_counts as a
     left join nearby_stations on a.id = nearby_stations.id
-    inner join station_counts_real_lanes as b
+    inner join detector_counts as b
         on
             nearby_stations.other_id = b.id
             and a.sample_date = b.sample_date
@@ -111,7 +94,7 @@ station_counts_pairwise as (
 
 -- Aggregate the self-joined table to get the slope
 -- and intercept of the regression.
-station_counts_regression as (
+detector_counts_regression as (
     select
         id,
         other_id,
@@ -129,7 +112,7 @@ station_counts_regression as (
         -- occupancy regression model
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
-    from station_counts_pairwise
+    from detector_counts_pairwise
     where not (id = other_id and lane = other_lane)
     group by id, other_id, lane, other_lane, district, regression_date
     -- No point in regressing if the variables are all null,
@@ -140,4 +123,4 @@ station_counts_regression as (
         or (count(speed) > 0 and count(other_speed) > 0)
 )
 
-select * from station_counts_regression
+select * from detector_counts_regression
