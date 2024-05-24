@@ -35,7 +35,6 @@ vars:
   pems_clearinghouse_start_date: "'2023-01-01'"
 
 models:
-  +on_schema_change: "sync_all_columns"
   caldata_mdsa_caltrans_pems:
     staging:
       +materialized: view
