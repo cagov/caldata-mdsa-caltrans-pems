@@ -10,7 +10,6 @@ with station_daily_data as (
         type,
         volume_sum,
         occupancy_avg,
-        daily_speed,
         daily_vmt,
         daily_vht,
         delay_35_mph,
@@ -19,7 +18,14 @@ with station_daily_data as (
         delay_50_mph,
         delay_55_mph,
         delay_60_mph,
-        extract(month from sample_date) as sample_month
+        lost_productivity_35_mp,
+        lost_productivity_40_mp,
+        lost_productivity_45_mp,
+        lost_productivity_50_mp,
+        lost_productivity_55_mp,
+        lost_productivity_60_mp,
+        concat(extract(year from sample_date), '-', lpad(cast(extract(month from sample_date) as string), 2, '0'))
+            as sample_year_month
     from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
 ),
 
@@ -36,17 +42,23 @@ monthly_station_level_spatial_temporal_metrics as (
         sum(volume_sum * daily_speed) / nullifzero(sum(volume_sum)) as monthly_speed,
         sum(daily_vmt) as monthly_vmt,
         sum(daily_vht) as monthly_vht,
-        monthly_vmt / nullifzero(monthly_vht) as q_value,
+        monthly_vmt / nullifzero(monthly_vht) as monthly_q_value,
         -- travel time
-        60 / nullifzero(q_value) as tti,
+        60 / nullifzero(monthly_q_value) as monthly_tti,
         sum(delay_35_mph) as delay_35_mph,
         sum(delay_40_mph) as delay_40_mph,
         sum(delay_45_mph) as delay_45_mph,
         sum(delay_50_mph) as delay_50_mph,
         sum(delay_55_mph) as delay_55_mph,
-        sum(delay_60_mph) as delay_60_mph
+        sum(delay_60_mph) as delay_60_mph,
+        sum(lost_productivity_35_m) as lost_productivity_35_m,
+        sum(lost_productivity_40_m) as lost_productivity_40_m,
+        sum(lost_productivity_45_m) as lost_productivity_45_m,
+        sum(lost_productivity_50_m) as lost_productivity_50_m,
+        sum(lost_productivity_55_m) as lost_productivity_55_m,
+        sum(lost_productivity_60_m) as lost_productivity_60_m
     from station_daily_data
-    group by id, sample_month, city, county, district, type
+    group by id, sample_year_month, city, county, district, type
 )
 
 select * from monthly_station_level_spatial_temporal_metrics
