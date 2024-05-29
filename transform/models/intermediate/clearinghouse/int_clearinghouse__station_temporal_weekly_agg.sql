@@ -9,7 +9,7 @@ with station_daily_data as (
         weekofyear(sample_date) as sample_week,
 
         date_trunc('week', sample_date) as sample_week_start_date,
-        -- Extracting the week 
+        -- Extracting the week
         dateadd(day, 6, date_trunc('week', sample_date)) as sample_week_end_date
     from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
     -- we do not want to calculate incomplete week aggregation
