@@ -65,7 +65,7 @@ hourly_temporal_metrics as (
         sum(lost_productivity_55_mph) as lost_productivity_55_mph,
         sum(lost_productivity_60_mph) as lost_productivity_60_mph
     from station_five_mins_data
-    group by id, sample_hour, lane
+    group by id,sample_date, sample_hour, lane
 ),
 
 -- read spatial characteristics
@@ -88,12 +88,12 @@ hourly_spatial_temporal_metrics as (
         hourly_temporal_metrics.delay_50_mph,
         hourly_temporal_metrics.delay_55_mph,
         hourly_temporal_metrics.delay_60_mph,
-        hourly_temporal_metrics.lost_productivity_35_m,
-        hourly_temporal_metrics.lost_productivity_40_m,
-        hourly_temporal_metrics.lost_productivity_45_m,
-        hourly_temporal_metrics.lost_productivity_50_m,
-        hourly_temporal_metrics.lost_productivity_55_m,
-        hourly_temporal_metrics.lost_productivity_60_m,
+        hourly_temporal_metrics.lost_productivity_35_mph,
+        hourly_temporal_metrics.lost_productivity_40_mph,
+        hourly_temporal_metrics.lost_productivity_45_mph,
+        hourly_temporal_metrics.lost_productivity_50_mph,
+        hourly_temporal_metrics.lost_productivity_55_mph,
+        hourly_temporal_metrics.lost_productivity_60_mph,
         station_meta_data.city,
         station_meta_data.county,
         station_meta_data.district,
