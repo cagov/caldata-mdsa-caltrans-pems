@@ -1,7 +1,12 @@
 {{ config(materialized='table') }}
+with last_full_month as (
+    select
+        date_trunc('month', current_date) - interval '1 month' as month_start,
+        date_trunc('month', current_date) - interval '1 day' as month_end
+),
 
 -- read the volume, occupancy and speed five minutes data
-with station_five_mins_data as (
+station_five_mins_data as (
     select
         id,
         lane,
@@ -26,6 +31,9 @@ with station_five_mins_data as (
         lost_productivity_60_mp,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__five_min_perform_metrics') }}
+    where
+        sample_date >= (select month_start from last_full_month)
+        and sample_date <= (select month_end from last_full_month)
 ),
 
 -- now aggregate five mins volume, occupancy and speed to hourly
@@ -55,7 +63,7 @@ hourly_temporal_metrics as (
         sum(lost_productivity_55_m) as lost_productivity_55_m,
         sum(lost_productivity_60_m) as lost_productivity_60_m
     from station_five_mins_data
-    group by id, sample_date, sample_hour
+    group by id, sample_hour
 ),
 
 -- read spatial characteristics

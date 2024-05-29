@@ -65,7 +65,7 @@ hourly_temporal_metrics as (
         sum(lost_productivity_55_m) as lost_productivity_55_m,
         sum(lost_productivity_60_m) as lost_productivity_60_m
     from station_five_mins_data
-    group by id, sample_date, sample_hour, lane
+    group by id, sample_hour, lane
 ),
 
 -- read spatial characteristics
