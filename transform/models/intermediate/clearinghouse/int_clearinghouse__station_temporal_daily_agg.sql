@@ -3,29 +3,8 @@
 -- read the volume, occupancy and speed hourly data
 with station_hourly_data as (
     select
-        id,
-        sample_date,
-        city,
-        county,
-        district,
-        type,
-        volume_sum,
-        occupancy_avg,
-        hourly_speed,
-        hourly_vmt,
-        hourly_vht,
-        delay_35_mph,
-        delay_40_mph,
-        delay_45_mph,
-        delay_50_mph,
-        delay_55_mph,
-        delay_60_mph,
-        lost_productivity_35_mph,
-        lost_productivity_40_mph,
-        lost_productivity_45_mph,
-        lost_productivity_50_mph,
-        lost_productivity_55_mph,
-        lost_productivity_60_mph
+        *,
+        cast(sample_hour as date) as sample_date
     from {{ ref('int_clearninghouse__station_temporal_hourly_agg') }}
 ),
 
@@ -46,18 +25,22 @@ daily_station_level_spatial_temporal_metrics as (
         daily_vmt / nullifzero(daily_vht) as daily_q_value,
         -- travel time
         60 / nullifzero(daily_q_value) as daily_tti,
-        sum(delay_35_mph) as delay_35_mph,
-        sum(delay_40_mph) as delay_40_mph,
-        sum(delay_45_mph) as delay_45_mph,
-        sum(delay_50_mph) as delay_50_mph,
-        sum(delay_55_mph) as delay_55_mph,
-        sum(delay_60_mph) as delay_60_mph,
-        sum(lost_productivity_35_mph) as lost_productivity_35_mph,
-        sum(lost_productivity_40_mph) as lost_productivity_40_mph,
-        sum(lost_productivity_45_mph) as lost_productivity_45_mph,
-        sum(lost_productivity_50_mph) as lost_productivity_50_mph,
-        sum(lost_productivity_55_mph) as lost_productivity_55_mph,
-        sum(lost_productivity_60_mph) as lost_productivity_60_mph
+        {% for value in var("V_t") %}
+            sum(delay_{{ value }}_mph)
+                as delay_{{ value }}_mph
+            {% if not loop.last %}
+                ,
+            {% endif %}
+
+        {% endfor %},
+        {% for value in var("V_t") %}
+            sum(lost_productivity_{{ value }}_mph)
+                as lost_productivity_{{ value }}_mph
+            {% if not loop.last %}
+                ,
+            {% endif %}
+
+        {% endfor %}
     from station_hourly_data
     group by id, sample_date, city, county, district, type
 )
