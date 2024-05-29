@@ -24,12 +24,12 @@ station_five_mins_data as (
         delay_50_mph,
         delay_55_mph,
         delay_60_mph,
-        lost_productivity_35_mp,
-        lost_productivity_40_mp,
-        lost_productivity_45_mp,
-        lost_productivity_50_mp,
-        lost_productivity_55_mp,
-        lost_productivity_60_mp,
+        lost_productivity_35_mph,
+        lost_productivity_40_mph,
+        lost_productivity_45_mph,
+        lost_productivity_50_mph,
+        lost_productivity_55_mph,
+        lost_productivity_60_mph,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__five_min_perform_metrics') }}
     where
@@ -58,12 +58,12 @@ hourly_temporal_metrics as (
         sum(delay_50_mph) as delay_50_mph,
         sum(delay_55_mph) as delay_55_mph,
         sum(delay_60_mph) as delay_60_mph,
-        sum(lost_productivity_35_m) as lost_productivity_35_m,
-        sum(lost_productivity_40_m) as lost_productivity_40_m,
-        sum(lost_productivity_45_m) as lost_productivity_45_m,
-        sum(lost_productivity_50_m) as lost_productivity_50_m,
-        sum(lost_productivity_55_m) as lost_productivity_55_m,
-        sum(lost_productivity_60_m) as lost_productivity_60_m
+        sum(lost_productivity_35_mph) as lost_productivity_35_mph,
+        sum(lost_productivity_40_mph) as lost_productivity_40_mph,
+        sum(lost_productivity_45_mph) as lost_productivity_45_mph,
+        sum(lost_productivity_50_mph) as lost_productivity_50_mph,
+        sum(lost_productivity_55_mph) as lost_productivity_55_mph,
+        sum(lost_productivity_60_mph) as lost_productivity_60_mph
     from station_five_mins_data
     group by id, sample_hour, lane
 ),
