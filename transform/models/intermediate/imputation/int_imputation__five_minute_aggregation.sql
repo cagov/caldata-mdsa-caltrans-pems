@@ -2,18 +2,23 @@
 
 with unimputed as (
     select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_weighted,
-        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
-            as speed_five_mins,
-        (volume_sum is null) or (occupancy_avg is null) as imputation_required
-    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where sample_date = dateadd(day, -3, current_date)
+        a.id,
+        a.lane,
+        a.sample_date,
+        a.sample_timestamp,
+        a.volume_sum,
+        a.occupancy_avg,
+        a.speed_weighted,
+        (detectors.station_id is not null) as detector_is_good,
+        coalesce(a.speed_weighted, (a.volume_sum * 22) / nullifzero(a.occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins
+    from {{ ref('int_clearinghouse__five_minute_station_agg') }} as a
+    left join {{ ref('int_diagnostics__good_detectors') }} as detectors
+        on
+            a.id = detectors.station_id
+            and a.lane = detectors.lane
+            and a.sample_date = detectors.sample_date
+    where a.sample_date = '2024-04-01'
 ),
 
 -- separate the dataframe that have missing volume,occupancy and speed
@@ -27,7 +32,7 @@ samples_requiring_imputation as (
         occupancy_avg,
         speed_five_mins
     from unimputed
-    where imputation_required
+    where not detector_is_good
 ),
 
 -- separate the dataframe that have already device recorded volume, speed and occ
@@ -39,10 +44,9 @@ samples_not_requiring_imputation as (
         sample_timestamp,
         volume_sum,
         occupancy_avg,
-        speed_five_mins,
-        false as is_imputed
+        speed_five_mins
     from unimputed
-    where not imputation_required
+    where detector_is_good
 ),
 
 -- read the model co-efficients
@@ -93,37 +97,25 @@ imputed as (
         sample_date,
         sample_timestamp,
         -- Volume calculation
-        coalesce(volume_sum, greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0))
-            as volume_sum_imp,
+        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume,
         -- Occupancy calculation
-        coalesce(
-            occupancy_avg,
-            least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
-        ) as occupancy_avg_imp,
+        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1) as occupancy,
         -- Speed calculation
-        case
-            when
-                (speed_five_mins is null and volume_sum > 0 and occupancy_avg > 0)
-                or (speed_five_mins is null and volume_sum is null and occupancy_avg is null)
-                then least(greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0), 100)
-            else speed_five_mins
-        end as speed_five_mins_imp
+        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed,
+        any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_neighbors
-    group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
+    group by id, lane, sample_date, sample_timestamp
 ),
 
 -- combine imputed and non-imputed dataframe together
 -- -- combine imputed and non-imputed dataframe together
-local_regression_imputed_value as (
+agg_with_local_imputation as (
     select
         unimputed.*,
-        imputed.volume_sum_imp,
-        imputed.occupancy_avg_imp,
-        imputed.speed_five_mins_imp,
-        imputed.is_imputed_volume,
-        imputed.is_imputed_occupancy,
-        imputed.is_imputed_speed,
+        imputed.volume as volume_local_regression,
+        imputed.occupancy as occupancy_local_regression,
+        imputed.speed as speed_local_regression,
         imputed.regression_date
     from unimputed
     left join imputed
@@ -135,4 +127,4 @@ local_regression_imputed_value as (
 )
 
 -- read the imputed and non-imputed dataframe
-select * from local_regression_imputed_value
+select * from agg_with_local_imputation
