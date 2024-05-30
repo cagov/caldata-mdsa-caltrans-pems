@@ -1,13 +1,18 @@
 with
 
-five_minute_agg as (
+five_minute_pm as (
     select
         id,
         lane,
         sample_date,
         sample_timestamp,
         speed_five_mins,
-        delay_60_mph
+        delay_60_mph,
+        case
+            when speed_five_mins < 40 then True
+            else False
+        end as speed_less_than_40
+
     from {{ ref ("int_performance__five_min_perform_metrics") }}
     where
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
@@ -30,19 +35,20 @@ five_minute_agg as (
         {% endif %}
 ),
 
-distance_metrics as (
-    select * from {{ ref ('int_performance__distance_rank') }}
+distance as (
+    select * from {{ ref ('int_performance__calculate_distance') }}
 ),
 
 five_minute_agg_with_distance as (
     select
-        dm.*,
-        fma.* exclude (id)
-    from distance_metrics as dm
-    inner join five_minute_agg as fma
+        d.* exclude meta_date,
+        f.* exclude (id, lane)
+    from distance as d
+    inner join five_minute_pm as f
         on
-            dm.active_date = fma.sample_date
-            and dm.id = fma.id
+            d.meta_date = f.sample_date
+            and d.id = f.id
+            and d.lane = f.lane
 ),
 
 calculate_speed_delta as (
@@ -51,25 +57,31 @@ calculate_speed_delta as (
         speed_five_mins
         - LAG(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, type, lane order by distance_rank)
-            as speed_delta_from_previous
+            as speed_delta
     from five_minute_agg_with_distance
+),
+
+bottleneck_criteria_check as (
+    select
+        *,
+        case
+            when speed_less_than_40 = True
+            and distance_delta < 3
+            and speed_delta > 19
+            then 1
+            else 0
+        end as bottleneck
+    from calculate_speed_delta
+),
+
+drop_persists_check as (
+    select 
+        *,
+        sum(bottleneck) over (partition by sample_timestamp, freeway, direction, type, lane 
+        order by distance_rank rows between 6 preceding and current row)
+        as persistent_speed_drop
+    
+    from bottleneck_criteria_check
 )
 
--- speed_window as (
---     select
---         *,
---         SUM(
---             case
---                 when speed_five_mins < 40 then 1
---                 else 0
---             end
---         )
---             over
---             (
---                 partition by sample_date, freeway, direction, type, lane order by sample_timestamp
---                 rows between 6 preceding and current row
---             ) as count_leq_40
---     from calculate_speed_delta
--- )
-
-select * from calculate_speed_delta
+select * from drop_persists_check

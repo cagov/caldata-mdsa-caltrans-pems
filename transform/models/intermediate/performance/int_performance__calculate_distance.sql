@@ -1,14 +1,15 @@
 with
 
-active_station as (
+station_meta as (
     select
-        active_date,
+        meta_date,
         freeway,
         direction,
         type,
+        lanes as lane,
         to_decimal(absolute_postmile, 6, 3) as absolute_postmile,
         id
-    from {{ ref ("int_clearinghouse__active_stations") }}
+    from {{ ref ("stg_clearinghouse__station_meta") }}
     where type = 'ML' or type = 'HV'
 ),
 
@@ -16,10 +17,10 @@ calculate_distance_rank as (
     select
         *,
         rank()
-            over (partition by active_date, freeway, direction, type order by absolute_postmile asc)
+            over (partition by meta_date, freeway, direction, type, lane order by absolute_postmile asc)
             as distance_rank
-    from active_station
-    group by active_date, freeway, direction, type, absolute_postmile, id
+    from station_meta
+    group by meta_date, freeway, direction, type, lane, absolute_postmile, id
 
 ),
 
@@ -28,8 +29,8 @@ calculate_distance_delta as (
         *,
         absolute_postmile
         - lag(absolute_postmile)
-            over (partition by active_date, freeway, direction, type order by distance_rank)
-            as distance_delta_from_previous
+            over (partition by meta_date, freeway, direction, type, lane order by distance_rank)
+            as distance_delta
     from calculate_distance_rank
 )
 
