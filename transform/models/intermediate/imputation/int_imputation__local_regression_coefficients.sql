@@ -1,8 +1,14 @@
+{# TODO: don't hard-code a dev warehouse in config here #}
 {{ config(
     materialized="table",
     snowflake_warehouse="transforming_xl_dev",
 ) }}
 
+/* This CTE is intended to be a placeholder for some
+better-thought-out logic for what dates to evaluate regression
+coefficients. As is, it is a hard-coded list of quarterly
+dates starting in early 2023.
+*/
 with regression_dates as (
     select value::date as regression_date from table(
         flatten(
@@ -10,12 +16,15 @@ with regression_dates as (
                 '2023-02-03'::date,
                 '2023-05-03'::date,
                 '2023-08-03'::date,
-                '2023-11-03'::date
+                '2023-11-03'::date,
+                '2024-02-03'::date,
+                '2024-05-03'::date
             ]
         )
     )
 ),
 
+-- Select all station pairs that are active for the chosen regression dates
 nearby_stations as (
     select
         nearby.id,
@@ -31,6 +40,8 @@ nearby_stations as (
         abs(nearby.delta_postmile) <= 1
 ),
 
+-- Get all of the detectors that are producing good data, based on
+-- the diagnostic tests
 good_detectors as (
     select
         station_id,
@@ -40,6 +51,11 @@ good_detectors as (
     from {{ ref("int_diagnostics__good_detectors") }}
 ),
 
+/* Get the five-minute unimputed data. This is joined on the
+regression dates to only get samples which are within a week of
+the regression date. It's also joined with the "good detectors"
+table to only get samples from dates that we think were producing
+good data. */
 detector_counts as (
     select
         agg.id,
@@ -50,6 +66,7 @@ detector_counts as (
         agg.occupancy_avg,
         agg.speed_weighted,
         good_detectors.district,
+        -- TODO: Can we give this a better name? Can we move this into the base model?
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates.regression_date
@@ -100,7 +117,6 @@ detector_counts_regression as (
         other_id,
         lane,
         other_lane,
-        -- regression_date,
         district,
         regression_date,
         -- speed regression model
@@ -113,10 +129,10 @@ detector_counts_regression as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
-    where not (id = other_id and lane = other_lane)
+    where not (id = other_id and lane = other_lane) -- don't bother regressing on self!
     group by id, other_id, lane, other_lane, district, regression_date
     -- No point in regressing if the variables are all null,
-    -- this saves a lot of time.
+    -- this can save significant time.
     having
         (count(volume) > 0 and count(other_volume) > 0)
         or (count(occupancy) > 0 and count(other_occupancy) > 0)

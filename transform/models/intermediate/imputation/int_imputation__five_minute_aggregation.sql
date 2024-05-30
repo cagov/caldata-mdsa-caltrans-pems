@@ -1,5 +1,11 @@
 {{ config(materialized='table') }}
 
+-- TODO: make this model incremental
+
+/* Select unimputed data, joining with the "good detectors"
+model to flag whether we consider a detector to be operating
+correctly for a given day.
+*/
 with unimputed as (
     select
         a.id,
@@ -9,6 +15,9 @@ with unimputed as (
         a.volume_sum,
         a.occupancy_avg,
         a.speed_weighted,
+        -- If the station_id in the join is not null, it means that the detector
+        -- is considered to be "good" for a given date. TODO: likely restructure
+        -- once the good_detectors model is eliminated.
         (detectors.station_id is not null) as detector_is_good,
         coalesce(a.speed_weighted, (a.volume_sum * 22) / nullifzero(a.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
@@ -18,10 +27,11 @@ with unimputed as (
             a.id = detectors.station_id
             and a.lane = detectors.lane
             and a.sample_date = detectors.sample_date
+    -- TODO: incrementality here.
     where a.sample_date = '2024-04-01'
 ),
 
--- separate the dataframe that have missing volume,occupancy and speed
+-- get the data that require imputation
 samples_requiring_imputation as (
     select
         id,
@@ -35,7 +45,7 @@ samples_requiring_imputation as (
     where not detector_is_good
 ),
 
--- separate the dataframe that have already device recorded volume, speed and occ
+-- get the data that does not require imputation
 samples_not_requiring_imputation as (
     select
         id,
@@ -49,7 +59,7 @@ samples_not_requiring_imputation as (
     where detector_is_good
 ),
 
--- read the model co-efficients
+-- read the model coefficients
 coeffs as (
     select * from {{ ref('int_imputation__local_regression_coefficients') }}
 ),
@@ -74,7 +84,9 @@ samples_requiring_imputation_with_coeffs as (
         on samples_requiring_imputation.id = coeffs.id
 ),
 
---  read the neighbours that have volume, occupancy and speed data
+-- Read the neighbours that have volume, occupancy and speed data.
+-- We only join with neighbors that don't require imputation, as
+-- there is no point to imputing bad data from bad data.
 samples_requiring_imputation_with_neighbors as (
     select
         imp.*,
@@ -89,7 +101,7 @@ samples_requiring_imputation_with_neighbors as (
             and imp.sample_timestamp = non_imp.sample_timestamp
 ),
 
--- apply imputation models to impute volume, occupancy and speed and flag id imputed
+-- apply imputation models to impute volume, occupancy and speed
 imputed as (
     select
         id,
@@ -109,7 +121,6 @@ imputed as (
 ),
 
 -- combine imputed and non-imputed dataframe together
--- -- combine imputed and non-imputed dataframe together
 agg_with_local_imputation as (
     select
         unimputed.*,
@@ -126,5 +137,5 @@ agg_with_local_imputation as (
             and unimputed.sample_timestamp = imputed.sample_timestamp
 )
 
--- read the imputed and non-imputed dataframe
+-- select the final CTE
 select * from agg_with_local_imputation
