@@ -1,3 +1,5 @@
+{{ config(materialized="table") }}
+
 with
 
 five_minute_pm as (
@@ -38,14 +40,14 @@ distance as (
 
 five_minute_agg_with_distance as (
     select
-        d.* exclude meta_date,
-        f.* exclude (id, lane)
+        d.*,
+        f.* exclude (id)
     from distance as d
     inner join five_minute_pm as f
         on
-            d.meta_date = f.sample_date
+            d._valid_from <= f.sample_date
+            and d._valid_to > f.sample_date
             and d.id = f.id
-            and d.lane = f.lane
 ),
 
 calculate_speed_delta as (
@@ -53,7 +55,7 @@ calculate_speed_delta as (
         *,
         speed_five_mins
         - lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type, lane order by distance_rank)
+            over (partition by sample_timestamp, freeway, direction, type, lane order by absolute_postmile asc)
             as speed_delta
     from five_minute_agg_with_distance
 ),
@@ -78,7 +80,7 @@ drop_persists_check as (
         sum(bottleneck)
             over (
                 partition by sample_timestamp, freeway, direction, type, lane
-                order by distance_rank rows between 6 preceding and current row
+                order by absolute_postmile asc rows between 6 preceding and current row
             )
             as persistent_speed_drop
 
