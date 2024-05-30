@@ -8,15 +8,12 @@ five_minute_pm as (
         sample_timestamp,
         speed_five_mins,
         delay_60_mph,
-        case
-            when speed_five_mins < 40 then True
-            else False
-        end as speed_less_than_40
+        coalesce(speed_five_mins < 40, false) as speed_less_than_40
 
     from {{ ref ("int_performance__five_min_perform_metrics") }}
     where
-        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+        to_time(sample_timestamp) >= {{ var("day_start") }}
+        and to_time(sample_timestamp) <= {{ var("day_end") }}
         {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
             and sample_date > (
@@ -31,7 +28,7 @@ five_minute_pm as (
         {% endif %}
         {% if target.name != 'prd' %}
             and sample_date
-            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
+            >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
         {% endif %}
 ),
 
@@ -55,7 +52,7 @@ calculate_speed_delta as (
     select
         *,
         speed_five_mins
-        - LAG(speed_five_mins)
+        - lag(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, type, lane order by distance_rank)
             as speed_delta
     from five_minute_agg_with_distance
@@ -65,22 +62,26 @@ bottleneck_criteria_check as (
     select
         *,
         case
-            when speed_less_than_40 = True
-            and distance_delta < 3
-            and speed_delta > 19
-            then 1
+            when
+                speed_less_than_40 = true
+                and distance_delta < 3
+                and speed_delta > 19
+                then 1
             else 0
         end as bottleneck
     from calculate_speed_delta
 ),
 
 drop_persists_check as (
-    select 
+    select
         *,
-        sum(bottleneck) over (partition by sample_timestamp, freeway, direction, type, lane 
-        order by distance_rank rows between 6 preceding and current row)
-        as persistent_speed_drop
-    
+        sum(bottleneck)
+            over (
+                partition by sample_timestamp, freeway, direction, type, lane
+                order by distance_rank rows between 6 preceding and current row
+            )
+            as persistent_speed_drop
+
     from bottleneck_criteria_check
 )
 
