@@ -11,26 +11,26 @@ with base as (
     select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
     {% if is_incremental() %}
     -- Look back two days to account for any late-arriving data
-    where
-        sample_date > (
-            select
-                dateadd(
-                    day,
-                    {{ var("incremental_model_look_back") }},
-                    max(sample_date)
-                )
-            from {{ this }}
-        )
-        {% if target.name != 'prd' %}
-            and sample_date
-            >= dateadd(
-                day,
-                5*{{ var("dev_model_look_back") }},
-                current_date()
+        where
+            sample_date > (
+                select
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
+                from {{ this }}
             )
-        {% endif %}
+            {% if target.name != 'prd' %}
+                and sample_date
+                >= dateadd(
+                    day,
+                    5 * {{ var("dev_model_look_back") }},
+                    current_date()
+                )
+            {% endif %}
     {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, 5*{{ var("dev_model_look_back") }}, current_date())
+        where sample_date >= dateadd(day, 5 * {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
 
