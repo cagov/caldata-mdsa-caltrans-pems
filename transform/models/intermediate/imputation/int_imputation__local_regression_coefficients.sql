@@ -80,7 +80,8 @@ detector_counts as (
         on
             agg.sample_date >= regression_dates.regression_date
             -- TODO: use variable for regression window
-            and agg.sample_date < dateadd(day, 7, regression_dates.regression_date)
+            and agg.sample_date
+            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates.regression_date)
     inner join good_detectors
         on
             agg.id = good_detectors.station_id
