@@ -48,7 +48,8 @@ good_detectors as (
         lane,
         district,
         sample_date
-    from {{ ref("int_diagnostics__good_detectors") }}
+    from {{ ref("int_diagnostics__real_detector_status") }}
+    where status = 'Good'
 ),
 
 agg as (

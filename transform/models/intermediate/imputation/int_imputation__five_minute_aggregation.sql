@@ -49,16 +49,17 @@ unimputed as (
         base.speed_weighted,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
-        -- once the good_detectors model is eliminated.
+        -- once the real_detectors model is eliminated.
         (detectors.station_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from base
-    left join {{ ref('int_diagnostics__good_detectors') }} as detectors
+    left join {{ ref('int_diagnostics__real_detector_status') }} as detectors
         on
             base.id = detectors.station_id
             and base.lane = detectors.lane
             and base.sample_date = detectors.sample_date
+    where detectors.status = 'Good'
 ),
 
 -- get the data that require imputation
