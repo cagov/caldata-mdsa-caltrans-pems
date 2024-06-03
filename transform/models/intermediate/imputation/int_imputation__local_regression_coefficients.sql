@@ -1,7 +1,6 @@
-{# TODO: don't hard-code a dev warehouse in config here #}
 {{ config(
     materialized="table",
-    snowflake_warehouse="transforming_xl_dev",
+    snowflake_warehouse=get_snowflake_warehouse(size="XL"),
 ) }}
 
 /* This CTE is intended to be a placeholder for some
@@ -51,6 +50,10 @@ good_detectors as (
     from {{ ref("int_diagnostics__good_detectors") }}
 ),
 
+agg as (
+    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+),
+
 /* Get the five-minute unimputed data. This is joined on the
 regression dates to only get samples which are within a week of
 the regression date. It's also joined with the "good detectors"
@@ -70,10 +73,11 @@ detector_counts as (
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates.regression_date
-    from {{ ref('int_clearinghouse__five_minute_station_agg') }} as agg
+    from agg
     inner join regression_dates
         on
-            agg.sample_date >= regression_dates.regression_date
+            agg.sample_date >= regression_dates.regression_dates
+            -- TODO: use variable for regression window
             and agg.sample_date < dateadd(day, 7, regression_dates.regression_date)
     inner join good_detectors
         on

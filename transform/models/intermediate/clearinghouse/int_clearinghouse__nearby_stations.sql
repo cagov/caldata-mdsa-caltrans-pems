@@ -12,17 +12,16 @@ station_pairs as (
         a.freeway,
         a.direction,
         a.type,
-        -- TODO: is this the best metric for "nearest"? State postmiles often have
-        -- some string part to them, making math a little trickier.
         b.absolute_postmile - a.absolute_postmile as delta_postmile,
         a._valid_from,
         a._valid_to
     from station_meta as a
     inner join station_meta as b
         on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.meta_date = b.meta_date
-    -- TODO: distance comparisons don't seem appropriate for all station types,
-    -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
-    -- types. Is this the right set?
+    -- Most performance metrics are restricted to mainline and HV lanes.
+    -- Furthermore, when looking at upstream and downstream stations, it
+    -- does not make sense to include, e.g., ramps. So for the time being
+    -- we restrict this table to HV and ML.
     where a.type in ('HV', 'ML')
 ),
 
