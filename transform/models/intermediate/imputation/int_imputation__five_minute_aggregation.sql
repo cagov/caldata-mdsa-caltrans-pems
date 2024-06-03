@@ -1,34 +1,64 @@
-{{ config(materialized='table') }}
+{{ config(
+        materialized='incremental',
+        cluster_by=["sample_date"],
+        unique_key=["id", "lane", "sample_timestamp"],
+        snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL"),
+    )
+}}
 
--- TODO: make this model incremental
+-- Select unimputed data
+with base as (
+    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    {% if is_incremental() %}
+    -- Look back two days to account for any late-arriving data
+    where
+        sample_date > (
+            select
+                dateadd(
+                    day,
+                    {{ var("incremental_model_look_back") }},
+                    max(sample_date)
+                )
+            from {{ this }}
+        )
+        {% if target.name != 'prd' %}
+            and sample_date
+            >= dateadd(
+                day,
+                {{ var("dev_model_look_back") }},
+                current_date()
+            )
+        {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
+    {% endif %}
+),
 
-/* Select unimputed data, joining with the "good detectors"
+/* Join with the "good detectors"
 model to flag whether we consider a detector to be operating
 correctly for a given day.
 */
-with unimputed as (
+unimputed as (
     select
-        a.id,
-        a.lane,
-        a.sample_date,
-        a.sample_timestamp,
-        a.volume_sum,
-        a.occupancy_avg,
-        a.speed_weighted,
+        base.id,
+        base.lane,
+        base.sample_date,
+        base.sample_timestamp,
+        base.volume_sum,
+        base.occupancy_avg,
+        base.speed_weighted,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the good_detectors model is eliminated.
         (detectors.station_id is not null) as detector_is_good,
-        coalesce(a.speed_weighted, (a.volume_sum * 22) / nullifzero(a.occupancy_avg) * (1 / 5280) * 12)
+        coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
-    from {{ ref('int_clearinghouse__five_minute_station_agg') }} as a
+    from base
     left join {{ ref('int_diagnostics__good_detectors') }} as detectors
         on
-            a.id = detectors.station_id
-            and a.lane = detectors.lane
-            and a.sample_date = detectors.sample_date
-    -- TODO: incrementality here.
-    where a.sample_date = '2024-04-01'
+            base.id = detectors.station_id
+            and base.lane = detectors.lane
+            and base.sample_date = detectors.sample_date
 ),
 
 -- get the data that require imputation

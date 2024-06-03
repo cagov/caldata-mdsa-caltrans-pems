@@ -1,7 +1,8 @@
 {{ config(
-    materialized="table",
-    snowflake_warehouse=get_snowflake_warehouse(size="XL"),
-) }}
+        materialized="table",
+        snowflake_warehouse=get_snowflake_warehouse(size="XL"),
+    )
+}}
 
 /* This CTE is intended to be a placeholder for some
 better-thought-out logic for what dates to evaluate regression
