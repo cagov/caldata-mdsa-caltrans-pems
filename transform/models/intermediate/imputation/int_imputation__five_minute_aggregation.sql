@@ -25,12 +25,12 @@ with base as (
             and sample_date
             >= dateadd(
                 day,
-                {{ var("dev_model_look_back") }},
+                5*{{ var("dev_model_look_back") }},
                 current_date()
             )
         {% endif %}
     {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
+        where sample_date >= dateadd(day, 5*{{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 ),
 

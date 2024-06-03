@@ -77,7 +77,7 @@ detector_counts as (
     from agg
     inner join regression_dates
         on
-            agg.sample_date >= regression_dates.regression_dates
+            agg.sample_date >= regression_dates.regression_date
             -- TODO: use variable for regression window
             and agg.sample_date < dateadd(day, 7, regression_dates.regression_date)
     inner join good_detectors
