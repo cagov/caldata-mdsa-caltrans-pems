@@ -62,6 +62,15 @@ aggregated_speed as (
         sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
     from station_raw
     group by id, lane, sample_date, sample_timestamp_trunc
+),
+
+aggregated_speed_by_district as (
+    select
+        aggregated_speed.*,
+        station_meta.district
+    from aggregated_speed
+    inner join {{ ref('int_clearinghouse__station_meta') }} as station_meta
+        on aggregated_speed.id = station_meta.id
 )
 
-select * from aggregated_speed
+select * from aggregated_speed_by_district
