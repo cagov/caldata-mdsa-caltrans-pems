@@ -31,19 +31,19 @@ hourly_temporal_metrics as (
     select
         id,
         sample_date,
+        length,
         sample_timestamp_trunc as sample_hour,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
         sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as hourly_speed,
         sum(vmt) as hourly_vmt,
         sum(vht) as hourly_vht,
-        avg(length) as hourly_avg_length,
         hourly_vmt / nullifzero(hourly_vht) as hourly_q_value,
         -- travel time
         60 / nullifzero(hourly_q_value) as hourly_tti,
         {% for value in var("V_t") %}
             greatest(
-                hourly_volume * ((hourly_avg_length / nullifzero(hourly_speed)) - (hourly_avg_length / {{ value }})), 0
+                hourly_volume * ((length / nullifzero(hourly_speed)) - (length / {{ value }})), 0
             )
                 as delay_{{ value }}_mph
             {% if not loop.last %}
@@ -60,23 +60,26 @@ hourly_temporal_metrics as (
 
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_date, sample_hour
+    group by id, sample_date, sample_hour, length
 ),
 
 -- read spatial characteristics
 hourly_station_level_spatial_temporal_metrics as (
     select
-        hourly_temporal_metrics.*,
-        station_meta_data.city,
-        station_meta_data.county,
-        station_meta_data.district,
-        station_meta_data.type,
-        station_meta_data.direction,
-        station_meta_data.freeway
-    from {{ ref('int_clearinghouse__most_recent_station_meta') }} as station_meta_data
-    inner join hourly_temporal_metrics
+        htm.*,
+        smd.city,
+        smd.county,
+        smd.district,
+        smd.type,
+        smd.direction,
+        smd.freeway
+    from {{ ref('int_clearinghouse__station_meta') }} as smd
+    inner join hourly_temporal_metrics as htm
         on
-            station_meta_data.id = hourly_temporal_metrics.id
+            smd.id = htm.id
+    where
+        smd._valid_from <= htm.sample_date
+        and smd._valid_to <= htm.sample_date
 )
 
 select * from hourly_station_level_spatial_temporal_metrics

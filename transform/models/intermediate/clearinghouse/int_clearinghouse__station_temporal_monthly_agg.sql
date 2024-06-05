@@ -16,6 +16,7 @@ with station_daily_data as (
 monthly_station_level_spatial_temporal_metrics as (
     select
         id,
+        length,
         sample_year,
         sample_month,
         city,
@@ -29,14 +30,13 @@ monthly_station_level_spatial_temporal_metrics as (
         sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as monthly_speed,
         sum(daily_vmt) as monthly_vmt,
         sum(daily_vht) as monthly_vht,
-        avg(daily_avg_length) as monthly_avg_length,
         monthly_vmt / nullifzero(monthly_vht) as monthly_q_value,
         -- travel time
         60 / nullifzero(monthly_q_value) as monthly_tti,
         {% for value in var("V_t") %}
             greatest(
                 monthly_volume
-                * ((monthly_avg_length / nullifzero(monthly_speed)) - (monthly_avg_length / {{ value }})),
+                * ((length / nullifzero(monthly_speed)) - (length / {{ value }})),
                 0
             )
                 as delay_{{ value }}_mph
@@ -54,7 +54,7 @@ monthly_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_daily_data
-    group by id, sample_year, sample_month, city, county, district, type, freeway, direction
+    group by id, sample_year, sample_month, city, county, district, type, freeway, direction, length
 )
 
 select * from monthly_station_level_spatial_temporal_metrics

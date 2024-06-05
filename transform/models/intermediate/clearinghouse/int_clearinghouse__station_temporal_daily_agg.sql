@@ -11,6 +11,7 @@ daily_station_level_spatial_temporal_metrics as (
     select
         id,
         sample_date,
+        length,
         city,
         county,
         district,
@@ -22,13 +23,12 @@ daily_station_level_spatial_temporal_metrics as (
         sum(hourly_volume * hourly_speed) / nullifzero(sum(hourly_volume)) as daily_speed,
         sum(hourly_vmt) as daily_vmt,
         sum(hourly_vht) as daily_vht,
-        avg(hourly_avg_length) as daily_avg_length,
         daily_vmt / nullifzero(daily_vht) as daily_q_value,
         -- travel time
         60 / nullifzero(daily_q_value) as daily_tti,
         {% for value in var("V_t") %}
             greatest(
-                daily_volume * ((daily_avg_length / nullifzero(daily_speed)) - (daily_avg_length / {{ value }})), 0
+                daily_volume * ((length / nullifzero(daily_speed)) - (length / {{ value }})), 0
             )
                 as delay_{{ value }}_mph
             {% if not loop.last %}
@@ -45,7 +45,7 @@ daily_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_hourly_data
-    group by id, sample_date, city, county, district, type, freeway, direction
+    group by id, sample_date, city, county, district, type, freeway, direction, length
 )
 
 select * from daily_station_level_spatial_temporal_metrics
