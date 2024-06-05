@@ -51,6 +51,7 @@ aggregated_speed as (
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         lane,
+        district,
         --Number of raw data samples
         count_if(volume is not null and occupancy is not null)
             as sample_ct,
@@ -61,7 +62,7 @@ aggregated_speed as (
         -- calculate_weighted_speed
         sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
     from station_raw
-    group by id, lane, sample_date, sample_timestamp_trunc
+    group by id, lane, sample_date, sample_timestamp_trunc, district
 )
 
 select * from aggregated_speed
