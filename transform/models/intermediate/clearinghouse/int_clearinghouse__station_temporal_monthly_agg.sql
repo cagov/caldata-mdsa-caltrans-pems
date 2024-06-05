@@ -5,6 +5,7 @@ with station_daily_data as (
     select
         *,
         -- Extracting the month and year
+        -- reference: https://docs.snowflake.com/en/sql-reference/functions/year
         year(sample_date) as sample_year,
         month(sample_date) as sample_month
     from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
@@ -21,15 +22,23 @@ monthly_station_level_spatial_temporal_metrics as (
         county,
         district,
         type,
-        sum(volume_sum) as volume_sum,
-        avg(occupancy_avg) as occupancy_avg,
+        freeway,
+        direction,
+        sum(daily_volume) as monthly_volume,
+        avg(daily_occupancy) as monthly_occupancy,
+        sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as monthly_speed,
         sum(daily_vmt) as monthly_vmt,
         sum(daily_vht) as monthly_vht,
+        avg(daily_avg_length) as monthly_avg_length,
         monthly_vmt / nullifzero(monthly_vht) as monthly_q_value,
         -- travel time
         60 / nullifzero(monthly_q_value) as monthly_tti,
         {% for value in var("V_t") %}
-            sum(delay_{{ value }}_mph)
+            greatest(
+                monthly_volume
+                * ((monthly_avg_length / nullifzero(monthly_speed)) - (monthly_avg_length / {{ value }})),
+                0
+            )
                 as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
@@ -45,7 +54,7 @@ monthly_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_daily_data
-    group by id, sample_year, sample_month, city, county, district, type
+    group by id, sample_year, sample_month, city, county, district, type, freeway, direction
 )
 
 select * from monthly_station_level_spatial_temporal_metrics

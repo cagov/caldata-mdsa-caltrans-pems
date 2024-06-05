@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id', 'sample_hour'],
+    unique_key=['id','sample_date', 'sample_hour'],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -30,17 +30,21 @@ with station_five_mins_data as (
 hourly_temporal_metrics as (
     select
         id,
+        sample_date,
         sample_timestamp_trunc as sample_hour,
-        sum(volume_sum) as volume_sum,
-        avg(occupancy_avg) as occupancy_avg,
+        sum(volume_sum) as hourly_volume,
+        avg(occupancy_avg) as hourly_occupancy,
         sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as hourly_speed,
         sum(vmt) as hourly_vmt,
         sum(vht) as hourly_vht,
+        avg(length) as hourly_avg_length,
         hourly_vmt / nullifzero(hourly_vht) as hourly_q_value,
         -- travel time
         60 / nullifzero(hourly_q_value) as hourly_tti,
         {% for value in var("V_t") %}
-            sum(delay_{{ value }}_mph)
+            greatest(
+                hourly_volume * ((hourly_avg_length / nullifzero(hourly_speed)) - (hourly_avg_length / {{ value }})), 0
+            )
                 as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
@@ -56,7 +60,7 @@ hourly_temporal_metrics as (
 
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_hour
+    group by id, sample_date, sample_hour
 ),
 
 -- read spatial characteristics
@@ -66,7 +70,9 @@ hourly_station_level_spatial_temporal_metrics as (
         station_meta_data.city,
         station_meta_data.county,
         station_meta_data.district,
-        station_meta_data.type
+        station_meta_data.type,
+        station_meta_data.direction,
+        station_meta_data.freeway
     from {{ ref('int_clearinghouse__most_recent_station_meta') }} as station_meta_data
     inner join hourly_temporal_metrics
         on

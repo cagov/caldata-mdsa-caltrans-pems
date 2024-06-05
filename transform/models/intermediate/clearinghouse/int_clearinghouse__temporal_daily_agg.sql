@@ -2,9 +2,7 @@
 
 -- read the volume, occupancy and speed hourly data
 with station_hourly_data as (
-    select
-        *,
-        cast(sample_hour as date) as sample_date
+    select *
     from {{ ref('int_clearinghouse__temporal_hourly_agg') }}
 ),
 
@@ -18,9 +16,11 @@ daily_spatial_temporal_metrics as (
         county,
         district,
         type,
-        sum(volume_sum) as volume_sum,
-        avg(occupancy_avg) as occupancy_avg,
-        sum(volume_sum * hourly_speed) / nullifzero(sum(volume_sum)) as daily_speed,
+        freeway,
+        direction,
+        sum(hourly_volume) as daily_volume,
+        avg(hourly_occupancy) as daily_occupancy,
+        sum(hourly_volume * hourly_speed) / nullifzero(sum(hourly_volume)) as daily_speed,
         sum(hourly_vmt) as daily_vmt,
         sum(hourly_vht) as daily_vht,
         daily_vmt / nullifzero(daily_vht) as daily_q_value,
@@ -43,7 +43,7 @@ daily_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_hourly_data
-    group by id, sample_date, lane, city, county, district, type
+    group by id, sample_date, lane, city, county, district, type, freeway, direction
 )
 
 select * from daily_spatial_temporal_metrics
