@@ -43,7 +43,7 @@ daily_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_hourly_data
-    group by id, sample_date, lane, city, county, district, type, freeway, direction
+    group by id, sample_date, lane, type, freeway, direction, city, county, district
 )
 
 select * from daily_spatial_temporal_metrics

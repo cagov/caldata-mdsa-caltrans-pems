@@ -26,12 +26,39 @@ with station_five_mins_data as (
     {% endif %}
 ),
 
+five_minute_agg_with_station_meta as (
+    select
+        fma.*,
+        sm.city,
+        sm.county,
+        sm.freeway,
+        sm.direction,
+        sm._valid_from as station_valid_from,
+        sm._valid_to as station_valid_to
+    from station_five_mins_data as fma
+    inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
+        on
+            fma.id = sm.id
+            and fma.sample_date >= sm._valid_from
+            and
+            (
+                fma.sample_date < sm._valid_to
+                or sm._valid_to is null
+            )
+),
+
 -- now aggregate five mins volume, occupancy and speed to hourly
 hourly_temporal_metrics as (
     select
         id,
         sample_date,
         length,
+        city,
+        county,
+        district,
+        type,
+        direction,
+        freeway,
         sample_timestamp_trunc as sample_hour,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
@@ -59,27 +86,8 @@ hourly_temporal_metrics as (
             {% endif %}
 
         {% endfor %}
-    from station_five_mins_data
-    group by id, sample_date, sample_hour, length
-),
-
--- read spatial characteristics
-hourly_station_level_spatial_temporal_metrics as (
-    select
-        htm.*,
-        smd.city,
-        smd.county,
-        smd.district,
-        smd.type,
-        smd.direction,
-        smd.freeway
-    from {{ ref('int_clearinghouse__station_meta') }} as smd
-    inner join hourly_temporal_metrics as htm
-        on
-            smd.id = htm.id
-    where
-        smd._valid_from <= htm.sample_date
-        and smd._valid_to <= htm.sample_date
+    from five_minute_agg_with_station_meta
+    group by id, sample_date, sample_hour, district, county, city, freeway, direction, type, length
 )
 
-select * from hourly_station_level_spatial_temporal_metrics
+select * from hourly_temporal_metrics

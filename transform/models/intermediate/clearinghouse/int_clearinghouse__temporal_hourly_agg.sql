@@ -26,12 +26,39 @@ with station_five_mins_data as (
     {% endif %}
 ),
 
+five_minute_agg_with_station_meta as (
+    select
+        fma.*,
+        sm.city,
+        sm.county,
+        sm.freeway,
+        sm.direction,
+        sm._valid_from as station_valid_from,
+        sm._valid_to as station_valid_to
+    from station_five_mins_data as fma
+    inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
+        on
+            fma.id = sm.id
+            and fma.sample_date >= sm._valid_from
+            and
+            (
+                fma.sample_date < sm._valid_to
+                or sm._valid_to is null
+            )
+),
+
 -- now aggregate five mins volume, occupancy and speed to hourly
-hourly_temporal_metrics as (
+hourly_spatial_temporal_metrics as (
     select
         id,
         lane,
         sample_date,
+        city,
+        county,
+        district,
+        type,
+        direction,
+        freeway,
         sample_timestamp_trunc as sample_hour,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
@@ -57,25 +84,8 @@ hourly_temporal_metrics as (
             {% endif %}
 
         {% endfor %}
-    from station_five_mins_data
-    group by id, sample_date, sample_hour, lane
-),
-
--- read spatial characteristics
-hourly_spatial_temporal_metrics as (
-    select
-        hourly_temporal_metrics.*,
-        station_meta_data.city,
-        station_meta_data.county,
-        station_meta_data.district,
-        station_meta_data.type,
-        station_meta_data.direction,
-        station_meta_data.freeway
-    from {{ ref('int_clearinghouse__most_recent_station_meta') }} as station_meta_data
-    inner join hourly_temporal_metrics
-        on
-            station_meta_data.id = hourly_temporal_metrics.id
-            and station_meta_data.lanes = hourly_temporal_metrics.lane
+    from five_minute_agg_with_station_meta
+    group by id, sample_date, sample_hour, lane, district, county, city, freeway, direction, type
 )
 
 select * from hourly_spatial_temporal_metrics

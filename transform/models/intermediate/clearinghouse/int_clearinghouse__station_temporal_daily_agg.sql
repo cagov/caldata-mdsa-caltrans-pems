@@ -12,9 +12,6 @@ daily_station_level_spatial_temporal_metrics as (
         id,
         sample_date,
         length,
-        city,
-        county,
-        district,
         type,
         freeway,
         direction,
@@ -45,7 +42,25 @@ daily_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_hourly_data
-    group by id, sample_date, city, county, district, type, freeway, direction, length
+    group by id, sample_date, type, freeway, direction, length
+),
+
+station_length as (
+    select distinct
+        id,
+        city,
+        county,
+        district
+    from station_hourly_data
+),
+
+daily_station_level_spatial_temporal_metrics_dist as (
+    select
+        dsl.*,
+        sl.* exclude (id)
+    from daily_station_level_spatial_temporal_metrics as dsl
+    inner join station_length as sl
+        on dsl.id = sl.id
 )
 
-select * from daily_station_level_spatial_temporal_metrics
+select * from daily_station_level_spatial_temporal_metrics_dist
