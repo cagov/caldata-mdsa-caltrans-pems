@@ -46,4 +46,3 @@ select
     speed_13,
     speed_14
 from {{ source('db96', 'vds30sec') }}
-limit 100

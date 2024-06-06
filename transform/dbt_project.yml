@@ -44,6 +44,8 @@ models:
         +schema: db96
     intermediate:
       +materialized: view
+      db96:
+        +schema: db96
       clearinghouse:
         +schema: clearinghouse
       diagnostics:
