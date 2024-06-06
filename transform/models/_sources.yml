@@ -155,3 +155,113 @@ sources:
             description: The name of the file in the clearinghouse where the metdata was obtained from.
           - name: CONTENT
             description: The XML content of the status metadata file.
+  - name: db96
+    database: "{{ env_var('DBT_RAW_DB', 'RAW_PRD') }}"
+    schema: db96
+    description: |
+      Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
+      db96 within the Caltrans network
+    tables:
+      - name: vds30sec
+        description: |
+          30-second resolution VDS data from DB96, a legacy Oracle database within Caltrans'
+          on-premise network.
+        columns:
+          - name: FILENAME
+            description: The name of the parquet file uploaded to S3 and loaded to Snowflake via Snowpipe
+          - name: META
+            description: Metadata from the data relay scripts.
+          - name: RECV_TIME
+            description: TODO
+          - name: SAMPLE_DATE
+            description: The date on which this data was collected (in America/Los_Angeles timezone)
+          - name: SAMPLE_TIME
+            description: |
+              The timestamp for the 30-second resolution data. This is a timezone-naive timestamp,
+              as it is also that in the source system. However, it seems to be in America/Los_Angeles.
+          - name: VDS_ID
+            description: The ID for the VDS station.
+          - name: VOLUME_1
+            description: Flow volume for lane 1.
+          - name: VOLUME_2
+            description: Flow volume for lane 2.
+          - name: VOLUME_3
+            description: Flow volume for lane 3.
+          - name: VOLUME_4
+            description: Flow volume for lane 4.
+          - name: VOLUME_5
+            description: Flow volume for lane 5.
+          - name: VOLUME_6
+            description: Flow volume for lane 6.
+          - name: VOLUME_7
+            description: Flow volume for lane 7.
+          - name: VOLUME_8
+            description: Flow volume for lane 8.
+          - name: VOLUME_9
+            description: Flow volume for lane 9.
+          - name: VOLUME_10
+            description: Flow volume for lane 10.
+          - name: VOLUME_11
+            description: Flow volume for lane 11.
+          - name: VOLUME_12
+            description: Flow volume for lane 12.
+          - name: VOLUME_13
+            description: Flow volume for lane 13.
+          - name: VOLUME_14
+            description: Flow volume for lane 14.
+          - name: OCCUPANCY_1
+            description: Flow occupancy for lane 1.
+          - name: OCCUPANCY_2
+            description: Flow occupancy for lane 2.
+          - name: OCCUPANCY_3
+            description: Flow occupancy for lane 3.
+          - name: OCCUPANCY_4
+            description: Flow occupancy for lane 4.
+          - name: OCCUPANCY_5
+            description: Flow occupancy for lane 5.
+          - name: OCCUPANCY_6
+            description: Flow occupancy for lane 6.
+          - name: OCCUPANCY_7
+            description: Flow occupancy for lane 7.
+          - name: OCCUPANCY_8
+            description: Flow occupancy for lane 8.
+          - name: OCCUPANCY_9
+            description: Flow occupancy for lane 9.
+          - name: OCCUPANCY_10
+            description: Flow occupancy for lane 10.
+          - name: OCCUPANCY_11
+            description: Flow occupancy for lane 11.
+          - name: OCCUPANCY_12
+            description: Flow occupancy for lane 12.
+          - name: OCCUPANCY_13
+            description: Flow occupancy for lane 13.
+          - name: OCCUPANCY_14
+            description: Flow occupancy for lane 14.
+          - name: SPEED_1
+            description: Flow speed for lane 1.
+          - name: SPEED_2
+            description: Flow speed for lane 2.
+          - name: SPEED_3
+            description: Flow speed for lane 3.
+          - name: SPEED_4
+            description: Flow speed for lane 4.
+          - name: SPEED_5
+            description: Flow speed for lane 5.
+          - name: SPEED_6
+            description: Flow speed for lane 6.
+          - name: SPEED_7
+            description: Flow speed for lane 7.
+          - name: SPEED_8
+            description: Flow speed for lane 8.
+          - name: SPEED_9
+            description: Flow speed for lane 9.
+          - name: SPEED_10
+            description: Flow speed for lane 10.
+          - name: SPEED_11
+            description: Flow speed for lane 11.
+          - name: SPEED_12
+            description: Flow speed for lane 12.
+          - name: SPEED_13
+            description: Flow speed for lane 13.
+          - name: SPEED_14
+            description: Flow speed for lane 14.

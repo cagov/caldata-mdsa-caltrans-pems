@@ -40,6 +40,8 @@ models:
       +materialized: view
       clearinghouse:
         +schema: clearinghouse
+      db96:
+        +schema: db96
     intermediate:
       +materialized: view
       clearinghouse:
