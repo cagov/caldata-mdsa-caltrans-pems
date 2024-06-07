@@ -5,7 +5,6 @@ with
 five_minute_pm as (
     select
         id,
-        lane,
         sample_date,
         sample_timestamp,
         speed_five_mins,
@@ -13,25 +12,6 @@ five_minute_pm as (
         coalesce(speed_five_mins < 40, false) as speed_less_than_40
 
     from {{ ref ("int_performance__five_min_perform_metrics") }}
-    where
-        to_time(sample_timestamp) >= {{ var("day_start") }}
-        and to_time(sample_timestamp) <= {{ var("day_end") }}
-        {% if is_incremental() %}
-            -- Look back two days to account for any late-arriving data
-            and sample_date > (
-                select
-                    DATEADD(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        MAX(sample_date)
-                    )
-                from {{ this }}
-            )
-        {% endif %}
-        {% if target.name != 'prd' %}
-            and sample_date
-            >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
-        {% endif %}
 ),
 
 distance as (
@@ -55,7 +35,7 @@ calculate_speed_delta as (
         *,
         speed_five_mins
         - lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type, lane order by absolute_postmile asc)
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
             as speed_delta
     from five_minute_agg_with_distance
 ),
@@ -79,7 +59,7 @@ drop_persists_check as (
         *,
         sum(bottleneck)
             over (
-                partition by sample_timestamp, freeway, direction, type, lane
+                partition by sample_timestamp, freeway, direction, type
                 order by absolute_postmile asc rows between 6 preceding and current row
             )
             as persistent_speed_drop
