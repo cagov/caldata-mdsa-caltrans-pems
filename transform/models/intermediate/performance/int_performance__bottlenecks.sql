@@ -12,14 +12,15 @@ five_minute_pm as (
         id,
         sample_date,
         sample_timestamp,
-        speed_five_mins,  -- will need to update, this is speed agg'd at the lane level and we need it at the station level
+        -- will need to update, this is speed agg'd at the lane level and we need it at the station level
+        speed_five_mins,
         delay_60_mph,
         coalesce(speed_five_mins < 40, false) as speed_less_than_40
 
     from {{ ref ("int_performance__five_min_perform_metrics") }}
-        {% if is_incremental() %}
+    {% if is_incremental() %}
             -- Look back two days to account for any late-arriving data
-            and sample_date > (
+            where sample_date > (
                 select
                     DATEADD(
                         day,
@@ -29,10 +30,10 @@ five_minute_pm as (
                 from {{ this }}
             )
         {% endif %}
-        {% if target.name != 'prd' %}
-            and sample_date
+    {% if target.name != 'prd' %}
+        and sample_date
             >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
-        {% endif %}
+    {% endif %}
 
 ),
 
