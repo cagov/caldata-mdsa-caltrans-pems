@@ -19,20 +19,28 @@ five_minute_pm as (
 
     from {{ ref ("int_performance__five_min_perform_metrics") }}
     {% if is_incremental() %}
-            -- Look back two days to account for any late-arriving data
-            where sample_date > (
+        -- Look back to account for any late-arriving data
+        where
+            sample_date > (
                 select
-                    DATEADD(
+                    dateadd(
                         day,
                         {{ var("incremental_model_look_back") }},
-                        MAX(sample_date)
+                        max(sample_date)
                     )
                 from {{ this }}
             )
-        {% endif %}
-    {% if target.name != 'prd' %}
-        where sample_date
-            >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
+            {% if target.name != 'prd' %}
+                and sample_date >= (
+                    dateadd(
+                        day,
+                        {{ var("dev_model_look_back") }},
+                        current_date()
+                    )
+                )
+            {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 
 ),
