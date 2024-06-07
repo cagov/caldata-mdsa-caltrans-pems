@@ -31,7 +31,7 @@ five_minute_pm as (
             )
         {% endif %}
     {% if target.name != 'prd' %}
-        and sample_date
+        where sample_date
             >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 
