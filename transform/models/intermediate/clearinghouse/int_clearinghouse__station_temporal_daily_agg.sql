@@ -7,14 +7,13 @@ with station_hourly_data as (
 ),
 
 -- now aggregate hourly volume, occupancy and speed to daily level
-daily_station_level_spatial_temporal_metrics as (
+daily_station_level_spatial_temporal_agg as (
     select
         id,
         sample_date,
         length,
         type,
-        freeway,
-        direction,
+        district,
         sum(hourly_volume) as daily_volume,
         avg(hourly_occupancy) as daily_occupancy,
         sum(hourly_volume * hourly_speed) / nullifzero(sum(hourly_volume)) as daily_speed,
@@ -42,25 +41,28 @@ daily_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_hourly_data
-    group by id, sample_date, type, freeway, direction, length
+    group by id, sample_date, length, type, district
 ),
 
-station_length as (
-    select distinct
-        id,
-        city,
-        county,
-        district
-    from station_hourly_data
-),
-
-daily_station_level_spatial_temporal_metrics_dist as (
+daily_station_spatial_temporal_metrics as (
     select
-        dsl.*,
-        sl.* exclude (id)
-    from daily_station_level_spatial_temporal_metrics as dsl
-    inner join station_length as sl
-        on dsl.id = sl.id
+        dst.*,
+        sm.city,
+        sm.county,
+        sm.freeway,
+        sm.direction,
+        sm._valid_from as station_valid_from,
+        sm._valid_to as station_valid_to
+    from daily_station_level_spatial_temporal_agg as dst
+    inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
+        on
+            dst.id = sm.id
+            and dst.sample_date >= sm._valid_from
+            and
+            (
+                dst.sample_date < sm._valid_to
+                or sm._valid_to is null
+            )
 )
 
-select * from daily_station_level_spatial_temporal_metrics_dist
+select * from daily_station_spatial_temporal_metrics
