@@ -213,8 +213,8 @@ models:
   - name: int_clearninghouse__station_temporal_hourly_agg
     description: |
       hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
-      each station regardless of lanes. This metrics will measure the hourly performance of the state 
-      highway system at the station level.This can be used for daily aggregation of PeMS performance 
+      each station regardless of lanes. This metrics will measure the hourly performance of the state
+      highway system at the station level.This can be used for daily aggregation of PeMS performance
       metrics at the station level.
     columns:
       - name: ID
@@ -265,16 +265,16 @@ models:
            vehicles on a section of road due to congestion.
       - name: LOST_PRODUCTIVITY
         description: |
-          This is the hourly lost productivity that is simply sum up the 12 five minutes 
-          lost productivity in an hour time period across the all lanes.The lost Productivity 
+          This is the hourly lost productivity that is simply sum up the 12 five minutes
+          lost productivity in an hour time period across the all lanes.The lost Productivity
           perfromance metric is the number of lane-mile-hours on the freeway lost due to operating
           under congested conditions instead of under free-flow conditions.
   - name: int_clearinghouse__station_temporal_daily_agg
     description: |
       daily aggregation of volume, occupancy and speed along with delays and lost productivity across
-       all lanes of the station. This metrics will measure the daily performance of the state highway system.
+      all lanes of the station. This metrics will measure the daily performance of the state highway system.
       This can be used for weekly and monthly aggregation of PeMS performance metrics across all the lanes
-       in a given station.
+      in a given station.
     columns:
       - name: ID
         description: |
@@ -325,7 +325,7 @@ models:
       - name: DAILY_Q_VALUE
         description: |
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
-          the VHT in the same region in a given day across all the lanes. For a single location 
+          the VHT in the same region in a given day across all the lanes. For a single location
           its interpretation is the
           average speed.
       - name: DELAY
@@ -335,8 +335,8 @@ models:
            vehicles on a section of road due to congestion.
       - name: LOST_PRODUCTIVITY
         description: |
-          This is the daily lost productivity that is simply sum up 24 hours 
-          lost productivity in a given day timeperiod across all the lanes.The lost Productivity 
+          This is the daily lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes.The lost Productivity
           perfromance metric is the number of lane-mile-days on the freeway lost due to operating under
            congested conditions instead of under free-flow conditions.
   - name: int_clearinghouse__station_temporal_weekly_agg
@@ -374,13 +374,14 @@ models:
       - name: WEEKLY_SPEED
         description: flow weighted weekly speed across all the lanes.
       - name: WEEKLY_VOLUME
-        description: The sum of the flow values for a detector over the sample period 
-         across all the lanes.
+        description:
+          The sum of the flow values for a detector over the sample period
+          across all the lanes.
       - name: WEEKLY_OCCUPANCY
         description: The average of the occupancy values over the sample period across all the lanes.
       - name: WEEKLY_VMT
         description: |
-          The sum of the miles of freeway driven by each vehicle in a given week and a given section 
+          The sum of the miles of freeway driven by each vehicle in a given week and a given section
           of the freeway across all the lanes.
       - name: WEEKLY_VHT
         description: |
@@ -398,8 +399,7 @@ models:
         description: |
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given week across all the lanes. For a single location
-           its interpretation is the
-          average speed.
+          its interpretation is the average speed.
       - name: DELAY
         description: |
           weekly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
@@ -408,16 +408,16 @@ models:
            vehicles on a section of road due to congestion.
       - name: LOST_PRODUCTIVITY
         description: |
-          This is the daily lost productivity that is simply sum up 7 days 
+          This is the daily lost productivity that is simply sum up 7 days
           lost productivity in a given week timeperiod across all the lanes.
           The lost Productivity perfromance metric is the number of lane-mile-week
-           on the freeway lost due to operating under congested conditions instead of
-           under free-flow conditions.
+          on the freeway lost due to operating under congested conditions instead of
+          under free-flow conditions.
   - name: int_clearinghouse__station_temporal_monthly_agg
     description: |
       monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
-      across all lanes of the station. This metrics will measure the daily performance 
-      of the state highway system. This can be used to understand the SHS performance 
+      across all lanes of the station. This metrics will measure the daily performance
+      of the state highway system. This can be used to understand the SHS performance
       from month to month.
     columns:
       - name: ID
@@ -441,7 +441,7 @@ models:
       - name: SAMPLE_MONTH
         description: The month associated with monthly aggregated data samples.
       - name: SAMPLE_YEAR
-        description: year of the sample datA
+        description: year of the sample data
       - name: MONTHLY_SPEED
         description: flow weighted monthly speed across all the lanes.
       - name: MONTHLY_VOLUME
@@ -451,7 +451,7 @@ models:
       - name: MONTHLY_VMT
         description: |
           The sum of the miles of freeway driven by each vehicle in a given month of the year and
-           a given section of the freeway across all the lanes.
+          a given section of the freeway across all the lanes.
       - name: MONTHLY_VHT
         description: |
           Vehicle Hours Travelled (VHT) is calculated in a given month of the year and a
@@ -460,25 +460,25 @@ models:
       - name: MONTHLY_TTI
         description: |
           The Travel Time Index (TTI) is the ratio of the average travel time for all users
-          across a region to the free-flow travel time across all the lanes. 
+          across a region to the free-flow travel time across all the lanes.
           The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
           For loop-based performance measures, the TTI is simply the free-flow speed divided by the
           performance measure Q.
       - name: MONTHLY_Q_VALUE
         description: |
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
-          the VHT in the same region in a given month of the year across all the lanes. 
+          the VHT in the same region in a given month of the year across all the lanes.
           For a single location its interpretation is the average speed.
       - name: DELAY
         description: |
-          monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph 
+          monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
           across all the lanes.
           The Delay performance metric is the amount of additional time spent by the
-           vehicles on a section of road due to congestion.
+          vehicles on a section of road due to congestion.
       - name: LOST_PRODUCTIVITY
         description: |
-          This is the monthly lost productivity that is simply sum up all days 
+          This is the monthly lost productivity that is simply sum up all days
           lost productivity in a given month of the year timeperiod across all the lanes.
-          The lost Productivity perfromance metric is 
+          The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
