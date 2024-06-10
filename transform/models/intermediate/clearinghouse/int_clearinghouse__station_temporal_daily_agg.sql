@@ -50,9 +50,7 @@ daily_station_spatial_temporal_metrics as (
         sm.city,
         sm.county,
         sm.freeway,
-        sm.direction,
-        sm._valid_from as station_valid_from,
-        sm._valid_to as station_valid_to
+        sm.direction
     from daily_station_level_spatial_temporal_agg as dst
     inner join {{ ref ('int_clearinghouse__station_meta') }} as sm
         on

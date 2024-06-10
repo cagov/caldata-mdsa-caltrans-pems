@@ -294,10 +294,6 @@ models:
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: FREEWAY
         description: The freeway where the VDS is located
-      - name: STATION_VALID_FROM
-        description: Starting date of this aggregation
-      - name: STATION_VALID_TO
-        description: end date of this aggregation
       - name: SAMPLE_DATE
         description: The date associated with daily aggregated data samples.
       - name: DAILY_VOLUME
