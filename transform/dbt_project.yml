@@ -33,6 +33,7 @@ vars:
   day_end: "'21:59:59'"
   V_t: [35, 40, 45, 50, 55, 60]
   pems_clearinghouse_start_date: "'2023-01-01'"
+  linear_regression_time_window: 7
 
 models:
   caldata_mdsa_caltrans_pems:
@@ -48,3 +49,5 @@ models:
         +schema: diagnostics
       performance:
         +schema: performance
+      imputation:
+        +schema: imputation
