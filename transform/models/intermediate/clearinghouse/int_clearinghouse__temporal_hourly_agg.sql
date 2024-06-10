@@ -34,6 +34,7 @@ hourly_spatial_temporal_metrics as (
         sample_date,
         type,
         district,
+        length,
         sample_timestamp_trunc as sample_hour,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
@@ -60,7 +61,7 @@ hourly_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_date, sample_hour, lane, type, district
+    group by id, sample_date, sample_hour, lane, type, district, length
 )
 
 select * from hourly_spatial_temporal_metrics

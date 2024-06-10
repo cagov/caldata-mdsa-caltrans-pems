@@ -4,9 +4,8 @@
 with station_daily_data as (
     select
         *,
-        -- Extracting the week and year
+        -- Extracting the first day of the week date, and week number
         -- reference: https://docs.snowflake.com/en/sql-reference/functions-date-time#label-calendar-weeks-weekdays
-        year(sample_date) as sample_year,
         weekofyear(sample_date) as sample_week,
         date_trunc('week', sample_date) as sample_week_start_date
     from {{ ref('int_clearinghouse__temporal_daily_agg') }}
@@ -18,7 +17,6 @@ with station_daily_data as (
 weekly_spatial_temporal_metrics as (
     select
         id,
-        sample_year,
         sample_week,
         sample_week_start_date,
         lane,
@@ -53,7 +51,7 @@ weekly_spatial_temporal_metrics as (
         {% endfor %}
     from station_daily_data
     group by
-        id, sample_year, sample_week, sample_week_start_date, lane, city, county, district, type, freeway, direction
+        id, sample_week, sample_week_start_date, lane, city, county, district, type, freeway, direction
 )
 
 select * from weekly_spatial_temporal_metrics

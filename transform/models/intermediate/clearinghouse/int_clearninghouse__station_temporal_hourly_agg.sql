@@ -3,14 +3,12 @@
     unique_key=['id','sample_date', 'sample_hour'],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
-
 -- read the volume, occupancy and speed five minutes data
 with station_five_mins_data as (
     select
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__five_min_perform_metrics') }}
-
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
         where
@@ -51,7 +49,6 @@ hourly_station_temporal_metrics as (
             {% if not loop.last %}
                 ,
             {% endif %}
-
         {% endfor %},
         {% for value in var("V_t") %}
             sum(lost_productivity_{{ value }}_mph)
@@ -59,7 +56,6 @@ hourly_station_temporal_metrics as (
             {% if not loop.last %}
                 ,
             {% endif %}
-
         {% endfor %}
     from station_five_mins_data
     group by id, sample_date, sample_hour, district, type, length

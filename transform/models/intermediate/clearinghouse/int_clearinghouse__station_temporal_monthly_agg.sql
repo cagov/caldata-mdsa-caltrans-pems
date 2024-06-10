@@ -4,10 +4,9 @@
 with station_daily_data as (
     select
         *,
-        -- Extracting the month and year
+        -- Extracting first day of each month
         -- reference: https://docs.snowflake.com/en/sql-reference/functions/year
-        year(sample_date) as sample_year,
-        month(sample_date) as sample_month
+        date_trunc(month, sample_date) as sample_month
     from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
     where date_trunc(month, sample_date) != date_trunc(month, current_date)
 ),
@@ -17,7 +16,6 @@ monthly_station_level_spatial_temporal_metrics as (
     select
         id,
         length,
-        sample_year,
         sample_month,
         city,
         county,
@@ -54,7 +52,7 @@ monthly_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_daily_data
-    group by id, sample_year, sample_month, city, county, district, type, freeway, direction, length
+    group by id, sample_month, city, county, district, type, freeway, direction, length
 )
 
 select * from monthly_station_level_spatial_temporal_metrics

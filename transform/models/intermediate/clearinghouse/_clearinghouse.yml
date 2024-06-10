@@ -295,9 +295,9 @@ models:
       - name: FREEWAY
         description: The freeway where the VDS is located
       - name: STATION_VALID_FROM
-        description: Starting date of station activation
+        description: Starting date of this aggregation
       - name: STATION_VALID_TO
-        description: end date of last service from station
+        description: end date of this aggregation
       - name: SAMPLE_DATE
         description: The date associated with daily aggregated data samples.
       - name: DAILY_VOLUME
@@ -369,8 +369,6 @@ models:
         description: The week associated with weekly aggregated data samples.
       - name: SAMPLE_WEEK_START_DATE
         description: the begining date of a sample week
-      - name: SAMPLE_YEAR
-        description: year of the sample data
       - name: WEEKLY_SPEED
         description: flow weighted weekly speed across all the lanes.
       - name: WEEKLY_VOLUME
@@ -439,9 +437,7 @@ models:
       - name: FREEWAY
         description: The freeway where the VDS is located
       - name: SAMPLE_MONTH
-        description: The month associated with monthly aggregated data samples.
-      - name: SAMPLE_YEAR
-        description: year of the sample data
+        description: The starting date of each month of the year
       - name: MONTHLY_SPEED
         description: flow weighted monthly speed across all the lanes.
       - name: MONTHLY_VOLUME
