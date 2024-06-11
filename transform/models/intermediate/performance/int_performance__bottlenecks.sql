@@ -14,13 +14,13 @@ five_minute_pm as (
         sample_timestamp,
         -- will need to update, this is speed agg'd at the lane level and we need it at the station level
         speed_five_mins,
-        delay_60_mph,
-        coalesce(speed_five_mins < 40, false) as speed_less_than_40
+        delay_60_mph
 
     from {{ ref ("int_performance__five_min_perform_metrics") }}
     {% if is_incremental() %}
         -- Look back to account for any late-arriving data
         where
+            speed_five_mins is not null and
             sample_date > (
                 select
                     dateadd(
@@ -82,31 +82,64 @@ calculate_speed_delta as (
     -- aggregate bottleneck over space and time to get extent (length) and duration
 ),
 
-bottleneck_criteria_check as (
+bottleneck_start_check as (
     select
         *,
         case
             when
-                speed_less_than_40 = true
+                speed_five_mins < 40
                 and distance_delta < 3
                 and speed_delta <= -20
                 then 1
             else 0
-        end as bottleneck
+        end as bottleneck_start
     from calculate_speed_delta
+    qualify lag(speed_five_mins) over (
+        partition by sample_timestamp, freeway, direction, type
+        order by sample_timestamp asc, absolute_postmile asc
+    ) >= 40
 ),
 
-drop_persists_check as (
+bottleneck_persists_check as (
     select
         *,
-        sum(bottleneck)
-            over (
-                partition by sample_timestamp, freeway, direction, type
-                order by absolute_postmile asc rows between 6 preceding and current row
-            )
-            as persistent_speed_drop
-
-    from bottleneck_criteria_check
+        case
+            when
+                speed_five_mins < 40
+                and distance_delta < 3
+                then 1
+            else 0
+        end as bottleneck
+    from bottleneck_start_check
+    qualify sum(bottleneck)
+        over (
+            partition by sample_timestamp, freeway, direction, type
+            order by absolute_postmile asc rows between 6 preceding and current row
+        )
+    >= 5 and sum(bottleneck_start)
+        over (
+            partition by sample_timestamp, freeway, direction, type
+            order by absolute_postmile asc rows between 6 preceding and current row
+        )
+    = 1
 )
 
-select * from drop_persists_check
+-- ,bottleneck_end_check as (
+--     select
+--         *,
+--         case
+--             when
+--                 speed_five_mins < 40
+--                 and distance_delta < 3
+--                 then 1
+--             else 0
+--         end as bottleneck_end
+--     from calculate_speed_delta
+--     -- i also need to figure out if 5 of the 7 rows before this bottleneck end row were labeled 1
+--     qualify lead(speed_five_mins) over (
+--         partition by sample_timestamp, freeway, direction, type
+--         order by sample_timestamp asc, absolute_postmile asc
+--     ) >= 40
+-- ) 
+
+select * from bottleneck_persists_check
