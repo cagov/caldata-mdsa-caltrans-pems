@@ -76,6 +76,15 @@ nearest_station_pairs as (
     union all
     select * from nearest_upstream_station_pairs
     order by district asc, freeway asc, id asc
+),
+
+-- assign the tag that is qulified for local and regional regression
+nearest_station_pairs_with_tag as (
+    select
+        *,
+        coalesce (delta_postmile <= 1.0, false) as local_counters,
+        coalesce (delta_postmile <= 5.0, false) as regional_counters
+    from nearest_station_pairs
 )
 
-select * from nearest_station_pairs
+select * from nearest_station_pairs_with_tag

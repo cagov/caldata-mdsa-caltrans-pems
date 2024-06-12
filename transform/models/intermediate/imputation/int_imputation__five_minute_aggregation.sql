@@ -92,7 +92,7 @@ samples_not_requiring_imputation as (
 
 -- read the model coefficients
 coeffs as (
-    select * from {{ ref('int_imputation__local_regression_coefficients') }}
+    select * from {{ ref('int_imputation__local_regional_regression_coefficients') }}
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
