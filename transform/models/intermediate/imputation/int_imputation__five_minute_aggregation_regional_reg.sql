@@ -59,7 +59,7 @@ unimputed as (
             base.id = detectors.station_id
             and base.lane = detectors.lane
             and base.sample_date = detectors.sample_date
--- where detectors.status = 'Good'
+    -- where detectors.status = 'Good'
 ),
 
 -- get the data that require imputation
