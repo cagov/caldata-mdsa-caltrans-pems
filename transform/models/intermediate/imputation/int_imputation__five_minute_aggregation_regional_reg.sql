@@ -158,7 +158,7 @@ agg_with_regional_imputation as (
     select
         unimputed.*,
         imputed.volume as imp_volume,
-        imputed.occupancy as impu_occupancy,
+        imputed.occupancy as imp_occupancy,
         imputed.speed as imp_speed,
         imputed.regression_date,
         imputed.local_reg
