@@ -17,7 +17,9 @@ station_pairs as (
         a._valid_to
     from station_meta as a
     inner join station_meta as b
-        on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.meta_date = b.meta_date
+        on
+            a.freeway = b.freeway and a.direction = b.direction and a.type = b.type
+            and a.meta_date = b.meta_date
     -- Most performance metrics are restricted to mainline and HV lanes.
     -- Furthermore, when looking at upstream and downstream stations, it
     -- does not make sense to include, e.g., ramps. So for the time being
@@ -36,7 +38,8 @@ nearest_downstream_station_pairs as (
         delta_postmile,
         _valid_from,
         _valid_to,
-        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) as row_number
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
+            as row_number
     from station_pairs
     where
         delta_postmile > 0
@@ -55,7 +58,8 @@ nearest_upstream_station_pairs as (
         delta_postmile,
         _valid_from,
         _valid_to,
-        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) as row_number
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
+            as row_number
     from station_pairs
     where
         delta_postmile < 0
