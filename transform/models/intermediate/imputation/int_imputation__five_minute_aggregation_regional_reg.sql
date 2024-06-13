@@ -59,7 +59,7 @@ unimputed as (
             base.id = detectors.station_id
             and base.lane = detectors.lane
             and base.sample_date = detectors.sample_date
-    where detectors.status = 'Good'
+-- where detectors.status = 'Good'
 ),
 
 -- get the data that require imputation
@@ -99,15 +99,16 @@ coeffs as (
 samples_requiring_imputation_with_coeffs as (
     select
         samples_requiring_imputation.*,
-        coeffs.rr_other_id,
-        coeffs.rr_other_lane,
-        coeffs.rr_speed_slope,
-        coeffs.rr_speed_intercept,
-        coeffs.rr_volume_slope,
-        coeffs.rr_volume_intercept,
-        coeffs.rr_occupancy_slope,
-        coeffs.rr_occupancy_intercept,
-        coeffs.regression_date
+        coeffs.other_id,
+        coeffs.other_lane,
+        coeffs.speed_slope,
+        coeffs.speed_intercept,
+        coeffs.volume_slope,
+        coeffs.volume_intercept,
+        coeffs.occupancy_slope,
+        coeffs.occupancy_intercept,
+        coeffs.regression_date,
+        coeffs.local_reg
     from samples_requiring_imputation
     -- TODO: update sqlfluff to support asof joins
     asof join coeffs  -- noqa
@@ -127,7 +128,7 @@ samples_requiring_imputation_with_neighbors as (
     from samples_requiring_imputation_with_coeffs as imp
     inner join samples_not_requiring_imputation as non_imp
         on
-            imp.rr_other_id = non_imp.id
+            imp.other_id = non_imp.id
             and imp.sample_date = non_imp.sample_date
             and imp.sample_timestamp = non_imp.sample_timestamp
 ),
@@ -139,34 +140,36 @@ imputed as (
         lane,
         sample_date,
         sample_timestamp,
+        local_reg,
         -- Volume calculation
-        greatest(median(rr_volume_slope * volume_sum_nbr + rr_volume_intercept), 0) as volume,
+        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume,
         -- Occupancy calculation
-        least(greatest(median(rr_occupancy_slope * occupancy_avg_nbr + rr_occupancy_intercept), 0), 1) as occupancy,
+        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1) as occupancy,
         -- Speed calculation
-        greatest(median(rr_speed_slope * speed_five_mins_nbr + rr_speed_intercept), 0) as speed,
+        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed,
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_neighbors
-    group by id, lane, sample_date, sample_timestamp
-)
+    group by id, lane, sample_date, sample_timestamp, local_reg
+),
 
 -- combine imputed and non-imputed dataframe together
--- agg_with_regional_imputation as (
---     select
---         unimputed.*,
---         imputed.volume as volume_regional_regression,
---         imputed.occupancy as occupancy_regional_regression,
---         imputed.speed as speed_regional_regression,
---         imputed.regression_date
---     from unimputed
---     left join imputed
---         on
---             unimputed.id = imputed.id
---             and unimputed.lane = imputed.lane
---             and unimputed.sample_date = imputed.sample_date
---             and unimputed.sample_timestamp = imputed.sample_timestamp
--- )
+agg_with_regional_imputation as (
+    select
+        unimputed.*,
+        imputed.volume as imp_volume,
+        imputed.occupancy as impu_occupancy,
+        imputed.speed as imp_speed,
+        imputed.regression_date,
+        imputed.local_reg
+    from unimputed
+    left join imputed
+        on
+            unimputed.id = imputed.id
+            and unimputed.lane = imputed.lane
+            and unimputed.sample_date = imputed.sample_date
+            and unimputed.sample_timestamp = imputed.sample_timestamp
+)
 
 -- select the final CTE
-select * from samples_requiring_imputation
+select * from agg_with_regional_imputation
