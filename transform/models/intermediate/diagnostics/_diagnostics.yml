@@ -163,3 +163,10 @@ models:
           Selects the minimum of the abs_val_occupancy_delta_summed column
           which takes the absolute value of the delta between occupancy and
           previous occupancy summed over a window of 4 hours.
+  - name: int_diagnostics__real_detector_status
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - station_id
+            - lane
+            - sample_date
