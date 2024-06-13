@@ -29,15 +29,14 @@ nearby_stations as (
     select
         nearby.id,
         nearby.other_id,
-        nearby.local_counters
+        nearby.local_reg
     from {{ ref('int_clearinghouse__nearby_stations') }} as nearby
     inner join regression_dates
         on
             nearby._valid_from <= regression_dates.regression_date
             and regression_dates.regression_date < coalesce(nearby._valid_to, current_date)
-    -- only choose stations where they are actually reasonably close to each other,
-    -- arbitrarily choose 1 mile
-    where nearby.regional_counters = TRUE
+-- only choose stations where they are actually reasonably close to each other,
+-- arbitrarily choose 1 mile
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -107,7 +106,7 @@ detector_counts_pairwise as (
         b.volume_sum as other_volume,
         a.occupancy_avg as occupancy,
         b.occupancy_avg as other_occupancy,
-        nearby_stations.local_counters
+        nearby_stations.local_reg
     from detector_counts as a
     left join nearby_stations on a.id = nearby_stations.id
     inner join detector_counts as b
@@ -117,38 +116,9 @@ detector_counts_pairwise as (
             and a.sample_timestamp = b.sample_timestamp
 ),
 
--- develop regional regression model
-detector_counts_regional_regression as (
-    select
-        id,
-        other_id,
-        lane,
-        other_lane,
-        district,
-        regression_date,
-        -- speed regression model
-        regr_slope(speed, other_speed) as rr_speed_slope,
-        regr_intercept(speed, other_speed) as rr_speed_intercept,
-        -- flow or volume regression model
-        regr_slope(volume, other_volume) as rr_volume_slope,
-        regr_intercept(volume, other_volume) as rr_volume_intercept,
-        -- occupancy regression model
-        regr_slope(occupancy, other_occupancy) as rr_occupancy_slope,
-        regr_intercept(occupancy, other_occupancy) as rr_occupancy_intercept
-    from detector_counts_pairwise
-    where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
-    group by id, other_id, lane, other_lane, district, regression_date
-    -- No point in regressing if the variables are all null,
-    -- this can save significant time.
-    having
-        (count(volume) > 0 and count(other_volume) > 0)
-        or (count(occupancy) > 0 and count(other_occupancy) > 0)
-        or (count(speed) > 0 and count(other_speed) > 0)
-),
-
 -- Aggregate the self-joined table to get the slope
 -- and intercept of the regression.
-detector_counts_local_regression as (
+detector_counts_regression as (
     select
         id,
         other_id,
@@ -156,55 +126,25 @@ detector_counts_local_regression as (
         other_lane,
         district,
         regression_date,
+        local_reg,
         -- speed regression model
-        regr_slope(speed, other_speed) as lr_speed_slope,
-        regr_intercept(speed, other_speed) as lr_speed_intercept,
+        regr_slope(speed, other_speed) as speed_slope,
+        regr_intercept(speed, other_speed) as speed_intercept,
         -- flow or volume regression model
-        regr_slope(volume, other_volume) as lr_volume_slope,
-        regr_intercept(volume, other_volume) as lr_volume_intercept,
+        regr_slope(volume, other_volume) as volume_slope,
+        regr_intercept(volume, other_volume) as volume_intercept,
         -- occupancy regression model
-        regr_slope(occupancy, other_occupancy) as lr_occupancy_slope,
-        regr_intercept(occupancy, other_occupancy) as lr_occupancy_intercept
+        regr_slope(occupancy, other_occupancy) as occupancy_slope,
+        regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
-    where not (id = other_id and lane = other_lane) and local_counters = TRUE -- don't bother regressing on self!
-    group by id, other_id, lane, other_lane, district, regression_date
+    where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
+    group by id, other_id, lane, other_lane, district, regression_date, local_reg
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
         (count(volume) > 0 and count(other_volume) > 0)
         or (count(occupancy) > 0 and count(other_occupancy) > 0)
         or (count(speed) > 0 and count(other_speed) > 0)
-),
-
--- now join local and regional regression coefficient togetehr
-detector_counts_regression as (
-    select
-        rrc.id,
-        rrc.other_id as rr_other_id,
-        rrc.lane,
-        rrc.other_lane as rr_other_lane,
-        rrc.regression_date,
-        rrc.district,
-        rrc.rr_occupancy_intercept,
-        rrc.rr_occupancy_slope,
-        rrc.rr_speed_intercept,
-        rrc.rr_speed_slope,
-        rrc.rr_volume_intercept,
-        rrc.rr_volume_slope,
-        lrc.other_lane as lr_other_lane,
-        lrc.other_id as lr_other_id,
-        lrc.lr_occupancy_intercept,
-        lrc.lr_occupancy_slope,
-        lrc.lr_speed_intercept,
-        lrc.lr_speed_slope,
-        lrc.lr_volume_intercept,
-        lrc.lr_volume_slope
-    from detector_counts_regional_regression as rrc
-    inner join detector_counts_local_regression as lrc
-        on
-            rrc.id = lrc.id
-            and rrc.lane = lrc.lane
-            and rrc.regression_date = lrc.regression_date
 )
 
 select * from detector_counts_regression

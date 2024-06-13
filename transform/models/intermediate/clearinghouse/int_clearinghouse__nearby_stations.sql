@@ -35,12 +35,13 @@ nearest_downstream_station_pairs as (
         type,
         delta_postmile,
         _valid_from,
-        _valid_to
+        _valid_to,
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) as row_number
     from station_pairs
     where
         delta_postmile > 0
+        and delta_postmile <= 5.0
         and id != other_id
-    qualify row_number() over (partition by id, _valid_from order by delta_postmile asc) = 1
 ),
 
 nearest_upstream_station_pairs as (
@@ -53,16 +54,19 @@ nearest_upstream_station_pairs as (
         type,
         delta_postmile,
         _valid_from,
-        _valid_to
+        _valid_to,
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) as row_number
     from station_pairs
     where
         delta_postmile < 0
+        and delta_postmile > -5.0
         and id != other_id
-    qualify row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) = 1
 ),
 
 self_pairs as (
-    select *
+    select
+        *,
+        0 as row_number
     from station_pairs
     where id = other_id
 ),
@@ -82,8 +86,9 @@ nearest_station_pairs as (
 nearest_station_pairs_with_tag as (
     select
         *,
-        coalesce (delta_postmile <= 1.0, false) as local_counters,
-        coalesce (delta_postmile <= 5.0, false) as regional_counters
+        case
+            when row_number <= 1 then 1 else 0
+        end as local_reg
     from nearest_station_pairs
 )
 

@@ -169,4 +169,4 @@ imputed as (
 -- )
 
 -- select the final CTE
-select * from agg_with_regional_imputation
+select * from samples_requiring_imputation
