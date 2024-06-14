@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_imputation__local_regression_coefficients
+  - name: int_imputation__local_regional_regression_coefficients
     description: |
       Linear regression slopes and intercepts for pairs of detectors.
       They are evaluated at regular dates (`regression_date`) in order to
@@ -36,6 +36,14 @@ models:
         description: The slope of the occupancy regression
       - name: occupancy_intercept
         description: The intercept of the occupancy regression
+      - name: OTHER_STATION_IS_LOCAL
+        description: tagging wheather the other id is local counters
+          or regional counters. If the other id is just upstream or downstream
+          then it is considered as local counters. On the other hand
+          except local counters if any counters are located within 5 miles
+          upstream and downstream, then it is considered as regional id.
+          This boolean function where True means local counters and false means
+          regional counters.
   - name: int_imputation__five_minute_aggregation
     description: |
       dfdf
