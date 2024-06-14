@@ -76,11 +76,9 @@ self_pairs as (
 ),
 
 nearest_station_pairs as (
-    select *
-    from self_pairs
+    select * from self_pairs
     union all
-    select *
-    from nearest_downstream_station_pairs
+    select * from nearest_downstream_station_pairs
     union all
     select * from nearest_upstream_station_pairs
     order by district asc, freeway asc, id asc
