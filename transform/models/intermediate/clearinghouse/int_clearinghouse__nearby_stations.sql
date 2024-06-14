@@ -76,13 +76,43 @@ self_pairs as (
 ),
 
 nearest_station_pairs as (
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
     from self_pairs
     union all
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
     from nearest_downstream_station_pairs
     union all
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
     from nearest_upstream_station_pairs
     order by district asc, freeway asc, id asc
 ),
