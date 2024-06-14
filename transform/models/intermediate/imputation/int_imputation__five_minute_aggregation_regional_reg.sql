@@ -59,7 +59,7 @@ unimputed as (
             base.id = detectors.station_id
             and base.lane = detectors.lane
             and base.sample_date = detectors.sample_date
-    -- where detectors.status = 'Good'
+-- where detectors.status = 'Good'
 ),
 
 -- get the data that require imputation
@@ -108,7 +108,7 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.occupancy_slope,
         coeffs.occupancy_intercept,
         coeffs.regression_date,
-        coeffs.local_reg
+        coeffs.other_station_is_local
     from samples_requiring_imputation
     -- TODO: update sqlfluff to support asof joins
     asof join coeffs  -- noqa
@@ -140,7 +140,7 @@ imputed as (
         lane,
         sample_date,
         sample_timestamp,
-        local_reg,
+        other_station_is_local,
         -- Volume calculation
         greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume,
         -- Occupancy calculation
@@ -150,7 +150,7 @@ imputed as (
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_neighbors
-    group by id, lane, sample_date, sample_timestamp, local_reg
+    group by id, lane, sample_date, sample_timestamp, other_station_is_local
 ),
 
 -- combine imputed and non-imputed dataframe together
@@ -161,7 +161,7 @@ agg_with_regional_imputation as (
         imputed.occupancy as imp_occupancy,
         imputed.speed as imp_speed,
         imputed.regression_date,
-        imputed.local_reg
+        imputed.other_station_is_local
     from unimputed
     left join imputed
         on

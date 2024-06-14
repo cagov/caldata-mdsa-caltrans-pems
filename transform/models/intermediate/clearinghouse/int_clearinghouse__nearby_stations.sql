@@ -63,7 +63,7 @@ nearest_upstream_station_pairs as (
     from station_pairs
     where
         delta_postmile < 0
-        and delta_postmile > -5.0
+        and delta_postmile >= -5.0
         and id != other_id
 ),
 
@@ -90,9 +90,7 @@ nearest_station_pairs as (
 nearest_station_pairs_with_tag as (
     select
         *,
-        case
-            when row_number <= 1 then 1 else 0
-        end as local_reg
+        row_number = 1 as other_station_is_local
     from nearest_station_pairs
 )
 

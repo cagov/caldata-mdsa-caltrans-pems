@@ -29,14 +29,12 @@ nearby_stations as (
     select
         nearby.id,
         nearby.other_id,
-        nearby.local_reg
+        nearby.other_station_is_local
     from {{ ref('int_clearinghouse__nearby_stations') }} as nearby
     inner join regression_dates
         on
             nearby._valid_from <= regression_dates.regression_date
             and regression_dates.regression_date < coalesce(nearby._valid_to, current_date)
--- only choose stations where they are actually reasonably close to each other,
--- arbitrarily choose 1 mile
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -106,7 +104,7 @@ detector_counts_pairwise as (
         b.volume_sum as other_volume,
         a.occupancy_avg as occupancy,
         b.occupancy_avg as other_occupancy,
-        nearby_stations.local_reg
+        nearby_stations.other_station_is_local
     from detector_counts as a
     left join nearby_stations on a.id = nearby_stations.id
     inner join detector_counts as b
@@ -126,7 +124,7 @@ detector_counts_regression as (
         other_lane,
         district,
         regression_date,
-        local_reg,
+        other_station_is_local,
         -- speed regression model
         regr_slope(speed, other_speed) as speed_slope,
         regr_intercept(speed, other_speed) as speed_intercept,
@@ -138,7 +136,7 @@ detector_counts_regression as (
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
     where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
-    group by id, other_id, lane, other_lane, district, regression_date, local_reg
+    group by id, other_id, lane, other_lane, district, regression_date, other_station_is_local
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
