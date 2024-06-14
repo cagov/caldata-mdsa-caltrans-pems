@@ -39,7 +39,7 @@ nearest_downstream_station_pairs as (
         _valid_from,
         _valid_to,
         row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
-            as row_number
+            as distance_ranking
     from station_pairs
     where
         delta_postmile > 0
@@ -59,7 +59,7 @@ nearest_upstream_station_pairs as (
         _valid_from,
         _valid_to,
         row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
-            as row_number
+            as distance_ranking
     from station_pairs
     where
         delta_postmile < 0
@@ -70,17 +70,20 @@ nearest_upstream_station_pairs as (
 self_pairs as (
     select
         *,
-        0 as row_number
+        0 as distance_ranking
     from station_pairs
     where id = other_id
 ),
 
 nearest_station_pairs as (
-    select * from self_pairs
+    select *
+    from self_pairs
     union all
-    select * from nearest_downstream_station_pairs
+    select *
+    from nearest_downstream_station_pairs
     union all
-    select * from nearest_upstream_station_pairs
+    select *
+    from nearest_upstream_station_pairs
     order by district asc, freeway asc, id asc
 ),
 
@@ -88,7 +91,7 @@ nearest_station_pairs as (
 nearest_station_pairs_with_tag as (
     select
         *,
-        row_number = 1 as other_station_is_local
+        distance_ranking <= 1 as other_station_is_local
     from nearest_station_pairs
 )
 
