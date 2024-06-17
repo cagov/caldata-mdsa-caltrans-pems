@@ -113,7 +113,7 @@ samples_requiring_imputation_with_coeffs as (
     asof join coeffs  -- noqa
         match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
         on samples_requiring_imputation.id = coeffs.id
-    where other_station_is_local = true
+    where coeffs.other_station_is_local = true
 ),
 
 -- Read the neighbours that have volume, occupancy and speed data.
