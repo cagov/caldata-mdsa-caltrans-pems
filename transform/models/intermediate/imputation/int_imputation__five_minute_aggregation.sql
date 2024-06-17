@@ -2,7 +2,7 @@
         materialized='incremental',
         cluster_by=["sample_date"],
         unique_key=["id", "lane", "sample_timestamp"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XL"),
+        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
     )
 }}
 
