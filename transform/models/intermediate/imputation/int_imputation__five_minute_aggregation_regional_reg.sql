@@ -34,6 +34,13 @@ with base as (
     {% endif %}
 ),
 
+/* Get all detectors that are "real" in that they represent lanes that exist
+   (rather than lane 8 in a two lane road) with a status of "Good" */
+good_detectors as (
+    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    where status = 'Good'
+),
+
 /* Join with the "good detectors"
 model to flag whether we consider a detector to be operating
 correctly for a given day.
@@ -50,16 +57,15 @@ unimputed as (
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
-        (detectors.station_id is not null) as detector_is_good,
+        (good_detectors.station_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from base
-    left join {{ ref('int_diagnostics__real_detector_status') }} as detectors
+    left join good_detectors
         on
-            base.id = detectors.station_id
-            and base.lane = detectors.lane
-            and base.sample_date = detectors.sample_date
--- where detectors.status = 'Good'
+            base.id = good_detectors.station_id
+            and base.lane = good_detectors.lane
+            and base.sample_date = good_detectors.sample_date
 ),
 
 -- get the data that require imputation
@@ -107,8 +113,7 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.volume_intercept,
         coeffs.occupancy_slope,
         coeffs.occupancy_intercept,
-        coeffs.regression_date,
-        coeffs.other_station_is_local
+        coeffs.regression_date
     from samples_requiring_imputation
     -- TODO: update sqlfluff to support asof joins
     asof join coeffs  -- noqa
@@ -140,7 +145,6 @@ imputed as (
         lane,
         sample_date,
         sample_timestamp,
-        other_station_is_local,
         -- Volume calculation
         greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume,
         -- Occupancy calculation
@@ -150,7 +154,7 @@ imputed as (
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_neighbors
-    group by id, lane, sample_date, sample_timestamp, other_station_is_local
+    group by id, lane, sample_date, sample_timestamp
 ),
 
 -- combine imputed and non-imputed dataframe together
@@ -160,8 +164,7 @@ agg_with_regional_imputation as (
         imputed.volume as imp_volume,
         imputed.occupancy as imp_occupancy,
         imputed.speed as imp_speed,
-        imputed.regression_date,
-        imputed.other_station_is_local
+        imputed.regression_date
     from unimputed
     left join imputed
         on

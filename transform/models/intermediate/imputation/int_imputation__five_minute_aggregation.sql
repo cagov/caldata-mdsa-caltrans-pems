@@ -34,6 +34,13 @@ with base as (
     {% endif %}
 ),
 
+/* Get all detectors that are "real" in that they represent lanes that exist
+   (rather than lane 8 in a two lane road) with a status of "Good" */
+good_detectors as (
+    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    where status = 'Good'
+),
+
 /* Join with the "good detectors"
 model to flag whether we consider a detector to be operating
 correctly for a given day.
@@ -50,16 +57,15 @@ unimputed as (
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
-        (detectors.station_id is not null) as detector_is_good,
+        (good_detectors.station_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from base
-    left join {{ ref('int_diagnostics__real_detector_status') }} as detectors
+    left join good_detectors
         on
-            base.id = detectors.station_id
-            and base.lane = detectors.lane
-            and base.sample_date = detectors.sample_date
--- where detectors.status = 'Good'/this code will return empty 'samples_requiring_imputation'
+            base.id = good_detectors.station_id
+            and base.lane = good_detectors.lane
+            and base.sample_date = good_detectors.sample_date
 ),
 
 -- get the data that require imputation
@@ -113,7 +119,7 @@ samples_requiring_imputation_with_coeffs as (
     asof join coeffs  -- noqa
         match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
         on samples_requiring_imputation.id = coeffs.id
-    where other_station_is_local = true
+    where coeffs.other_station_is_local = true
 ),
 
 -- Read the neighbours that have volume, occupancy and speed data.
