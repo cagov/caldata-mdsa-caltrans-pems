@@ -34,6 +34,20 @@ vars:
   V_t: [35, 40, 45, 50, 55, 60]
   pems_clearinghouse_start_date: "'2023-01-01'"
   linear_regression_time_window: 7
+  am_peak_start: "'06:00:00'"
+  am_peak_end: "'09:59:59'"
+  day_off_peak_start: "'10:00:00'"
+  day_off_peak_end: "'14:59:59'"
+  pm_peak_start: "'15:00:00'"
+  pm_peak_end: "'18:59:59'"
+  night_off_peak_start: "'19:00:00'"
+  night_off_peak_end: "'05:59:59'"
+  am_shift_start: "'05:00:00'"
+  am_shift_end: "'09:59:59'"
+  noon_shift_start: "'10:00:00'"
+  noon_shift_end: "'14:59:59'"
+  pm_shift_start: "'15:00:00'"
+  pm_shift_end: "'20:00:00'"
 
 models:
   caldata_mdsa_caltrans_pems:
