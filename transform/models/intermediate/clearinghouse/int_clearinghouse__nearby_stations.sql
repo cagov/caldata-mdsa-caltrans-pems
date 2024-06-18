@@ -17,7 +17,9 @@ station_pairs as (
         a._valid_to
     from station_meta as a
     inner join station_meta as b
-        on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.meta_date = b.meta_date
+        on
+            a.freeway = b.freeway and a.direction = b.direction and a.type = b.type
+            and a.meta_date = b.meta_date
     -- Most performance metrics are restricted to mainline and HV lanes.
     -- Furthermore, when looking at upstream and downstream stations, it
     -- does not make sense to include, e.g., ramps. So for the time being
@@ -35,12 +37,14 @@ nearest_downstream_station_pairs as (
         type,
         delta_postmile,
         _valid_from,
-        _valid_to
+        _valid_to,
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
+            as distance_ranking
     from station_pairs
     where
         delta_postmile > 0
+        and delta_postmile <= 5.0
         and id != other_id
-    qualify row_number() over (partition by id, _valid_from order by delta_postmile asc) = 1
 ),
 
 nearest_upstream_station_pairs as (
@@ -53,29 +57,72 @@ nearest_upstream_station_pairs as (
         type,
         delta_postmile,
         _valid_from,
-        _valid_to
+        _valid_to,
+        row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc)
+            as distance_ranking
     from station_pairs
     where
         delta_postmile < 0
+        and delta_postmile >= -5.0
         and id != other_id
-    qualify row_number() over (partition by id, _valid_from order by abs(delta_postmile) asc) = 1
 ),
 
 self_pairs as (
-    select *
+    select
+        *,
+        0 as distance_ranking
     from station_pairs
     where id = other_id
 ),
 
 nearest_station_pairs as (
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
     from self_pairs
     union all
-    select *
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
     from nearest_downstream_station_pairs
     union all
-    select * from nearest_upstream_station_pairs
+    select
+        id,
+        other_id,
+        district,
+        freeway,
+        direction,
+        type,
+        delta_postmile,
+        _valid_from,
+        _valid_to,
+        distance_ranking
+    from nearest_upstream_station_pairs
     order by district asc, freeway asc, id asc
+),
+
+-- assign the tag that is qulified for local and regional regression
+nearest_station_pairs_with_tag as (
+    select
+        *,
+        distance_ranking <= 1 as other_station_is_local
+    from nearest_station_pairs
 )
 
-select * from nearest_station_pairs
+select * from nearest_station_pairs_with_tag

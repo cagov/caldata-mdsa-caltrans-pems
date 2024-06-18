@@ -98,7 +98,7 @@ samples_not_requiring_imputation as (
 
 -- read the model coefficients
 coeffs as (
-    select * from {{ ref('int_imputation__local_regression_coefficients') }}
+    select * from {{ ref('int_imputation__local_regional_regression_coefficients') }}
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
@@ -119,6 +119,7 @@ samples_requiring_imputation_with_coeffs as (
     asof join coeffs  -- noqa
         match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
         on samples_requiring_imputation.id = coeffs.id
+    where coeffs.other_station_is_local = true
 ),
 
 -- Read the neighbours that have volume, occupancy and speed data.
