@@ -61,7 +61,6 @@ aadt_2 as (
         freeway,
         type,
         sample_year,
-        count(id) as madt_sample_ct,
         avg(madt) as aadt_2
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
@@ -148,7 +147,7 @@ aadt_4 as (
         id,
         district,
         type,
-        avg(aadw) as asaadt_4,
+        avg(aadw) as aadt_4,
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
@@ -174,6 +173,7 @@ aadt_5 as (
         id,
         district,
         type,
+        sample_year,
         sum(aaht) as aadt_5
     from annual_average_hourly_traffic
     group by id, district, type, sample_year
@@ -190,7 +190,7 @@ aadt_6 as (
         freeway,
         type,
         sample_year,
-        avg(madt) as aadt_2
+        avg(madt) as aadt_6
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
     having count(id) >= 11
@@ -219,12 +219,53 @@ aadt_8 as (
         id,
         district,
         type,
-        avg(aadw) as asaadt_8,
+        avg(aadw) as aadt_8,
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
     having count(id) >= 6
-)
+),
 
 -- now join all CTE together
-select * from aadt_8
+aadt_1_8 as (
+    select
+        aadt_1.*,
+        aadt_2.aadt_2,
+        aadt_3.aadt_3,
+        aadt_4.aadt_4,
+        aadt_5.aadt_5,
+        aadt_6.aadt_6,
+        aadt_7.aadt_7,
+        aadt_8.aadt_8
+    from aadt_1
+    left join aadt_2
+        on
+            aadt_1.id = aadt_2.id
+            and aadt_1.sample_year = aadt_2.sample_year
+    left join aadt_3
+        on
+            aadt_1.id = aadt_3.id
+            and aadt_1.sample_year = aadt_3.sample_year
+    left join aadt_4
+        on
+            aadt_1.id = aadt_4.id
+            and aadt_1.sample_year = aadt_4.sample_year
+    left join aadt_5
+        on
+            aadt_1.id = aadt_5.id
+            and aadt_1.sample_year = aadt_5.sample_year
+    left join aadt_6
+        on
+            aadt_1.id = aadt_6.id
+            and aadt_1.sample_year = aadt_6.sample_year
+    left join aadt_7
+        on
+            aadt_1.id = aadt_7.id
+            and aadt_1.sample_year = aadt_7.sample_year
+    left join aadt_8
+        on
+            aadt_1.id = aadt_8.id
+            and aadt_1.sample_year = aadt_8.sample_year
+)
+
+select * from aadt_1_8
