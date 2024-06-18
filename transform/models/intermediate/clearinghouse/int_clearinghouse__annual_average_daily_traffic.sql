@@ -77,7 +77,7 @@ aadw as (
         freeway,
         direction,
         type,
-        -- calculate Annual Average Days of the Week (AADW) 
+        -- calculate Annual Average Days of the Week (AADW)
         avg(madw) as aadw,
         day_of_week,
         sample_year
