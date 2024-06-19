@@ -1,204 +1,178 @@
-{{ config(materialized='table') }}
+{{ config(
+        materialized='incremental',
+        cluster_by=["sample_date"],
+        unique_key=["id", "lane", "sample_timestamp"],
+        snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL"),
+    )
+}}
 
---  lets consider the unimputed dataframe
-with unimputed as (
+-- Select unimputed data
+with base as (
+    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    {% if is_incremental() %}
+    -- Look back two days to account for any late-arriving data
+        where
+            sample_date > (
+                select
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
+                from {{ this }}
+            )
+            {% if target.name != 'prd' %}
+                and sample_date
+                >= dateadd(
+                    day,
+                    5 * {{ var("dev_model_look_back") }},
+                    current_date()
+                )
+            {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, 5 * {{ var("dev_model_look_back") }}, current_date())
+    {% endif %}
+),
+
+/* Get all detectors that are "real" in that they represent lanes that exist
+   (rather than lane 8 in a two lane road) with a status of "Good" */
+good_detectors as (
+    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    where status = 'Good'
+),
+
+/* Join with the "good detectors"
+model to flag whether we consider a detector to be operating
+correctly for a given day.
+*/
+unimputed as (
     select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_weighted,
-        extract(hour from sample_timestamp) as sample_hour,
-        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
+        base.id,
+        base.lane,
+        base.sample_date,
+        base.sample_timestamp,
+        base.volume_sum,
+        base.occupancy_avg,
+        base.speed_weighted,
+        -- If the station_id in the join is not null, it means that the detector
+        -- is considered to be "good" for a given date. TODO: likely restructure
+        -- once the real_detectors model is eliminated.
+        (good_detectors.station_id is not null) as detector_is_good,
+        coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
-    from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    where sample_date = dateadd(day, -3, current_date)
+    from base
+    left join good_detectors
+        on
+            base.id = good_detectors.station_id
+            and base.lane = good_detectors.lane
+            and base.sample_date = good_detectors.sample_date
 ),
 
--- classify the data that needs imputation
-counts_with_imputation_status as (
-    select
-        unimputed.*,
-        case
-            -- when volume and occupancy is present we already used the formula to calculate the speed
-            -- here we will impute where all three has null value
-            -- where either volume or occupany only null along with null speed
-            -- however, we will not impute where volime zero, occupancy zero and speed is null
-            when
-                (unimputed.volume_sum is null and unimputed.occupancy_avg is null and unimputed.speed_five_mins is null)
-                or (
-                    unimputed.volume_sum is not null
-                    and unimputed.occupancy_avg is null
-                    and unimputed.speed_five_mins is null
-                )
-                or (
-                    unimputed.volume_sum is null
-                    and unimputed.occupancy_avg is not null
-                    and unimputed.speed_five_mins is null
-                )
-                then 'yes'
-            else 'no'
-        end as is_imputation_required
-    from unimputed
-),
-
--- separate the dataframe that have missing volume,occupancy and speed
-missing_vol_occ_speed as (
+-- get the data that require imputation
+samples_requiring_imputation as (
     select
         id,
         lane,
-        -- sample_hour,
         sample_date,
         sample_timestamp,
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from counts_with_imputation_status
-    where is_imputation_required = 'yes'
+    from unimputed
+    where not detector_is_good
 ),
 
--- separate the dataframe that have already device recorded volume, speed and occ
-non_missing_vol_occ_speed as (
+-- get the data that does not require imputation
+samples_not_requiring_imputation as (
     select
         id,
         lane,
         sample_date,
         sample_timestamp,
-        -- sample_hour,
         volume_sum,
         occupancy_avg,
-        speed_five_mins,
-        false as is_imputed
-    from counts_with_imputation_status
-    where is_imputation_required = 'no'
+        speed_five_mins
+    from unimputed
+    where detector_is_good
 ),
 
--- read the global model
+-- read the model coefficients
 coeffs as (
-    select * from {{ ref('int_clearinghouse__global_regression_coefficients') }}
+    select * from {{ ref('int_imputation__global_regression_coefficients') }}
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
-missing_vol_occ_speed_with_coeffs as (
+samples_requiring_imputation_with_coeffs as (
     select
-        missing_vol_occ_speed.*,
+        samples_requiring_imputation.*,
         coeffs.other_id,
         coeffs.other_lane,
-        coeffs.district,
         coeffs.speed_slope,
         coeffs.speed_intercept,
         coeffs.volume_slope,
         coeffs.volume_intercept,
         coeffs.occupancy_slope,
-        coeffs.occupancy_intercept
-    from missing_vol_occ_speed
-    left join coeffs
-        on
-            missing_vol_occ_speed.id = coeffs.id
+        coeffs.occupancy_intercept,
+        coeffs.regression_date
+    from samples_requiring_imputation
+    -- TODO: update sqlfluff to support asof joins
+    asof join coeffs  -- noqa
+        match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
+        on samples_requiring_imputation.id = coeffs.id
 ),
 
--- join with the neighbours that have volume, occ and speed data
-missing_vol_occ_speed_with_neighbors as (
+-- Read the neighbours that have volume, occupancy and speed data.
+-- We only join with neighbors that don't require imputation, as
+-- there is no point to imputing bad data from bad data.
+samples_requiring_imputation_with_neighbors as (
     select
-        missing_vol_occ_speed_with_coeffs.*,
-        non_missing_vol_occ_speed.speed_five_mins as speed_five_mins_nbr,
-        non_missing_vol_occ_speed.volume_sum as volume_sum_nbr,
-        non_missing_vol_occ_speed.occupancy_avg as occupancy_avg_nbr
-    from missing_vol_occ_speed_with_coeffs
-    inner join non_missing_vol_occ_speed
+        imp.*,
+        non_imp.speed_five_mins as speed_five_mins_nbr,
+        non_imp.volume_sum as volume_sum_nbr,
+        non_imp.occupancy_avg as occupancy_avg_nbr
+    from samples_requiring_imputation_with_coeffs as imp
+    inner join samples_not_requiring_imputation as non_imp
         on
-            missing_vol_occ_speed_with_coeffs.other_id = non_missing_vol_occ_speed.id
-            and missing_vol_occ_speed_with_coeffs.sample_timestamp = non_missing_vol_occ_speed.sample_timestamp
+            imp.other_id = non_imp.id
+            and imp.sample_date = non_imp.sample_date
+            and imp.sample_timestamp = non_imp.sample_timestamp
 ),
 
--- apply imputation models to impute volume, occupancy and speed and flag id imputed
-missing_imputed_vol_occ_speed as (
+-- apply imputation models to impute volume, occupancy and speed
+imputed as (
     select
         id,
         lane,
         sample_date,
         sample_timestamp,
         -- Volume calculation
-        coalesce(volume_sum, greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0))
-            as volume_sum_imp,
-        -- Flag for volume imputation
-        coalesce(volume_sum is null, false) as is_imputed_volume,
+        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume,
         -- Occupancy calculation
-        coalesce(
-            occupancy_avg,
-            least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
-        ) as occupancy_avg_imp,
-        -- Flag for occupancy imputation
-        coalesce(occupancy_avg is null, false) as is_imputed_occupancy,
+        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1) as occupancy,
         -- Speed calculation
-        case
-            when
-                (speed_five_mins is null and volume_sum > 0 and occupancy_avg > 0)
-                or (speed_five_mins is null and volume_sum is null and occupancy_avg is null)
-                then least(greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0), 100)
-            else speed_five_mins
-        end as speed_five_mins_imp,
-        -- Flag for speed imputation
-        coalesce(speed_five_mins is null, false) as is_imputed_speed
+        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed,
+        any_value(regression_date) as regression_date
     from
-        missing_vol_occ_speed_with_neighbors
-    group by id, lane, sample_date, sample_timestamp, volume_sum, occupancy_avg, speed_five_mins
+        samples_requiring_imputation_with_neighbors
+    group by id, lane, sample_date, sample_timestamp
 ),
 
--- due to having some model parameter nulls e.g. speed slope is null,
---  then you will get null prediction
--- We will flag all null prediction
-missing_imputed_vol_occ_speed_flag as (
+-- combine imputed and non-imputed dataframe together
+agg_with_global_imputation as (
     select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum_imp,
-        speed_five_mins_imp,
-        occupancy_avg_imp,
-        case
-            when volume_sum_imp is not null then is_imputed_volume else false
-        end as is_imputed_volume,
-        case
-            when occupancy_avg_imp is not null then is_imputed_occupancy else false
-        end as is_imputed_occupancy,
-        case
-            when speed_five_mins_imp is not null then is_imputed_speed else false
-        end as is_imputed_speed
-    from missing_imputed_vol_occ_speed
-),
-
--- -- combine imputed and non-imputed dataframe together
-global_regression_imputed_value as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum_imp as volume_sum,
-        occupancy_avg_imp as occupancy_avg,
-        speed_five_mins_imp as speed_five_mins,
-        is_imputed_volume,
-        is_imputed_occupancy,
-        is_imputed_speed
-    from missing_imputed_vol_occ_speed_flag
-    union all
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        volume_sum,
-        occupancy_avg,
-        speed_five_mins,
-        false as is_imputed_volume,
-        false as is_imputed_occupancy,
-        false as is_imputed_speed
-    from non_missing_vol_occ_speed
+        unimputed.*,
+        imputed.volume as imp_volume,
+        imputed.occupancy as imp_occupancy,
+        imputed.speed as imp_speed,
+        imputed.regression_date
+    from unimputed
+    left join imputed
+        on
+            unimputed.id = imputed.id
+            and unimputed.lane = imputed.lane
+            and unimputed.sample_date = imputed.sample_date
+            and unimputed.sample_timestamp = imputed.sample_timestamp
 )
 
--- read the imputed and non-imputed dataframe
-select * from global_regression_imputed_value
+-- select the final CTE
+select * from agg_with_global_imputation
