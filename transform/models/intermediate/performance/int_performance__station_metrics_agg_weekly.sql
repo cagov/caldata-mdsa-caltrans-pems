@@ -9,7 +9,7 @@ with station_daily_data as (
         year(sample_date) as sample_year,
         weekofyear(sample_date) as sample_week,
         date_trunc('week', sample_date) as sample_week_start_date
-    from {{ ref('int_clearinghouse__station_agg_daily') }}
+    from {{ ref('int_performance__station_metrics_agg_daily') }}
     -- we do not want to calculate incomplete week aggregation
     where date_trunc(week, sample_date) != date_trunc(week, current_date)
 ),

@@ -8,7 +8,7 @@ with station_daily_data as (
         -- reference: https://docs.snowflake.com/en/sql-reference/functions-date-time#label-calendar-weeks-weekdays
         weekofyear(sample_date) as sample_week,
         date_trunc('week', sample_date) as sample_week_start_date
-    from {{ ref('int_clearinghouse__detector_agg_daily') }}
+    from {{ ref('int_performance__detector_metrics_agg_daily') }}
     -- we do not want to calculate incomplete week aggregation
     where date_trunc(week, sample_date) != date_trunc(week, current_date)
 ),
