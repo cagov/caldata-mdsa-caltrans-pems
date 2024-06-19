@@ -1,10 +1,10 @@
 {{ config(materialized="table") }}
 
 with station_meta as (
-    select * from {{ ref('int_clearinghouse__most_recent_station_meta') }}
+    select * from {{ ref('int_clearinghouse__station_meta') }}
 ),
 
-nearest_stations_within_beffer as (
+global_station_pairs as (
     select
         a.id,
         b.id as other_id,
@@ -12,17 +12,14 @@ nearest_stations_within_beffer as (
         a.freeway,
         a.direction,
         a.type,
-        -- TODO: is this the best metric for "nearest"? State postmiles often have
-        -- some string part to them, making math a little trickier.
-        b.absolute_postmile - a.absolute_postmile as delta_postmile
+        b.absolute_postmile - a.absolute_postmile as delta_postmile,
+        a._valid_from,
+        a._valid_to
     from station_meta as a
     inner join station_meta as b
-        -- on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type
-        on a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.district = b.district
-    -- TODO: distance comparisons don't seem appropriate for all station types,
-    -- e.g., on/off ramps. So it makes sense to restrict these comparisons to some
-    -- types. Is this the right set?
-    where a.type in ('HV', 'ML') and a.id != b.id and abs(delta_postmile) <= 5
+        on
+            a.freeway = b.freeway and a.direction = b.direction and a.type = b.type and a.district = b.district
+            and a.meta_date = b.meta_date
 )
 
-select * from nearest_stations_within_beffer
+select * from global_station_pairs
