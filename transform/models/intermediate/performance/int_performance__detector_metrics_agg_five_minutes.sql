@@ -7,7 +7,7 @@
 
 with
 five_minute_agg as (
-    select * from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     {% if is_incremental() %}
         -- Look back to account for any late-arriving data
         where
