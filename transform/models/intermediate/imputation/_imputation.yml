@@ -1,0 +1,77 @@
+version: 2
+
+models:
+  - name: int_imputation__local_regional_regression_coefficients
+    description: |
+      Linear regression slopes and intercepts for pairs of detectors.
+      They are evaluated at regular dates (`regression_date`) in order to
+      make multiple measurements of the coefficients. This allows the values
+      to vary with time, and for there to be backup measurements if one detector
+      or the other are not operational for the regression dates.
+    columns:
+      - name: id
+        description: The ID of the station with the dependent variables
+      - name: other_id
+        description: The ID of the station with the independent variables
+      - name: lane
+        description: The lane of the detector with the dependent variables
+      - name: other_lane
+        description: The lane of the detector with the independent variables
+      - name: district
+        description: The district of the dependent detector.
+      - name: regression_date
+        description: |
+          The starting date for the regression. The regressions are evaluated
+          over several days, but things like joins with slowly-changing-dimensions
+          (i.e., `_valid_from`) are based on the start date.
+      - name: speed_slope
+        description: The slope of the speed regression
+      - name: speed_intercept
+        description: The intercept of the speed regression
+      - name: volume_slope
+        description: The slope of the volume regression
+      - name: volume_intercept
+        description: The intercept of the volume regression
+      - name: occupancy_slope
+        description: The slope of the occupancy regression
+      - name: occupancy_intercept
+        description: The intercept of the occupancy regression
+      - name: OTHER_STATION_IS_LOCAL
+        description: |
+          tagging wheather the other id is local counters
+          or regional counters. If the other id is just upstream or downstream
+          then it is considered as local counters. On the other hand
+          except local counters if any counters are located within 5 miles
+          upstream and downstream, then it is considered as regional id.
+          This boolean function where True means local counters and false means
+          regional counters.
+  - name: int_imputation__five_minute_aggregation
+    description: |
+      dfdf
+    columns:
+      - name: ID
+        description: The station ID
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1
+      - name: VOLUME_SUM
+        description: The sum of the flow values for a detector over the sample period.
+      - name: OCCUPANCY_AVG
+        description: The average of the occupancy values over the sample period.
+      - name: SPEED_WEIGHTED
+        description: |
+          Flow-weighted speed reported by the device.
+      - name: volume_local_regression
+        description: The volume based on local regressions
+      - name: occupancy_local_regression
+        description: The occupancy based on local regressions
+      - name: speed_local_regression
+        description: The speed based on local regressions
+      - name: regression_date
+        description: |
+          The date on which the coefficients in the local regression
+          were evaluated.
