@@ -210,7 +210,7 @@ models:
         description: The date from which this neighbor relation holds
       - name: _VALID_TO
         description: The date to which this neighbor relation holds.
-  - name: int_clearninghouse__station_temporal_hourly_agg
+  - name: int_clearninghouse__station_agg_hourly
     description: |
       hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
       each station regardless of lanes. This metrics will measure the hourly performance of the state
@@ -269,7 +269,7 @@ models:
           lost productivity in an hour time period across the all lanes.The lost Productivity
           perfromance metric is the number of lane-mile-hours on the freeway lost due to operating
           under congested conditions instead of under free-flow conditions.
-  - name: int_clearinghouse__station_temporal_daily_agg
+  - name: int_clearinghouse__station_agg_daily
     description: |
       daily aggregation of volume, occupancy and speed along with delays and lost productivity across
       all lanes of the station. This metrics will measure the daily performance of the state highway system.
@@ -335,7 +335,7 @@ models:
           lost productivity in a given day timeperiod across all the lanes.The lost Productivity
           perfromance metric is the number of lane-mile-days on the freeway lost due to operating under
            congested conditions instead of under free-flow conditions.
-  - name: int_clearinghouse__station_temporal_weekly_agg
+  - name: int_clearinghouse__station_agg_weekly
     description: |
       weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
       across all lanes of the station. This metrics will measure the daily performance of the state
@@ -407,7 +407,7 @@ models:
           The lost Productivity perfromance metric is the number of lane-mile-week
           on the freeway lost due to operating under congested conditions instead of
           under free-flow conditions.
-  - name: int_clearinghouse__station_temporal_monthly_agg
+  - name: int_clearinghouse__station_agg_monthly
     description: |
       monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
       across all lanes of the station. This metrics will measure the daily performance
