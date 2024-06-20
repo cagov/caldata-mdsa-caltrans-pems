@@ -12,7 +12,7 @@ with aadt_1 as (
         type,
         avg(daily_volume) as aadt_1,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_performance__station_metrics_agg_daily') }}
+    from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
