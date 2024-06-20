@@ -12,7 +12,7 @@ with aadt_1 as (
         type,
         avg(daily_volume) as aadt_1,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
+    from {{ ref('int_performance__station_metrics_agg_daily') }}
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
@@ -31,7 +31,7 @@ madw as (
         extract(dow from sample_date) as day_of_week,
         date_trunc('month', sample_date) as sample_month,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_clearinghouse__station_temporal_daily_agg') }}
+    from {{ ref('int_performance__station_metrics_agg_daily') }}
     group by id, city, county, freeway, direction, district, type, day_of_week, sample_month, sample_year
 ),
 
@@ -113,7 +113,7 @@ mahw as (
         date_trunc('year', sample_date) as sample_year,
         -- calculate monthly average flow for each hour of the week
         avg(hourly_volume) as mahw
-    from {{ ref('int_clearninghouse__station_temporal_hourly_agg') }}
+    from {{ ref('int_performance__station_metrics_agg_hourly') }}
     group by id, district, type, hour_of_day, day_of_week, sample_month, sample_year
 ),
 
@@ -164,7 +164,7 @@ annual_average_hourly_traffic as (
         extract(hour from sample_hour) as hour_of_day,
         date_trunc('year', sample_date) as sample_year,
         avg(hourly_volume) as aaht
-    from {{ ref('int_clearninghouse__station_temporal_hourly_agg') }}
+    from {{ ref('int_performance__station_metrics_agg_hourly') }}
     group by id, district, type, hour_of_day, sample_year
 ),
 
