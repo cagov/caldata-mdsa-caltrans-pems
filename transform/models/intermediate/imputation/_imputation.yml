@@ -45,7 +45,7 @@ models:
           upstream and downstream, then it is considered as regional id.
           This boolean function where True means local counters and false means
           regional counters.
-  - name: int_imputation__five_minute_aggregation
+  - name: int_imputation__detector_agg_five_minutes
     description: |
       dfdf
     columns:
