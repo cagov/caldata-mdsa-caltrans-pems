@@ -24,20 +24,6 @@ with regression_dates as (
     )
 ),
 
--- Select all station pairs that are active for the chosen regression dates
-nearby_stations as (
-    select
-        nearby.id,
-        nearby.other_id,
-        nearby.other_station_is_local,
-        regression_dates.regression_date
-    from {{ ref('int_clearinghouse__nearby_stations') }} as nearby
-    inner join regression_dates
-        on
-            nearby._valid_from <= regression_dates.regression_date
-            and regression_dates.regression_date < coalesce(nearby._valid_to, current_date)
-),
-
 -- Get all of the detectors that are producing good data, based on
 -- the diagnostic tests
 good_detectors as (
@@ -50,8 +36,18 @@ good_detectors as (
     where status = 'Good'
 ),
 
+/** TODO: thinking more and more we need to merge this at the five_minute_station_agg model. **/
+station_meta as (
+    select * from {{ ref("int_clearinghouse__station_meta") }}
+    where type in ('ML', 'HV') -- TODO: do we want to do this?
+),
+
+global_agg as (
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_district_freeway') }}
+),
+
 agg as (
-    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    select * from transform_prd.clearinghouse.int_clearinghouse__detector_agg_five_minutes--{{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
@@ -68,7 +64,7 @@ detector_counts as (
         agg.volume_sum,
         agg.occupancy_avg,
         agg.speed_weighted,
-        good_detectors.district,
+        agg.district,
         -- TODO: Can we give this a better name? Can we move this into the base model?
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
@@ -87,24 +83,44 @@ detector_counts as (
             and agg.sample_date = good_detectors.sample_date
 ),
 
+
+/** TODO: filter non-operational stations **/
+detector_counts_with_meta as (
+    select
+        detector_counts.*,
+        station_meta.freeway,
+        station_meta.direction
+    from detector_counts
+    inner join station_meta
+        on
+            detector_counts.id = station_meta.id
+            and detector_counts.sample_date >= station_meta._valid_from
+            and (detector_counts.sample_date < station_meta._valid_to or station_meta._valid_to is null)
+),
+
 -- Join the 5-minute aggregated data with the district-freeway aggregation
-detector_counts_pairwise as (
+detector_counts_with_global_averages as (
     select
         a.id,
         a.district,
         a.regression_date,
         a.lane,
+        a.freeway,
+        a.direction,
         a.speed_five_mins as speed,
         a.volume_sum as volume,
         a.occupancy_avg as occupancy,
-        nearby_stations.other_station_is_local
-    from detector_counts as a
-    left join nearby_stations on a.id = nearby_stations.id
-    inner join detector_counts as b
+        g.volume_sum as global_volume,
+        g.occupancy_avg as global_occupancy,
+        g.speed_weighted as global_speed -- TODO: what speed to use?
+    from detector_counts_with_meta as a
+    inner join global_agg as g
         on
-            nearby_stations.other_id = b.id
-            and a.sample_date = b.sample_date
-            and a.sample_timestamp = b.sample_timestamp
+            a.sample_date = g.sample_date
+            and a.sample_timestamp = g.sample_timestamp
+            and a.district = g.district
+            and a.freeway = g.freeway
+            and a.direction = g.direction
 ),
 
 -- Aggregate the self-joined table to get the slope
@@ -112,30 +128,28 @@ detector_counts_pairwise as (
 detector_counts_regression as (
     select
         id,
-        other_id,
         lane,
-        other_lane,
         district,
+        freeway,
+        direction,
         regression_date,
-        other_station_is_local,
         -- speed regression model
-        regr_slope(speed, other_speed) as speed_slope,
-        regr_intercept(speed, other_speed) as speed_intercept,
+        regr_slope(speed, global_speed) as speed_slope,
+        regr_intercept(speed, global_speed) as speed_intercept,
         -- flow or volume regression model
-        regr_slope(volume, other_volume) as volume_slope,
-        regr_intercept(volume, other_volume) as volume_intercept,
+        regr_slope(volume, global_volume) as volume_slope,
+        regr_intercept(volume, global_volume) as volume_intercept,
         -- occupancy regression model
-        regr_slope(occupancy, other_occupancy) as occupancy_slope,
-        regr_intercept(occupancy, other_occupancy) as occupancy_intercept
-    from detector_counts_pairwise
-    where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
-    group by id, other_id, lane, other_lane, district, regression_date, other_station_is_local
+        regr_slope(occupancy, global_occupancy) as occupancy_slope,
+        regr_intercept(occupancy, global_occupancy) as occupancy_intercept
+    from detector_counts_with_global_averages
+    group by id, lane, district, freeway, direction, regression_date
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
-        (count(volume) > 0 and count(other_volume) > 0)
-        or (count(occupancy) > 0 and count(other_occupancy) > 0)
-        or (count(speed) > 0 and count(other_speed) > 0)
+        (count(volume) > 0 and count(global_volume) > 0)
+        or (count(occupancy) > 0 and count(global_occupancy) > 0)
+        or (count(speed) > 0 and count(global_speed) > 0)
 )
 
-select * from nearby_stations
+select * from detector_counts_regression

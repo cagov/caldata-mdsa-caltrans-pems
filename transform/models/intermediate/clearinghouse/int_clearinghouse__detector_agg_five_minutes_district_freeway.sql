@@ -9,7 +9,7 @@
 ) }}
 
 with five_minute_detector_agg as (
-    select * from {{ ref("int_clearinghouse__five_minute_station_agg") }}
+    select * from {{ ref("int_clearinghouse__detector_agg_five_minutes") }}
     -- TODO: incrementality here
     where sample_date >= '2024-02-01'::date
 ),
