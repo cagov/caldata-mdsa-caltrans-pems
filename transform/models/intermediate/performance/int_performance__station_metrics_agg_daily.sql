@@ -3,7 +3,7 @@
 -- read the volume, occupancy and speed hourly data
 with station_hourly_data as (
     select *
-    from {{ ref('int_clearninghouse__station_temporal_hourly_agg') }}
+    from {{ ref('int_performance__station_metrics_agg_hourly') }}
 ),
 
 -- now aggregate hourly volume, occupancy and speed to daily level
