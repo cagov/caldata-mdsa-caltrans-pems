@@ -13,14 +13,14 @@ source as (
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
         and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
         {% if is_incremental() %}
-        and sample_date > (
+            and sample_date > (
                 select
-                    dateadd(day, {{ var("incremental_model_look_back") }}, max(sample_date))
+                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
                 from {{ this }}
             )
             {% if target.name != 'prd' %}
                 and sample_date
-                >= dateadd('day', {{ var("dev_model_look_back") }}, current_date())
+                >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
             {% endif %}
         {% elif target.name != 'prd' %}
             and sample_date
