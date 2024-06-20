@@ -115,9 +115,8 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.occupancy_intercept,
         coeffs.regression_date
     from samples_requiring_imputation
-    -- TODO: update sqlfluff to support asof joins
-    asof join coeffs  -- noqa
-        match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
+    asof join coeffs
+        match_condition (samples_requiring_imputation.sample_date >= coeffs.regression_date)
         on samples_requiring_imputation.id = coeffs.id
 ),
 

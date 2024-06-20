@@ -7,7 +7,7 @@ Helpful article for flattening XML:
 https://community.snowflake.com/s/article/HOW-TO-QUERY-NESTED-XML-DATA-IN-SNOWFLAKE
 */
 SELECT
-    STATUS.FILENAME AS FILENAME,
+    STATUS.FILENAME,
     DATE_FROM_PARTS(
         REGEXP_SUBSTR(STATUS.FILENAME, '{{ date_re }}', 1, 1, '', 2)::INT,
         REGEXP_SUBSTR(STATUS.FILENAME, '{{ date_re }}', 1, 1, '', 3)::INT,
