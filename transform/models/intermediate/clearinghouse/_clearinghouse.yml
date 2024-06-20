@@ -155,7 +155,7 @@ models:
           The lane number for the detector. This seems to be reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
           from one
-  - name: int_clearinghouse__five_minute_station_agg
+  - name: int_clearinghouse__detector_agg_five_minutes
     description: |
       Raw 30 second sample data aggregated to the 5 minute level.
       Volume values are summed, occupancy is averaged.
@@ -209,6 +209,7 @@ models:
       - name: _VALID_FROM
         description: The date from which this neighbor relation holds
       - name: _VALID_TO
+<<<<<<< HEAD
         description: The date to which this neighbor relation holds.
   - name: int_clearninghouse__station_temporal_hourly_agg
     description: |
@@ -538,3 +539,6 @@ models:
         Similarly, this procedure is a modified version of AADT_4, in which 1 of the 12 MADW
         values may be missing in the AADW subcomputation, and/or 1 of the 7 AADW values may
         be missing in the final AADT_8 computation. This is Modified Provisional AASHTO.
+=======
+        description: The date to which this neighbor relation holds
+>>>>>>> 2bc3330643f617d48525012614a0c8a22d16e466
