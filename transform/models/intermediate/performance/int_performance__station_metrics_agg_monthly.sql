@@ -11,7 +11,7 @@ with station_daily_data as (
     where date_trunc(month, sample_date) != date_trunc(month, current_date)
 ),
 
--- now aggregate daily volume, occupancy and speed to weekly
+-- now aggregate daily volume, occupancy and speed to weekly.
 monthly_station_level_spatial_temporal_metrics as (
     select
         id,
