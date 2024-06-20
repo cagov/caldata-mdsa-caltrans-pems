@@ -58,9 +58,10 @@ agg as (
         {% for lane in range(1, n_lanes+1) %}
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
         {% endfor %}
-        {% for lane in range(1, n_lanes+1) %}
-            avg(speed_{{ lane }}) as speed_{{ lane }}{{ "," if not loop.last }}
-        {% endfor %}
+    {% for lane in range(1, n_lanes+1) %}
+        avg(speed_{{ lane }}) as speed_{{ lane }}
+    {{ "," if not loop.last }}
+    {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district
 ),
