@@ -116,7 +116,7 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.regression_date
     from samples_requiring_imputation
     asof join coeffs
-        match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)
+        match_condition (samples_requiring_imputation.sample_date >= coeffs.regression_date)
         on samples_requiring_imputation.id = coeffs.id
     where coeffs.other_station_is_local = true
 ),
