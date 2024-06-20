@@ -1,7 +1,7 @@
 version: 1
 
 models:
-  - name: int_performance__five_min_perform_metrics
+  - name: int_performance__detector_metrics_agg_five_minutes
     description: |
       This file contains performance metrics by station and lane based on data from
       the station_meta and five_minute_agg models. This data forms the basis for
