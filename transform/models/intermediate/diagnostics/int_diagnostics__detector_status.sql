@@ -9,30 +9,7 @@ with
 
 source as (
     select * from {{ ref('int_diagnostics__samples_per_station') }}
-    {% if is_incremental() %}
-        -- Look back to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date >= (
-                    dateadd(
-                        day,
-                        {{ var("dev_model_look_back") }},
-                        current_date()
-                    )
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
+    {{ make_model_incremental('sample_date') }}
 ),
 
 district_feed_check as (

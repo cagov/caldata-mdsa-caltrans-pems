@@ -8,24 +8,13 @@
 with
 
 source as (
-    select * from {{ ref ('stg_clearinghouse__station_raw') }}
-    where
-        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
-        {% if is_incremental() %}
-            and sample_date > (
-                select
-                    DATEADD(day, {{ var("incremental_model_look_back") }}, MAX(sample_date))
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
-            {% endif %}
-        {% elif target.name != 'prd' %}
-            and sample_date
-            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
-        {% endif %}
+    select *
+    from {{ ref ('stg_clearinghouse__station_raw') }}
+
+    {{ make_model_incremental(
+        'sample_date') }}
+    and TO_TIME(sample_timestamp) >= {{ var("day_start") }}
+    and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
 ),
 
 samples_per_station as (
