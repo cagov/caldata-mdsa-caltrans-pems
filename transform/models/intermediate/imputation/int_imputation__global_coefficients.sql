@@ -47,7 +47,7 @@ global_agg as (
 ),
 
 agg as (
-    select * from transform_prd.clearinghouse.int_clearinghouse__detector_agg_five_minutes--{{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
@@ -84,7 +84,6 @@ detector_counts as (
 ),
 
 
-/** TODO: filter non-operational stations **/
 detector_counts_with_meta as (
     select
         detector_counts.*,
