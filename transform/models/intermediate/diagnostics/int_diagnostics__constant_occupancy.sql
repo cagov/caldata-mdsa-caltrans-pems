@@ -57,7 +57,13 @@ sum_occupancy_delta as (
             )
             as abs_val_occupancy_delta_summed
     from calculate_occupancy_delta
-    qualify occupancy_avg != 0 or occupancy_avg is not null
+    qualify
+        (occupancy_avg != 0 or occupancy_avg is not null)
+        and ROW_NUMBER() over (
+            partition by id, lane, sample_date
+            order by sample_timestamp
+        ) >= 48
+
 )
 
 select
