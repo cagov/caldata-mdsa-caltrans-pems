@@ -17,3 +17,8 @@ macros:
       configuration at the top of the file then implements a conditional
       check of the target environement. Check out dbt's docs on incremental
       models: https://docs.getdbt.com/docs/build/incremental-models-overview.
+      In addition to incrementality, it implements the variable
+      "dev_model_look_back", which limits the amount of data selected in dev.
+      Two things to note: 1) Users implement there own date column; and
+      2) This macros does not include a "where" keyword, but does include
+      "and". Users are expected to use a "where" clause when implementing this.

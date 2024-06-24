@@ -1,5 +1,5 @@
 
-{% macro make_model_incremental(date_col, multiplier=1) -%}
+{% macro make_model_incremental(date_col) -%}
 
 {% if is_incremental() %}
         -- Look back to account for any late-arriving data
@@ -22,7 +22,7 @@
                 )
             {% endif %}
     {% elif target.name != 'prd' %}
-        {{ date_col }} >= dateadd(day, {{ multiplier }} * {{ var("dev_model_look_back") }}, current_date())
+        {{ date_col }} >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 
     {%- endmacro %}
