@@ -9,56 +9,12 @@
 -- Select unimputed data
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    {% if is_incremental() %}
-    -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= dateadd(
-                    day,
-                    {{ var("dev_model_look_back") }},
-                    current_date()
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 freeway_district_agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_district_freeway') }}
-    {% if is_incremental() %}
-    -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= dateadd(
-                    day,
-                    5 * {{ var("dev_model_look_back") }},
-                    current_date()
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, 5 * {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
