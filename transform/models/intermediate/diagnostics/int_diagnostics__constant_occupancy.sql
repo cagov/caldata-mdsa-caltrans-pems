@@ -8,26 +8,12 @@
 with
 
 source as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select *
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
         and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
-        {% if is_incremental() %}
-            -- Look back two days to account for any late-arriving data
-            and sample_date > (
-                select
-                    DATEADD(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        MAX(sample_date)
-                    )
-                from {{ this }}
-            )
-        {% endif %}
-        {% if target.name != 'prd' %}
-            and sample_date
-            >= DATEADD('day', {{ var("dev_model_look_back") }}, CURRENT_DATE())
-        {% endif %}
+        and {{ make_model_incremental('sample_date') }}
 ),
 
 calculate_occupancy_delta as (
