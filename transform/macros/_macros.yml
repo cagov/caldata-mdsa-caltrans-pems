@@ -13,9 +13,7 @@ macros:
   - name: make_model_incremental
     description: |
       This allows for the implementation of complex incremental model
-      logic in one line and one place. It checks for the incremental model
-      configuration at the top of the file then implements a conditional
-      check of the target environement. Check out dbt's docs on incremental
+      logic in one line and one place. Check out dbt's docs on incremental
       models: https://docs.getdbt.com/docs/build/incremental-models-overview.
       In addition to incrementality, it implements the variable
       "dev_model_look_back", which limits the amount of data selected in dev.
