@@ -10,11 +10,10 @@ with
 source as (
     select *
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-
-    {{ make_model_incremental(
-        'sample_date') }}
-    and TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-    and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+    where
+        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
+        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+        and {{ make_model_incremental('sample_date') }}
 ),
 
 calculate_occupancy_delta as (

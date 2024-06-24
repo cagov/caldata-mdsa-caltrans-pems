@@ -20,7 +20,7 @@ with station_raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
-    {{ make_model_incremental('sample_date') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 aggregated_speed as (

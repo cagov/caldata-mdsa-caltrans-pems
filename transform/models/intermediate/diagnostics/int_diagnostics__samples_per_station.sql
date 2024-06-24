@@ -10,11 +10,10 @@ with
 source as (
     select *
     from {{ ref ('stg_clearinghouse__station_raw') }}
-
-    {{ make_model_incremental(
-        'sample_date') }}
-    and TO_TIME(sample_timestamp) >= {{ var("day_start") }}
-    and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+    where
+        TO_TIME(sample_timestamp) >= {{ var("day_start") }}
+        and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
+        and {{ make_model_incremental('sample_date') }}
 ),
 
 samples_per_station as (

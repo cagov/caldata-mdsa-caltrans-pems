@@ -9,7 +9,7 @@
 -- Select unimputed data
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    {{ make_model_incremental('sample_date', 5) }}
+    where {{ make_model_incremental('sample_date', 5) }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist

@@ -10,3 +10,10 @@ macros:
 
       * The target table doesn't exist (i.e., hasn't been built yet)
       * the `--full-refresh` flag is set via the CLI.
+  - name: make_model_incremental
+    description: |
+      This allows for the implementation of complex incremental model 
+      logic in one line and one place. It checks for the incremental model 
+      configuration at the top of the file then implements a conditional
+      check of the target environement. Check out dbt's docs on incremental
+      models: https://docs.getdbt.com/docs/build/incremental-models-overview.

@@ -10,7 +10,7 @@ with station_five_mins_data as (
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
-    {{ make_model_incremental('sample_date') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- now aggregate five mins volume, occupancy and speed to hourly

@@ -9,7 +9,7 @@ with
 
 source as (
     select * from {{ ref('int_diagnostics__samples_per_station') }}
-    {{ make_model_incremental('sample_date') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 district_feed_check as (

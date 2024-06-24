@@ -8,7 +8,7 @@
 with
 five_minute_agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    {{ make_model_incremental('sample_date') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 five_minute_agg_with_station_meta as (

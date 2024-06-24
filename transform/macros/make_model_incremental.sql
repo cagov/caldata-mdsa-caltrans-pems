@@ -3,7 +3,6 @@
 
 {% if is_incremental() %}
         -- Look back to account for any late-arriving data
-        where
             {{ date_col }} > (
                 select
                     dateadd(
@@ -23,7 +22,7 @@
                 )
             {% endif %}
     {% elif target.name != 'prd' %}
-        where {{ date_col }} >= dateadd(day, {{ multiplier }} * {{ var("dev_model_look_back") }}, current_date())
+        {{ date_col }} >= dateadd(day, {{ multiplier }} * {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 
     {%- endmacro %}
