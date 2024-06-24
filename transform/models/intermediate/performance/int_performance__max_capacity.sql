@@ -14,7 +14,7 @@ source as (
         sample_date,
         lane,
         volume_sum
-    from {{ ref("int_clearinghouse__five_minute_station_agg") }}
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
 sum_volume as (

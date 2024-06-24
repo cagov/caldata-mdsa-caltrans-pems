@@ -8,20 +8,8 @@ with station_five_mins_data as (
     select
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
-    from {{ ref('int_performance__five_min_perform_metrics') }}
-    {% if is_incremental() %}
-        -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-    {% endif %}
+    from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- now aggregate five mins volume, occupancy and speed to hourly

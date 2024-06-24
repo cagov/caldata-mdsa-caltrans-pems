@@ -2,36 +2,21 @@
         materialized='incremental',
         cluster_by=["sample_date"],
         unique_key=["id", "lane", "sample_timestamp"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
+        snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL"),
     )
 }}
 
 -- Select unimputed data
 with base as (
-    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
-    {% if is_incremental() %}
-    -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= dateadd(
-                    day,
-                    5 * {{ var("dev_model_look_back") }},
-                    current_date()
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, 5 * {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where {{ make_model_incremental('sample_date') }}
+),
+
+/* Get all detectors that are "real" in that they represent lanes that exist
+   (rather than lane 8 in a two lane road) with a status of "Good" */
+good_detectors as (
+    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    where status = 'Good'
 ),
 
 /* Join with the "good detectors"
@@ -50,16 +35,15 @@ unimputed as (
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
-        (detectors.station_id is not null) as detector_is_good,
+        (good_detectors.station_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from base
-    left join {{ ref('int_diagnostics__real_detector_status') }} as detectors
+    left join good_detectors
         on
-            base.id = detectors.station_id
-            and base.lane = detectors.lane
-            and base.sample_date = detectors.sample_date
-    where detectors.status = 'Good'
+            base.id = good_detectors.station_id
+            and base.lane = good_detectors.lane
+            and base.sample_date = good_detectors.sample_date
 ),
 
 -- get the data that require imputation
@@ -92,7 +76,7 @@ samples_not_requiring_imputation as (
 
 -- read the model coefficients
 coeffs as (
-    select * from {{ ref('int_imputation__local_regression_coefficients') }}
+    select * from {{ ref('int_imputation__local_regional_regression_coefficients') }}
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
@@ -109,9 +93,8 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.occupancy_intercept,
         coeffs.regression_date
     from samples_requiring_imputation
-    -- TODO: update sqlfluff to support asof joins
-    asof join coeffs  -- noqa
-        match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
+    asof join coeffs
+        match_condition (samples_requiring_imputation.sample_date >= coeffs.regression_date)
         on samples_requiring_imputation.id = coeffs.id
 ),
 
@@ -152,12 +135,12 @@ imputed as (
 ),
 
 -- combine imputed and non-imputed dataframe together
-agg_with_local_imputation as (
+agg_with_regional_imputation as (
     select
         unimputed.*,
-        imputed.volume as volume_local_regression,
-        imputed.occupancy as occupancy_local_regression,
-        imputed.speed as speed_local_regression,
+        imputed.volume as imp_volume,
+        imputed.occupancy as imp_occupancy,
+        imputed.speed as imp_speed,
         imputed.regression_date
     from unimputed
     left join imputed
@@ -169,4 +152,4 @@ agg_with_local_imputation as (
 )
 
 -- select the final CTE
-select * from agg_with_local_imputation
+select * from agg_with_regional_imputation
