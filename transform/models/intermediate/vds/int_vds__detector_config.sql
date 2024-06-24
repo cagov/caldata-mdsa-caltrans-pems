@@ -8,6 +8,10 @@ config as (
     select * from {{ source('db96_dev', 'detector_config') }}
 ),
 
+station_config as (
+    select * from {{ ref('int_vds__station_config') }}
+),
+
 config_log_with_validity as (
     select
         *,
@@ -18,12 +22,27 @@ config_log_with_validity as (
 
 config_scd as (
     select
-        config_log_with_validity.*,
-        config.detector_type as type,
-        config.origin_set
+        config_log_with_validity.detector_id,
+        config_log_with_validity.station_id,
+        config_log_with_validity.status,
+        config_log_with_validity.lane,
+        config.detector_type,
+        station_config.station_type,
+        station_config.district,
+        station_config.county,
+        station_config.city,
+        station_config.freeway,
+        station_config.direction,
+        config_log_with_validity._valid_from,
+        config_log_with_validity._valid_to
     from config_log_with_validity
     left join config
         on config_log_with_validity.detector_id = config.detector_id
+    left join station_config
+        on
+            config_log_with_validity.station_id = station_config.station_id
+            and config_log_with_validity._valid_from >= station_config._valid_from
+            and (config_log_with_validity._valid_from < station_config._valid_to or station_config._valid_to is null)
 )
 
 select * from config_scd

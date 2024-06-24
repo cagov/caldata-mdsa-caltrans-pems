@@ -19,7 +19,7 @@ config_log_with_validity as (
 config_scd as (
     select
         config_log_with_validity.*,
-        config.station_type as type,
+        config.station_type,
         config.district_id as district,
         config.county_id as county,
         config.city_id as city,
