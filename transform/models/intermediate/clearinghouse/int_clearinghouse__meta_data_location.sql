@@ -12,9 +12,10 @@ with meta_location as (
         latitude,
         longitude,
         type,
-        abs_pm,
+        absolute_postmile,
         length,
-        state_pm
+        state_postmile,
+        name
     from {{ ref('stg_clearinghouse__station_meta') }}
     where
         meta_date >= '2023-06-10'
