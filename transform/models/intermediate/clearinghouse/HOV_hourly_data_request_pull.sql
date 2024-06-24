@@ -13,7 +13,7 @@ with HOV_HOURLY_VOLUME_SPEED as (
         HOURLY_SPEED,
         HOURLY_VOLUME,
         TYPE
-    from {{ ref('int_clearinghouse__temporal_hourly_agg') }}
+    from {{ ref('int_performance__detector_metrics_agg_hourly') }}
     where
         TYPE = 'HV'
         and DISTRICT not in (1, 2, 6, 9)
@@ -44,7 +44,7 @@ META_DATA_HOV_WITH_DIRECTION as (
         DA.FREEWAY
     from META_DATA_HOV
     inner join
-        {{ ref('int_clearinghouse__temporal_daily_agg') }} as DA
+        {{ ref('int_performance__detector_metrics_agg_daily') }} as DA
         on
             META_DATA_HOV.ID = DA.ID
             and META_DATA_HOV.LANE = DA.LANE
