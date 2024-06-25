@@ -7,128 +7,104 @@
 
 with
 
-five_minute_pm as (
+station_five_minute as (
     select
         id,
         sample_date,
         sample_timestamp,
-        -- will need to update, this is speed agg'd at the lane level and we need it at the station level
-        speed_five_mins,
-        delay_60_mph
-
-    from {{ ref ("int_performance__five_min_perform_metrics") }}
-    {% if is_incremental() %}
-        -- Look back to account for any late-arriving data
-        where
-            speed_five_mins is not null and
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date >= (
-                    dateadd(
-                        day,
-                        {{ var("dev_model_look_back") }},
-                        current_date()
-                    )
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
-
+        speed_weighted,
+    from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
-distance as (
-    select * from {{ ref ('int_performance__calculate_distance') }}
-),
-
-five_minute_agg_with_distance as (
+station_meta as (
     select
-        d.*,
-        f.* exclude (id)
-    from distance as d
-    inner join five_minute_pm as f
+        _valid_from,
+        _valid_to,
+        freeway,
+        direction,
+        type,
+        absolute_postmile,
+        id
+    from {{ ref ("int_clearinghouse__station_meta") }}
+    where type = 'ML' or type = 'HV'
+),
+
+five_minute_with_station_meta as (
+    select
+        sm.* exclude (id),
+        f.* 
+    from station_meta as sm
+    inner join station_five_minute as f
         on
-            d._valid_from <= f.sample_date
-            and d._valid_to > f.sample_date
-            and d.id = f.id
+            sm._valid_from <= f.sample_date
+            and sm._valid_to > f.sample_date
+            and sm.id = f.id
 ),
 
-speed_calcs as (
+calcs as (
     select
         *,
-        iff(direction = 'N' or direction = 'E', 
-        lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type order by sample_timestamp, freeway, direction, type, absolute_postmile asc), 
-        lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type order by sample_timestamp, freeway, direction, type, absolute_postmile desc))
-            as speed_prev,
-        iff(direction = 'N' or direction = 'E',
-        speed_five_mins - lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type order by sample_timestamp, freeway, direction, type, absolute_postmile asc), 
-        speed_five_mins - lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, type order by sample_timestamp, freeway, direction, type, absolute_postmile desc))
-            as speed_delta
-    from five_minute_agg_with_distance    
-),
+        lag(speed_weighted)
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+             as speed_prev_ne, 
 
-bottleneck_start_check_ne as (
-    select
-        *,
-        case
-            when
-                speed_five_mins < 40
-                and distance_delta < 3
-                and speed_delta <= -20
-                and speed_prev >= 40
-                then 1
-            else 0
-        end as bottleneck_start
-    from speed_calcs
-    where direction = 'N' or direction = 'E'
-    order by sample_timestamp, freeway, direction, type, absolute_postmile asc
-),
-
-bottleneck_start_check_sw as (
-    select
-        *,
-        case
-            when
-                speed_five_mins < 40
-                and distance_delta < 3
-                and speed_delta <= -20
-                and speed_prev >= 40
-                then 1
-            else 0
-        end as bottleneck_start
-    from speed_calcs
-    where direction = 'S' or direction = 'W'
-    order by sample_timestamp, freeway, direction, type, absolute_postmile desc
-),
-
-unioned_data as (
-select * from bottleneck_start_check_ne
-union all
-select * from bottleneck_start_check_sw
-), 
-
-bottleneck_persists_check as (
-    select
-        *,
-        sum(bottleneck_start) over (
-            partition by sample_timestamp, freeway, direction, type order by sample_timestamp asc rows between current row and 6 following
-            ) as bottleneck_sum
-    from unioned_data
-)
+        lead(speed_weighted)
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            as speed_prev_sw,
         
-select 
-    *,
-    iff(bottleneck_sum >= 5, true, false) as is_bottleneck
- from bottleneck_persists_check
+        speed_weighted - lag(speed_weighted)
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc) 
+            as speed_delta_ne, 
+
+        (lead(speed_weighted) - speed_weighted)
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            as speed_delta_sw,
+
+        absolute_postmile
+        - lag(absolute_postmile)
+            over (partition by _valid_from, freeway, direction, type order by absolute_postmile asc)
+            as distance_delta
+
+    from five_minute_with_station_meta    
+),
+
+bottleneck_checks as (
+    select
+        *,
+        case
+            when
+                speed_weighted < 40
+                and distance_delta < 3
+                and (speed_delta_ne <= -20 or speed_delta_sw <= -20)
+                and (speed_prev_ne >= 40 or speed_prev_sw >= 40)
+                then 1
+            else 0
+        end as bottleneck_start,
+        case
+            when
+                speed_weighted < 40
+                and distance_delta < 3
+                and (speed_prev_ne < 40 or speed_prev_sw < 40)
+                then 1
+            else 0
+        end as bottleneck_cont
+    from calcs
+    order by sample_timestamp, freeway, direction, type, absolute_postmile asc
+)
+
+select * from bottleneck_checks
+
+-- bottleneck_cont_check as (
+--     select
+--         *,
+--         sum(bottleneck_cont) over (
+--             partition by sample_timestamp, freeway, direction, type order by sample_timestamp asc rows between current row and 6 following
+--             ) as bottleneck_cont_sum
+--     from unioned_data
+-- )
+        
+-- select 
+--     *,
+--     iff(bottleneck_cont_sum >= 5, true, false) as is_bottleneck
+--  from bottleneck_cont_check
