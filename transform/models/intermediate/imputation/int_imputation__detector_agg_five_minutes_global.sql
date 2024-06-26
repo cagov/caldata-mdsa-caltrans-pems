@@ -138,15 +138,14 @@ imputed as (
         sample_date,
         sample_timestamp,
         -- Volume calculation
-        greatest(median(volume_slope * volume_sum_global + volume_intercept), 0) as volume,
+        greatest(volume_slope * volume_sum_global + volume_intercept, 0) as volume,
         -- Occupancy calculation
-        least(greatest(median(occupancy_slope * occupancy_avg_global + occupancy_intercept), 0), 1) as occupancy,
+        least(greatest(occupancy_slope * occupancy_avg_global + occupancy_intercept, 0), 1) as occupancy,
         -- Speed calculation
-        greatest(median(speed_slope * speed_five_mins_global + speed_intercept), 0) as speed,
-        any_value(regression_date) as regression_date
+        greatest(speed_slope * speed_five_mins_global + speed_intercept, 0) as speed,
+        regression_date
     from
         samples_requiring_imputation_with_global
-    group by id, lane, sample_date, sample_timestamp
 ),
 
 -- combine imputed and non-imputed dataframe together
