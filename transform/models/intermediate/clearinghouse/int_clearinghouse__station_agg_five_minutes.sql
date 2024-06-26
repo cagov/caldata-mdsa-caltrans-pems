@@ -6,30 +6,29 @@
 ) }}
 
 with detector_agg_five_minutes as (
-    select
-        *
+    select *
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
 real_detector_status as (
-    select 
-    station_id as id,
-    status,
-    sample_date,
-    lane
-    from {{ ref ("int_diagnostics__real_detector_status")}}
+    select
+        station_id as id,
+        status,
+        sample_date,
+        lane
+    from {{ ref ("int_diagnostics__real_detector_status") }}
     where status = 'Good'
 ),
 
 joined_data as (
-    select 
-    d.*,
+    select d.*
     from detector_agg_five_minutes as d
     inner join real_detector_status as r
-    on d.lane = r.lane
-    and d.id = r.id
-    and d.sample_date = r.sample_date
+        on
+            d.lane = r.lane
+            and d.id = r.id
+            and d.sample_date = r.sample_date
 ),
 
 station_aggregated_speed as (

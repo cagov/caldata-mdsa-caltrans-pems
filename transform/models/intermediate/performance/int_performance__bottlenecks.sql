@@ -12,7 +12,7 @@ station_five_minute as (
         id,
         sample_date,
         sample_timestamp,
-        speed_weighted,
+        speed_weighted
     from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
     where {{ make_model_incremental('sample_date') }}
 
@@ -40,9 +40,9 @@ five_minute_with_station_meta_and_detector_status as (
     from station_five_minute as fm
     inner join station_meta as sm
         on
-            sm._valid_from <= fm.sample_date
-            and (sm._valid_to > fm.sample_date or sm._valid_to is null)
-            and sm.id = fm.id
+            fm.sample_date >= sm._valid_from
+            and (fm.sample_date < sm._valid_to or sm._valid_to is null)
+            and fm.id = sm.id
 ),
 
 calcs as (
@@ -50,18 +50,19 @@ calcs as (
         *,
         lag(speed_weighted)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
-             as speed_prev_ne, 
+            as speed_prev_ne,
 
         lead(speed_weighted)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
             as speed_prev_sw,
-        
+
         speed_weighted - lag(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc) 
-            as speed_delta_ne, 
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            as speed_delta_ne,
 
         lead(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc) - speed_weighted
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+        - speed_weighted
             as speed_delta_sw,
 
         absolute_postmile
@@ -70,10 +71,11 @@ calcs as (
             as distance_delta_ne,
 
         lead(absolute_postmile)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc) - absolute_postmile
+            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+        - absolute_postmile
             as distance_delta_sw
 
-    from five_minute_with_station_meta_and_detector_status    
+    from five_minute_with_station_meta_and_detector_status
 ),
 
 bottleneck_checks as (
@@ -95,7 +97,7 @@ bottleneck_checks as (
                 and (direction = 'S' or direction = 'W')
                 then 1
             else 0
-        end as bottleneck_start,
+        end as bottleneck_start
         /** this criteria below needs to remain true for five out of seven 5-minute data points
         we are planning to have more discussion on how to define the continuation of a bottleneck **/
         -- case
@@ -107,9 +109,9 @@ bottleneck_checks as (
         --     else 0
         -- end as bottleneck_cont
         /** to do: define the end of a bottleneck **/
-    
+
     from calcs
-    order by sample_timestamp, freeway, direction, type, absolute_postmile asc
+    order by sample_timestamp asc, freeway asc, direction asc, type asc, absolute_postmile asc
 )
 
 select * from bottleneck_checks
@@ -118,11 +120,12 @@ select * from bottleneck_checks
 --     select
 --         *,
 --         sum(bottleneck_cont) over (
---             partition by sample_timestamp, freeway, direction, type order by sample_timestamp asc rows between current row and 6 following
+--             partition by sample_timestamp, freeway, direction, type 
+--             order by sample_timestamp asc rows between current row and 6 following
 --             ) as bottleneck_cont_sum
 --     from unioned_data
 -- )
-        
+
 -- select 
 --     *,
 --     iff(bottleneck_cont_sum >= 5, true, false) as is_bottleneck
