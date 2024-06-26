@@ -12,7 +12,7 @@ with aadt_1 as (
         type,
         avg(daily_volume) as aadt_1,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
+    from {{ ref('int_performance__station_metrics_agg_daily') }}
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
@@ -46,6 +46,7 @@ madt as (
         type,
         sample_month,
         sample_year,
+        count(id) as sample_ct,
         avg(madw) as madt
     from madw
     group by id, city, county, district, freeway, direction, type, sample_month, sample_year
@@ -61,10 +62,11 @@ aadt_2 as (
         freeway,
         type,
         sample_year,
+        count(sample_month) as sample_ct,
         avg(madt) as aadt_2
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
-    having count(id) = 12
+    having count(id) >= 12
 ),
 
 -- AADT_3: Conventional AASHTO Procedures
@@ -266,6 +268,44 @@ aadt_1_8 as (
         on
             aadt_1.id = aadt_8.id
             and aadt_1.sample_year = aadt_8.sample_year
+),
+
+traffic_data as (
+    select
+        id,
+        district,
+        type,
+        hourly_volume,
+        sample_date,
+        date_trunc('year', sample_date) as observation_year
+    from {{ ref('int_performance__station_metrics_agg_hourly') }}
+),
+
+kfactor as (
+    select
+        id,
+        district,
+        type,
+        hourly_volume as k_factor,
+        observation_year,
+        dateadd(year, 1, observation_year) as kfactor_year
+    from traffic_data
+    qualify rank() over (
+        partition by id, observation_year
+        order by hourly_volume desc
+    ) = 30
+),
+
+aadt_1_8_kfactor as (
+    select
+        aadt_1_8.*,
+        kfactor.k_factor
+    from aadt_1_8
+    left join kfactor
+        on
+            aadt_1_8.id = kfactor.id
+            and aadt_1_8.sample_year = kfactor.kfactor_year
+
 )
 
-select * from aadt_1_8
+select * from aadt_1_8_kfactor
