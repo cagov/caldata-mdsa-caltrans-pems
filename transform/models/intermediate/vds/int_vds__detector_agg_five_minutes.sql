@@ -5,7 +5,7 @@
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 
-with, detector_config as (
+with detector_config as (
     select * from {{ ref('int_vds__detector_config') }}
 ),
 
@@ -47,14 +47,16 @@ aggregated_speed as (
 )*/
 
 aggregated_speed_with_config as (
-    aggregated_speed.*,
-    detector_config.* exclude (station_id),
+    select
+        aggregated_speed.*,
+        detector_config.* exclude (station_id, lane, district)
     from aggregated_speed
     left join detector_config
-        on aggregated_speed.station_id = detector_config.station_id
-        and aggregated_speed.lane = detector_config.lane
-        and aggregated_speed.sample_date >= detector_config._valid_from
-        and (aggregated_speed.sample_date < detector_config._valid_to or detector_config._valid_to is null)
+        on
+            aggregated_speed.id = detector_config.station_id
+            and aggregated_speed.lane = detector_config.lane
+            and aggregated_speed.sample_date >= detector_config._valid_from
+            and (aggregated_speed.sample_date < detector_config._valid_to or detector_config._valid_to is null)
 )
 
 select * from aggregated_speed_with_config
