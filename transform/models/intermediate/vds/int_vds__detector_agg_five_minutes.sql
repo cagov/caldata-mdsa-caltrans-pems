@@ -51,7 +51,7 @@ aggregated_speed_with_config as (
         aggregated_speed.*,
         detector_config.* exclude (station_id, lane, district)
     from aggregated_speed
-    left join detector_config
+    inner join detector_config -- inner join to remove non-existent lanes
         on
             aggregated_speed.id = detector_config.station_id
             and aggregated_speed.lane = detector_config.lane
