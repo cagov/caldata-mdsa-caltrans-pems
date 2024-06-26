@@ -115,18 +115,3 @@ bottleneck_checks as (
 )
 
 select * from bottleneck_checks
-
--- bottleneck_cont_check as (
---     select
---         *,
---         sum(bottleneck_cont) over (
---             partition by sample_timestamp, freeway, direction, type 
---             order by sample_timestamp asc rows between current row and 6 following
---             ) as bottleneck_cont_sum
---     from unioned_data
--- )
-
--- select 
---     *,
---     iff(bottleneck_cont_sum >= 5, true, false) as is_bottleneck
---  from bottleneck_cont_check
