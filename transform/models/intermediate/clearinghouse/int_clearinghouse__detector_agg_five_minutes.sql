@@ -45,6 +45,8 @@ with raw as (
         where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
     {% endif %}
 
+
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 agg as (

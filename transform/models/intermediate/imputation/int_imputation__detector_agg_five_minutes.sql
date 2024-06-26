@@ -9,29 +9,7 @@
 -- Select unimputed data
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    {% if is_incremental() %}
-    -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= dateadd(
-                    day,
-                    5 * {{ var("dev_model_look_back") }},
-                    current_date()
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, 5 * {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
@@ -115,9 +93,8 @@ samples_requiring_imputation_with_coeffs as (
         coeffs.occupancy_intercept,
         coeffs.regression_date
     from samples_requiring_imputation
-    -- TODO: update sqlfluff to support asof joins
-    asof join coeffs  -- noqa
-        match_condition(samples_requiring_imputation.sample_date >= coeffs.regression_date)  -- noqa
+    asof join coeffs
+        match_condition (samples_requiring_imputation.sample_date >= coeffs.regression_date)
         on samples_requiring_imputation.id = coeffs.id
     where coeffs.other_station_is_local = true
 ),

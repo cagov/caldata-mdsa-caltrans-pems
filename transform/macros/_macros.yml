@@ -10,3 +10,13 @@ macros:
 
       * The target table doesn't exist (i.e., hasn't been built yet)
       * the `--full-refresh` flag is set via the CLI.
+  - name: make_model_incremental
+    description: |
+      This allows for the implementation of complex incremental model
+      logic in one line and one place. Check out dbt's docs on incremental
+      models: https://docs.getdbt.com/docs/build/incremental-models-overview.
+      In addition to incrementality, it implements the variable
+      "dev_model_look_back", which limits the amount of data selected in dev.
+      Two things to note: 1) Users implement there own date column; and
+      2) This macros does not include a "where" keyword, but does include
+      "and". Users are expected to use a "where" clause when implementing this.
