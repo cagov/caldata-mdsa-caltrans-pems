@@ -2,7 +2,7 @@
     materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["id", "lane", "sample_timestamp"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 {% set n_lanes = 8 %}
 
@@ -60,8 +60,7 @@ agg as (
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
         {% endfor %}
     {% for lane in range(1, n_lanes+1) %}
-        avg(speed_{{ lane }}) as speed_{{ lane }}
-    {{ "," if not loop.last }}
+        avg(speed_{{ lane }}) as speed_{{ lane }}{{ "," if not loop.last }}
     {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district
