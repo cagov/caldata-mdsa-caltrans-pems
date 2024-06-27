@@ -1,11 +1,11 @@
 {{ config(materialized='table') }}
 
 with config_log as (
-    select * from {{ source('db96', 'controller_config_log') }}
+    select * from {{ ref('stg_db96__controller_config_log') }}
 ),
 
 config as (
-    select * from {{ source('db96', 'controller_config') }}
+    select * from {{ ref('stg_db96__controller_config') }}
 ),
 
 config_log_with_validity as (
@@ -20,12 +20,11 @@ config_scd as (
     select
         config_log_with_validity.*,
         config.controller_type,
-        config.district_id as district,
-        config.county_id as county,
-        config.city_id as city,
-        config.freeway_id as freeway,
-        config.freeway_dir as direction,
-        config.origin_set
+        config.district,
+        config.county,
+        config.city,
+        config.freeway,
+        config.direction
     from config_log_with_validity
     left join config
         on config_log_with_validity.controller_id = config.controller_id

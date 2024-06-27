@@ -1,11 +1,11 @@
 {{ config(materialized='table') }}
 
 with config_log as (
-    select * from {{ source('db96', 'detector_config_log') }}
+    select * from {{ ref('stg_db96__detector_config_log') }}
 ),
 
 config as (
-    select * from {{ source('db96', 'detector_config') }}
+    select * from {{ ref('stg_db96__detector_config') }}
 ),
 
 station_config as (
