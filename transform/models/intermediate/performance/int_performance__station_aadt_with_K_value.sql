@@ -26,7 +26,7 @@ madw as (
         freeway,
         direction,
         type,
-        -- calculate  Monthly Average Days of the Week (MADW)
+        -- calculate  Monthly Average Days of the Week (MADW).
         avg(daily_volume) as madw,
         extract(dow from sample_date) as day_of_week,
         date_trunc('month', sample_date) as sample_month,
