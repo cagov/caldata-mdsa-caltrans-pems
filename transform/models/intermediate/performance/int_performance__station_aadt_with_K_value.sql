@@ -156,7 +156,7 @@ aadt_4 as (
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
-    -- non of the days of week should have missing Annual Average Days of the Week traffic  
+    -- non of the days of week should have missing Annual Average Days of the Week traffic
     having count(id) = 7
 ),
 
