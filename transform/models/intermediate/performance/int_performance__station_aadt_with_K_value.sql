@@ -67,7 +67,7 @@ aadt_2 as (
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
     -- all 12 months average traffic volume is required to calculate this metric
-    -- there should be no missing monthly average daily traffic
+    -- otherway,there should be no missing monthly average daily traffic
     having count(id) = 12
 ),
 
