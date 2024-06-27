@@ -68,8 +68,6 @@ models:
         description: The freeway on which the station is installed.
       - name: direction
         description: The direction of travel for the freeway on which the station is installed.
-      - name: time_id
-        description: The update timestamp for the station metadata.
       - name: status
       - name: name
       - name: physical_lanes

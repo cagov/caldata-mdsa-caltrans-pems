@@ -10,7 +10,7 @@ config as (
 
 config_log_with_validity as (
     select
-        *,
+        * exclude (time_id),
         time_id as _valid_from,
         lead(time_id) over (partition by station_id order by time_id asc) as _valid_to
     from config_log
