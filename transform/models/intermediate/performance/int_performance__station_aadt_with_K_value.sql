@@ -66,7 +66,9 @@ aadt_2 as (
         avg(madt) as aadt_2
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
-    having count(id) >= 12
+    -- all 12 months average traffic volume is required to calculate this metric
+    -- there should be no missing monthly average daily traffic
+    having count(id) = 12
 ),
 
 -- AADT_3: Conventional AASHTO Procedures
@@ -100,6 +102,7 @@ aadt_3 as (
         avg(aadw) as aadt_3
     from aadw
     group by id, city, county, district, freeway, direction, type, sample_year
+    -- non of the days of week should have missing Annual Average Days of the Week traffic
     having count(id) = 7
 ),
 
@@ -153,6 +156,7 @@ aadt_4 as (
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
+    -- non of the days of week should have missing Annual Average Days of the Week traffic  
     having count(id) = 7
 ),
 
@@ -195,6 +199,7 @@ aadt_6 as (
         avg(madt) as aadt_6
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
+    -- 1 of the 12 madt values may be missing for this final AADT calculation.
     having count(id) >= 11
 ),
 
@@ -212,6 +217,7 @@ aadt_7 as (
         avg(aadw) as aadt_7
     from aadw
     group by id, city, county, district, freeway, direction, type, sample_year
+    -- 1 of the 7 aadw values may be missing for this final AADT calculation.
     having count(id) >= 6
 ),
 
@@ -225,10 +231,11 @@ aadt_8 as (
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
+    -- 1 of the 7 aadw values may be missing for this final AADT calculation.
     having count(id) >= 6
 ),
 
--- now join all CTE together
+-- now join all aadt_CTE together
 aadt_1_8 as (
     select
         aadt_1.*,
@@ -282,6 +289,7 @@ traffic_data as (
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
 ),
 
+-- get 30th highest hour volume in preceding year
 k_30 as (
     select
         id,
@@ -297,6 +305,7 @@ k_30 as (
     ) = 30
 ),
 
+-- get 50th highest hour volume in preceding year
 k_50 as (
     select
         id,
@@ -312,6 +321,7 @@ k_50 as (
     ) = 50
 ),
 
+-- get 100th highest hour volume in preceding year
 k_100 as (
     select
         id,
