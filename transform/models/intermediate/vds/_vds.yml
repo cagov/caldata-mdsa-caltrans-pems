@@ -1,12 +1,16 @@
 version: 2
 
 models:
-  - name: stg_db96__controller_config
+  - name: int_vds__controller_config
     description: |
       Configuration metadata for VDS controllers. There may be multiple
       stations hooked up to a single controller. For example, the same
       controller might have a station for the mainline as well as a station
       for an onramp.
+
+      This table is a slowly-changing-dimension-2, meaning that it has multiple
+      different versions of the metadata for each controller, with `_valid_from`
+      and `_valid_to` datetime columns indicating when the version is correct.
     columns:
       - name: controller_id
         description: The unique ID of the controller.
@@ -22,15 +26,6 @@ models:
         description: The freeway on which the controller is installed.
       - name: direction
         description: The direction of travel for the freeway on which the controller is installed.
-  - name: stg_db96__controller_config_log
-    description: |
-      A log table showing updates to the controller config. This can be joined
-      with the `controller_config` table to get a full history of controller metadata.
-    columns:
-      - name: controller_id
-        description: The unique ID of the controller.
-      - name: time_id
-        description: The update timestamp for the controller metadata.
       - name: status
       - name: name
       - name: state_postmile
@@ -45,10 +40,19 @@ models:
       - name: line_num
       - name: stn_address
         description: An address for the controller
-  - name: stg_db96__station_config
+      - name: _valid_from
+        description: The timestamp from which this row is valid.
+      - name: _valid_to
+        description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+
+  - name: int_vds__station_config
     description: |
       Metadata for a single VDS station. Multiple stations may be connected to
       a single controller, and multiple detectors may be connected to a single station.
+
+      This table is a slowly-changing-dimension-2, meaning that it has multiple
+      different versions of the metadata for each controller, with `_valid_from`
+      and `_valid_to` datetime columns indicating when the version is correct.
     columns:
       - name: station_id
         description: The unique ID of the station.
@@ -64,13 +68,6 @@ models:
         description: The freeway on which the station is installed.
       - name: direction
         description: The direction of travel for the freeway on which the station is installed.
-  - name: stg_db96__station_config_log
-    description: |
-      A log table showing updates to the station config. This can be joined
-      with the `station_config` table to get a full history of station metadata.
-    columns:
-      - name: station_id
-        description: The unique ID of the controller.
       - name: time_id
         description: The update timestamp for the station metadata.
       - name: status
@@ -92,30 +89,47 @@ models:
       - name: segment_end
       - name: controller_id
         description: The ID of the controller to which the station is attached.
-  - name: stg_db96__detector_config
+      - name: _valid_from
+        description: The timestamp from which this row is valid.
+      - name: _valid_to
+        description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+  - name: int_vds__detector_config
     description: |
       Metadata for a single loop detector. This is the device that actually records
       flow, occupancy, and speed, and is typically installed in a single lane.
       Multiple detectors across a set of lanes constitute a station.
+
+      Unlike the equivalent configuration models for controller and station,
+      this metadata model is further joined with metadata for each detector's
+      station. This adds some further denormalization to the table, but is a
+      practical response to so many downstream metrics relying on station metadata.
+
+      This table is a slowly-changing-dimension-2, meaning that it has multiple
+      different versions of the metadata for each controller, with `_valid_from`
+      and `_valid_to` datetime columns indicating when the version is correct.
     columns:
       - name: detector_id
         description: The unique ID of the detector.
-      - name: detector_type
-        description: The type of the detector.
-  - name: stg_db96__detector_config_log
-    description: |
-      A log table showing updates to the detector config. This can be joined
-      with the `detector_config` table to get a full history of detector metadata.
-    columns:
-      - name: detector_id
-        description: The unique ID of the detector.
-      - name: time_id
-        description: The update timestamp for the detector metadata.
       - name: station_id
         description: The ID of the station to which the detector is connected
       - name: status
       - name: lane
         description: The lane number of the detector
-      - name: slot
-      - name: volume_flag
-      - name: logical_position
+      - name: detector_type
+        description: The type of the detector.
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station installed.
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: _valid_from
+        description: The timestamp from which this row is valid.
+      - name: _valid_to
+        description: The timestamp to which this row is valid. If it is still valid, this is `null`.
