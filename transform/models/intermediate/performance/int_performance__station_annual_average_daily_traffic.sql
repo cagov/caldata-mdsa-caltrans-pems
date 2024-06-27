@@ -270,6 +270,7 @@ aadt_1_8 as (
             and aadt_1.sample_year = aadt_8.sample_year
 ),
 
+-- Calculate k-factors
 traffic_data as (
     select
         id,
@@ -281,12 +282,12 @@ traffic_data as (
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
 ),
 
-kfactor as (
+k_30 as (
     select
         id,
         district,
         type,
-        hourly_volume as k_factor,
+        hourly_volume as k_30,
         observation_year,
         dateadd(year, 1, observation_year) as kfactor_year
     from traffic_data
@@ -296,16 +297,56 @@ kfactor as (
     ) = 30
 ),
 
-aadt_1_8_kfactor as (
+k_50 as (
+    select
+        id,
+        district,
+        type,
+        hourly_volume as k_50,
+        observation_year,
+        dateadd(year, 1, observation_year) as kfactor_year
+    from traffic_data
+    qualify rank() over (
+        partition by id, observation_year
+        order by hourly_volume desc
+    ) = 50
+),
+
+k_100 as (
+    select
+        id,
+        district,
+        type,
+        hourly_volume as k_100,
+        observation_year,
+        dateadd(year, 1, observation_year) as kfactor_year
+    from traffic_data
+    qualify rank() over (
+        partition by id, observation_year
+        order by hourly_volume desc
+    ) = 100
+),
+
+-- join all k factors with all AADT
+aadt_1_8_kfactors as (
     select
         aadt_1_8.*,
-        kfactor.k_factor
+        k_30.k_30,
+        k_50.k_50,
+        k_100.k_100
     from aadt_1_8
-    left join kfactor
+    left join k_30
         on
-            aadt_1_8.id = kfactor.id
-            and aadt_1_8.sample_year = kfactor.kfactor_year
-
+            aadt_1_8.id = k_30.id
+            and aadt_1_8.sample_year = k_30.kfactor_year
+    left join k_50
+        on
+            aadt_1_8.id = k_50.id
+            and aadt_1_8.sample_year = k_50.kfactor_year
+    left join k_100
+        on
+            aadt_1_8.id = k_100.id
+            and aadt_1_8.sample_year = k_100.kfactor_year
 )
 
-select * from aadt_1_8_kfactor
+select * from aadt_1_8_kfactors
