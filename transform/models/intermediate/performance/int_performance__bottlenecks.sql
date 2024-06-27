@@ -117,12 +117,12 @@ bottleneck_checks as (
 ),
 
 temporal_extent as (
-    select 
+    select
         *,
-        iff(bottleneck_start=1, sum(bottleneck_continues) over (
-        partition by sample_timestamp, freeway, direction, type
-        order by sample_timestamp asc rows between current row and 6 following
-    ), 0) as bottleneck_temporal_extent
+        iff(bottleneck_start = 1, sum(bottleneck_continues) over (
+            partition by sample_timestamp, freeway, direction, type
+            order by sample_timestamp asc rows between current row and 6 following
+        ), 0) as bottleneck_temporal_extent
     from bottleneck_checks
 )
 
