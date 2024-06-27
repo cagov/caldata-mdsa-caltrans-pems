@@ -1,11 +1,11 @@
 {{ config(materialized='table') }}
 
 with config_log as (
-    select * from {{ source('db96_dev', 'controller_config_log') }}
+    select * from {{ source('db96', 'controller_config_log') }}
 ),
 
 config as (
-    select * from {{ source('db96_dev', 'controller_config') }}
+    select * from {{ source('db96', 'controller_config') }}
 ),
 
 config_log_with_validity as (
