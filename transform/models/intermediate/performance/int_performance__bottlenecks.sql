@@ -1,8 +1,8 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["id", "sample_timestamp"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    unique_key=["id", "sample_date", "sample_timestamp"],
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
 ) }}
 
 with
@@ -86,32 +86,44 @@ bottleneck_checks as (
                 speed_weighted < 40
                 and abs(distance_delta_ne) < 3
                 and speed_delta_ne <= -20
-                and speed_prev_ne >= 40
                 and (direction = 'N' or direction = 'E')
                 then 1
             when
                 speed_weighted < 40
                 and abs(distance_delta_sw) < 3
                 and speed_delta_sw <= -20
-                and speed_prev_sw >= 40
                 and (direction = 'S' or direction = 'W')
                 then 1
             else 0
-        end as bottleneck_start
-        /** this criteria below needs to remain true for five out of seven 5-minute data points
-        we are planning to have more discussion on how to define the continuation of a bottleneck **/
-        -- case
-        --     when
-        --         speed_weighted < 40
-        --         and abs(distance_delta) < 3
-        --         and (speed_prev_ne < 40 or speed_prev_sw < 40)
-        --         then 1
-        --     else 0
-        -- end as bottleneck_cont
-        /** to do: define the end of a bottleneck **/
-
+        end as bottleneck_start,
+        case
+            when
+                speed_weighted < 40
+                and abs(distance_delta_ne) < 3
+                and (speed_prev_ne < 40 or speed_prev_sw < 40)
+                and (direction = 'N' or direction = 'E')
+                then 1
+            when
+                speed_weighted < 40
+                and abs(distance_delta_sw) < 3
+                and (speed_prev_ne < 40 or speed_prev_sw < 40)
+                and (direction = 'S' or direction = 'W')
+                then 1
+            else 0
+        end as bottleneck_continues
+    /** to do: define the end of a bottleneck **/
     from calcs
-    order by sample_timestamp asc, freeway asc, direction asc, type asc, absolute_postmile asc
+    -- qualify sum(bottleneck_temporal_extent)  >= 5
+),
+
+temporal_extent as (
+    select 
+        *,
+        iff(bottleneck_start=1, sum(bottleneck_continues) over (
+        partition by sample_timestamp, freeway, direction, type
+        order by sample_timestamp asc rows between current row and 6 following
+    ), 0) as bottleneck_temporal_extent
+    from bottleneck_checks
 )
 
-select * from bottleneck_checks
+select * from temporal_extent

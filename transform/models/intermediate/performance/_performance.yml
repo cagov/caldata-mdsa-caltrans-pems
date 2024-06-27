@@ -343,3 +343,30 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
+  - name: int_performance__bottlenecks
+    description: |
+      The PeMS system runs a bottleneck identification algorithm every day. The original algorithm was
+      presented in, "Systematic Identification of Freeway Bottlenecks," by Chen, C., Skabardonis, A.,
+      Varaiya, P. (2003). Transportation Research Board, 2004.
+
+      This model identifies bottlenecks at every detector. A bottleneck is defined by the following
+      conditions - 1) There is a drop in speed of at least 20 mph. 2) The speed at the current detector
+      is less than 40 mph. 3) The detectors are less than 3 miles apart. 4) The speed drop persists for
+      at least 5 out of any 7 contiguous 5-minute data points. If all of these conditions are met then
+      we declare that there is a bottleneck at this location that has been activated for all of the
+      seven 5-minute time points.
+
+      We perform this analysis for each of three time periods - 1) AM shift (5am-10am), 2) noon shift
+      (10am-3pm), and 3) PM shift (3pm-8pm).
+
+      For each location where a bottleneck is activated we compute the following - 1) Duration - This is
+      how long the bottleneck was active during that particular shift on that day. 2) Spatial Extent - For
+      each 5-minute period when the bottleneck was active we see how far upstream the bottleneck extends.
+      For this, at each time point, we find the farthest upstream detector with speed less than 40 mph and
+      use that location as the extent during that 5-minute period. To get a single extent for the entire
+      bottleneck, we take the median of the extents for each 5-minute period. 3) Delay - The delay is simply
+      the sum of the individual PeMS segment delays for the entire duration and spatial extent of the
+      bottleneck. The delay is calculated with respect to a threshold speed of 60 mph.
+    columns:
+      - name: tk
+        description: tk
