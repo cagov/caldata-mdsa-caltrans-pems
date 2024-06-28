@@ -10,13 +10,13 @@ with local_reg as (
     select
         id,
         lane,
-        speed_local_regression,
-        occupancy_local_regression,
-        volume_local_regression,
-        detector_is_good,
         regression_date,
         sample_date,
-        sample_timestamp
+        sample_timestamp,
+        detector_is_good,
+        speed_local_regression,
+        occupancy_local_regression,
+        volume_local_regression
     from {{ ref('int_imputation__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
 ),
@@ -26,10 +26,10 @@ regional_reg as (
     select
         id,
         lane,
-        detector_is_good,
         regression_date,
         sample_date,
         sample_timestamp,
+        detector_is_good,
         imp_occupancy as occupancy_regional_regression,
         imp_volume as volume_regional_regression,
         imp_speed as speed_regional_regression
