@@ -48,13 +48,11 @@ five_minute_with_station_meta_and_detector_status as (
 calcs as (
     select
         *,
-        lag(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
-            as speed_prev_ne,
 
-        lead(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
-            as speed_prev_sw,
+        /*Absolute postmile increases going north and east. When the direction of the freeway for a
+        station is north or east, the "upstream" station has a smaller postmile, and we need to lag
+        to get the speed there. When the direction is west or south, the "upstream" station has a
+        larger postmile, and we need to lead to get the speed there. */
 
         speed_weighted - lag(speed_weighted)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)

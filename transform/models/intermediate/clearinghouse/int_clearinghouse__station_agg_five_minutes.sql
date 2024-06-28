@@ -2,7 +2,7 @@
     materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["id", "sample_timestamp"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
+    snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
 with detector_agg_five_minutes as (

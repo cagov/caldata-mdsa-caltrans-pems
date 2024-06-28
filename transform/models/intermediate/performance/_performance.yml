@@ -376,10 +376,6 @@ models:
         description: Calculates the delta between speeds at different stations that have a direction of N or E.
       - name: SPEED_DELTA_SW
         description: Calculates the delta between speeds at different stations that have a direction of S or W.
-      - name: SPEED_PREV_NE
-        description: Grabs the speed of the previous station that has a direction of N or E.
-      - name: SPEED_PREV_SW
-        description: Grabs the speed of the previous station that has a direction of S or W.
       - name: IS_BOTTLENECK
         description: |
           A boolean value that evaluates to True when all criteria for a bottleneck is met for at least 5 rows 
