@@ -106,14 +106,14 @@ temporal_extent_check as (
         sum(bottleneck_check) over (
             partition by id, sample_date
             order by sample_timestamp asc rows between current row and 6 following
-        ) as count_of_bottleneck_check
+        ) as bottleneck_check_summed
     from bottleneck_criteria
 ),
 
 temporal_extent as (
     select
-        *,
-        iff(count_of_bottleneck_check >= 5, true, false) as is_bottleneck
+        * exclude (latitude, longitude, bottleneck_check, bottleneck_check_summed),
+        iff(bottleneck_check_summed >= 5, true, false) as is_bottleneck
     from temporal_extent_check
 )
 

@@ -368,5 +368,19 @@ models:
       the sum of the individual PeMS segment delays for the entire duration and spatial extent of the
       bottleneck. The delay is calculated with respect to a threshold speed of 60 mph.
     columns:
-      - name: tk
-        description: tk
+      - name: DISTANCE_DELTA_NE
+        description: Calculates the delta between postmiles that have a direction of N or E.
+      - name: DISTANCE_DELTA_SW
+        description: Calculates the delta between postmiles that have a direction of S or W.
+      - name: SPEED_DELTA_NE
+        description: Calculates the delta between speeds at different stations that have a direction of N or E.
+      - name: SPEED_DELTA_SW
+        description: Calculates the delta between speeds at different stations that have a direction of S or W.
+      - name: SPEED_PREV_NE
+        description: Grabs the speed of the previous station that has a direction of N or E.
+      - name: SPEED_PREV_SW
+        description: Grabs the speed of the previous station that has a direction of S or W.
+      - name: IS_BOTTLENECK
+        description: |
+          A boolean value that evaluates to True when all criteria for a bottleneck is met for at least 5 rows 
+          in a forward-looking window of seven, otherwise it will give a value of False.
