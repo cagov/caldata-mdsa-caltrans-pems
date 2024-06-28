@@ -75,13 +75,13 @@ models:
       - name: use_speed
       - name: dt_set_id
       - name: state_postmile
-        description: The State postmile for the controller
+        description: The State postmile for the station.
       - name: absolute_postmile
-        description: The absolute postmile for the controller.
+        description: The absolute postmile for the station.
       - name: latitude
-        description: The latitude of the controller
+        description: The latitude of the station.
       - name: longitude
-        description: The longitude of the controller
+        description: The longitude of the station.
       - name: angle
       - name: segment_start
       - name: segment_end
