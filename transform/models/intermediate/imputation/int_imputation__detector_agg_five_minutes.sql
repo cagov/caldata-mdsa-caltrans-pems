@@ -150,7 +150,37 @@ agg_with_local_imputation as (
             and unimputed.lane = imputed.lane
             and unimputed.sample_date = imputed.sample_date
             and unimputed.sample_timestamp = imputed.sample_timestamp
+),
+
+-- lets read regional regression estimates
+regional_reg as (
+    select
+        id,
+        lane,
+        regression_date,
+        sample_date,
+        sample_timestamp,
+        detector_is_good,
+        imp_occupancy as occupancy_regional_regression,
+        imp_volume as volume_regional_regression,
+        imp_speed as speed_regional_regression
+    from {{ ref('int_imputation__detector_agg_five_minutes_regional_reg') }}
+),
+
+--join regional regression with local regression
+local_regional_estimates as (
+    select
+        local_reg.*,
+        regional_reg.occupancy_regional_regression,
+        regional_reg.volume_regional_regression,
+        regional_reg.speed_regional_regression
+    from agg_with_local_imputation as local_reg
+    left join regional_reg
+        on
+            local_reg.id = regional_reg.id
+            and local_reg.lane = regional_reg.lane
+            and local_reg.sample_timestamp = regional_reg.sample_timestamp
 )
 
--- select the final CTE
-select * from agg_with_local_imputation
+-- select the estimates from both local and regional regression
+select * from local_regional_estimates
