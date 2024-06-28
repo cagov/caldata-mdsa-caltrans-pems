@@ -78,7 +78,7 @@ calcs as (
     from five_minute_with_station_meta_and_detector_status
 ),
 
-bottleneck_checks as (
+bottleneck_criteria as (
     select
         *,
         case
@@ -95,35 +95,26 @@ bottleneck_checks as (
                 and (direction = 'S' or direction = 'W')
                 then 1
             else 0
-        end as bottleneck_start,
-        case
-            when
-                speed_weighted < 40
-                and abs(distance_delta_ne) < 3
-                and (speed_prev_ne < 40 or speed_prev_sw < 40)
-                and (direction = 'N' or direction = 'E')
-                then 1
-            when
-                speed_weighted < 40
-                and abs(distance_delta_sw) < 3
-                and (speed_prev_ne < 40 or speed_prev_sw < 40)
-                and (direction = 'S' or direction = 'W')
-                then 1
-            else 0
-        end as bottleneck_continues
-    /** to do: define the end of a bottleneck **/
+        end as bottleneck_check
+
     from calcs
-    -- qualify sum(bottleneck_temporal_extent)  >= 5
+),
+
+temporal_extent_check as (
+    select
+        *,
+        sum(bottleneck_check) over (
+            partition by id, sample_date
+            order by sample_timestamp asc rows between current row and 6 following
+        ) as count_of_bottleneck_check
+    from bottleneck_criteria
 ),
 
 temporal_extent as (
     select
         *,
-        iff(bottleneck_start = 1, sum(bottleneck_continues) over (
-            partition by sample_timestamp, freeway, direction, type
-            order by sample_timestamp asc rows between current row and 6 following
-        ), 0) as bottleneck_temporal_extent
-    from bottleneck_checks
+        iff(count_of_bottleneck_check >= 5, true, false) as is_bottleneck
+    from temporal_extent_check
 )
 
 select * from temporal_extent
