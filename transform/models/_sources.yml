@@ -155,3 +155,256 @@ sources:
             description: The name of the file in the clearinghouse where the metdata was obtained from.
           - name: CONTENT
             description: The XML content of the status metadata file.
+  - name: db96
+    database: "{{ env_var('DBT_RAW_DB', 'RAW_PRD') }}"
+    schema: db96
+    description: |
+      Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
+      db96 within the Caltrans network.
+    tables:
+      - name: vds30sec
+        description: |
+          30-second resolution VDS data from DB96, a legacy Oracle database within Caltrans'
+          on-premise network.
+        columns:
+          - name: FILENAME
+            description: The name of the parquet file uploaded to S3 and loaded to Snowflake via Snowpipe.
+          - name: META
+            description: Metadata from the data relay scripts.
+          - name: RECV_TIME
+            description: TODO
+          - name: SAMPLE_DATE
+            description: The date on which this data was collected (in America/Los_Angeles timezone).
+          - name: SAMPLE_TIME
+            description: |
+              The timestamp for the 30-second resolution data. This is a timezone-naive timestamp,
+              as it is also that in the source system. However, it seems to be in America/Los_Angeles.
+          - name: VDS_ID
+            description: The ID for the VDS station.
+          - name: VOLUME_1
+            description: Flow volume for lane 1.
+          - name: VOLUME_2
+            description: Flow volume for lane 2.
+          - name: VOLUME_3
+            description: Flow volume for lane 3.
+          - name: VOLUME_4
+            description: Flow volume for lane 4.
+          - name: VOLUME_5
+            description: Flow volume for lane 5.
+          - name: VOLUME_6
+            description: Flow volume for lane 6.
+          - name: VOLUME_7
+            description: Flow volume for lane 7.
+          - name: VOLUME_8
+            description: Flow volume for lane 8.
+          - name: VOLUME_9
+            description: Flow volume for lane 9.
+          - name: VOLUME_10
+            description: Flow volume for lane 10.
+          - name: VOLUME_11
+            description: Flow volume for lane 11.
+          - name: VOLUME_12
+            description: Flow volume for lane 12.
+          - name: VOLUME_13
+            description: Flow volume for lane 13.
+          - name: VOLUME_14
+            description: Flow volume for lane 14.
+          - name: OCCUPANCY_1
+            description: Flow occupancy for lane 1.
+          - name: OCCUPANCY_2
+            description: Flow occupancy for lane 2.
+          - name: OCCUPANCY_3
+            description: Flow occupancy for lane 3.
+          - name: OCCUPANCY_4
+            description: Flow occupancy for lane 4.
+          - name: OCCUPANCY_5
+            description: Flow occupancy for lane 5.
+          - name: OCCUPANCY_6
+            description: Flow occupancy for lane 6.
+          - name: OCCUPANCY_7
+            description: Flow occupancy for lane 7.
+          - name: OCCUPANCY_8
+            description: Flow occupancy for lane 8.
+          - name: OCCUPANCY_9
+            description: Flow occupancy for lane 9.
+          - name: OCCUPANCY_10
+            description: Flow occupancy for lane 10.
+          - name: OCCUPANCY_11
+            description: Flow occupancy for lane 11.
+          - name: OCCUPANCY_12
+            description: Flow occupancy for lane 12.
+          - name: OCCUPANCY_13
+            description: Flow occupancy for lane 13.
+          - name: OCCUPANCY_14
+            description: Flow occupancy for lane 14.
+          - name: SPEED_1
+            description: Flow speed for lane 1.
+          - name: SPEED_2
+            description: Flow speed for lane 2.
+          - name: SPEED_3
+            description: Flow speed for lane 3.
+          - name: SPEED_4
+            description: Flow speed for lane 4.
+          - name: SPEED_5
+            description: Flow speed for lane 5.
+          - name: SPEED_6
+            description: Flow speed for lane 6.
+          - name: SPEED_7
+            description: Flow speed for lane 7.
+          - name: SPEED_8
+            description: Flow speed for lane 8.
+          - name: SPEED_9
+            description: Flow speed for lane 9.
+          - name: SPEED_10
+            description: Flow speed for lane 10.
+          - name: SPEED_11
+            description: Flow speed for lane 11.
+          - name: SPEED_12
+            description: Flow speed for lane 12.
+          - name: SPEED_13
+            description: Flow speed for lane 13.
+          - name: SPEED_14
+            description: Flow speed for lane 14.
+      - name: controller_config
+        description: |
+          Configuration metadata for VDS controllers. There may be multiple
+          stations hooked up to a single controller. For example, the same
+          controller might have a station for the mainline as well as a station
+          for an onramp.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: controller_id
+            description: The unique ID of the controller.
+          - name: controller_type
+            description: The type of the controller.
+          - name: district_id
+            description: The Caltrans district for the controller.
+          - name: county_id
+            description: The county FIPS code in which the controller is installed.
+          - name: city_id
+            description: The city FIPS code in which the controller is installed.
+          - name: freeway_id
+            description: The freeway on which the controller is installed.
+          - name: freeway_dir
+            description: The direction of travel for the freeway on which the controller is installed.
+      - name: controller_config_log
+        description: |
+          A log table showing updates to the controller config. This can be joined
+          with the `controller_config` table to get a full history of controller metadata.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: equipment_set
+          - name: controller_id
+            description: The unique ID of the controller.
+          - name: time_id
+            description: The update timestamp for the controller metadata.
+          - name: status
+          - name: name
+          - name: state_postmile
+            description: The State postmile for the controller.
+          - name: abs_postmile
+            description: The absolute postmile for the controller.
+          - name: latitude
+            description: The latitude of the controller.
+          - name: longitude
+            description: The longitude of the controller.
+          - name: angle
+          - name: line_num
+          - name: stn_address
+            description: An address for the controller.
+          - name: eqp_owner_id
+          - name: USER_ID_1
+          - name: USER_ID_2
+          - name: USER_ID_3
+          - name: USER_ID_4
+      - name: station_config
+        description: |
+          Metadata for a single VDS station. Multiple stations may be connected to
+          a single controller, and multiple detectors may be connected to a single station.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: station_id
+            description: The unique ID of the station.
+          - name: station_type
+            description: The type of the station.
+          - name: district_id
+            description: The Caltrans district for the station.
+          - name: county_id
+            description: The county FIPS code in which the station installed.
+          - name: city_id
+            description: The city FIPS code in which the station is installed.
+          - name: freeway_id
+            description: The freeway on which the station is installed.
+          - name: freeway_dir
+            description: The direction of travel for the freeway on which the station is installed.
+      - name: station_config_log
+        description: |
+          A log table showing updates to the station config. This can be joined
+          with the `station_config` table to get a full history of station metadata.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: equipment_set
+          - name: station_id
+            description: The unique ID of the station.
+          - name: time_id
+            description: The update timestamp for the station metadata.
+          - name: status
+          - name: name
+          - name: physical_lanes
+            description: The number of lanes in the station
+          - name: use_speed
+          - name: dt_set_id
+          - name: state_postmile
+            description: The State postmile for the station.
+          - name: abs_postmile
+            description: The absolute postmile for the station.
+          - name: latitude
+            description: The latitude of the station.
+          - name: longitude
+            description: The longitude of the station.
+          - name: angle
+          - name: seg_start
+          - name: seg_end
+          - name: eqp_owner_id
+          - name: USER_ID_1
+          - name: USER_ID_2
+          - name: USER_ID_3
+          - name: USER_ID_4
+          - name: controller_id
+            description: The ID of the controller to which the station is attached.
+      - name: detector_config
+        description: |
+          Metadata for a single loop detector. This is the device that actually records
+          flow, occupancy, and speed, and is typically installed in a single lane.
+          Multiple detectors across a set of lanes constitute a station.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: detector_id
+            description: The unique ID of the detector.
+          - name: detector_type
+            description: The type of the detector.
+      - name: detector_config_log
+        description: |
+          A log table showing updates to the detector config. This can be joined
+          with the `detector_config` table to get a full history of detector metadata.
+        columns:
+          - name: meta
+            description: Metadata from the data relay scripts.
+          - name: equipment_set
+          - name: detector_id
+            description: The unique ID of the detector.
+          - name: time_id
+            description: The update timestamp for the detector metadata.
+          - name: station_id
+            description: The ID of the station to which the controller is connected
+          - name: status
+          - name: lane
+            description: The lane number of the detector
+          - name: slot
+          - name: volume_flag
+          - name: logical_position
