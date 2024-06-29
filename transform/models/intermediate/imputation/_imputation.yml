@@ -71,6 +71,12 @@ models:
         description: The occupancy based on local regressions
       - name: speed_local_regression
         description: The speed based on local regressions
+      - name: volume_regional_regression
+        description: The volume based on regional regressions
+      - name: occupancy_regional_regression
+        description: The occupancy based on regional regressions
+      - name: speed_regional_regression
+        description: The speed based on regional regressions
       - name: regression_date
         description: |
           The date on which the coefficients in the local regression
