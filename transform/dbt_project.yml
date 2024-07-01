@@ -59,6 +59,8 @@ models:
       +materialized: view
       clearinghouse:
         +schema: clearinghouse
+      vds:
+        +schema: vds
       diagnostics:
         +schema: diagnostics
       performance:
