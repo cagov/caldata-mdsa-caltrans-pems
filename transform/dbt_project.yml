@@ -63,6 +63,8 @@ models:
         +schema: db96
       clearinghouse:
         +schema: clearinghouse
+      vds:
+        +schema: vds
       diagnostics:
         +schema: diagnostics
       performance:
