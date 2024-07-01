@@ -21,30 +21,6 @@ with raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
-    {% if is_incremental() %}
-        -- Look back two days to account for any late-arriving data
-        where
-            sample_date > (
-                select
-                    dateadd(
-                        day,
-                        {{ var("incremental_model_look_back") }},
-                        max(sample_date)
-                    )
-                from {{ this }}
-            )
-            {% if target.name != 'prd' %}
-                and sample_date
-                >= dateadd(
-                    day,
-                    {{ var("dev_model_look_back") }},
-                    current_date()
-                )
-            {% endif %}
-    {% elif target.name != 'prd' %}
-        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}
-
 
     where {{ make_model_incremental('sample_date') }}
 ),
