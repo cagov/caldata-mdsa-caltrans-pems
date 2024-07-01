@@ -343,7 +343,7 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
-  - name: int_performance__station_aadt_with_K_value.
+  - name: int_performance__station_aadt_with_K_value
     description: |
       Station level annual average daily traffic and k th highest hour volume in the precceding year.
        - name: ID
