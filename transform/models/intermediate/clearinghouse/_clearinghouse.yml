@@ -10,35 +10,35 @@ models:
       - name: ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
-          Use this value to 'join' other clearinghouse files that contain Station Metadata
+          Use this value to 'join' other clearinghouse files that contain Station Metadata.
         tests:
           - not_null
       - name: ABSOLUTE_POSTMILE
-        description: Absolute postmile value along a partilcuar state route where the VDS is located
+        description: Absolute postmile value along a partilcuar state route where the VDS is located.
       - name: STATE_POSTMILE
-        description: State Postmile value
+        description: State Postmile value.
       - name: CITY
-        description: The city number where the VDS is located, if available
+        description: The city number where the VDS is located, if available.
       - name: COUNTY
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: LANES
-        description: Total number of lanes for a specific VDS
+        description: Total number of lanes for a specific VDS.
       - name: LATITUDE
-        description: Latitude of a specific VDS
+        description: Latitude of a specific VDS.
       - name: LENGTH
-        description: The length associated with a VDS
+        description: The length associated with a VDS.
       - name: LONGITUDE
-        description: Longitude of a specific VDS
+        description: Longitude of a specific VDS.
       - name: NAME
-        description: A descriptive name assocaited with a VDS
+        description: A descriptive name assocaited with a VDS.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: _VALID_FROM
         description: |
           The date that this metadata became valid. Should be the same as `META_DATE`.
@@ -55,15 +55,15 @@ models:
       ID to station ID mapping.
     columns:
       - name: META_DATE
-        description: The date of the XML metadata file
+        description: The date of the XML metadata file.
       - name: STATION_ID
-        description: The station ID
+        description: The station ID.
       - name: DETECTOR_ID
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
       - name: DETECTOR_NAME
-        description: The name of the detector
+        description: The name of the detector.
       - name: DETECTOR_STATUS
         description: |
           Detector status as reported by the XML file. Probably not useful when determining
@@ -97,35 +97,35 @@ models:
       - name: ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
-          Use this value to 'join' other clearinghouse files that contain Station Metadata
+          Use this value to 'join' other clearinghouse files that contain Station Metadata.
         tests:
           - not_null
       - name: ABSOLUTE_POSTMILE
-        description: Absolute postmile value along a partilcuar state route where the VDS is located
+        description: Absolute postmile value along a partilcuar state route where the VDS is located.
       - name: STATE_POSTMILE
-        description: State Postmile value
+        description: State Postmile value.
       - name: CITY
-        description: The city number where the VDS is located, if available
+        description: The city number where the VDS is located, if available.
       - name: COUNTY
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: LANES
-        description: Total number of lanes for a specific VDS
+        description: Total number of lanes for a specific VDS.
       - name: LATITUDE
-        description: Latitude of a specific VDS
+        description: Latitude of a specific VDS.
       - name: LENGTH
-        description: The length associated with a VDS
+        description: The length associated with a VDS.
       - name: LONGITUDE
-        description: Longitude of a specific VDS
+        description: Longitude of a specific VDS.
       - name: NAME
-        description: A descriptive name assocaited with a VDS
+        description: A descriptive name assocaited with a VDS.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
   - name: int_clearinghouse__most_recent_station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
@@ -135,15 +135,15 @@ models:
       is ignored.
     columns:
       - name: META_DATE
-        description: The date of the XML metadata file
+        description: The date of the XML metadata file.
       - name: STATION_ID
-        description: The station ID
+        description: The station ID.
       - name: DETECTOR_ID
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
       - name: DETECTOR_NAME
-        description: The name of the detector
+        description: The name of the detector.
       - name: DETECTOR_STATUS
         description: |
           Detector status as reported by the XML file. Probably not useful when determining
@@ -154,21 +154,21 @@ models:
         description: |
           The lane number for the detector. This seems to be reported as
           1, 10, 100, 1000, 10000, etc for each successive lane, rather than counting up
-          from one
+          from one.
   - name: int_clearinghouse__detector_agg_five_minutes
     description: |
       Raw 30 second sample data aggregated to the 5 minute level.
       Volume values are summed, occupancy is averaged.
     columns:
       - name: ID
-        description: The station ID
+        description: The station ID.
       - name: SAMPLE_DATE
-        description: The date on which the sample was taken
+        description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
       - name: LANE
         description: |
-          The lane number of the detector, starting from 1
+          The lane number of the detector, starting from 1.
       - name: VOLUME
         description: The sum of the flow values for a detector over the sample period.
       - name: OCCUPANCY
@@ -181,7 +181,7 @@ models:
   - name: int_clearinghouse__active_stations
     description: |
       Contains station meta data for all stations that were designated active on any
-      given day
+      given day.
   - name: int_clearinghouse__nearby_stations
     description: |
       Station pairs for stations that are upstream and downstream, as well as
@@ -196,17 +196,17 @@ models:
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: DELTA_POSTMILE
         description: |
           The difference in absolute postmile between the two stations. A positive
           delta_postmile indicates that `other_id` is downstream (greater postmile)
           from id.
       - name: _VALID_FROM
-        description: The date from which this neighbor relation holds
+        description: The date from which this neighbor relation holds.
       - name: _VALID_TO
         description: The date to which this neighbor relation holds.

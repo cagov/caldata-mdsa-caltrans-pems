@@ -6,7 +6,7 @@ models:
       This file contains performance metrics by station and lane based on data from
       the station_meta and five_minute_agg models. This data forms the basis for
       performance metrics that will be aggregated over various spatial/temporal
-      segments/timeframes
+      segments/timeframes.
     columns:
       - name: sample_date
         description: The date associated with five minute aggregated data samples.
@@ -19,11 +19,11 @@ models:
         tests:
           - not_null
       - name: lane
-        description: Lane associated with a route and station from raw data
+        description: Lane associated with a route and station from raw data.
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) and occupancy
-          values contain any non-null value
+          values contain any non-null value.
       - name: volume_sum
         description: The sum of the flow values for a detector over the sample period.
       - name: occupancy_avg
@@ -36,7 +36,7 @@ models:
       - name: vmt
         description: |
           The sum of the miles of freeway driven by each vehicle for a given unit of
-          time and a given section of the freeway
+          time and a given section of the freeway.
       - name: vht
         description: |
           Vehicle Hours Travelled (VHT) is calculated over a given unit of time and a
@@ -91,11 +91,11 @@ models:
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
-        description: length of the station
+        description: length of the station.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: SAMPLE_HOUR
         description: the hour associated with hourly aggregated data samples.
       - name: SAMPLE_DATE
@@ -103,7 +103,7 @@ models:
       - name: HOURLY_VOLUME
         description: The sum of the flow values for a detector over the sample period across the all lanes.
       - name: HOURLY_SPEED
-        description: flow weighted houly speed across the all lanes
+        description: flow weighted houly speed across the all lanes.
       - name: HOURLY_OCCUPANCY
         description: The average of the occupancy values over the sample period across the all lanes.
       - name: HOURLY_VMT
@@ -150,25 +150,25 @@ models:
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
-        description: length of the station
+        description: length of the station.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: CITY
-        description: The city number where the VDS is located, if available
+        description: The city number where the VDS is located, if available.
       - name: COUNTY
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: SAMPLE_DATE
         description: The date associated with daily aggregated data samples.
       - name: DAILY_VOLUME
         description: The sum of the flow values for a detector over the sample period across all the lanes.
       - name: DAILY_SPEED
-        description: flow weighted daily speed across all the lanes
+        description: flow weighted daily speed across all the lanes.
       - name: DAILY_OCCUPANCY
         description: The average of the occupancy values over the sample period across all the lanes.
       - name: DAILY_VMT
@@ -215,25 +215,25 @@ models:
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LANE
-        description: Lane associated with a route and station from five minutes performance metrics
+        description: Lane associated with a route and station from five minutes performance metrics.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: LENGTH
-        description: length of the station
+        description: length of the station.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: CITY
-        description: The city number where the VDS is located, if available
+        description: The city number where the VDS is located, if available.
       - name: COUNTY
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: SAMPLE_WEEK
         description: The week associated with weekly aggregated data samples.
       - name: SAMPLE_WEEK_START_DATE
-        description: the begining date of a sample week
+        description: the begining date of a sample week.
       - name: WEEKLY_SPEED
         description: flow weighted weekly speed across all the lanes.
       - name: WEEKLY_VOLUME
@@ -288,21 +288,21 @@ models:
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
-        description: length of the station
+        description: length of the station.
       - name: TYPE
-        description: Two character string identify the VDS type
+        description: Two character string identify the VDS type.
       - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12
+        description: The district in which the VDS is located. Values are 1-12.
       - name: CITY
-        description: The city number where the VDS is located, if available
+        description: The city number where the VDS is located, if available.
       - name: COUNTY
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: FREEWAY
-        description: The freeway where the VDS is located
+        description: The freeway where the VDS is located.
       - name: SAMPLE_MONTH
-        description: The starting date of each month of the year
+        description: The starting date of each month of the year.
       - name: MONTHLY_SPEED
         description: flow weighted monthly speed across all the lanes.
       - name: MONTHLY_VOLUME
@@ -343,19 +343,19 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
-  - name: int_performance__station_aadt_with_K_value
+  - name: int_performance__station_aadt_with_K_value.
     description: |
-      Station level annual average daily traffic and k value
+      Station level annual average daily traffic and k th highest hour volume in the precceding year.
        - name: ID
          description: |
            An integer value that uniquely indentifies a station.
            Use this value to 'join' other files or tables that contain the Station ID value.
        - name: TYPE
-         description: Two character string identify the VDS type
+         description: Two character string identify the VDS type.
        - name: DISTRICT
-         description: The district in which the VDS is located. Values are 1-12
+         description: The district in which the VDS is located. Values are 1-12.
        - name: CITY
-         description: The city number where the VDS is located, if available
+         description: The city number where the VDS is located, if available.
        - name: COUNTY
          description: The unique number that identifies the county that contains a specific VDS within PeMS.
        - name: DIRECTION
@@ -408,8 +408,8 @@ models:
         values may be missing in the AADW subcomputation, and/or 1 of the 7 AADW values may
         be missing in the final AADT_8 computation. This is Modified Provisional AASHTO.
       - name: K_30
-        description: 30th highest hour volume in the precceding year
+        description: 30th highest hour volume in the precceding year.
       - name: K_50
-        description: 50th highest hour volume in the precceding year
+        description: 50th highest hour volume in the precceding year.
       - name: K_100
-        description: 100th highest hour volume in the precceding year
+        description: 100th highest hour volume in the precceding year.

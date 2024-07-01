@@ -1,7 +1,13 @@
 {{ config(materialized='table') }}
 
+-- read sation daily aggregated performance metrics
+with sd as (
+    select *
+    from {{ ref('int_performance__station_metrics_agg_daily') }}
+),
+
 -- AADT_1: Arithmetic Mean
-with aadt_1 as (
+aadt_1 as (
     select
         id,
         city,
@@ -12,7 +18,7 @@ with aadt_1 as (
         type,
         avg(daily_volume) as aadt_1,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_performance__station_metrics_agg_daily') }}
+    from sd
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
@@ -31,7 +37,7 @@ madw as (
         extract(dow from sample_date) as day_of_week,
         date_trunc('month', sample_date) as sample_month,
         date_trunc('year', sample_date) as sample_year
-    from {{ ref('int_performance__station_metrics_agg_daily') }}
+    from sd
     group by id, city, county, freeway, direction, district, type, day_of_week, sample_month, sample_year
 ),
 
@@ -68,7 +74,7 @@ aadt_2 as (
     group by id, city, county, district, freeway, direction, type, sample_year
     -- all 12 months average traffic volume is required to calculate this metric
     -- otherway,there should be no missing monthly average daily traffic
-    having count(id) = 12
+    having count(sample_month) = 12
 ),
 
 -- AADT_3: Conventional AASHTO Procedures
@@ -102,8 +108,12 @@ aadt_3 as (
         avg(aadw) as aadt_3
     from aadw
     group by id, city, county, district, freeway, direction, type, sample_year
-    -- non of the days of week should have missing Annual Average Days of the Week traffic
-    having count(id) = 7
+),
+
+-- read the station hourly aggregated model
+sh as (
+    select *
+    from {{ ref('int_performance__station_metrics_agg_hourly') }}
 ),
 
 -- AADT_4: Provisional AASHTO Procedures
@@ -118,7 +128,7 @@ mahw as (
         date_trunc('year', sample_date) as sample_year,
         -- calculate monthly average flow for each hour of the week
         avg(hourly_volume) as mahw
-    from {{ ref('int_performance__station_metrics_agg_hourly') }}
+    from sh
     group by id, district, type, hour_of_day, day_of_week, sample_month, sample_year
 ),
 
@@ -156,8 +166,6 @@ aadt_4 as (
         sample_year
     from averages_of_madw
     group by id, district, type, sample_year
-    -- non of the days of week should have missing Annual Average Days of the Week traffic
-    having count(id) = 7
 ),
 
 -- AADT_5: Sum of 24 Annual Average Hourly Traffic Volumes
@@ -170,7 +178,7 @@ annual_average_hourly_traffic as (
         extract(hour from sample_hour) as hour_of_day,
         date_trunc('year', sample_date) as sample_year,
         avg(hourly_volume) as aaht
-    from {{ ref('int_performance__station_metrics_agg_hourly') }}
+    from sh
     group by id, district, type, hour_of_day, sample_year
 ),
 
@@ -200,10 +208,30 @@ aadt_6 as (
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
     -- 1 of the 12 madt values may be missing for this final AADT calculation.
-    having count(id) >= 11
+    having count(madt) >= 11
 ),
 
 -- AADT_7: Modified Conventional AASHTO
+aadw1 as (
+    select
+        id,
+        city,
+        county,
+        district,
+        freeway,
+        direction,
+        type,
+        -- calculate Annual Average Days of the Week (AADW)
+        avg(madw) as aadw,
+        count(madw) as sample_ct,
+        day_of_week,
+        sample_year
+    from madw
+    group by id, city, county, district, freeway, direction, type, day_of_week, sample_year
+    -- 1 of the 12 MADW values may be missing in the AADW subcomputation.
+    having count(madw) >= 11
+),
+
 aadt_7 as (
     select
         id,
@@ -214,14 +242,31 @@ aadt_7 as (
         direction,
         type,
         sample_year,
-        avg(aadw) as aadt_7
-    from aadw
+        avg(aadw) as aadt_7,
+        count(aadw) as sample_ct
+    from aadw1
     group by id, city, county, district, freeway, direction, type, sample_year
     -- 1 of the 7 aadw values may be missing for this final AADT calculation.
-    having count(id) >= 6
+    having count(aadw) >= 6
 ),
 
 -- AADT_8: Modified Provisional AASHTO
+averages_of_madw1 as (
+    select
+        id,
+        district,
+        type,
+        avg(madw) as aadw,
+        day_of_week,
+        count(madw) as sample_ct,
+        sample_year
+    from monthly_average_days_of_the_week_traffic
+    group by id, district, type, day_of_week, sample_year
+    -- 1 of the 12 MADW values may be missing in the AADW subcomputation
+    having count(madw) >= 11
+),
+
+
 aadt_8 as (
     select
         id,
@@ -229,10 +274,10 @@ aadt_8 as (
         type,
         avg(aadw) as aadt_8,
         sample_year
-    from averages_of_madw
+    from averages_of_madw1
     group by id, district, type, sample_year
     -- 1 of the 7 aadw values may be missing for this final AADT calculation.
-    having count(id) >= 6
+    having count(aadw) >= 6
 ),
 
 -- now join all aadt_CTE together
