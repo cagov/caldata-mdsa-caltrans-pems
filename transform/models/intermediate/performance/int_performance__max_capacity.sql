@@ -13,8 +13,9 @@ source as (
         sample_timestamp,
         sample_date,
         lane,
-        volume_sum
+        sum(volume) as volume_sum
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    group by id, lane, sample_date, sample_timestamp, district
 ),
 
 sum_volume as (
