@@ -36,10 +36,9 @@ good_detectors as (
     where status = 'Good'
 ),
 
-/** TODO: thinking more and more we need to merge this at the five_minute_station_agg model. **/
-station_meta as (
-    select * from {{ ref("int_clearinghouse__station_meta") }}
-    where type in ('ML', 'HV') -- TODO: do we want to do this?
+detector_config as (
+    select * from {{ ref("int_vds__detector_config") }}
+    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 agg as (
@@ -81,18 +80,18 @@ detector_counts as (
 
 
 /* TODO: Remove this once the meta is already on the five-minute model */
-detector_counts_with_meta as (
+detector_counts_with_config as (
     select
         detector_counts.*,
-        station_meta.freeway,
-        station_meta.direction,
-        station_meta.type
+        detector_config.freeway,
+        detector_config.direction,
+        detector_config.station_type
     from detector_counts
-    inner join station_meta
+    inner join detector_config
         on
-            detector_counts.id = station_meta.id
-            and detector_counts.sample_date >= station_meta._valid_from
-            and (detector_counts.sample_date < station_meta._valid_to or station_meta._valid_to is null)
+            detector_counts.id = detector_config.station_id
+            and detector_counts.sample_date >= detector_config._valid_from
+            and (detector_counts.sample_date < detector_config._valid_to or detector_config._valid_to is null)
 ),
 
 global_agg as (
@@ -102,7 +101,7 @@ global_agg as (
         district,
         freeway,
         direction,
-        type,
+        station_type,
         /* Note: since this is an aggregate *across* stations rather than
         within a single station, it is more appropriate to average the sum
         rather than sum it. In any event, these averages are intended to be
@@ -111,8 +110,8 @@ global_agg as (
         avg(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
         avg(speed_weighted) as speed_weighted -- TODO: flow weighted speed here?
-    from detector_counts_with_meta
-    group by sample_date, sample_timestamp, district, freeway, direction, type
+    from detector_counts_with_config
+    group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
 
 -- Join the 5-minute aggregated data with the district-freeway aggregation
@@ -124,14 +123,14 @@ detector_counts_with_global_averages as (
         a.lane,
         a.freeway,
         a.direction,
-        a.type,
+        a.station_type,
         a.speed_five_mins as speed,
         a.volume_sum as volume,
         a.occupancy_avg as occupancy,
         g.volume_sum as global_volume,
         g.occupancy_avg as global_occupancy,
         g.speed_weighted as global_speed -- TODO: what speed to use?
-    from detector_counts_with_meta as a
+    from detector_counts_with_config as a
     inner join global_agg as g
         on
             a.sample_date = g.sample_date
@@ -139,7 +138,7 @@ detector_counts_with_global_averages as (
             and a.district = g.district
             and a.freeway = g.freeway
             and a.direction = g.direction
-            and a.type = g.type
+            and a.station_type = g.station_type
 ),
 
 -- Aggregate the self-joined table to get the slope
@@ -150,7 +149,7 @@ detector_counts_regression as (
         lane,
         district,
         freeway,
-        type,
+        station_type,
         direction,
         regression_date,
         -- speed regression model
@@ -163,7 +162,7 @@ detector_counts_regression as (
         regr_slope(occupancy, global_occupancy) as occupancy_slope,
         regr_intercept(occupancy, global_occupancy) as occupancy_intercept
     from detector_counts_with_global_averages
-    group by id, lane, district, freeway, direction, type, regression_date
+    group by id, lane, district, freeway, direction, station_type, regression_date
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having

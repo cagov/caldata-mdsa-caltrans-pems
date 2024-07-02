@@ -49,7 +49,7 @@ unimputed as (
 
 detector_config as (
     select * from {{ ref("int_vds__detector_config") }}
-    where station_type in ('ML', 'HV') -- TODO: do we want to do this?
+    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 unimputed_with_meta as (
@@ -286,13 +286,15 @@ global_imputed as (
 agg_with_local_regional_global_imputation as (
     select
         unimputed_with_meta.*,
-        local_imputed.regression_date,
+        local_imputed.regression_date as local_regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
         local_imputed.speed_local_regression,
+        regional_imputed.regression_date as regional_regression_date,
         regional_imputed.volume_regional_regression,
         regional_imputed.occupancy_regional_regression,
         regional_imputed.speed_regional_regression,
+        global_imputed.regression_date as global_regression_date,
         global_imputed.volume_global_regression,
         global_imputed.occupancy_global_regression,
         global_imputed.speed_global_regression
