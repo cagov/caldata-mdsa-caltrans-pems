@@ -42,10 +42,6 @@ station_meta as (
     where type in ('ML', 'HV') -- TODO: do we want to do this?
 ),
 
-global_agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_district_freeway') }}
-),
-
 agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
@@ -84,6 +80,7 @@ detector_counts as (
 ),
 
 
+/* TODO: Remove this once the meta is already on the five-minute model */
 detector_counts_with_meta as (
     select
         detector_counts.*,
@@ -96,6 +93,26 @@ detector_counts_with_meta as (
             detector_counts.id = station_meta.id
             and detector_counts.sample_date >= station_meta._valid_from
             and (detector_counts.sample_date < station_meta._valid_to or station_meta._valid_to is null)
+),
+
+global_agg as (
+    select
+        sample_date,
+        sample_timestamp,
+        district,
+        freeway,
+        direction,
+        type,
+        /* Note: since this is an aggregate *across* stations rather than
+        within a single station, it is more appropriate to average the sum
+        rather than sum it. In any event, these averages are intended to be
+        used for computing regression coefficients, so this just makes the
+        regression coefficient the same up to a constant factor*/
+        avg(volume_sum) as volume_sum,
+        avg(occupancy_avg) as occupancy_avg,
+        avg(speed_weighted) as speed_weighted -- TODO: flow weighted speed here?
+    from detector_counts_with_meta
+    group by sample_date, sample_timestamp, district, freeway, direction, type
 ),
 
 -- Join the 5-minute aggregated data with the district-freeway aggregation

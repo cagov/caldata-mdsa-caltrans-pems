@@ -181,7 +181,7 @@ samples_requiring_imputation_with_local_neighbors as (
             local_imp.other_id = non_imp.id
             and local_imp.sample_date = non_imp.sample_date
             and local_imp.sample_timestamp = non_imp.sample_timestamp
-    where samples_requiring_imputation_with_local_regional_coeffs.other_station_is_local = true
+    where local_imp.other_station_is_local = true
 ),
 
 -- Read the regional neighbours that have volume, occupancy and speed data.
