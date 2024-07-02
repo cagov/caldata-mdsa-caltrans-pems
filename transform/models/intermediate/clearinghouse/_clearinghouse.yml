@@ -210,3 +210,8 @@ models:
         description: The date from which this neighbor relation holds
       - name: _VALID_TO
         description: The date to which this neighbor relation holds
+  - name: int_clearinghouse__station_agg_five_minutes
+    description: |
+      Raw 30 second sample data aggregated to both the 5 minute and station level.
+      Volume values are summed, occupancy is averaged. This is similar to the
+      detector_agg_five_minutes model.
