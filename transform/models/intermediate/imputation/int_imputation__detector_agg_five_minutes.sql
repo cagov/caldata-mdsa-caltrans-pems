@@ -47,23 +47,24 @@ unimputed as (
             and base.sample_date = good_detectors.sample_date
 ),
 
-station_meta as (
-    select * from {{ ref("int_clearinghouse__station_meta") }}
-    where type in ('ML', 'HV') -- TODO: do we want to do this?
+detector_config as (
+    select * from {{ ref("int_vds__detector_config") }}
+    where station_type in ('ML', 'HV') -- TODO: do we want to do this?
 ),
 
 unimputed_with_meta as (
     select
         unimputed.*,
-        station_meta.freeway,
-        station_meta.direction,
-        station_meta.type
+        detector_config.freeway,
+        detector_config.direction,
+        detector_config.station_type
     from unimputed
-    inner join station_meta
+    inner join detector_config
         on
-            unimputed.id = station_meta.id
-            and unimputed.sample_date >= station_meta._valid_from
-            and (unimputed.sample_date < station_meta._valid_to or station_meta._valid_to is null)
+            unimputed.id = detector_config.station_id
+            and unimputed.lane = detector_config.lane
+            and unimputed.sample_date >= detector_config._valid_from
+            and (unimputed.sample_date < detector_config._valid_to or detector_config._valid_to is null)
 ),
 
 -- get the data that require imputation
@@ -76,7 +77,7 @@ samples_requiring_imputation as (
         sample_timestamp,
         freeway,
         direction,
-        type,
+        station_type,
         volume_sum,
         occupancy_avg,
         speed_five_mins
@@ -94,7 +95,7 @@ samples_not_requiring_imputation as (
         sample_timestamp,
         freeway,
         direction,
-        type,
+        station_type,
         volume_sum,
         occupancy_avg,
         speed_five_mins
@@ -158,7 +159,7 @@ freeway_district_agg as (
         district,
         freeway,
         direction,
-        type,
+        station_type,
         /* Note: since this is an aggregate *across* stations rather than
         within a single station, it is more appropriate to average the sum
         rather than sum it. In any event, these averages are intended to be
@@ -168,7 +169,7 @@ freeway_district_agg as (
         avg(occupancy_avg) as occupancy_avg,
         avg(speed_five_mins) as speed_five_mins -- TODO: flow weighted speed here?
     from samples_not_requiring_imputation
-    group by sample_date, sample_timestamp, district, freeway, direction, type
+    group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
 
 samples_requiring_imputation_with_global as (
@@ -182,7 +183,7 @@ samples_requiring_imputation_with_global as (
         on
             imp.freeway = non_imp.freeway
             and imp.direction = non_imp.direction
-            and imp.type = non_imp.type
+            and imp.station_type = non_imp.station_type
             and imp.district = non_imp.district
             and imp.sample_date = non_imp.sample_date
             and imp.sample_timestamp = non_imp.sample_timestamp
