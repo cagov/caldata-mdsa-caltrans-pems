@@ -25,7 +25,8 @@ five_minute_detector_agg_with_meta as (
     select
         five_minute_detector_agg.*,
         station_meta.freeway,
-        station_meta.direction
+        station_meta.direction,
+        station_meta.type
     from five_minute_detector_agg
     inner join station_meta
         on
@@ -39,13 +40,19 @@ agg_district_freeway as (
         district,
         freeway,
         direction,
+        type,
         sample_timestamp,
         sample_date,
+        /* Note: since this is an aggregate *across* stations rather than
+        within a single station, it is more appropriate to average the sum
+        rather than sum it. In any event, these averages are intended to be
+        used for computing regression coefficients, so this just makes the
+        regression coefficient the same up to a constant factor*/
         avg(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
         avg(speed_weighted) as speed_weighted -- TODO: flow weighted speed here?
     from five_minute_detector_agg_with_meta
-    group by sample_date, sample_timestamp, district, freeway, direction
+    group by sample_date, sample_timestamp, district, freeway, direction, type
 )
 
 select * from agg_district_freeway
