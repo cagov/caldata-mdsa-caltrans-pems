@@ -3,7 +3,7 @@
 -- read the station hourly data
 with station_hourly_data as (
     select *
-    from {{ ref('int_clearinghouse__temporal_hourly_agg') }}
+    from {{ ref('int_performance__detector_metrics_agg_hourly') }}
 ),
 
 -- now aggregate hourly volume, occupancy and speed to daily level

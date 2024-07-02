@@ -1,14 +1,16 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id','sample_date', 'sample_hour'],
+    unique_key=['id','sample_date', 'sample_hour', 'lane'],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
+
 -- read the volume, occupancy and speed five minutes data
 with station_five_mins_data as (
     select
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
-    from {{ ref('int_performance__five_min_perform_metrics') }}
+    from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
+
     {% if is_incremental() %}
         -- Look back two days to account for any late-arriving data
         where
@@ -25,13 +27,14 @@ with station_five_mins_data as (
 ),
 
 -- now aggregate five mins volume, occupancy and speed to hourly
-hourly_station_temporal_metrics as (
+hourly_spatial_temporal_metrics as (
     select
         id,
+        lane,
         sample_date,
-        length,
-        district,
         type,
+        district,
+        length,
         sample_timestamp_trunc as sample_hour,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
@@ -42,13 +45,12 @@ hourly_station_temporal_metrics as (
         -- travel time
         60 / nullifzero(hourly_q_value) as hourly_tti,
         {% for value in var("V_t") %}
-            greatest(
-                hourly_volume * ((length / nullifzero(hourly_speed)) - (length / {{ value }})), 0
-            )
+            sum(delay_{{ value }}_mph)
                 as delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
             {% endif %}
+
         {% endfor %},
         {% for value in var("V_t") %}
             sum(lost_productivity_{{ value }}_mph)
@@ -56,9 +58,10 @@ hourly_station_temporal_metrics as (
             {% if not loop.last %}
                 ,
             {% endif %}
+
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_date, sample_hour, district, type, length
+    group by id, sample_date, sample_hour, lane, type, district, length
 )
 
-select * from hourly_station_temporal_metrics
+select * from hourly_spatial_temporal_metrics

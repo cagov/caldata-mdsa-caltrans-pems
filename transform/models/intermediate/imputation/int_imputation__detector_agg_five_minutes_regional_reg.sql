@@ -8,7 +8,7 @@
 
 -- Select unimputed data
 with base as (
-    select * from {{ ref('int_clearinghouse__five_minute_station_agg') }}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     {% if is_incremental() %}
     -- Look back two days to account for any late-arriving data
         where
