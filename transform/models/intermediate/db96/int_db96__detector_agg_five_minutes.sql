@@ -1,10 +1,10 @@
 {{ config(
     materialized="incremental",
-    cluster_by=["sample_date"],
+    cluster_by="sample_date",
     unique_key=["id", "lane", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
-{% set n_lanes = 8 %}
+{% set n_lanes = 14 %}
 
 with raw as (
     select
@@ -20,9 +20,30 @@ with raw as (
             floor(minute(sample_timestamp) / 5) * 5,
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-
-    where {{ make_model_incremental('sample_date') }}
+    from {{ ref("stg_db96__vds30sec") }}
+    {% if is_incremental() %}
+        -- Look back two days to account for any late-arriving data
+        where
+            sample_date > (
+                select
+                    dateadd(
+                        day,
+                        {{ var("incremental_model_look_back") }},
+                        max(sample_date)
+                    )
+                from {{ this }}
+            )
+            {% if target.name != 'prd' %}
+                and sample_date
+                >= dateadd(
+                    day,
+                    {{ var("dev_model_look_back") }},
+                    current_date()
+                )
+            {% endif %}
+    {% elif target.name != 'prd' %}
+        where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
+    {% endif %}    
 ),
 
 agg as (
@@ -38,7 +59,8 @@ agg as (
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
         {% endfor %}
     {% for lane in range(1, n_lanes+1) %}
-        avg(speed_{{ lane }}) as speed_{{ lane }}{{ "," if not loop.last }}
+        avg(speed_{{ lane }}) as speed_{{ lane }}
+    {{ "," if not loop.last }}
     {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district
@@ -52,7 +74,7 @@ agg as (
             sample_timestamp,
             district,
             {{ lane }} as lane,
-            flow_{{ lane }} as volume,
+            flow_{{ lane }} as flow,
             occupancy_{{ lane }} as occupancy,
             speed_{{ lane }} as speed
         from agg
