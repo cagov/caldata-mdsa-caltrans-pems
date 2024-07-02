@@ -9,19 +9,24 @@ better-thought-out logic for what dates to evaluate regression
 coefficients. As is, it is a hard-coded list of quarterly
 dates starting in early 2023.
 */
-with regression_dates as (
-    select value::date as regression_date from table(
-        flatten(
-            [
-                '2023-02-03'::date,
-                '2023-05-03'::date,
-                '2023-08-03'::date,
-                '2023-11-03'::date,
-                '2024-02-03'::date,
-                '2024-05-03'::date
-            ]
-        )
-    )
+with recursive date_sequence as (
+    -- Define the initial date, which is the earliest 3rd of February, May, August, or November from your dataset
+    select MIN(sample_date) as base_date
+    from {{ ref('stg_clearinghouse__station_raw') }}
+    where EXTRACT(month from sample_date) in (2, 5, 8, 11)
+    union all
+    -- Add three months to the previous date
+    select DATEADD(month, 3, base_date)
+    from date_sequence
+    -- Ensure we don't go beyond the maximum date in your dataset
+    where
+        base_date <= (select MAX(sample_date) from {{ ref('stg_clearinghouse__station_raw') }})
+),
+
+regression_dates as (
+    select distinct base_date as regression_date
+    from date_sequence
+    order by base_date
 ),
 
 -- Select all station pairs that are active for the chosen regression dates
@@ -34,7 +39,7 @@ nearby_stations as (
     inner join regression_dates
         on
             nearby._valid_from <= regression_dates.regression_date
-            and regression_dates.regression_date < coalesce(nearby._valid_to, current_date)
+            and regression_dates.regression_date < COALESCE(nearby._valid_to, CURRENT_DATE)
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -69,7 +74,7 @@ detector_counts as (
         agg.speed_weighted,
         good_detectors.district,
         -- TODO: Can we give this a better name? Can we move this into the base model?
-        coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
+        COALESCE(agg.speed_weighted, (agg.volume_sum * 22) / NULLIFZERO(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates.regression_date
     from agg
@@ -78,7 +83,7 @@ detector_counts as (
             agg.sample_date >= regression_dates.regression_date
             -- TODO: use variable for regression window
             and agg.sample_date
-            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates.regression_date)
+            < DATEADD(day, {{ var("linear_regression_time_window") }}, regression_dates.regression_date)
     inner join good_detectors
         on
             agg.id = good_detectors.station_id
@@ -126,23 +131,23 @@ detector_counts_regression as (
         regression_date,
         other_station_is_local,
         -- speed regression model
-        regr_slope(speed, other_speed) as speed_slope,
-        regr_intercept(speed, other_speed) as speed_intercept,
+        REGR_SLOPE(speed, other_speed) as speed_slope,
+        REGR_INTERCEPT(speed, other_speed) as speed_intercept,
         -- flow or volume regression model
-        regr_slope(volume, other_volume) as volume_slope,
-        regr_intercept(volume, other_volume) as volume_intercept,
+        REGR_SLOPE(volume, other_volume) as volume_slope,
+        REGR_INTERCEPT(volume, other_volume) as volume_intercept,
         -- occupancy regression model
-        regr_slope(occupancy, other_occupancy) as occupancy_slope,
-        regr_intercept(occupancy, other_occupancy) as occupancy_intercept
+        REGR_SLOPE(occupancy, other_occupancy) as occupancy_slope,
+        REGR_INTERCEPT(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
     where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
     group by id, other_id, lane, other_lane, district, regression_date, other_station_is_local
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
-        (count(volume) > 0 and count(other_volume) > 0)
-        or (count(occupancy) > 0 and count(other_occupancy) > 0)
-        or (count(speed) > 0 and count(other_speed) > 0)
+        (COUNT(volume) > 0 and COUNT(other_volume) > 0)
+        or (COUNT(occupancy) > 0 and COUNT(other_occupancy) > 0)
+        or (COUNT(speed) > 0 and COUNT(other_speed) > 0)
 )
 
 select * from detector_counts_regression
