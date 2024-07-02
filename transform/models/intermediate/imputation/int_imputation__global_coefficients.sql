@@ -88,7 +88,8 @@ detector_counts_with_meta as (
     select
         detector_counts.*,
         station_meta.freeway,
-        station_meta.direction
+        station_meta.direction,
+        station_meta.type
     from detector_counts
     inner join station_meta
         on
@@ -106,6 +107,7 @@ detector_counts_with_global_averages as (
         a.lane,
         a.freeway,
         a.direction,
+        a.type,
         a.speed_five_mins as speed,
         a.volume_sum as volume,
         a.occupancy_avg as occupancy,
@@ -120,6 +122,7 @@ detector_counts_with_global_averages as (
             and a.district = g.district
             and a.freeway = g.freeway
             and a.direction = g.direction
+            and a.type = g.type
 ),
 
 -- Aggregate the self-joined table to get the slope
@@ -130,6 +133,7 @@ detector_counts_regression as (
         lane,
         district,
         freeway,
+        type,
         direction,
         regression_date,
         -- speed regression model
@@ -142,7 +146,7 @@ detector_counts_regression as (
         regr_slope(occupancy, global_occupancy) as occupancy_slope,
         regr_intercept(occupancy, global_occupancy) as occupancy_intercept
     from detector_counts_with_global_averages
-    group by id, lane, district, freeway, direction, regression_date
+    group by id, lane, district, freeway, direction, type, regression_date
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
