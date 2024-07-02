@@ -20,7 +20,7 @@ with raw as (
             floor(minute(sample_timestamp) / 5) * 5,
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('stg_clearinghouse__station_raw') }}
 
     where {{ make_model_incremental('sample_date') }}
 ),

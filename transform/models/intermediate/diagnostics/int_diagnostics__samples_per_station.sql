@@ -9,7 +9,7 @@ with
 
 source as (
     select *
-    from {{ ref ('stg_clearinghouse__station_raw') }}
+    from {{ ref ('int_clearinghouse__detector_agg_five_minutes') }}
     where
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
         and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
