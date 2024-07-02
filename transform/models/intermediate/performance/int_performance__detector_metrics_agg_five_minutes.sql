@@ -7,8 +7,18 @@
 
 with
 five_minute_agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select
+        id,
+        sample_date,
+        sample_timestamp,
+        lane,
+        district,
+        avg(occupancy) as occupancy_avg,
+        sum(volume) as volume_sum,
+        sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
+    group by id, lane, sample_date, sample_timestamp, district
 ),
 
 five_minute_agg_with_station_meta as (
