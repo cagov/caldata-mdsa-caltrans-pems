@@ -20,7 +20,7 @@ with raw as (
             floor(minute(sample_timestamp) / 5) * 5,
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
-    from {{ ref('stg_clearinghouse__station_raw') }}
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 
     where {{ make_model_incremental('sample_date') }}
 ),
@@ -52,7 +52,7 @@ agg as (
             sample_timestamp,
             district,
             {{ lane }} as lane,
-            flow_{{ lane }} as flow,
+            flow_{{ lane }} as volume,
             occupancy_{{ lane }} as occupancy,
             speed_{{ lane }} as speed
         from agg
