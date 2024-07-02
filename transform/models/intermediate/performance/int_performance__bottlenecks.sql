@@ -58,19 +58,16 @@ calcs as (
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
             as speed_delta_ne,
 
-        lead(speed_weighted)
+        speed_weighted - lead(speed_weighted)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
-        - speed_weighted
             as speed_delta_sw,
 
-        absolute_postmile
-        - lag(absolute_postmile)
+        absolute_postmile - lag(absolute_postmile)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
             as distance_delta_ne,
 
-        lead(absolute_postmile)
+        absolute_postmile - lead(absolute_postmile)
             over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
-        - absolute_postmile
             as distance_delta_sw
 
     from five_minute_with_station_meta_and_detector_status
