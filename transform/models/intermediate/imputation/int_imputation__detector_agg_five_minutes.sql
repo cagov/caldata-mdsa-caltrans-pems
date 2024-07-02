@@ -1,15 +1,21 @@
 {{ config(
         materialized='incremental',
         cluster_by=["sample_date"],
-        unique_key=["id", "lane", "sample_timestamp"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XL"),
+        unique_key=["id", "lane", "sample_timestamp", "sample_date"],
+        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
     )
 }}
 
--- Select unimputed data
+/* Unimputed data aggregated to five minutes" */
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
+),
+
+/* Configuration data for detectors, filtered to mainline or HOV, as the main travel lanes */
+detector_config as (
+    select * from {{ ref("int_vds__detector_config") }}
+    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
@@ -19,10 +25,23 @@ good_detectors as (
     where status = 'Good'
 ),
 
-/* Join with the "good detectors"
-model to flag whether we consider a detector to be operating
-correctly for a given day.
-*/
+/* Local/regional regression coefficients. These are pairwise betweens detectors
+   that are near to each other. If they are within five miles, they are considered
+   "regional". If they are in the same station or the immediate upstream/downstream
+   station they are considered "local" */
+local_regional_coeffs as (
+    select * from {{ ref('int_imputation__local_regional_regression_coefficients') }}
+),
+
+/* Global regression coefficients. These are per-detector, and regress the detector's
+   values with the freeway-direction-type-district average for those values at the same
+   timestamp. */
+global_coeffs as (
+    select * from {{ ref('int_imputation__global_coefficients') }}
+),
+
+/* Join unimputed data with the "good detectors" model to flag whether we consider a
+detector to be operating correctly for a given day. */
 unimputed as (
     select
         base.id,
@@ -47,12 +66,10 @@ unimputed as (
             and base.sample_date = good_detectors.sample_date
 ),
 
-detector_config as (
-    select * from {{ ref("int_vds__detector_config") }}
-    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
-),
-
-unimputed_with_meta as (
+/* In order to do the "Global" imputation, we need freeway and direction data to find
+  similar (i.e., has same freeway, direction, and type) stations within the same district.
+  This CTE becomes the base of all the imputation that follows */
+unimputed_with_config as (
     select
         unimputed.*,
         detector_config.freeway,
@@ -67,7 +84,9 @@ unimputed_with_meta as (
             and (unimputed.sample_date < detector_config._valid_to or detector_config._valid_to is null)
 ),
 
--- get the data that require imputation
+/* Split the unimputed_with_config_data into two sets, one requiring imputation
+  (it's status is not "Good") and one not requiring imputation (it's status is
+  "Good") */
 samples_requiring_imputation as (
     select
         id,
@@ -81,11 +100,10 @@ samples_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed_with_meta
+    from unimputed_with_config
     where not detector_is_good
 ),
 
--- get the data that does not require imputation
 samples_not_requiring_imputation as (
     select
         id,
@@ -99,20 +117,18 @@ samples_not_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed_with_meta
+    from unimputed_with_config
     where detector_is_good
 ),
 
--- read the model coefficients
-local_regional_coeffs as (
-    select * from {{ ref('int_imputation__local_regional_regression_coefficients') }}
-),
+/** LOCAL/REGIONAL Regression follows **/
 
-global_coeffs as (
-    select * from {{ ref('int_imputation__global_coefficients') }}
-),
-
--- join the coeeficent with missing volume,occupancy and speed dataframe for local Regression
+/* Join the samples requiring imputation with the local and regional
+   coefficients. This will both give us the coefficients needed for
+   regressing, as well as give us the ID/Lane of the other station
+   that we'll be regressing against. This makes the number of rows
+   increase significantly, as we get pairwise coefficients for a
+   detector and all of its regional neighbors! */
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples_requiring_imputation.*,
@@ -132,7 +148,88 @@ samples_requiring_imputation_with_local_regional_coeffs as (
         on samples_requiring_imputation.id = local_regional_coeffs.id
 ),
 
--- join the coeeficent with missing volume,occupancy and speed dataframe
+/* Join with samples not requiring imputation based on the other ID/Lane
+   of the regression coefficients. Here we filter for whether the
+   regression coefficients are for a "local" station to get the subset
+   of neighboring stations that are considered local. */
+samples_requiring_imputation_with_local_neighbors as (
+    select
+        local_imp.*,
+        non_imp.speed_five_mins as speed_five_mins_nbr,
+        non_imp.volume_sum as volume_sum_nbr,
+        non_imp.occupancy_avg as occupancy_avg_nbr
+    from samples_requiring_imputation_with_local_regional_coeffs as local_imp
+    inner join samples_not_requiring_imputation as non_imp
+        on
+            local_imp.other_id = non_imp.id
+            and local_imp.sample_date = non_imp.sample_date
+            and local_imp.sample_timestamp = non_imp.sample_timestamp
+    where local_imp.other_station_is_local = true
+),
+
+/* Join with samples not requiring imputation based on the other ID/Lane
+   of the regression coefficients. This is identical to the above, but does
+   not filter for "local" stations, so these station pairs can be used
+   to regress for all the regional neighbors. */
+samples_requiring_imputation_with_regional_neighbors as (
+    select
+        regional_imp.*,
+        non_imp.speed_five_mins as speed_five_mins_nbr,
+        non_imp.volume_sum as volume_sum_nbr,
+        non_imp.occupancy_avg as occupancy_avg_nbr
+    from samples_requiring_imputation_with_local_regional_coeffs as regional_imp
+    inner join samples_not_requiring_imputation as non_imp
+        on
+            regional_imp.other_id = non_imp.id
+            and regional_imp.sample_date = non_imp.sample_date
+            and regional_imp.sample_timestamp = non_imp.sample_timestamp
+),
+
+/* Actually do the local and regional imputation! We compute it for all
+   the neighboring detectors, then aggregate up to the median of the imputed
+   values, and finally clamp them to physical numbers (like greater than 0). */
+local_imputed as (
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        -- Volume calculation
+        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume_local_regression,
+        -- Occupancy calculation
+        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
+            as occupancy_local_regression,
+        -- Speed calculation
+        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed_local_regression,
+        any_value(regression_date) as regression_date
+    from
+        samples_requiring_imputation_with_local_neighbors
+    group by id, lane, sample_date, sample_timestamp
+),
+
+regional_imputed as (
+    select
+        id,
+        lane,
+        sample_date,
+        sample_timestamp,
+        -- Volume calculation
+        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume_regional_regression,
+        -- Occupancy calculation
+        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
+            as occupancy_regional_regression,
+        -- Speed calculation
+        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed_regional_regression,
+        any_value(regression_date) as regression_date
+    from
+        samples_requiring_imputation_with_regional_neighbors
+    group by id, lane, sample_date, sample_timestamp
+),
+
+/** Global regression follows! **/
+
+/* Join the samples requiring imputation with the global
+   coefficients. */
 samples_requiring_imputation_with_global_coeffs as (
     select
         samples_requiring_imputation.*,
@@ -152,6 +249,10 @@ samples_requiring_imputation_with_global_coeffs as (
             and samples_requiring_imputation.district = global_coeffs.district
 ),
 
+/* Aggregate the samples not requiring imputation up to the freeway/district/station-type
+   level. This creates the value against which we will be aggregating for each timestamp.
+   It's important that this aggregation look idential to that in
+   int_imputation__global_coefficients, otherwise the regression will be wrong. */
 freeway_district_agg as (
     select
         sample_date,
@@ -172,6 +273,7 @@ freeway_district_agg as (
     group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
 
+/* Join the averages in with the samples requiring imputation. */
 samples_requiring_imputation_with_global as (
     select
         imp.*,
@@ -189,81 +291,7 @@ samples_requiring_imputation_with_global as (
             and imp.sample_timestamp = non_imp.sample_timestamp
 ),
 
--- Read the local neighbours that have volume, occupancy and speed data.
--- We only join with neighbors that don't require imputation, as
--- there is no point to imputing bad data from bad data.
-samples_requiring_imputation_with_local_neighbors as (
-    select
-        local_imp.*,
-        non_imp.speed_five_mins as speed_five_mins_nbr,
-        non_imp.volume_sum as volume_sum_nbr,
-        non_imp.occupancy_avg as occupancy_avg_nbr
-    from samples_requiring_imputation_with_local_regional_coeffs as local_imp
-    inner join samples_not_requiring_imputation as non_imp
-        on
-            local_imp.other_id = non_imp.id
-            and local_imp.sample_date = non_imp.sample_date
-            and local_imp.sample_timestamp = non_imp.sample_timestamp
-    where local_imp.other_station_is_local = true
-),
-
--- Read the regional neighbours that have volume, occupancy and speed data.
--- We only join with neighbors that don't require imputation, as
--- there is no point to imputing bad data from bad data.
-samples_requiring_imputation_with_regional_neighbors as (
-    select
-        regional_imp.*,
-        non_imp.speed_five_mins as speed_five_mins_nbr,
-        non_imp.volume_sum as volume_sum_nbr,
-        non_imp.occupancy_avg as occupancy_avg_nbr
-    from samples_requiring_imputation_with_local_regional_coeffs as regional_imp
-    inner join samples_not_requiring_imputation as non_imp
-        on
-            regional_imp.other_id = non_imp.id
-            and regional_imp.sample_date = non_imp.sample_date
-            and regional_imp.sample_timestamp = non_imp.sample_timestamp
-),
-
--- apply local imputation models to impute volume, occupancy and speed
-local_imputed as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        -- Volume calculation
-        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume_local_regression,
-        -- Occupancy calculation
-        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
-            as occupancy_local_regression,
-        -- Speed calculation
-        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed_local_regression,
-        any_value(regression_date) as regression_date
-    from
-        samples_requiring_imputation_with_local_neighbors
-    group by id, lane, sample_date, sample_timestamp
-),
-
--- apply regional imputation models to impute volume, occupancy and speed
-regional_imputed as (
-    select
-        id,
-        lane,
-        sample_date,
-        sample_timestamp,
-        -- Volume calculation
-        greatest(median(volume_slope * volume_sum_nbr + volume_intercept), 0) as volume_regional_regression,
-        -- Occupancy calculation
-        least(greatest(median(occupancy_slope * occupancy_avg_nbr + occupancy_intercept), 0), 1)
-            as occupancy_regional_regression,
-        -- Speed calculation
-        greatest(median(speed_slope * speed_five_mins_nbr + speed_intercept), 0) as speed_regional_regression,
-        any_value(regression_date) as regression_date
-    from
-        samples_requiring_imputation_with_regional_neighbors
-    group by id, lane, sample_date, sample_timestamp
-),
-
+/* Finally, do the global imputation! */
 global_imputed as (
     select
         id,
@@ -282,10 +310,10 @@ global_imputed as (
         samples_requiring_imputation_with_global
 ),
 
--- combine imputed and non-imputed dataframe together
+/** Put the local, regional, and global datasets all together **/
 agg_with_local_regional_global_imputation as (
     select
-        unimputed_with_meta.*,
+        unimputed_with_config.*,
         local_imputed.regression_date as local_regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
@@ -298,26 +326,25 @@ agg_with_local_regional_global_imputation as (
         global_imputed.volume_global_regression,
         global_imputed.occupancy_global_regression,
         global_imputed.speed_global_regression
-    from unimputed_with_meta
+    from unimputed_with_config
     left join local_imputed
         on
-            unimputed_with_meta.id = local_imputed.id
-            and unimputed_with_meta.lane = local_imputed.lane
-            and unimputed_with_meta.sample_date = local_imputed.sample_date
-            and unimputed_with_meta.sample_timestamp = local_imputed.sample_timestamp
+            unimputed_with_config.id = local_imputed.id
+            and unimputed_with_config.lane = local_imputed.lane
+            and unimputed_with_config.sample_date = local_imputed.sample_date
+            and unimputed_with_config.sample_timestamp = local_imputed.sample_timestamp
     left join regional_imputed
         on
-            unimputed_with_meta.id = regional_imputed.id
-            and unimputed_with_meta.lane = regional_imputed.lane
-            and unimputed_with_meta.sample_date = regional_imputed.sample_date
-            and unimputed_with_meta.sample_timestamp = regional_imputed.sample_timestamp
+            unimputed_with_config.id = regional_imputed.id
+            and unimputed_with_config.lane = regional_imputed.lane
+            and unimputed_with_config.sample_date = regional_imputed.sample_date
+            and unimputed_with_config.sample_timestamp = regional_imputed.sample_timestamp
     left join global_imputed
         on
-            unimputed_with_meta.id = global_imputed.id
-            and unimputed_with_meta.lane = global_imputed.lane
-            and unimputed_with_meta.sample_date = global_imputed.sample_date
-            and unimputed_with_meta.sample_timestamp = global_imputed.sample_timestamp
+            unimputed_with_config.id = global_imputed.id
+            and unimputed_with_config.lane = global_imputed.lane
+            and unimputed_with_config.sample_date = global_imputed.sample_date
+            and unimputed_with_config.sample_timestamp = global_imputed.sample_timestamp
 )
 
--- select the estimates from both local and regional regression
 select * from agg_with_local_regional_global_imputation
