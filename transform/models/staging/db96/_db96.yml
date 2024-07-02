@@ -1,0 +1,121 @@
+version: 2
+
+models:
+  - name: stg_db96__controller_config
+    description: |
+      Configuration metadata for VDS controllers. There may be multiple
+      stations hooked up to a single controller. For example, the same
+      controller might have a station for the mainline as well as a station
+      for an onramp.
+    columns:
+      - name: controller_id
+        description: The unique ID of the controller.
+      - name: controller_type
+        description: The type of the controller.
+      - name: district
+        description: The Caltrans district for the controller.
+      - name: county
+        description: The county FIPS code in which the controller is installed.
+      - name: city
+        description: The city FIPS code in which the controller is installed.
+      - name: freeway
+        description: The freeway on which the controller is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the controller is installed.
+  - name: stg_db96__controller_config_log
+    description: |
+      A log table showing updates to the controller config. This can be joined
+      with the `controller_config` table to get a full history of controller metadata.
+    columns:
+      - name: controller_id
+        description: The unique ID of the controller.
+      - name: time_id
+        description: The update timestamp for the controller metadata.
+      - name: status
+      - name: name
+      - name: state_postmile
+        description: The State postmile for the controller
+      - name: absolute_postmile
+        description: The absolute postmile for the controller.
+      - name: latitude
+        description: The latitude of the controller
+      - name: longitude
+        description: The longitude of the controller
+      - name: angle
+      - name: line_num
+      - name: stn_address
+        description: An address for the controller
+  - name: stg_db96__station_config
+    description: |
+      Metadata for a single VDS station. Multiple stations may be connected to
+      a single controller, and multiple detectors may be connected to a single station.
+    columns:
+      - name: station_id
+        description: The unique ID of the station.
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station installed.
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+  - name: stg_db96__station_config_log
+    description: |
+      A log table showing updates to the station config. This can be joined
+      with the `station_config` table to get a full history of station metadata.
+    columns:
+      - name: station_id
+        description: The unique ID of the station.
+      - name: time_id
+        description: The update timestamp for the station metadata.
+      - name: status
+      - name: name
+      - name: physical_lanes
+        description: The number of lanes in the station
+      - name: use_speed
+      - name: dt_set_id
+      - name: state_postmile
+        description: The State postmile for the station
+      - name: absolute_postmile
+        description: The absolute postmile for the station.
+      - name: latitude
+        description: The latitude of the station
+      - name: longitude
+        description: The longitude of the station
+      - name: angle
+      - name: segment_start
+      - name: segment_end
+      - name: controller_id
+        description: The ID of the controller to which the station is attached.
+  - name: stg_db96__detector_config
+    description: |
+      Metadata for a single loop detector. This is the device that actually records
+      flow, occupancy, and speed, and is typically installed in a single lane.
+      Multiple detectors across a set of lanes constitute a station.
+    columns:
+      - name: detector_id
+        description: The unique ID of the detector.
+      - name: detector_type
+        description: The type of the detector.
+  - name: stg_db96__detector_config_log
+    description: |
+      A log table showing updates to the detector config. This can be joined
+      with the `detector_config` table to get a full history of detector metadata.
+    columns:
+      - name: detector_id
+        description: The unique ID of the detector.
+      - name: time_id
+        description: The update timestamp for the detector metadata.
+      - name: station_id
+        description: The ID of the station to which the detector is connected
+      - name: status
+      - name: lane
+        description: The lane number of the detector
+      - name: slot
+      - name: volume_flag
+      - name: logical_position
