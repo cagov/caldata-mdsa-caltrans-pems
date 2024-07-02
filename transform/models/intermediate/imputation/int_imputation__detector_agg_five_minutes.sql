@@ -2,18 +2,13 @@
         materialized='incremental',
         cluster_by=["sample_date"],
         unique_key=["id", "lane", "sample_timestamp"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
+        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="X"),
     )
 }}
 
 -- Select unimputed data
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
-),
-
-freeway_district_agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_district_freeway') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
@@ -52,6 +47,25 @@ unimputed as (
             and base.sample_date = good_detectors.sample_date
 ),
 
+station_meta as (
+    select * from {{ ref("int_clearinghouse__station_meta") }}
+    where type in ('ML', 'HV') -- TODO: do we want to do this?
+),
+
+unimputed_with_meta as (
+    select
+        unimputed.*,
+        station_meta.freeway,
+        station_meta.direction,
+        station_meta.type
+    from unimputed
+    inner join station_meta
+        on
+            unimputed.id = station_meta.id
+            and unimputed.sample_date >= station_meta._valid_from
+            and (unimputed.sample_date < station_meta._valid_to or station_meta._valid_to is null)
+),
+
 -- get the data that require imputation
 samples_requiring_imputation as (
     select
@@ -60,10 +74,13 @@ samples_requiring_imputation as (
         district,
         sample_date,
         sample_timestamp,
+        freeway,
+        direction,
+        type,
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
+    from unimputed_with_meta
     where not detector_is_good
 ),
 
@@ -72,32 +89,17 @@ samples_not_requiring_imputation as (
     select
         id,
         lane,
+        district,
         sample_date,
         sample_timestamp,
+        freeway,
+        direction,
+        type,
         volume_sum,
         occupancy_avg,
         speed_five_mins
     from unimputed
     where detector_is_good
-),
-
-station_meta as (
-    select * from {{ ref("int_clearinghouse__station_meta") }}
-    where type in ('ML', 'HV') -- TODO: do we want to do this?
-),
-
-samples_requiring_imputation_with_meta as (
-    select
-        samples_requiring_imputation.*,
-        station_meta.freeway,
-        station_meta.direction,
-        station_meta.type
-    from samples_requiring_imputation
-    inner join station_meta
-        on
-            samples_requiring_imputation.id = station_meta.id
-            and samples_requiring_imputation.sample_date >= station_meta._valid_from
-            and (samples_requiring_imputation.sample_date < station_meta._valid_to or station_meta._valid_to is null)
 ),
 
 -- read the model coefficients
@@ -112,7 +114,7 @@ global_coeffs as (
 -- join the coeeficent with missing volume,occupancy and speed dataframe for local Regression
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
-        samples_requiring_imputation_with_meta.*,
+        samples_requiring_imputation.*,
         local_regional_coeffs.other_id,
         local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
@@ -123,16 +125,16 @@ samples_requiring_imputation_with_local_regional_coeffs as (
         local_regional_coeffs.occupancy_intercept,
         local_regional_coeffs.regression_date,
         local_regional_coeffs.other_station_is_local
-    from samples_requiring_imputation_with_meta
+    from samples_requiring_imputation
     asof join local_regional_coeffs
-        match_condition (samples_requiring_imputation_with_meta.sample_date >= local_regional_coeffs.regression_date)
-        on samples_requiring_imputation_with_meta.id = local_regional_coeffs.id
+        match_condition (samples_requiring_imputation.sample_date >= local_regional_coeffs.regression_date)
+        on samples_requiring_imputation.id = local_regional_coeffs.id
 ),
 
 -- join the coeeficent with missing volume,occupancy and speed dataframe
 samples_requiring_imputation_with_global_coeffs as (
     select
-        samples_requiring_imputation_with_meta.*,
+        samples_requiring_imputation.*,
         global_coeffs.speed_slope,
         global_coeffs.speed_intercept,
         global_coeffs.volume_slope,
@@ -140,13 +142,33 @@ samples_requiring_imputation_with_global_coeffs as (
         global_coeffs.occupancy_slope,
         global_coeffs.occupancy_intercept,
         global_coeffs.regression_date
-    from samples_requiring_imputation_with_meta
+    from samples_requiring_imputation
     asof join global_coeffs
-        match_condition (samples_requiring_imputation_with_meta.sample_date >= global_coeffs.regression_date)
+        match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
-            samples_requiring_imputation_with_meta.id = global_coeffs.id
-            and samples_requiring_imputation_with_meta.lane = global_coeffs.lane
-            and samples_requiring_imputation_with_meta.district = global_coeffs.district
+            samples_requiring_imputation.id = global_coeffs.id
+            and samples_requiring_imputation.lane = global_coeffs.lane
+            and samples_requiring_imputation.district = global_coeffs.district
+),
+
+freeway_district_agg as (
+    select
+        sample_date,
+        sample_timestamp,
+        district,
+        freeway,
+        direction,
+        type,
+        /* Note: since this is an aggregate *across* stations rather than
+        within a single station, it is more appropriate to average the sum
+        rather than sum it. In any event, these averages are intended to be
+        used for computing regression coefficients, so this just makes the
+        regression coefficient the same up to a constant factor*/
+        avg(volume_sum) as volume_sum,
+        avg(occupancy_avg) as occupancy_avg,
+        avg(speed_weighted) as speed_weighted -- TODO: flow weighted speed here?
+    from samples_not_requiring_imputation
+    group by sample_date, sample_timestamp, district, freeway, direction, type
 ),
 
 samples_requiring_imputation_with_global as (
@@ -262,7 +284,7 @@ global_imputed as (
 -- combine imputed and non-imputed dataframe together
 agg_with_local_regional_global_imputation as (
     select
-        unimputed.*,
+        unimputed_with_meta.*,
         local_imputed.regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
