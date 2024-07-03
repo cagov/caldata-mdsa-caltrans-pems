@@ -1,5 +1,6 @@
 {{ config(
         materialized='incremental',
+        on_schema_change='sync_all_columns',
         cluster_by=["sample_date"],
         unique_key=["id", "lane", "sample_timestamp", "sample_date"],
         snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
