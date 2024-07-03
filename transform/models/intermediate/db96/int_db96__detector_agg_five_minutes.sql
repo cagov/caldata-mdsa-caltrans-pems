@@ -43,7 +43,7 @@ with raw as (
             {% endif %}
     {% elif target.name != 'prd' %}
         where sample_date >= dateadd(day, {{ var("dev_model_look_back") }}, current_date())
-    {% endif %}    
+    {% endif %}
 ),
 
 agg as (
@@ -58,10 +58,10 @@ agg as (
         {% for lane in range(1, n_lanes+1) %}
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
         {% endfor %}
-    {% for lane in range(1, n_lanes+1) %}
-        avg(speed_{{ lane }}) as speed_{{ lane }}
-    {{ "," if not loop.last }}
-    {% endfor %}
+        {% for lane in range(1, n_lanes+1) %}
+            avg(speed_{{ lane }}) as speed_{{ lane }}
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district
 ),

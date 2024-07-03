@@ -51,6 +51,13 @@ vars:
 
 models:
   caldata_mdsa_caltrans_pems:
+    # This config is a bit of a hack: if the PRE_COMMIT environment variable
+    # is set, we set the full_refresh flag globally on the project. This has
+    # the effect of forcing is_incremental() to evaluate to `False` everywhere,
+    # making the compiled SQL consistent regardless of whether a developer
+    # has a table in their dev environment. This matches what is done in CI,
+    # where is_incremental() also evaluates to `False`.
+    +full_refresh: "{{ true if env_var('PRE_COMMIT', '0') == '1' else none }}"
     staging:
       +materialized: view
       clearinghouse:
