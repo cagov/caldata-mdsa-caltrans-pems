@@ -66,4 +66,20 @@ agg_unioned as (
     {% endfor %}
 )
 
-select * from agg_unioned
+select
+    id,
+    sample_date,
+    sample_timestamp,
+    lane,
+    district,
+    --Number of raw data samples
+    count_if(volume is not null and occupancy is not null)
+        as sample_ct,
+        -- Sum of all the flow values
+    sum(volume) as volume_sum,
+    -- Average of all the occupancy values
+    avg(occupancy) as occupancy_avg,
+    -- calculate_weighted_speed
+    sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
+from agg_unioned
+group by id, lane, sample_date, sample_timestamp, district
