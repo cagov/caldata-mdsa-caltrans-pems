@@ -1,6 +1,6 @@
 {{ config(
         materialized="table",
-        snowflake_warehouse=get_snowflake_warehouse(size="XL"),
+        snowflake_warehouse=get_snowflake_warehouse(size="XL")
     )
 }}
 
@@ -10,17 +10,20 @@ coefficients. As is, it is a hard-coded list of quarterly
 dates starting in early 2023.
 */
 with recursive date_sequence as (
-    -- Define the initial date, which is the earliest 3rd of February, May, August, or November from your dataset
+    -- Define the initial date, which is the earliest 3rd of February, May, August, or November from our dataset
     select min(sample_date) as base_date
-    from {{ ref('stg_clearinghouse__station_raw') }}
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where extract(month from sample_date) in (2, 5, 8, 11)
+
     union all
+
     -- Add three months to the previous date
     select dateadd(month, 3, base_date)
     from date_sequence
-    -- Ensure we don't go beyond the maximum date in your dataset
+    -- Ensure we don't go beyond the maximum date in our dataset
     where
-        base_date <= (select max(sample_date) from {{ ref('stg_clearinghouse__station_raw') }})
+        dateadd(month, 3, base_date)
+        <= (select max(sample_date) from {{ ref('int_clearinghouse__detector_agg_five_minutes') }})
 ),
 
 regression_dates as (
