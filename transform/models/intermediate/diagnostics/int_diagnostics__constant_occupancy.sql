@@ -16,17 +16,6 @@ source as (
         and {{ make_model_incremental('sample_date') }}
 ),
 
-occupancy_avg as (
-    select
-        id,
-        sample_date,
-        sample_timestamp,
-        lane,
-        district,
-        avg(occupancy) as occupancy_avg
-    from source
-    group by id, lane, sample_date, sample_timestamp, district
-),
 
 calculate_occupancy_delta as (
     select
@@ -39,7 +28,7 @@ calculate_occupancy_delta as (
         - LAG(occupancy_avg)
             over (partition by id, lane, sample_date order by sample_timestamp)
             as occupancy_delta
-    from occupancy_avg
+    from source
 ),
 
 sum_occupancy_delta as (
