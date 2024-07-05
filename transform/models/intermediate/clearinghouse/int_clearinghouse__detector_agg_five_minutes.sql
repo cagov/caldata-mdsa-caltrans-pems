@@ -37,8 +37,14 @@ agg as (
         {% for lane in range(1, n_lanes+1) %}
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
         {% endfor %}
+        {% for lane in range(1, n_lanes+1) %}
+            count_if(flow_{{ lane }} is not null and occupancy_{{ lane }} is not null) as sample_ct_{{ lane }},
+        {% endfor %}
     {% for lane in range(1, n_lanes+1) %}
-        avg(speed_{{ lane }}) as speed_{{ lane }}{% if not loop.last %},{% endif %}
+        sum(flow_{{ lane }} * speed_{{ lane }})
+        / nullifzero(sum(flow_{{ lane }})) as speed_weighted_{{ lane }}        {% if not loop.last %}
+            ,
+        {% endif %}
     {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district
@@ -51,10 +57,11 @@ agg as (
             sample_date,
             sample_timestamp,
             district,
+            sample_ct_{{ lane }} as sample_ct,
             {{ lane }} as lane,
-            flow_{{ lane }} as volume,
-            occupancy_{{ lane }} as occupancy,
-            speed_{{ lane }} as speed
+            flow_{{ lane }} as volume_sum,
+            occupancy_{{ lane }} as occupancy_avg,
+            speed_weighted_{{ lane }} as speed_weighted
         from agg
     ),
 {% endfor %}
@@ -66,20 +73,6 @@ agg_unioned as (
     {% endfor %}
 )
 
-select
-    id,
-    sample_date,
-    sample_timestamp,
-    lane,
-    district,
-    --Number of raw data samples
-    count_if(volume is not null and occupancy is not null)
-        as sample_ct,
-        -- Sum of all the flow values
-    sum(volume) as volume_sum,
-    -- Average of all the occupancy values
-    avg(occupancy) as occupancy_avg,
-    -- calculate_weighted_speed
-    sum(volume * speed) / nullifzero(sum(volume)) as speed_weighted
+select *
+
 from agg_unioned
-group by id, lane, sample_date, sample_timestamp, district
