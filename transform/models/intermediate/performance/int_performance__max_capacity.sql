@@ -8,14 +8,9 @@ to detemine the productivity performance metric.
 with
 
 source as (
-    select
-        id,
-        sample_timestamp,
-        sample_date,
-        lane,
-        sum(volume) as volume_sum
+    select *
+
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    group by id, lane, sample_date, sample_timestamp, district
 ),
 
 sum_volume as (
