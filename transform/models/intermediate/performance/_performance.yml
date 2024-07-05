@@ -346,10 +346,10 @@ models:
   - name: int_performance__station_aadt_with_K_value
     description: |
       Station level annual average daily traffic and k th highest hour volume in the precceding year.
-      This model only used detector reported observe value and did not impute any missing value to 
-      calculate the AADT and k value.More details can be found in the paper "Using Incomplete Archived
+      This model only used detector reported observe value and did not impute any missing value to
+      calculate the AADT and k value. More details can be found in the paper "Using Incomplete Archived
       ITS Data to Calculate Annual Average Traffic Statistics" by Shawn Turner and Eun Sug Park
-      (Proceedings of the Transportation Research Board 87th Annual Meeting, Washington, D.C., 2008). 
+      (Proceedings of the Transportation Research Board 87th Annual Meeting, Washington, D.C., 2008).
        - name: ID
          description: |
            An integer value that uniquely indentifies a station.
