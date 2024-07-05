@@ -1,9 +1,43 @@
 {{ config(materialized='table') }}
 
--- read sation daily aggregated performance metrics
-with sd as (
-    select *
-    from {{ ref('int_performance__station_metrics_agg_daily') }}
+-- Get all of the detectors that are producing good data, based on
+-- the diagnostic tests
+with good_detectors as (
+    select
+        station_id,
+        lane,
+        district,
+        sample_date
+    from {{ ref("int_diagnostics__real_detector_status") }}
+    where status = 'Good'
+),
+
+-- read detector daily aggregated performance metrics
+-- join with good dectors
+good_detectors_daily_agg as (
+    select sd.*
+    from {{ ref('int_performance__detector_metrics_agg_daily') }} as sd
+    inner join good_detectors on
+        sd.id = good_detectors.station_id
+        and sd.lane = good_detectors.lane
+        and sd.sample_date = good_detectors.sample_date
+),
+
+--  calculate station level metrics first
+good_station_daily_agg as (
+    select
+        id,
+        city,
+        county,
+        district,
+        freeway,
+        direction,
+        type,
+        -- aggregate station volume over all lanes
+        sum(daily_volume) as daily_volume,
+        sample_date
+    from good_detectors_daily_agg
+    group by id, city, county, district, freeway, direction, type, sample_date
 ),
 
 -- AADT_1: Arithmetic Mean
@@ -18,7 +52,7 @@ aadt_1 as (
         type,
         avg(daily_volume) as aadt_1,
         date_trunc('year', sample_date) as sample_year
-    from sd
+    from good_station_daily_agg
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
@@ -37,7 +71,7 @@ madw as (
         extract(dow from sample_date) as day_of_week,
         date_trunc('month', sample_date) as sample_month,
         date_trunc('year', sample_date) as sample_year
-    from sd
+    from good_station_daily_agg
     group by id, city, county, freeway, direction, district, type, day_of_week, sample_month, sample_year
 ),
 
@@ -55,6 +89,7 @@ madt as (
         count(id) as sample_ct,
         avg(madw) as madt
     from madw
+    where madw > 0
     group by id, city, county, district, freeway, direction, type, sample_month, sample_year
 ),
 
@@ -73,7 +108,6 @@ aadt_2 as (
     from madt
     group by id, city, county, district, freeway, direction, type, sample_year
     -- all 12 months average traffic volume is required to calculate this metric
-    -- otherway,there should be no missing monthly average daily traffic
     having count(sample_month) = 12
 ),
 
@@ -92,6 +126,7 @@ aadw as (
         day_of_week,
         sample_year
     from madw
+    where madw > 0
     group by id, city, county, district, freeway, direction, type, day_of_week, sample_year
 ),
 
@@ -110,10 +145,29 @@ aadt_3 as (
     group by id, city, county, district, freeway, direction, type, sample_year
 ),
 
--- read the station hourly aggregated model
-sh as (
-    select *
-    from {{ ref('int_performance__station_metrics_agg_hourly') }}
+-- read the detector hourly aggregated model
+-- filter out the good dectors data only
+good_detectors_hourly_agg as (
+    select sh.*
+    from {{ ref('int_performance__detector_metrics_agg_hourly') }} as sh
+    inner join good_detectors on
+        sh.id = good_detectors.station_id
+        and sh.lane = good_detectors.lane
+        and sh.sample_date = good_detectors.sample_date
+),
+
+--  aggregate the hourly volume in station level first
+good_station_hourly_agg as (
+    select
+        id,
+        district,
+        type,
+        sample_hour,
+        sample_date,
+        sum(hourly_volume) as hourly_volume
+    from good_detectors_hourly_agg
+    group by id, sample_date, sample_hour, district, type
+
 ),
 
 -- AADT_4: Provisional AASHTO Procedures
@@ -128,7 +182,7 @@ mahw as (
         date_trunc('year', sample_date) as sample_year,
         -- calculate monthly average flow for each hour of the week
         avg(hourly_volume) as mahw
-    from sh
+    from good_station_hourly_agg
     group by id, district, type, hour_of_day, day_of_week, sample_month, sample_year
 ),
 
@@ -154,6 +208,7 @@ averages_of_madw as (
         day_of_week,
         sample_year
     from monthly_average_days_of_the_week_traffic
+    where madw > 0
     group by id, district, type, day_of_week, sample_year
 ),
 
@@ -178,7 +233,7 @@ annual_average_hourly_traffic as (
         extract(hour from sample_hour) as hour_of_day,
         date_trunc('year', sample_date) as sample_year,
         avg(hourly_volume) as aaht
-    from sh
+    from good_station_hourly_agg
     group by id, district, type, hour_of_day, sample_year
 ),
 
@@ -227,6 +282,7 @@ aadw1 as (
         day_of_week,
         sample_year
     from madw
+    where madw > 0
     group by id, city, county, district, freeway, direction, type, day_of_week, sample_year
     -- 1 of the 12 MADW values may be missing in the AADW subcomputation.
     having count(madw) >= 11
@@ -261,11 +317,11 @@ averages_of_madw1 as (
         count(madw) as sample_ct,
         sample_year
     from monthly_average_days_of_the_week_traffic
+    where madw > 0
     group by id, district, type, day_of_week, sample_year
     -- 1 of the 12 MADW values may be missing in the AADW subcomputation
     having count(madw) >= 11
 ),
-
 
 aadt_8 as (
     select
@@ -331,7 +387,7 @@ traffic_data as (
         hourly_volume,
         sample_date,
         date_trunc('year', sample_date) as observation_year
-    from {{ ref('int_performance__station_metrics_agg_hourly') }}
+    from good_station_hourly_agg
 ),
 
 -- get 30th highest hour volume in preceding year

@@ -346,6 +346,10 @@ models:
   - name: int_performance__station_aadt_with_K_value
     description: |
       Station level annual average daily traffic and k th highest hour volume in the precceding year.
+      This model only used detector reported observe value and did not impute any missing value to 
+      calculate the AADT and k value.More details can be found in the paper "Using Incomplete Archived
+      ITS Data to Calculate Annual Average Traffic Statistics" by Shawn Turner and Eun Sug Park
+      (Proceedings of the Transportation Research Board 87th Annual Meeting, Washington, D.C., 2008). 
        - name: ID
          description: |
            An integer value that uniquely indentifies a station.
@@ -380,7 +384,8 @@ models:
         This algorithm also starts with the MADW values, computed as described above for AADT_2.
         From these, an Annual Average Days of the Week (AADW) value is computed for each day of
         the week as the average across all 12 months. Finally, AADT_3 is computed as the average
-        of these 7 AADW values.This is known as Conventional AASHTO Procedures.
+        of these 7 AADW values.Missing data are not imputed; therefore, incomplete days are not 
+        used in the calculation of MADW values.This is known as Conventional AASHTO Procedures.
       - name: AADT_4
         description: |
         This procedure first calculates, across all 12 months, the monthly average flow for each
