@@ -60,7 +60,9 @@ agg as (
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
             avg(speed_{{ lane }}) as speed_{{ lane }}
-            {% if not loop.last %},{% endif %}
+            {% if not loop.last %}
+                ,
+            {% endif %}
         {% endfor %}
     from raw
     group by id, sample_date, sample_timestamp_trunc, district

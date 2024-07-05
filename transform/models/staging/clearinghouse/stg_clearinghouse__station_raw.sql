@@ -29,5 +29,5 @@ select
     flow_8,
     occupancy_8,
     speed_8
-from {{ source('clearinghouse', 'station_raw') }},
+from {{ source('clearinghouse', 'station_raw') }}
 where sample_date >= {{ var("pems_clearinghouse_start_date") }}
