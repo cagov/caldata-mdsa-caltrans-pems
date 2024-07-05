@@ -109,7 +109,7 @@ global_agg as (
         regression coefficient the same up to a constant factor*/
         avg(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
-        avg(speed_weighted) as speed_weighted -- TODO: flow weighted speed here?
+        sum(volume_sum * speed_weighted) / nullifzero(sum(volume_sum)) as speed_weighted
     from detector_counts_with_config
     group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
@@ -129,7 +129,7 @@ detector_counts_with_global_averages as (
         a.occupancy_avg as occupancy,
         g.volume_sum as global_volume,
         g.occupancy_avg as global_occupancy,
-        g.speed_weighted as global_speed -- TODO: what speed to use?
+        g.speed_weighted as global_speed
     from detector_counts_with_config as a
     inner join global_agg as g
         on

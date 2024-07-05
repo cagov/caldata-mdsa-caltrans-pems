@@ -269,7 +269,7 @@ freeway_district_agg as (
         regression coefficient the same up to a constant factor*/
         avg(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
-        avg(speed_five_mins) as speed_five_mins -- TODO: flow weighted speed here?
+        sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as speed_five_mins
     from samples_not_requiring_imputation
     group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
@@ -278,7 +278,7 @@ freeway_district_agg as (
 samples_requiring_imputation_with_global as (
     select
         imp.*,
-        non_imp.speed_five_mins as speed_five_mins_global, -- TODO: what is the right speed?
+        non_imp.speed_five_mins as speed_five_mins_global,
         non_imp.volume_sum as volume_sum_global,
         non_imp.occupancy_avg as occupancy_avg_global
     from samples_requiring_imputation_with_global_coeffs as imp
