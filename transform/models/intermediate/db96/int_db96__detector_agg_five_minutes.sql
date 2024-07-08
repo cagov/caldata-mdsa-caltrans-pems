@@ -31,7 +31,7 @@ agg as (
         sample_timestamp_trunc as sample_timestamp,
         district,
         {% for lane in range(1, n_lanes+1) %}
-            sum(flow_{{ lane }}) as flow_{{ lane }},
+            sum(volume_{{ lane }}) as volume_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
@@ -54,7 +54,7 @@ agg as (
             sample_timestamp,
             district,
             {{ lane }} as lane,
-            flow_{{ lane }} as flow,
+            volume_{{ lane }} as flow,
             occupancy_{{ lane }} as occupancy,
             speed_{{ lane }} as speed
         from agg
