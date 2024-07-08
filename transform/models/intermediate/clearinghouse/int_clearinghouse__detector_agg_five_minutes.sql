@@ -22,7 +22,7 @@ with raw as (
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
 
-    where {{ make_model_incremental('sample_date') }}
+        where {{ make_model_incremental('sample_date') }}
 ),
 
 agg as (
