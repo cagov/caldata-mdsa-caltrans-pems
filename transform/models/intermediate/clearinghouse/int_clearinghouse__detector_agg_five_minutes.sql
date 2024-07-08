@@ -22,7 +22,7 @@ with raw as (
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
 
-        where {{ make_model_incremental('sample_date') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 agg as (
@@ -32,10 +32,10 @@ agg as (
         sample_timestamp_trunc as sample_timestamp,
         district,
         {% for lane in range(1, n_lanes+1) %}
-            sum(flow_{{ lane }}) as flow_{{ lane }},
+            sum(volume_{{ lane }}) as volume_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
-            count_if(flow_{{ lane }} = 0) as zero_vol_ct_{{ lane }},
+            count_if(volume_{{ lane }} = 0) as zero_vol_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
             avg(occupancy_{{ lane }}) as occupancy_{{ lane }},
@@ -44,23 +44,23 @@ agg as (
             count_if(occupancy_{{ lane }} = 0) as zero_occ_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
-            count_if(flow_{{ lane }} = 0 and occupancy_{{ lane }} > 0) as zero_vol_pos_occ_ct_{{ lane }},
+            count_if(volume_{{ lane }} = 0 and occupancy_{{ lane }} > 0) as zero_vol_pos_occ_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
-            count_if(flow_{{ lane }} > 0 and occupancy_{{ lane }} = 0) as zero_occ_pos_vol_ct_{{ lane }},
+            count_if(volume_{{ lane }} > 0 and occupancy_{{ lane }} = 0) as zero_occ_pos_vol_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
-            count_if(flow_{{ lane }} > {{ var("high_volume_threshold") }}) as high_volume_ct_{{ lane }},
+            count_if(volume_{{ lane }} > {{ var("high_volume_threshold") }}) as high_volume_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
             count_if(occupancy_{{ lane }} > {{ var("high_occupancy_threshold") }}) as high_occupancy_ct_{{ lane }},
         {% endfor %}
         {% for lane in range(1, n_lanes+1) %}
-            count_if(flow_{{ lane }} is not null and occupancy_{{ lane }} is not null) as sample_ct_{{ lane }},
+            count_if(volume_{{ lane }} is not null and occupancy_{{ lane }} is not null) as sample_ct_{{ lane }},
         {% endfor %}
     {% for lane in range(1, n_lanes+1) %}
-        sum(flow_{{ lane }} * speed_{{ lane }})
-        / nullifzero(sum(flow_{{ lane }})) as speed_weighted_{{ lane }}        {% if not loop.last %}
+        sum(volume_{{ lane }} * speed_{{ lane }})
+        / nullifzero(sum(volume_{{ lane }})) as speed_weighted_{{ lane }}        {% if not loop.last %}
             ,
         {% endif %}
     {% endfor %}
@@ -77,7 +77,7 @@ agg as (
             district,
             sample_ct_{{ lane }} as sample_ct,
             {{ lane }} as lane,
-            flow_{{ lane }} as volume_sum,
+            volume_{{ lane }} as volume_sum,
             zero_vol_ct_{{ lane }} as zero_vol_ct,
             occupancy_{{ lane }} as occupancy_avg,
             zero_occ_ct_{{ lane }} as zero_occ_ct,
