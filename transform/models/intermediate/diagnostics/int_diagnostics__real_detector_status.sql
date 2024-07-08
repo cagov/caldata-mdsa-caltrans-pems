@@ -26,7 +26,7 @@ detector_status_with_real_lanes as (
             and detector_status.station_id = detectors.station_id
             and detector_status.lane = len(detectors.lane_number::string)
             and detector_status.sample_date >= detectors._valid_from
-            and detector_status.sample_date < detectors._valid_to
+            and (detector_status.sample_date < detectors._valid_to or detectors._valid_to is null)
 )
 
 select * from detector_status_with_real_lanes
