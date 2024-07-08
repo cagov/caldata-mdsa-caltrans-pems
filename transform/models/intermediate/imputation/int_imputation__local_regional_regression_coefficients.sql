@@ -1,31 +1,29 @@
 {{ config(
-        materialized="table",
-        snowflake_warehouse=get_snowflake_warehouse(size="XL")
-    )
-}}
+    materialized="incremental",
+    unique_key=['id','sample_date','sample_timestamp', 'lane'],
+    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+) }}
 
-/* This CTE is intended to be a placeholder for some
-better-thought-out logic for what dates to evaluate regression
-coefficients. As is, it is a hard-coded list of quarterly
-dates starting in early 2023.
-*/
-with recursive date_sequence as (
-    -- Define the initial date, which is the earliest 3rd of February, May, August, or November from our dataset
-    select min(sample_date) as base_date
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    where extract(month from sample_date) in (2, 5, 8, 11)
-
-    union all
-
-    -- Add three months to the previous date
-    select dateadd(month, 3, base_date)
-    from date_sequence
-    -- Ensure we don't go beyond the maximum date in our dataset
-    where
-        dateadd(month, 3, base_date)
-        <= (select max(sample_date) from {{ ref('int_clearinghouse__detector_agg_five_minutes') }})
+-- Generate dates using dbt_utils.date_spine
+with date_spine as (
+    {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="'1998-10-01'",
+        end_date="current_date()"
+    ) }}
 ),
 
+-- Filter dates to get the desired date sequence
+date_sequence as (
+    select cast(date_day as date) as base_date
+    from
+        date_spine
+    where
+        extract(day from date_day) = 3
+        and extract(month from date_day) in (2, 5, 8, 11)
+),
+
+-- Select distinct regression dates
 regression_dates as (
     select distinct base_date as regression_date
     from date_sequence
@@ -59,6 +57,7 @@ good_detectors as (
 
 agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
