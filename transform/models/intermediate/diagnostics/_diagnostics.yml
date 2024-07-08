@@ -83,7 +83,7 @@ models:
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
 
-  - name: int_diagnostics__samples_per_station
+  - name: int_diagnostics__samples_per_detector
     description: |
       This file contains count data by station and lane based on the number of raw data samples
       that met a variety of flow and occupancy criteria. This data will be used to determine the
