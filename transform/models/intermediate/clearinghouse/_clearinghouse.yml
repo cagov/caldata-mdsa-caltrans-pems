@@ -167,29 +167,29 @@ models:
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
       - name: district
-        description: foobar
+        description: The district in which the VDS is located. Values are 1-12.
       - name: sample_ct
-        description: foobar
+        description: Counts the number of raw data samples where a lane's volume (flow) and occupancy values contain any non-null value
       - name: lane
-        description: foobar
+        description: Lane associated with a route and station from raw data.
       - name: volume_sum
-        description: foobar
+        description: Number of vehicle that passed over the detector during the sample period for the lane.
       - name: zero_vol_ct
-        description: foobar
+        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0.
       - name: occupancy_avg
-        description: foobar
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
       - name: zero_occ_ct
-        description: foobar
+        description: Counts the number of raw data samples where a lane's occupancy value equals 0.
       - name: zero_vol_pos_occ_ct
-        description: foobar
+        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0 but occupancy is greater than 0.
       - name: zero_occ_pos_vol_ct
-        description: foobar
+        description: Counts the number of raw data samples where a lane's occupancy value equals 0 but volume (flow) is greater than 0.
       - name: high_volume_ct
-        description: foobar
+        description: Counts the number of volume (flow) values in a lane that exceeded the high value threshold detector diagnostic parameter for a station.
       - name: high_occupancy_ct
-        description: foobar
+        description: Counts the number of occupancy values in a lane that exceeded the high value threshold detector diagnostic parameter for a station.
       - name: speed_weighted
-        description: foobar
+        description: Speed in the lane as measured by the detector in miles/hour. Weighted by count of samples in each period.
   - name: int_clearinghouse__active_stations
     description: |
       Contains station meta data for all stations that were designated active on any
