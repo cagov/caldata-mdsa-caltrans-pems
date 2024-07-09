@@ -183,7 +183,7 @@ models:
       - name: zero_vol_pos_occ_ct
         description: foobar
       - name: zero_occ_pos_vol_ct
-        description: foobar        
+        description: foobar
       - name: high_volume_ct
         description: foobar
       - name: high_occupancy_ct

@@ -97,8 +97,4 @@ agg_unioned as (
     {% endfor %}
 )
 
-select
-    *,
-    'temp' as test
-
-from agg_unioned
+select * from agg_unioned
