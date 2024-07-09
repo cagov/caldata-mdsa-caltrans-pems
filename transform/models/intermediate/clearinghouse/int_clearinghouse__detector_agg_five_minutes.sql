@@ -2,7 +2,7 @@
     materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["id", "lane", "sample_timestamp","sample_date"],
-    on_schema_change="sync_all_columns",
+    on_schema_change="append_new_columns",
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 {% set n_lanes = 8 %}
