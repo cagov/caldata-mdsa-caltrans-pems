@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id','sample_date','sample_timestamp', 'lane'],
+    unique_key=['id','other_id','lane', 'other_lane','regression_date'],
     snowflake_warehouse=get_snowflake_warehouse(size="XL")
 ) }}
 
