@@ -169,9 +169,12 @@ models:
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
       - name: sample_ct
-        description: Counts the number of raw data samples where a lane's volume (flow) and occupancy values contain any non-null value
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) 
+          and occupancy values contain any non-null value
       - name: lane
-        description: Lane associated with a route and station from raw data.
+        description: |
+          Lane associated with a route and station from raw data.
       - name: volume_sum
         description: Number of vehicle that passed over the detector during the sample period for the lane.
       - name: zero_vol_ct
@@ -181,15 +184,25 @@ models:
       - name: zero_occ_ct
         description: Counts the number of raw data samples where a lane's occupancy value equals 0.
       - name: zero_vol_pos_occ_ct
-        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0 but occupancy is greater than 0.
+        description: |
+          Counts the number of raw data samples where a lane's volume 
+          (flow) value equals 0 but occupancy is greater than 0.
       - name: zero_occ_pos_vol_ct
-        description: Counts the number of raw data samples where a lane's occupancy value equals 0 but volume (flow) is greater than 0.
+        description: |
+          Counts the number of raw data samples where a lane's occupancy value 
+          equals 0 but volume (flow) is greater than 0.
       - name: high_volume_ct
-        description: Counts the number of volume (flow) values in a lane that exceeded the high value threshold detector diagnostic parameter for a station.
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high 
+          value threshold detector diagnostic parameter for a station.
       - name: high_occupancy_ct
-        description: Counts the number of occupancy values in a lane that exceeded the high value threshold detector diagnostic parameter for a station.
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value 
+          threshold detector diagnostic parameter for a station.
       - name: speed_weighted
-        description: Speed in the lane as measured by the detector in miles/hour. Weighted by count of samples in each period.
+        description: |
+          Speed in the lane as measured by the detector in miles/hour. 
+          Weighted by count of samples in each period.
   - name: int_clearinghouse__active_stations
     description: |
       Contains station meta data for all stations that were designated active on any
