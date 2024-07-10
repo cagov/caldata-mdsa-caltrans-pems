@@ -16,6 +16,7 @@ source as (
         and {{ make_model_incremental('sample_date') }}
 ),
 
+
 calculate_occupancy_delta as (
     select
         id,
