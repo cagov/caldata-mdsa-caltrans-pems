@@ -6,28 +6,31 @@
 
 -- Generate dates using dbt_utils.date_spine
 with date_spine as (
-    {{ dbt_utils.date_spine(
-        datepart="day",
-        start_date="'1998-10-01'",
-        end_date="current_date()"
-    ) }}
+    select cast(date_day as date) as regression_date
+    from (
+        {{ dbt_utils.date_spine(
+            datepart="day",
+            start_date="'1998-10-01'",
+            end_date="current_date()"
+        ) }}
+    ) as spine
 ),
 
--- Filter dates to get the desired date sequence
-date_sequence as (
-    select cast(date_day as date) as base_date
-    from
-        date_spine
-    where
-        extract(day from date_day) = 3
-        and extract(month from date_day) in (2, 5, 8, 11)
-),
-
--- Select distinct regression dates
+-- -- Filter dates to get the desired date sequence
 regression_dates as (
-    select distinct base_date as regression_date
-    from date_sequence
-    order by base_date
+    select *
+    from date_spine
+    where
+        extract(day from regression_date) = 3
+        and extract(month from regression_date) in (2, 5, 8, 11)
+),
+
+regression_dates_to_evaluate as (
+    select * from regression_dates
+    {% if is_incremental() %}
+        minus
+        select distinct regression_date from {{ this }}
+    {% endif %}
 ),
 
 -- Select all station pairs that are active for the chosen regression dates
@@ -56,8 +59,12 @@ good_detectors as (
 ),
 
 agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
+    select
+        afm.*,
+        rd.*
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }} as afm
+    left join regression_dates_to_evaluate as rd
+        on afm.sample_date = rd.regression_date
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
