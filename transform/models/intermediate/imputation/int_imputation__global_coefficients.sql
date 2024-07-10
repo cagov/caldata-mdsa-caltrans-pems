@@ -1,27 +1,36 @@
 {{ config(
-        materialized="table",
-        snowflake_warehouse=get_snowflake_warehouse(size="XL"),
-    )
-}}
+    materialized="incremental",
+    unique_key=['id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+) }}
 
-/* This CTE is intended to be a placeholder for some
-better-thought-out logic for what dates to evaluate regression
-coefficients. As is, it is a hard-coded list of quarterly
-dates starting in early 2023.
-*/
-with regression_dates as (
-    select value::date as regression_date from table(
-        flatten(
-            [
-                '2023-02-03'::date,
-                '2023-05-03'::date,
-                '2023-08-03'::date,
-                '2023-11-03'::date,
-                '2024-02-03'::date,
-                '2024-05-03'::date
-            ]
-        )
-    )
+-- Generate dates using dbt_utils.date_spine
+with date_spine as (
+    select cast(date_day as date) as regression_date
+    from (
+        {{ dbt_utils.date_spine(
+            datepart="day",
+            start_date="'1998-10-01'",
+            end_date="current_date()"
+        ) }}
+    ) as spine
+),
+
+-- -- Filter dates to get the desired date sequence
+regression_dates as (
+    select *
+    from date_spine
+    where
+        extract(day from regression_date) = 3
+        and extract(month from regression_date) in (2, 5, 8, 11)
+),
+
+regression_dates_to_evaluate as (
+    select * from regression_dates
+    {% if is_incremental() %}
+        minus
+        select distinct regression_date from {{ this }}
+    {% endif %}
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -63,14 +72,14 @@ detector_counts as (
         -- TODO: Can we give this a better name? Can we move this into the base model?
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
-        regression_dates.regression_date
+        regression_dates_to_evaluate.regression_date
     from agg
-    inner join regression_dates
+    inner join regression_dates_to_evaluate
         on
-            agg.sample_date >= regression_dates.regression_date
+            agg.sample_date >= regression_dates_to_evaluate.regression_date
             -- TODO: use variable for regression window
             and agg.sample_date
-            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates.regression_date)
+            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
         on
             agg.id = good_detectors.station_id
