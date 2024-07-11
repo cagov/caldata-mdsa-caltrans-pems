@@ -432,7 +432,7 @@ models:
          2. The speed at the current station (downstream station) is less than 40 mph.
          3. The stations are less than 3 miles apart.
          4. The speed drop persists for at least 5 out of any 7 contiguous 5-minute data points.
-         
+
       If all of these conditions are met then we declare that there is a bottleneck at this location
       that has been activated for all of the seven 5-minute time points.
 
