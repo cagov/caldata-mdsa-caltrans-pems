@@ -22,8 +22,10 @@ seeds:
       PeMS uses 30-second or 5-minute data to calculate performance measures.
       59 static records that contain diagnostic threshold values by diagnostic threshold set and detector type.
 
-      Reference: PeMSSampleReports.docx, [Detector Diagnostics](https://pems.dot.ca.gov/?dnode=Help&content=help_calc#diag), and
-      [PEMS User Guide](https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf)
+      Reference: 
+        - [Detector Diagnostics](https://pems.dot.ca.gov/?dnode=Help&content=help_calc#diag)
+        - [PEMS User Guide](https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf)
+        - PeMSSampleReports.docx
     config:
       schema: detector_health
 
