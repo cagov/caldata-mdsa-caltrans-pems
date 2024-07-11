@@ -39,7 +39,6 @@ config_scd as (
         station_config.latitude,
         station_config.longitude,
         station_config.physical_lanes,
-        --station_config.name,
         config_log_with_validity._valid_from,
         config_log_with_validity._valid_to
     from config_log_with_validity
