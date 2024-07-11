@@ -28,4 +28,6 @@ nav:
   - Data loading: data-loading.md
   - Data Warehouse Performance: data-warehouse-performance.md
   - dbt Project: dbt_docs/index.html
-  - Exploratory Data Analysis: exploratory-data-analysis.md
+  - Data:
+      - Exploratory Data Analysis: data/exploratory-data-analysis.md
+      - Data Relay: data/data-relay.md
