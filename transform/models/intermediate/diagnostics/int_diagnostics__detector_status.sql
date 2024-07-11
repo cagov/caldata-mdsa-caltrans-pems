@@ -87,7 +87,7 @@ detector_status as (
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
-            sps.station_id = co.id and sps.lane = co.lane and sps.sample_date = co.sample_date
+            sps.station_id = co.station_id and sps.lane = co.lane and sps.sample_date = co.sample_date
     left join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
 )

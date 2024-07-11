@@ -17,17 +17,17 @@ with station_daily_data as (
 -- now aggregate daily volume, occupancy and speed to weekly
 weekly_station_level_spatial_temporal_metrics as (
     select
-        id,
+        station_id,
         length,
         sample_year,
         sample_week,
         sample_week_start_date,
-        city,
-        county,
-        district,
-        type,
-        freeway,
-        direction,
+        any_value(station_type) as station_type,
+        any_value(district) as district,
+        any_value(county) as county,
+        any_value(city) as city,
+        any_value(freeway) as freeway,
+        any_value(direction) as direction,
         sum(daily_volume) as weekly_volume,
         avg(daily_occupancy) as weekly_occupancy,
         sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as weekly_speed,
@@ -56,7 +56,7 @@ weekly_station_level_spatial_temporal_metrics as (
         {% endfor %}
     from station_daily_data
     group by
-        id, sample_year, sample_week, sample_week_start_date, city, county, district, type, freeway, direction, length
+        station_id, sample_year, sample_week, sample_week_start_date, length
 )
 
 select * from weekly_station_level_spatial_temporal_metrics

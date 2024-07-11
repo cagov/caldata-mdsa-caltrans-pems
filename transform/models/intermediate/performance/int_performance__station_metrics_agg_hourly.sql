@@ -15,12 +15,16 @@ with station_five_mins_data as (
 -- now aggregate five mins volume, occupancy and speed to hourly
 hourly_station_temporal_metrics as (
     select
-        id,
+        station_id,
         sample_date,
-        length,
-        district,
-        type,
         sample_timestamp_trunc as sample_hour,
+        length,
+        any_value(station_type) as station_type,
+        any_value(district) as district,
+        any_value(county) as county,
+        any_value(city) as city,
+        any_value(freeway) as freeway,
+        any_value(direction) as direction,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
         sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as hourly_speed,
@@ -46,7 +50,7 @@ hourly_station_temporal_metrics as (
             {% endif %}
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_date, sample_hour, district, type, length
+    group by station_id, sample_date, sample_hour, length
 )
 
 select * from hourly_station_temporal_metrics

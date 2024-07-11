@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=['sample_date'],
-    unique_key=['id', 'lane', 'sample_date'],
+    unique_key=['station_id', 'lane', 'sample_date'],
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -18,14 +18,14 @@ source as (
 
 calculate_occupancy_delta as (
     select
-        id,
+        station_id,
         sample_timestamp,
         sample_date,
         lane,
         occupancy_avg,
         occupancy_avg
         - LAG(occupancy_avg)
-            over (partition by id, lane, sample_date order by sample_timestamp)
+            over (partition by station_id, lane, sample_date order by sample_timestamp)
             as occupancy_delta
     from source
 ),
@@ -38,7 +38,7 @@ sum_occupancy_delta as (
         /* we are looking at a window of 48 rows because that is a 4 hour window
         (5 min data * 12 = 60 (one hour) then 12 * 4 = 48 which is 4 hours) */
             over (
-                partition by id, lane, sample_date
+                partition by station_id, lane, sample_date
                 order by sample_timestamp rows between 47 preceding and current row
             )
             as abs_val_occupancy_delta_summed
@@ -46,17 +46,17 @@ sum_occupancy_delta as (
     qualify
         (occupancy_avg != 0 or occupancy_avg is not null)
         and ROW_NUMBER() over (
-            partition by id, lane, sample_date
+            partition by station_id, lane, sample_date
             order by sample_timestamp
         ) >= 48
 
 )
 
 select
-    id,
+    station_id,
     sample_date,
     lane,
     MIN(abs_val_occupancy_delta_summed) as min_occupancy_delta
 from sum_occupancy_delta
-group by id, lane, sample_date
+group by station_id, lane, sample_date
 order by sample_date
