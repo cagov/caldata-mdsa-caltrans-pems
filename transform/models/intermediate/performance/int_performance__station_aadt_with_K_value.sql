@@ -72,7 +72,8 @@ madw as (
         date_trunc('month', sample_date) as sample_month,
         date_trunc('year', sample_date) as sample_year
     from good_station_daily_agg
-    group by station_id, city, county, freeway, direction, district, station_type, day_of_week, sample_month, sample_year
+    group by
+        station_id, city, county, freeway, direction, district, station_type, day_of_week, sample_month, sample_year
 ),
 
 madt as (
