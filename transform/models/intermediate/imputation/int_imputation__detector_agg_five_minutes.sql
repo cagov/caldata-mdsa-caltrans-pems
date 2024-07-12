@@ -103,6 +103,11 @@ samples_requiring_imputation as (
         speed_five_mins
     from unimputed_with_config
     where not detector_is_good
+    -- there can still be gaps in detectors that are "Good",
+    -- so we try to impute for those as well.
+    or volume_sum is null
+    or occupancy_avg is null
+    or speed_five_mins is null
 ),
 
 samples_not_requiring_imputation as (
@@ -146,7 +151,10 @@ samples_requiring_imputation_with_local_regional_coeffs as (
     from samples_requiring_imputation
     asof join local_regional_coeffs
         match_condition (samples_requiring_imputation.sample_date >= local_regional_coeffs.regression_date)
-        on samples_requiring_imputation.id = local_regional_coeffs.id
+        on
+            samples_requiring_imputation.id = local_regional_coeffs.id
+            and samples_requiring_imputation.lane = local_regional_coeffs.lane
+            and samples_requiring_imputation.district = local_regional_coeffs.district
 ),
 
 /* Join with samples not requiring imputation based on the other ID/Lane
