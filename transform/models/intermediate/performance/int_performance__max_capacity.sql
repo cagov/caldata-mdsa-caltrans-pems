@@ -1,15 +1,14 @@
 /*
-This model develops the maximum capacity of a station and lane based on the historical measured
+This model develops the maximum capacity of a detector based on the historical measured
 raw data and determines the maximum observed 15-minute flow. We use the maximum of the
 actual 15-minute flow value and 2076 v/l/h as the capacity at each location. This will be used
-to detemine the productivity performance metric.
+to determine the productivity performance metric.
 */
 
 with
 
 source as (
     select *
-
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
@@ -20,7 +19,7 @@ sum_volume as (
         /* we are looking at a window of 3 rows because that is a 15-minute window
         (5-min data * 3 = 15 minutes) */
             over (
-                partition by id, lane, sample_date
+                partition by detector_id, sample_date
                 order by sample_timestamp rows between 2 preceding and current row
             )
             as volume_summed
@@ -29,8 +28,7 @@ sum_volume as (
 )
 
 select
-    id,
-    lane,
+    detector_id,
     /*
     Use max of 2076 v/l/h or 15 minute historical highest flow as the capacity
     at each location per PeMS website:
@@ -39,4 +37,4 @@ select
     */
     greatest(max(volume_summed), 173) as max_capacity_5min
 from sum_volume
-group by id, lane
+group by all

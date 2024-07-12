@@ -19,7 +19,7 @@ source as (
 samples_per_station as (
     select
         source.district,
-        source.id as station_id,
+        source.station_id,
         source.lane,
         source.sample_date,
         /*
@@ -67,7 +67,7 @@ samples_per_station as (
 
     from source
     group by
-        source.district, source.id, source.lane, source.sample_date
+        source.district, source.station_id, source.lane, source.sample_date
 )
 
 select * from samples_per_station

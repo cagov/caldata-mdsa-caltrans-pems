@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["id", "sample_date", "sample_timestamp"],
+    unique_key=["station_id", "sample_date", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
 ) }}
 
@@ -9,40 +9,20 @@ with
 
 station_five_minute as (
     select
-        id,
+        station_id,
         sample_date,
         sample_timestamp,
-        speed_weighted
-    from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
-    where {{ make_model_incremental('sample_date') }}
-
-),
-
-station_meta as (
-    select
-        _valid_from,
-        _valid_to,
+        speed_weighted,
         freeway,
         direction,
-        type,
+        station_type,
         absolute_postmile,
-        id,
         latitude,
         longitude
-    from {{ ref ("int_clearinghouse__station_meta") }}
-    where type = 'ML' or type = 'HV'
-),
-
-five_minute_with_station_meta_and_detector_status as (
-    select
-        sm.* exclude (id, _valid_from, _valid_to),
-        fm.*
-    from station_five_minute as fm
-    inner join station_meta as sm
-        on
-            fm.sample_date >= sm._valid_from
-            and (fm.sample_date < sm._valid_to or sm._valid_to is null)
-            and fm.id = sm.id
+    from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
+    where
+        {{ make_model_incremental('sample_date') }}
+        and station_type = 'ML' or station_type = 'HV'
 ),
 
 calcs as (
@@ -55,22 +35,22 @@ calcs as (
         larger postmile, and we need to lead to get the speed there. */
 
         speed_weighted - lag(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_ne,
 
         speed_weighted - lead(speed_weighted)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_sw,
 
         absolute_postmile - lag(absolute_postmile)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as distance_delta_ne,
 
         absolute_postmile - lead(absolute_postmile)
-            over (partition by sample_timestamp, freeway, direction, type order by absolute_postmile asc)
+            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as distance_delta_sw
 
-    from five_minute_with_station_meta_and_detector_status
+    from station_five_minute
 ),
 
 bottleneck_criteria as (
@@ -99,7 +79,7 @@ temporal_extent_check as (
     select
         *,
         sum(bottleneck_check) over (
-            partition by id, sample_date
+            partition by station_id, sample_date
             order by sample_timestamp asc rows between current row and 6 following
         ) as bottleneck_check_summed
     from bottleneck_criteria

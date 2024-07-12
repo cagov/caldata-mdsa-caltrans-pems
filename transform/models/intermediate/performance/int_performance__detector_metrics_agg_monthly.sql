@@ -15,15 +15,16 @@ with station_daily_data as (
 -- now aggregate daily volume, occupancy and speed to weekly
 monthly_spatial_temporal_metrics as (
     select
-        id,
+        detector_id,
         sample_month,
-        lane,
-        city,
-        county,
-        district,
-        type,
-        freeway,
-        direction,
+        any_value(station_id) as station_id,
+        any_value(lane) as lane,
+        any_value(city) as city,
+        any_value(county) as county,
+        any_value(district) as district,
+        any_value(station_type) as station_type,
+        any_value(freeway) as freeway,
+        any_value(direction) as direction,
         sum(daily_volume) as monthly_volume,
         avg(daily_occupancy) as monthly_occupancy,
         sum(daily_vmt) as monthly_vmt,
@@ -48,7 +49,7 @@ monthly_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_daily_data
-    group by id, sample_month, lane, city, county, district, type, freeway, direction
+    group by detector_id, sample_month
 )
 
 select * from monthly_spatial_temporal_metrics
