@@ -154,7 +154,7 @@ models:
       This model calculates constant occupancy by first calculating the delta
       between occupancy and previous occupancy. It then takes the absolute
       value of that delta and sums that over a window of 48 rows which equates
-      to 4 hours (5 min data * 12 = 60 (one hour) then 12 * 4 = 48 which is 4
+      to 4 hours (5 min data x 12 = 60 (one hour) then 12 x 4 = 48 which is 4
       hours) where occupancy is not null and not zero. Finally it outputs the
       minimum value grouped by id, lane, sample_date.
     columns:
