@@ -8,7 +8,7 @@
 with
 
 source as (
-    select * from {{ ref('int_diagnostics__samples_per_station') }}
+    select * from {{ ref('int_diagnostics__samples_per_detector') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 

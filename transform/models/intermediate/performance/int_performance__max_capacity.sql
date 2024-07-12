@@ -8,18 +8,14 @@ to determine the productivity performance metric.
 with
 
 source as (
-    select
-        detector_id,
-        sample_timestamp,
-        sample_date,
-        volume_sum
+    select *
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
 sum_volume as (
     select
         *,
-        SUM(volume_sum)
+        sum(volume_sum)
         /* we are looking at a window of 3 rows because that is a 15-minute window
         (5-min data * 3 = 15 minutes) */
             over (
@@ -39,6 +35,6 @@ select
     https://pems.dot.ca.gov/?dnode=Help&content=help_calc#perf
     2076 v/l/h / 12 = 173 v/l/5-min
     */
-    GREATEST(MAX(volume_summed), 173) as max_capacity_5min
+    greatest(max(volume_summed), 173) as max_capacity_5min
 from sum_volume
 group by all

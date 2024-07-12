@@ -9,7 +9,7 @@ with
 
 source as (
     select *
-    from {{ ref ('stg_clearinghouse__station_raw') }}
+    from {{ ref ('int_clearinghouse__detector_agg_five_minutes') }}
     where
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
         and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
@@ -28,34 +28,31 @@ samples_per_station as (
         in volume (flow) and occupancy are currently counted as 0 but if these need to be treated
         differently the code should be updated as needed to accomodate such a scenario.
         */
-        COUNT_IF(source.volume is not null and source.occupancy is not null)
-            as sample_ct,
+        SUM(source.sample_ct) as sample_ct,
 
         /*
         The following code will count how many times a 30 second raw volume (flow) value equals 0
         for a given station and associated lane
         */
-        COUNT_IF(source.volume = 0) as zero_vol_ct,
+        SUM(source.zero_vol_ct) as zero_vol_ct,
 
         /*
         The following code will count how many times a 30 second raw occupancy value equals 0
         for a given station and associated lane
         */
-        COUNT_IF(source.occupancy = 0) as zero_occ_ct,
+        SUM(source.zero_occ_ct) as zero_occ_ct,
 
         /*
         This code counts a sample if the volume (flow) is 0 and occupancy value > 0
         based on 30 second raw data recieved per station, lane, and time.
         */
-        COUNT_IF(source.volume = 0 and source.occupancy > 0)
-            as zero_vol_pos_occ_ct,
+        SUM(zero_vol_pos_occ_ct) as zero_vol_pos_occ_ct,
 
         /*
         This code counts a sample if the occupancy is 0 and a volume (flow) value > 0
         based on 30 second raw data recieved per station, lane and time.
         */
-        COUNT_IF(source.volume > 0 and source.occupancy = 0)
-            as zero_occ_pos_vol_ct,
+        SUM(zero_occ_pos_vol_ct) as zero_occ_pos_vol_ct,
 
         /*
         This SQL file counts the number of volume (flow) and occupancy values that exceed
@@ -63,9 +60,9 @@ samples_per_station as (
         processing optimization a high flow value or 20 and high occupancy value of 0.7
         have been hardcoded in the formulas below to avoid joining the set assignment model
         */
-        COUNT_IF(source.volume > {{ var("high_volume_threshold") }})
+        SUM(high_volume_ct)
             as high_volume_ct,
-        COUNT_IF(source.occupancy > {{ var("high_occupancy_threshold") }})
+        SUM(high_occupancy_ct)
             as high_occupancy_ct
 
     from source
