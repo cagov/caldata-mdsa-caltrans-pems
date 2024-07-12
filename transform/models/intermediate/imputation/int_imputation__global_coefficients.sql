@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    unique_key=['station_id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
     snowflake_warehouse=get_snowflake_warehouse(size="XL")
 ) }}
 
@@ -16,7 +16,7 @@ with date_spine as (
     ) as spine
 ),
 
--- -- Filter dates to get the desired date sequence
+-- Filter dates to get the desired date sequence
 regression_dates as (
     select *
     from date_spine
