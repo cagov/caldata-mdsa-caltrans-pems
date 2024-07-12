@@ -19,6 +19,7 @@ imputed_five_minutes_agg as (
         lane,
         sample_date,
         sample_timestamp,
+        station_type,
         local_regression_date,
         regional_regression_date,
         global_regression_date,
@@ -39,11 +40,11 @@ imputed_five_minutes_agg as (
 obserbed_and_imputed_five_mins_agg as (
     select
         observed_five_minutes_agg.*,
-        imputed_five_minutes_agg.* exclude (id, lane, sample_date, sample_timestamp)
+        imputed_five_minutes_agg.* exclude (id, lane, sample_date, sample_timestamp, station_type)
     from observed_five_minutes_agg
     left join imputed_five_minutes_agg
         on
-            observed_five_minutes_agg.id = imputed_five_minutes_agg.id
+            observed_five_minutes_agg.station_id = imputed_five_minutes_agg.id
             and observed_five_minutes_agg.lane = imputed_five_minutes_agg.lane
             and observed_five_minutes_agg.sample_date = imputed_five_minutes_agg.sample_date
             and observed_five_minutes_agg.sample_timestamp = imputed_five_minutes_agg.sample_timestamp
@@ -68,19 +69,22 @@ hybrid_five_mins_agg as (
             occupancy_regional_regression,
             occupancy_global_regression
         ),
-        -- select a single volume_sum based on obs or imputed
         coalesce(volume_sum, volume_local_regression, volume_regional_regression, volume_global_regression)
             as volume_sum,
-        not coalesce(volume_sum is not null, false) as volume_sum_imputed,
-        -- select a single speed_weighted based on obs or imputed
+        case
+            when station_type in ('ML', 'HV') then not coalesce(volume_sum is not null, false)
+        end as volume_sum_imputed,
         coalesce(speed_weighted, speed_local_regression, speed_regional_regression, speed_global_regression)
             as speed_weighted,
-        not coalesce(speed_weighted is not null, false) as speed_weighted_imputed,
-        -- select a single occupancy average based on obs or imputed
+        case
+            when station_type in ('ML', 'HV') then not coalesce(speed_weighted is not null, false)
+        end as speed_weighted_imputed,
         coalesce(
             occupancy_avg, occupancy_local_regression, occupancy_regional_regression, occupancy_global_regression
         ) as occupancy_avg,
-        not coalesce(occupancy_avg is not null, false) as occupancy_avg_replaced
+        case
+            when station_type in ('ML', 'HV') then not coalesce(occupancy_avg is not null, false)
+        end as occupancy_avg_imputed
     from obserbed_and_imputed_five_mins_agg
 )
 
