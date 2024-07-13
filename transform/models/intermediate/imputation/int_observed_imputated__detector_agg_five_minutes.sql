@@ -15,7 +15,7 @@ observed_five_minutes_agg as (
 -- read imputed five minutes data
 imputed_five_minutes_agg as (
     select
-        id,
+        station_id,
         lane,
         sample_date,
         sample_timestamp,
@@ -40,11 +40,11 @@ imputed_five_minutes_agg as (
 observed_and_imputed_five_mins_agg as (
     select
         observed_five_minutes_agg.*,
-        imputed_five_minutes_agg.* exclude (id, lane, sample_date, sample_timestamp, station_type)
+        imputed_five_minutes_agg.* exclude (station_id, lane, sample_date, sample_timestamp, station_type)
     from observed_five_minutes_agg
     left join imputed_five_minutes_agg
         on
-            observed_five_minutes_agg.station_id = imputed_five_minutes_agg.id
+            observed_five_minutes_agg.station_id = imputed_five_minutes_agg.station_id
             and observed_five_minutes_agg.lane = imputed_five_minutes_agg.lane
             and observed_five_minutes_agg.sample_date = imputed_five_minutes_agg.sample_date
             and observed_five_minutes_agg.sample_timestamp = imputed_five_minutes_agg.sample_timestamp
