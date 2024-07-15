@@ -13,5 +13,6 @@ select
     angle,
     seg_start as segment_start,
     seg_end as segment_end,
+    segment_end - segment_start as length,
     controller_id
 from {{ source('db96', 'station_config_log') }}

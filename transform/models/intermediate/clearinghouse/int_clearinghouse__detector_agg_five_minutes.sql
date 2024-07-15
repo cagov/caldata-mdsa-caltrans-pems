@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["id", "lane", "sample_timestamp","sample_date"],
+    unique_key=["detector_id", "sample_timestamp","sample_date"],
     on_schema_change="append_new_columns",
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
@@ -26,9 +26,13 @@ with raw as (
     where {{ make_model_incremental('sample_date') }}
 ),
 
+dmeta as (
+    select * from {{ ref('int_vds__detector_config') }}
+),
+
 agg as (
     select
-        id,
+        id as station_id,
         sample_date,
         sample_timestamp_trunc as sample_timestamp,
         district,
@@ -66,13 +70,13 @@ agg as (
         {% endif %}
     {% endfor %}
     from raw
-    group by id, sample_date, sample_timestamp_trunc, district
+    group by station_id, sample_date, sample_timestamp_trunc, district
 ),
 
 {% for lane in range(1, n_lanes+1) %}
     agg_{{ lane }} as (
         select
-            id,
+            station_id,
             sample_date,
             sample_timestamp,
             district,
@@ -96,6 +100,34 @@ agg_unioned as (
         select * from agg_{{ lane }}
         {{ "union all" if not loop.last }}
     {% endfor %}
+),
+
+agg_with_metadata as (
+    select
+        agg.*,
+        dmeta.detector_id,
+        dmeta.state_postmile,
+        dmeta.absolute_postmile,
+        dmeta.latitude,
+        dmeta.longitude,
+        dmeta.physical_lanes,
+        dmeta.station_type,
+        dmeta.county,
+        dmeta.city,
+        dmeta.freeway,
+        dmeta.direction,
+        dmeta.length,
+        dmeta._valid_from as station_valid_from,
+        dmeta._valid_to as station_valid_to
+    from agg_unioned as agg inner join dmeta
+        on
+            agg.station_id = dmeta.station_id
+            and agg.lane = dmeta.lane
+            and agg.sample_date >= dmeta._valid_from
+            and (
+                agg.sample_date < dmeta._valid_to
+                or dmeta._valid_to is null
+            )
 )
 
-select * from agg_unioned
+select * from agg_with_metadata

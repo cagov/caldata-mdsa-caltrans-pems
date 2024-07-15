@@ -14,15 +14,15 @@ with station_daily_data as (
 -- now aggregate daily volume, occupancy and speed to weekly.
 monthly_station_level_spatial_temporal_metrics as (
     select
-        id,
-        length,
+        station_id,
         sample_month,
-        city,
-        county,
-        district,
-        type,
-        freeway,
-        direction,
+        any_value(station_type) as station_type,
+        any_value(district) as district,
+        any_value(county) as county,
+        any_value(city) as city,
+        any_value(freeway) as freeway,
+        any_value(direction) as direction,
+        any_value(length) as length,
         sum(daily_volume) as monthly_volume,
         avg(daily_occupancy) as monthly_occupancy,
         sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as monthly_speed,
@@ -34,7 +34,7 @@ monthly_station_level_spatial_temporal_metrics as (
         {% for value in var("V_t") %}
             greatest(
                 monthly_volume
-                * ((length / nullifzero(monthly_speed)) - (length / {{ value }})),
+                * ((any_value(length) / nullifzero(monthly_speed)) - (any_value(length) / {{ value }})),
                 0
             )
                 as delay_{{ value }}_mph
@@ -52,7 +52,7 @@ monthly_station_level_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_daily_data
-    group by id, sample_month, city, county, district, type, freeway, direction, length
+    group by station_id, sample_month
 )
 
 select * from monthly_station_level_spatial_temporal_metrics

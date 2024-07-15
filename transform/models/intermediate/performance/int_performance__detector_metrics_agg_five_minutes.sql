@@ -1,33 +1,33 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["id", "lane", "sample_timestamp"],
+    unique_key=["detector_id", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
 five_minute_agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
-),
-
-five_minute_agg_with_station_meta as (
     select
-        fma.*,
-        sm.length,
-        sm.type,
-        sm._valid_from as station_valid_from,
-        sm._valid_to as station_valid_to
-    from five_minute_agg as fma
-    inner join {{ ref('int_clearinghouse__station_meta') }} as sm
-        on
-            fma.id = sm.id
-            and fma.sample_date >= sm._valid_from
-            and
-            (
-                fma.sample_date < sm._valid_to
-                or sm._valid_to is null
-            )
+        station_id,
+        detector_id,
+        sample_date,
+        sample_timestamp,
+        lane,
+        district,
+        county,
+        city,
+        freeway,
+        direction,
+        length,
+        sample_ct,
+        volume_sum,
+        occupancy_avg,
+        speed_weighted,
+        station_type,
+        station_valid_from,
+        station_valid_to
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 aggregated_speed as (
@@ -48,7 +48,7 @@ aggregated_speed as (
         coalesce(speed_five_mins != speed_weighted or (speed_five_mins is not null and speed_weighted is null), false)
         -- coalesce(speed_weighted is null, false)
             as is_speed_calculated
-    from five_minute_agg_with_station_meta
+    from five_minute_agg
 ),
 
 vmt_vht_metrics as (
@@ -103,7 +103,7 @@ productivity_metrics as (
 
     from delay_metrics as dm
     inner join {{ ref("int_performance__max_capacity") }} as mc
-        on dm.id = mc.id and dm.lane = mc.lane
+        on dm.detector_id = mc.detector_id
 )
 
 select * from productivity_metrics

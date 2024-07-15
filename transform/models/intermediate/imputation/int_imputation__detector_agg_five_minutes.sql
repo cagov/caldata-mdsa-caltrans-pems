@@ -2,7 +2,7 @@
         materialized='incremental',
         on_schema_change="append_new_columns",
         cluster_by=["sample_date"],
-        unique_key=["id", "lane", "sample_timestamp", "sample_date"],
+        unique_key=["station_id", "lane", "sample_timestamp", "sample_date"],
         snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
     )
 }}
@@ -11,12 +11,6 @@
 with base as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
-),
-
-/* Configuration data for detectors, filtered to mainline or HOV, as the main travel lanes */
-detector_config as (
-    select * from {{ ref("int_vds__detector_config") }}
-    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
@@ -45,7 +39,7 @@ global_coeffs as (
 detector to be operating correctly for a given day. */
 unimputed as (
     select
-        base.id,
+        base.station_id,
         base.lane,
         base.district,
         base.sample_date,
@@ -53,6 +47,9 @@ unimputed as (
         base.volume_sum,
         base.occupancy_avg,
         base.speed_weighted,
+        base.freeway,
+        base.direction,
+        base.station_type,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
@@ -62,35 +59,18 @@ unimputed as (
     from base
     left join good_detectors
         on
-            base.id = good_detectors.station_id
+            base.station_id = good_detectors.station_id
             and base.lane = good_detectors.lane
             and base.sample_date = good_detectors.sample_date
+    where base.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
-/* In order to do the "Global" imputation, we need freeway and direction data to find
-  similar (i.e., has same freeway, direction, and type) stations within the same district.
-  This CTE becomes the base of all the imputation that follows */
-unimputed_with_config as (
-    select
-        unimputed.*,
-        detector_config.freeway,
-        detector_config.direction,
-        detector_config.station_type
-    from unimputed
-    inner join detector_config
-        on
-            unimputed.id = detector_config.station_id
-            and unimputed.lane = detector_config.lane
-            and unimputed.sample_date >= detector_config._valid_from
-            and (unimputed.sample_date < detector_config._valid_to or detector_config._valid_to is null)
-),
-
-/* Split the unimputed_with_config_data into two sets, one requiring imputation
+/* Split the unimputed data into two sets, one requiring imputation
   (it's status is not "Good") and one not requiring imputation (it's status is
   "Good") */
 samples_requiring_imputation as (
     select
-        id,
+        station_id,
         lane,
         district,
         sample_date,
@@ -101,13 +81,18 @@ samples_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed_with_config
+    from unimputed
     where not detector_is_good
+    -- there can still be gaps in detectors that are "Good",
+    -- so we try to impute for those as well.
+    or volume_sum is null
+    or occupancy_avg is null
+    or speed_five_mins is null
 ),
 
 samples_not_requiring_imputation as (
     select
-        id,
+        station_id,
         lane,
         district,
         sample_date,
@@ -118,7 +103,7 @@ samples_not_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed_with_config
+    from unimputed
     where detector_is_good
 ),
 
@@ -146,7 +131,10 @@ samples_requiring_imputation_with_local_regional_coeffs as (
     from samples_requiring_imputation
     asof join local_regional_coeffs
         match_condition (samples_requiring_imputation.sample_date >= local_regional_coeffs.regression_date)
-        on samples_requiring_imputation.id = local_regional_coeffs.id
+        on
+            samples_requiring_imputation.station_id = local_regional_coeffs.station_id
+            and samples_requiring_imputation.lane = local_regional_coeffs.lane
+            and samples_requiring_imputation.district = local_regional_coeffs.district
 ),
 
 /* Join with samples not requiring imputation based on the other ID/Lane
@@ -162,7 +150,7 @@ samples_requiring_imputation_with_local_neighbors as (
     from samples_requiring_imputation_with_local_regional_coeffs as local_imp
     inner join samples_not_requiring_imputation as non_imp
         on
-            local_imp.other_id = non_imp.id
+            local_imp.other_id = non_imp.station_id
             and local_imp.sample_date = non_imp.sample_date
             and local_imp.sample_timestamp = non_imp.sample_timestamp
     where local_imp.other_station_is_local = true
@@ -181,7 +169,7 @@ samples_requiring_imputation_with_regional_neighbors as (
     from samples_requiring_imputation_with_local_regional_coeffs as regional_imp
     inner join samples_not_requiring_imputation as non_imp
         on
-            regional_imp.other_id = non_imp.id
+            regional_imp.other_id = non_imp.station_id
             and regional_imp.sample_date = non_imp.sample_date
             and regional_imp.sample_timestamp = non_imp.sample_timestamp
 ),
@@ -191,7 +179,7 @@ samples_requiring_imputation_with_regional_neighbors as (
    values, and finally clamp them to physical numbers (like greater than 0). */
 local_imputed as (
     select
-        id,
+        station_id,
         lane,
         sample_date,
         sample_timestamp,
@@ -205,12 +193,12 @@ local_imputed as (
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_local_neighbors
-    group by id, lane, sample_date, sample_timestamp
+    group by station_id, lane, sample_date, sample_timestamp
 ),
 
 regional_imputed as (
     select
-        id,
+        station_id,
         lane,
         sample_date,
         sample_timestamp,
@@ -224,7 +212,7 @@ regional_imputed as (
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_regional_neighbors
-    group by id, lane, sample_date, sample_timestamp
+    group by station_id, lane, sample_date, sample_timestamp
 ),
 
 /** Global regression follows! **/
@@ -245,7 +233,7 @@ samples_requiring_imputation_with_global_coeffs as (
     asof join global_coeffs
         match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
-            samples_requiring_imputation.id = global_coeffs.id
+            samples_requiring_imputation.station_id = global_coeffs.station_id
             and samples_requiring_imputation.lane = global_coeffs.lane
             and samples_requiring_imputation.district = global_coeffs.district
 ),
@@ -295,7 +283,7 @@ samples_requiring_imputation_with_global as (
 /* Finally, do the global imputation! */
 global_imputed as (
     select
-        id,
+        station_id,
         lane,
         sample_date,
         sample_timestamp,
@@ -314,7 +302,7 @@ global_imputed as (
 /** Put the local, regional, and global datasets all together **/
 agg_with_local_regional_global_imputation as (
     select
-        unimputed_with_config.*,
+        unimputed.*,
         local_imputed.regression_date as local_regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
@@ -327,25 +315,25 @@ agg_with_local_regional_global_imputation as (
         global_imputed.volume_global_regression,
         global_imputed.occupancy_global_regression,
         global_imputed.speed_global_regression
-    from unimputed_with_config
+    from unimputed
     left join local_imputed
         on
-            unimputed_with_config.id = local_imputed.id
-            and unimputed_with_config.lane = local_imputed.lane
-            and unimputed_with_config.sample_date = local_imputed.sample_date
-            and unimputed_with_config.sample_timestamp = local_imputed.sample_timestamp
+            unimputed.station_id = local_imputed.station_id
+            and unimputed.lane = local_imputed.lane
+            and unimputed.sample_date = local_imputed.sample_date
+            and unimputed.sample_timestamp = local_imputed.sample_timestamp
     left join regional_imputed
         on
-            unimputed_with_config.id = regional_imputed.id
-            and unimputed_with_config.lane = regional_imputed.lane
-            and unimputed_with_config.sample_date = regional_imputed.sample_date
-            and unimputed_with_config.sample_timestamp = regional_imputed.sample_timestamp
+            unimputed.station_id = regional_imputed.station_id
+            and unimputed.lane = regional_imputed.lane
+            and unimputed.sample_date = regional_imputed.sample_date
+            and unimputed.sample_timestamp = regional_imputed.sample_timestamp
     left join global_imputed
         on
-            unimputed_with_config.id = global_imputed.id
-            and unimputed_with_config.lane = global_imputed.lane
-            and unimputed_with_config.sample_date = global_imputed.sample_date
-            and unimputed_with_config.sample_timestamp = global_imputed.sample_timestamp
+            unimputed.station_id = global_imputed.station_id
+            and unimputed.lane = global_imputed.lane
+            and unimputed.sample_date = global_imputed.sample_date
+            and unimputed.sample_timestamp = global_imputed.sample_timestamp
 )
 
 select * from agg_with_local_regional_global_imputation

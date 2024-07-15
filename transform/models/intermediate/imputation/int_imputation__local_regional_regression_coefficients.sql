@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id','other_id','lane', 'other_lane','regression_date'],
+    unique_key=['station_id','other_id','lane', 'other_lane','regression_date'],
     snowflake_warehouse=get_snowflake_warehouse(size="XL")
 ) }}
 
@@ -70,7 +70,7 @@ table to only get samples from dates that we think were producing
 good data. */
 detector_counts as (
     select
-        agg.id,
+        agg.station_id,
         agg.lane,
         agg.sample_date,
         agg.sample_timestamp,
@@ -91,7 +91,7 @@ detector_counts as (
             < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
         on
-            agg.id = good_detectors.station_id
+            agg.station_id = good_detectors.station_id
             and agg.lane = good_detectors.lane
             and agg.sample_date = good_detectors.sample_date
 ),
@@ -102,8 +102,8 @@ detector_counts as (
 -- the product of all of the lanes in nearby stations
 detector_counts_pairwise as (
     select
-        a.id,
-        b.id as other_id,
+        a.station_id,
+        b.station_id as other_id,
         a.district,
         a.regression_date,
         a.lane,
@@ -116,10 +116,10 @@ detector_counts_pairwise as (
         b.occupancy_avg as other_occupancy,
         nearby_stations.other_station_is_local
     from detector_counts as a
-    left join nearby_stations on a.id = nearby_stations.id
+    left join nearby_stations on a.station_id = nearby_stations.id
     inner join detector_counts as b
         on
-            nearby_stations.other_id = b.id
+            nearby_stations.other_id = b.station_id
             and a.sample_date = b.sample_date
             and a.sample_timestamp = b.sample_timestamp
 ),
@@ -128,7 +128,7 @@ detector_counts_pairwise as (
 -- and intercept of the regression.
 detector_counts_regression as (
     select
-        id,
+        station_id,
         other_id,
         lane,
         other_lane,
@@ -145,8 +145,8 @@ detector_counts_regression as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
-    where not (id = other_id and lane = other_lane)-- don't bother regressing on self!
-    group by id, other_id, lane, other_lane, district, regression_date, other_station_is_local
+    where not (station_id = other_id and lane = other_lane)-- don't bother regressing on self!
+    group by station_id, other_id, lane, other_lane, district, regression_date, other_station_is_local
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
