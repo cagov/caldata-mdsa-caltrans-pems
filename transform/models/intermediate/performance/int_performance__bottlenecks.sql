@@ -27,8 +27,7 @@ station_meta as (
         type,
         absolute_postmile,
         id,
-        latitude,
-        longitude
+        length
     from {{ ref ("int_clearinghouse__station_meta") }}
     where type = 'ML' or type = 'HV'
 ),
@@ -107,7 +106,7 @@ temporal_extent_check as (
 
 temporal_extent as (
     select
-        * exclude (latitude, longitude, bottleneck_check, bottleneck_check_summed),
+        * exclude (bottleneck_check, bottleneck_check_summed),
         iff(bottleneck_check_summed >= 5, true, false) as is_bottleneck
     from temporal_extent_check
 )
