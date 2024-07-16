@@ -96,18 +96,22 @@ max_volume_5min_date as (
 select
     mvf.id,
     mvf.lane,
-    detector_id,
     /*
-    Use max of 2076 v/l/h or hour historical highest flow as the capacity
-    for hourly analysis at each location.
-    For the 5-minute max capacity analysis use the highest of the
-    historical max observed flow or 173 (2076 v/l/h / 12 = 173 v/l/5-min)
+    Use a max value of 2076 v/l/h as the capacity for hourly analysis.
+    For the 5-minute max capacity analysis use 173
+    (2076 v/l/h / 12 = 173 v/l/5-min)
+    As of 7/16/24 we are seeing max flow values from sensor data for some
+    stations that are unrealistic so the Caltrans BIA team is analyzing
+    Traffic Census Peak Hour Volume Data found at
+    https://dot.ca.gov/programs/traffic-operations/census to determine
+    realistic maximum values to be used when looking at a lanes maximum
+    capacity.
     */
     mvf.volume_max_5min as max_5min_observed,
     mvfd.sample_timestamp as max_5min_timestamp_observed,
     mvh.volume_max_hour as max_hour_observed,
-    GREATEST(mvf.volume_max_5min, 173) as max_capacity_5min,
-    GREATEST(mvh.volume_max_hour, 2076) as max_capacity_hour
+    173 as max_capacity_5min,
+    2076 as max_capacity_hour
 from max_volume_5min as mvf
 inner join max_volume_hour as mvh
     on
