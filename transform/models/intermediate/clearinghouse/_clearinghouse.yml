@@ -88,7 +88,6 @@ models:
   - name: int_clearinghouse__most_recent_station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
-
       This table is restricted to the most recent update for each district, any prior metadata
       is ignored.
     columns:
@@ -166,18 +165,43 @@ models:
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
-      - name: LANE
+      - name: district
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: sample_ct
         description: |
-          The lane number of the detector, starting from 1.
-      - name: VOLUME
-        description: The sum of the flow values for a detector over the sample period.
-      - name: OCCUPANCY
-        description: The average of the occupancy values over the sample period.
-      - name: SPEED
+          Counts the number of raw data samples where a lane's volume (flow)
+          and occupancy values contain any non-null value
+      - name: lane
         description: |
-          Preliminary speed calculation in miles/hour based on the simplified version
-          of the speed formula located at
-          https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
+          Lane associated with a route and station from raw data.
+      - name: volume_sum
+        description: Number of vehicle that passed over the detector during the sample period for the lane.
+      - name: zero_vol_ct
+        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0.
+      - name: occupancy_avg
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
+      - name: zero_occ_ct
+        description: Counts the number of raw data samples where a lane's occupancy value equals 0.
+      - name: zero_vol_pos_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume
+          (flow) value equals 0 but occupancy is greater than 0.
+      - name: zero_occ_pos_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy value
+          equals 0 but volume (flow) is greater than 0.
+      - name: high_volume_ct
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high
+          value threshold detector diagnostic parameter for a station.
+      - name: high_occupancy_ct
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value
+          threshold detector diagnostic parameter for a station.
+      - name: speed_weighted
+        description: |
+          Speed in the lane as measured by the detector in miles/hour.
+          Weighted by count of samples in each period.
   - name: int_clearinghouse__active_stations
     description: |
       Contains station meta data for all stations that were designated active on any

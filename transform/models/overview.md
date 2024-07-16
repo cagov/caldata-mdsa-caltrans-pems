@@ -1,10 +1,6 @@
-
 {% docs __overview__ %}
 
 # Traffic Operations PeMS Modernization dbt Documentation
-
-This is just a simple edit proposed by Britt.
-
 
 Welcome to Traffic Operations's Traffic Operations PeMS Modernization `dbt` docs.
 To go back to the top-level docs, follow [this link](../)
@@ -37,6 +33,5 @@ Once expanded, you'll be able to use the `--select` and `--exclude` model select
 For more information on model selection, check out the [dbt docs](https://docs.getdbt.com/reference/node-selection/syntax).
 
 Note that you can also right-click on models to interactively filter and explore the graph.
-
 
 {% enddocs %}

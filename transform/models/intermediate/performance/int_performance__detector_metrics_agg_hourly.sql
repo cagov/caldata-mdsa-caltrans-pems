@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['id','sample_date', 'sample_hour', 'lane'],
+    unique_key=['detector_id','sample_date', 'sample_hour'],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -16,13 +16,18 @@ with station_five_mins_data as (
 -- now aggregate five mins volume, occupancy and speed to hourly
 hourly_spatial_temporal_metrics as (
     select
-        id,
-        lane,
+        detector_id,
         sample_date,
-        type,
-        district,
-        length,
         sample_timestamp_trunc as sample_hour,
+        any_value(station_id) as station_id,
+        any_value(station_type) as station_type,
+        any_value(lane) as lane,
+        any_value(district) as district,
+        any_value(county) as county,
+        any_value(city) as city,
+        any_value(freeway) as freeway,
+        any_value(direction) as direction,
+        any_value(length) as length,
         sum(volume_sum) as hourly_volume,
         avg(occupancy_avg) as hourly_occupancy,
         sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as hourly_speed,
@@ -48,7 +53,7 @@ hourly_spatial_temporal_metrics as (
 
         {% endfor %}
     from station_five_mins_data
-    group by id, sample_date, sample_hour, lane, type, district, length
+    group by detector_id, sample_date, sample_hour
 )
 
 select * from hourly_spatial_temporal_metrics

@@ -96,6 +96,7 @@ max_volume_5min_date as (
 select
     mvf.id,
     mvf.lane,
+    detector_id,
     /*
     Use max of 2076 v/l/h or hour historical highest flow as the capacity
     for hourly analysis at each location.

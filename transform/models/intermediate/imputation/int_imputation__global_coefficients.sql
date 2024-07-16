@@ -1,27 +1,36 @@
 {{ config(
-        materialized="table",
-        snowflake_warehouse=get_snowflake_warehouse(size="XL"),
-    )
-}}
+    materialized="incremental",
+    unique_key=['station_id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+) }}
 
-/* This CTE is intended to be a placeholder for some
-better-thought-out logic for what dates to evaluate regression
-coefficients. As is, it is a hard-coded list of quarterly
-dates starting in early 2023.
-*/
-with regression_dates as (
-    select value::date as regression_date from table(
-        flatten(
-            [
-                '2023-02-03'::date,
-                '2023-05-03'::date,
-                '2023-08-03'::date,
-                '2023-11-03'::date,
-                '2024-02-03'::date,
-                '2024-05-03'::date
-            ]
-        )
-    )
+-- Generate dates using dbt_utils.date_spine
+with date_spine as (
+    select cast(date_day as date) as regression_date
+    from (
+        {{ dbt_utils.date_spine(
+            datepart="day",
+            start_date="'1998-10-01'",
+            end_date="current_date()"
+        ) }}
+    ) as spine
+),
+
+-- Filter dates to get the desired date sequence
+regression_dates as (
+    select *
+    from date_spine
+    where
+        extract(day from regression_date) = 3
+        and extract(month from regression_date) in (2, 5, 8, 11)
+),
+
+regression_dates_to_evaluate as (
+    select * from regression_dates
+    {% if is_incremental() %}
+        minus
+        select distinct regression_date from {{ this }}
+    {% endif %}
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -36,11 +45,6 @@ good_detectors as (
     where status = 'Good'
 ),
 
-detector_config as (
-    select * from {{ ref("int_vds__detector_config") }}
-    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
-),
-
 agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
@@ -52,7 +56,7 @@ table to only get samples from dates that we think were producing
 good data. */
 detector_counts as (
     select
-        agg.id,
+        agg.station_id,
         agg.lane,
         agg.sample_date,
         agg.sample_timestamp,
@@ -60,38 +64,26 @@ detector_counts as (
         agg.occupancy_avg,
         agg.speed_weighted,
         agg.district,
+        agg.freeway,
+        agg.direction,
+        agg.station_type,
         -- TODO: Can we give this a better name? Can we move this into the base model?
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
-        regression_dates.regression_date
+        regression_dates_to_evaluate.regression_date
     from agg
-    inner join regression_dates
+    inner join regression_dates_to_evaluate
         on
-            agg.sample_date >= regression_dates.regression_date
+            agg.sample_date >= regression_dates_to_evaluate.regression_date
             -- TODO: use variable for regression window
             and agg.sample_date
-            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates.regression_date)
+            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
         on
-            agg.id = good_detectors.station_id
+            agg.station_id = good_detectors.station_id
             and agg.lane = good_detectors.lane
             and agg.sample_date = good_detectors.sample_date
-),
-
-
-/* TODO: Remove this once the meta is already on the five-minute model */
-detector_counts_with_config as (
-    select
-        detector_counts.*,
-        detector_config.freeway,
-        detector_config.direction,
-        detector_config.station_type
-    from detector_counts
-    inner join detector_config
-        on
-            detector_counts.id = detector_config.station_id
-            and detector_counts.sample_date >= detector_config._valid_from
-            and (detector_counts.sample_date < detector_config._valid_to or detector_config._valid_to is null)
+    where agg.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 global_agg as (
@@ -110,14 +102,14 @@ global_agg as (
         avg(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
         sum(volume_sum * speed_weighted) / nullifzero(sum(volume_sum)) as speed_weighted
-    from detector_counts_with_config
+    from detector_counts
     group by sample_date, sample_timestamp, district, freeway, direction, station_type
 ),
 
 -- Join the 5-minute aggregated data with the district-freeway aggregation
 detector_counts_with_global_averages as (
     select
-        a.id,
+        a.station_id,
         a.district,
         a.regression_date,
         a.lane,
@@ -130,7 +122,7 @@ detector_counts_with_global_averages as (
         g.volume_sum as global_volume,
         g.occupancy_avg as global_occupancy,
         g.speed_weighted as global_speed
-    from detector_counts_with_config as a
+    from detector_counts as a
     inner join global_agg as g
         on
             a.sample_date = g.sample_date
@@ -145,7 +137,7 @@ detector_counts_with_global_averages as (
 -- and intercept of the regression.
 detector_counts_regression as (
     select
-        id,
+        station_id,
         lane,
         district,
         freeway,
@@ -162,7 +154,7 @@ detector_counts_regression as (
         regr_slope(occupancy, global_occupancy) as occupancy_slope,
         regr_intercept(occupancy, global_occupancy) as occupancy_intercept
     from detector_counts_with_global_averages
-    group by id, lane, district, freeway, direction, station_type, regression_date
+    group by station_id, lane, district, freeway, direction, station_type, regression_date
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
