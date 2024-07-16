@@ -60,6 +60,7 @@ resource "snowflake_stage" "pems_raw" {
   database            = snowflake_schema.pems_clearinghouse.database
   schema              = snowflake_schema.pems_clearinghouse.name
   storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_integration_grant.pems_storage_integration_to_sysadmin]
 }
 
 resource "snowflake_stage_grant" "pems_raw" {
@@ -74,7 +75,6 @@ resource "snowflake_stage_grant" "pems_raw" {
 
 # Marts stage
 
-
 resource "snowflake_stage" "pems_marts" {
   provider            = snowflake.sysadmin
   name                = "PEMS_MARTS_${var.environment}"
@@ -82,6 +82,7 @@ resource "snowflake_stage" "pems_marts" {
   database            = "ANALYTICS_${var.environment}"
   schema              = "PUBLIC"
   storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_integration_grant.pems_storage_integration_to_sysadmin]
 }
 
 resource "snowflake_stage_grant" "pems_marts" {
