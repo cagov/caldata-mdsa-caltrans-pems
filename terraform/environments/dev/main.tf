@@ -94,11 +94,11 @@ module "s3_lake" {
     aws = aws
   }
 
-  prefix                                         = "${local.owner}-${local.project}-${local.environment}"
-  region                                         = local.region
-  snowflake_raw_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
-  snowflake_raw_storage_integration_external_id  = local.storage_aws_external_id
-  snowflake_pipe_sqs_queue_arn                   = local.pipe_sqs_queue_arn
+  prefix                                     = "${local.owner}-${local.project}-${local.environment}"
+  region                                     = local.region
+  snowflake_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
+  snowflake_storage_integration_external_id  = local.storage_aws_external_id
+  snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
 }
 
 data "aws_iam_role" "mwaa_execution_role" {

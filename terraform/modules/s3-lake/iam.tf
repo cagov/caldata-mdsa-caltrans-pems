@@ -15,7 +15,17 @@ resource "aws_iam_user_policy_attachment" "airflow_s3_writer_policy_attachment" 
   policy_arn = aws_iam_policy.pems_raw_read_write.arn
 }
 
-# IAM role for Snowflake to assume when reading from the bucket
+resource "aws_iam_role_policy_attachment" "snowflake_storage_integration_raw" {
+  role       = aws_iam_role.snowflake_storage_integration.name
+  policy_arn = aws_iam_policy.pems_raw_external_stage_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "snowflake_storage_integration_marts" {
+  role       = aws_iam_role.snowflake_storage_integration.name
+  policy_arn = aws_iam_policy.pems_marts_external_stage_policy.arn
+}
+
+# IAM role for Snowflake to assume when reading from the external stage buckets
 resource "aws_iam_role" "snowflake_storage_integration" {
   name = "${var.prefix}-snowflake-storage-integration"
 
@@ -26,21 +36,16 @@ resource "aws_iam_role" "snowflake_storage_integration" {
       {
         "Effect" : "Allow",
         "Principal" : {
-          "AWS" : var.snowflake_raw_storage_integration_iam_user_arn
+          "AWS" : var.snowflake_storage_integration_iam_user_arn
         },
         "Action" : "sts:AssumeRole",
         "Condition" : {
           "StringEquals" : {
-            "sts:ExternalId" : var.snowflake_raw_storage_integration_external_id
+            "sts:ExternalId" : var.snowflake_storage_integration_external_id
           }
         }
       }
     ]
     }
   )
-}
-
-resource "aws_iam_role_policy_attachment" "snowflake_storage_integration" {
-  role       = aws_iam_role.snowflake_storage_integration.name
-  policy_arn = aws_iam_policy.pems_raw_external_stage_policy.arn
 }
