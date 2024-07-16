@@ -97,7 +97,7 @@ resource "aws_s3_bucket_notification" "snowflake_pipe_notifications" {
 
 ##############
 # PeMS marts #
-###########
+##############
 
 resource "aws_s3_bucket" "pems_marts" {
   bucket = "${var.prefix}-${var.region}-marts"
@@ -152,4 +152,28 @@ resource "aws_iam_policy" "pems_marts_external_stage_policy" {
   name        = "${var.prefix}-${var.region}-pems-marts-external-stage-policy"
   description = "Policy allowing read/write for PeMS marts bucket"
   policy      = data.aws_iam_policy_document.pems_marts_external_stage_policy.json
+}
+
+data "aws_iam_policy_document" "pems_marts_public_read" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      aws_s3_bucket.pems_marts.arn,
+      "${aws_s3_bucket.pems_marts.arn}/*",
+    ]
+  }
+}
+
+resource "aws_s3_bucket_policy" "pems_marts_public_read" {
+  bucket = aws_s3_bucket.pems_marts.id
+  policy = data.aws_iam_policy_document.pems_marts_public_read.json
 }
