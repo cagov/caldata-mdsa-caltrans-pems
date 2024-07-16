@@ -36,7 +36,7 @@ five_minute_with_station_meta_and_detector_status as (
     from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
     where
         {{ make_model_incremental('sample_date') }}
-        and station_type = 'ML' or station_type = 'HV'
+        and station_type in ('ML', 'HV')
 ),
 
 calcs as (
