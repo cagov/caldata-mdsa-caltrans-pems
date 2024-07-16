@@ -6,6 +6,14 @@ output "pems_raw_bucket" {
   }
 }
 
+output "pems_marts_bucket" {
+  description = "Bucket for storing marts data from PeMS"
+  value = {
+    name = aws_s3_bucket.pems_marts.id
+    arn  = aws_s3_bucket.pems_marts.arn
+  }
+}
+
 output "pems_raw_read_write_policy" {
   description = "Policy for read/write access to the PeMS raw bucket"
   value = {

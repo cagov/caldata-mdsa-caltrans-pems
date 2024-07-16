@@ -137,7 +137,8 @@ module "snowflake_clearinghouse" {
   }
 
   environment          = upper(local.environment)
-  s3_url               = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  raw_s3_url           = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  marts_s3_url         = "s3://${module.s3_lake.pems_marts_bucket.name}"
   storage_aws_role_arn = module.s3_lake.snowflake_storage_integration_role.arn
 }
 
