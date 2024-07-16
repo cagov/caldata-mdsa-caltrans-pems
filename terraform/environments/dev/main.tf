@@ -30,7 +30,7 @@ locals {
   # These are circular dependencies on the outputs. Unfortunate, but
   # necessary, as we don't know them until we've created the storage
   # integration, which itself depends on the assume role policy.
-  storage_aws_external_id  = "NGB13288_SFCRole=2_P94CCaZYR9XFUzpMIGN6HOit/zQ="
+  storage_aws_external_id  = "NGB13288_SFCRole=2_YhkANpChE8XgIr7PAY6q5lOqIf0="
   storage_aws_iam_user_arn = "arn:aws:iam::946158320428:user/uunc0000-s"
   pipe_sqs_queue_arn       = "arn:aws:sqs:us-west-2:946158320428:sf-snowpipe-AIDA5YS3OHMWCVTR5XHEE-YZjsweK3loK4rXlOJBWF_g"
 }
