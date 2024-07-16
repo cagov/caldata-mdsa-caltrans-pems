@@ -1,9 +1,17 @@
 {{ config(materialized="table") }}
 /*
-This model develops the maximum capacity of a station and lane based on the historical measured
-raw data and determines the maximum observed 15-minute flow. We use the maximum of the
-actual 15-minute flow value and 2076 v/l/h as the capacity at each location. This will be used
-to detemine the productivity performance metric.
+This model develops the maximum capacity of a lane based on analyzing the historical
+observed raw data and determines the maximum observed 5-minute, 15 minote and 1-hour
+flow. For the hourly capacity we also look at a value of 2076 v/l/h. As an additional
+quality control measure we only consider detectors that were evaluated as having a
+Good status on the date the flow values are calculated and 10 or more 30 second
+samples over a five minute period. These max capacity values will be used to
+determine the productivity performance metric and as a check for normalized flow values
+at the 5-minute aggregation level by lane.
+For the purposes of capacity the current PeMS (July 2024) Systems Calculations website
+states that the system looks at the historical measured data for each location and
+determines the maximum observed 15-minute flow. PeMS then uses the maximum of this
+value and 2076 v/l/h as the capacity at each location.
 */
 
 with
@@ -17,10 +25,12 @@ source as (
         sample_ct,
         volume_sum
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where sample_ct >= 10
 ),
 
 detector_status as (
     select * from {{ ref("int_diagnostics__detector_status") }}
+    where status = 'Good' and type in ('ML', 'HV')
 ),
 
 source_with_status as (
@@ -48,7 +58,7 @@ sum_volume_hour as (
             )
             as volume_summed_hour
     from source_with_status
-    qualify volume_sum is not null and sample_ct >= 10 and status = 'Good'
+    qualify volume_sum is not null
 ),
 
 max_volume_hour as (
@@ -66,8 +76,21 @@ max_volume_5min as (
         lane,
         MAX(volume_sum) as volume_max_5min
     from source_with_status
-    where sample_ct >= 10 and status = 'Good'
     group by id, lane
+),
+
+max_volume_5min_date as (
+    select
+        sws.id,
+        sws.lane,
+        MAX(sws.sample_timestamp) as sample_timestamp
+    from source_with_status as sws
+    inner join max_volume_5min as mvf
+        on
+            sws.id = mvf.id
+            and sws.lane = mvf.lane
+            and sws.volume_sum = mvf.volume_max_5min
+    group by sws.id, sws.lane
 )
 
 select
@@ -75,11 +98,13 @@ select
     mvf.lane,
     /*
     Use max of 2076 v/l/h or hour historical highest flow as the capacity
-    for hourly analysus at each location per PeMS website:
-    https://pems.dot.ca.gov/?dnode=Help&content=help_calc#perf
+    for hourly analysis at each location.
     For the 5-minute max capacity analysis use the highest of the
     historical max observed flow or 173 (2076 v/l/h / 12 = 173 v/l/5-min)
     */
+    mvf.volume_max_5min as max_5min_observed,
+    mvfd.sample_timestamp as max_5min_timestamp_observed,
+    mvh.volume_max_hour as max_hour_observed,
     GREATEST(mvf.volume_max_5min, 173) as max_capacity_5min,
     GREATEST(mvh.volume_max_hour, 2076) as max_capacity_hour
 from max_volume_5min as mvf
@@ -87,3 +112,7 @@ inner join max_volume_hour as mvh
     on
         mvf.id = mvh.id
         and mvf.lane = mvh.lane
+inner join max_volume_5min_date as mvfd
+    on
+        mvf.id = mvfd.id
+        and mvf.lane = mvfd.lane
