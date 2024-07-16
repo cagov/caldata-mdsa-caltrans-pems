@@ -1,5 +1,4 @@
 {% macro get_snowflake_refresh_warehouse(big="4XL", small="XS") %}
-  {% set relation = adapter.get_relation(this.database, this.schema, this.table) %}
   {% if target.name == 'prd' %}
     {% set suffix = 'PRD' %}
   {% else %}
