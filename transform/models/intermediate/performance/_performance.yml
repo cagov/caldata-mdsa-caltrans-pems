@@ -1,4 +1,4 @@
-version: 1
+version: 2
 
 models:
   - name: int_performance__detector_metrics_agg_five_minutes
