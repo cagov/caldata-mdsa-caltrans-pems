@@ -43,6 +43,7 @@ station_aggregated_speed as (
         any_value(district) as district,
         any_value(latitude) as latitude,
         any_value(longitude) as longitude,
+        any_value(length) as length,
         sum(sample_ct) as sample_ct,
         sum(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
