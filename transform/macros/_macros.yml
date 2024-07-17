@@ -23,12 +23,3 @@ macros:
         2. This macros does not include a "where" keyword, but does include
         "and". Users are expected to use a "where" clause when implementing this.
 
-  - name: make_model_duplicate_proof
-    description: |
-      This allows for the idempotent upper stream data relay that introduces duplicates
-      with attempts to fix missing data. By specify the primary keys, this macro will 
-      perform operations to ensure the output will honor the specified primary key constraints. 
-      Four columns as primary key are more than enough according to current design. 
-      
-      When there are less than four primary keys, pad to four primary keys with existing 
-      primary key names.  
