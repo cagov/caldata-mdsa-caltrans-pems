@@ -78,3 +78,13 @@ models:
         +schema: performance
       imputation:
         +schema: imputation
+    marts:
+      +materialized: table
+      +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
+      +database: "{{ env_var('DBT_ANALYTICS_DB', 'ANALYTICS_DEV') }}"
+      performance:
+        +schema: performance
+      diagnostics:
+        +schema: diagnostics
+      imputation:
+        +schema: imputation
