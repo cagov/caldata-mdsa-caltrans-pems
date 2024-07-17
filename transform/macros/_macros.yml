@@ -22,3 +22,38 @@ macros:
         1. Users implement their own date column
         2. This macros does not include a "where" keyword, but does include
         "and". Users are expected to use a "where" clause when implementing this.
+  - name: unload_relation
+    description: |
+      Unloads a table or view to the project public marts bucket. The resulting file
+      will be in a directory matching the schema name of the relation, and will be a
+      parquet file with the same columns and data types as the table.
+
+      ### Usage notes:
+
+      1. This is intended for unloading relatively small datasets. Right now,
+          it supports partitioning, but not incremental unloads.
+      1. This macro is intended to be used as a dbt post-hook.
+      1. The name of the external stage is hard-coded. Depending upon the context,
+          it will unload to either the prod or dev stage.
+      1. The `unload_partitioning` argument can also be provided as a parameter
+          in the dbt model config block. This is so that unload partitioning can
+          be independently configured for a suite of models that all have the same
+          post-hook configured in the `dbt_project.yml`.
+
+    arguments:
+      - name: strip_leading_words
+        type: integer
+        description: |
+          How many leading words to remove from the table name when constructing the
+          parquet file name. This defaults to one, but for some tables other values
+          might be appropriate. For instance, if the table is named
+          `performance__station_agg_daily`, then the resulting parquet file will be
+          named `station_agg_daily`.
+      - name: unload_partitioning
+        type: string
+        description: |
+          If this is set, then the expression in the string will be used as a partitioning
+          column for the unloading, and multiple parquet files will be uploaded as a result.
+          Each value for the partitioning string will be in the file path for the files,
+          so it is a good idea to construct the expression with that in mind. For more documentation,
+          see [here](https://docs.snowflake.com/en/sql-reference/sql/copy-into-location)
