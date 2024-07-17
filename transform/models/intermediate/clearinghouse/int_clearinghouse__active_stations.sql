@@ -12,7 +12,7 @@ date_range_updated as (
 ),
 
 station_meta as (
-    select * from {{ ref("int_clearinghouse__station_meta") }}
+    select * from {{ ref("int_vds__station_config") }}
 ),
 
 active_station as (
@@ -29,6 +29,7 @@ active_station as (
         station_meta as sm
         on
             dr.active_date between sm._valid_from and dateadd(day, -1, valid_to)
+            and sm.status = 1
 )
 
 select * from active_station

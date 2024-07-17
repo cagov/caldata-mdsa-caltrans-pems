@@ -16,44 +16,48 @@ value and 2076 v/l/h as the capacity at each location.
 
 with
 
-source as (
+source_samples as (
     select
-        id,
+        station_id,
         sample_timestamp,
         sample_date,
         lane,
+        detector_id,
         sample_ct,
         volume_sum
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where sample_ct >= 10
+    -- Only use values where all samples are observed
 ),
 
 detector_status as (
     select * from {{ ref("int_diagnostics__detector_status") }}
     where status = 'Good' and type in ('ML', 'HV')
+    -- Use Good status stations with specific station types only
 ),
 
 source_with_status as (
     select
-        source.*,
+        source_samples.*,
         ds.status
-    from source
+    from source_samples
     inner join detector_status as ds
         on
-            source.id = ds.station_id
-            and source.lane = ds.lane
-            and source.sample_date = ds.active_date
+            source_samples.station_id = ds.station_id
+            and source_samples.lane = ds.lane
+            and source_samples.sample_date = ds.active_date
 ),
 
 sum_volume_hour as (
     select
-        id,
+        station_id,
         lane,
+        detector_id,
         SUM(volume_sum)
         /* we are looking at a window of 12 rows because that is a 60-minute window
         (5-min data * 12 = 60 minutes) */
             over (
-                partition by id, lane, sample_date
+                partition by station_id, lane, sample_date
                 order by sample_timestamp rows between 11 preceding and current row
             )
             as volume_summed_hour
@@ -63,43 +67,47 @@ sum_volume_hour as (
 
 max_volume_hour as (
     select
-        id,
+        station_id,
         lane,
+        detector_id,
         MAX(volume_summed_hour) as volume_max_hour
     from sum_volume_hour
-    group by id, lane
+    group by station_id, lane, detector_id
 ),
 
 max_volume_5min as (
     select
-        id,
+        station_id,
         lane,
+        detector_id,
         MAX(volume_sum) as volume_max_5min
     from source_with_status
-    group by id, lane
+    group by station_id, lane, detector_id
 ),
 
 max_volume_5min_date as (
     select
-        sws.id,
+        sws.station_id,
         sws.lane,
+        sws.detector_id,
         MAX(sws.sample_timestamp) as sample_timestamp
     from source_with_status as sws
     inner join max_volume_5min as mvf
         on
-            sws.id = mvf.id
+            sws.station_id = mvf.station_id
             and sws.lane = mvf.lane
             and sws.volume_sum = mvf.volume_max_5min
-    group by sws.id, sws.lane
+    group by sws.station_id, sws.lane, sws.detector_id
 )
 
 select
-    mvf.id,
-    mvf.lane,
+    source.station_id,
+    source.lane,
+    source.detector_id,
     /*
     Use a max value of 2076 v/l/h as the capacity for hourly analysis.
-    For the 5-minute max capacity analysis use 173
-    (2076 v/l/h / 12 = 173 v/l/5-min)
+    For the 5-minute max capacity analysis use 173 which represents
+    2076 v/l/h / 12 = 173 v/l/5-min.
     As of 7/16/24 we are seeing max flow values from sensor data for some
     stations that are unrealistic so the Caltrans BIA team is analyzing
     Traffic Census Peak Hour Volume Data found at
@@ -112,12 +120,16 @@ select
     mvh.volume_max_hour as max_hour_observed,
     173 as max_capacity_5min,
     2076 as max_capacity_hour
-from max_volume_5min as mvf
-inner join max_volume_hour as mvh
+from source
+left join max_volume_5min as mvf
     on
-        mvf.id = mvh.id
+        source.station_id = mvf.station_id
+        and source.lane = mvf.lane
+left join max_volume_hour as mvh
+    on
+        source.station_id = mvh.station_id
         and mvf.lane = mvh.lane
-inner join max_volume_5min_date as mvfd
+left join max_volume_5min_date as mvfd
     on
-        mvf.id = mvfd.id
-        and mvf.lane = mvfd.lane
+        source.station_id = mvfd.station_id
+        and source.lane = mvfd.lane

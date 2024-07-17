@@ -16,7 +16,7 @@ models:
           - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
-      - name: type
+      - name: station_type
         description: Two character string identify the VDS type.
         tests:
           - not_null

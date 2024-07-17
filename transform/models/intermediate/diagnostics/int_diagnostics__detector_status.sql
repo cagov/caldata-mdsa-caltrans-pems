@@ -30,7 +30,6 @@ detector_status as (
         set_assgnmt.active_date,
         set_assgnmt.station_id,
         set_assgnmt.district,
-        set_assgnmt.type,
         sps.* exclude (district, station_id),
         dfc.district_feed_working,
         co.min_occupancy_delta,
@@ -80,7 +79,7 @@ detector_status as (
         end as status
 
     from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
-    left join source as sps
+    inner join source as sps
         on
             set_assgnmt.station_id = sps.station_id
             and set_assgnmt.active_date = sps.sample_date
@@ -88,7 +87,8 @@ detector_status as (
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             sps.station_id = co.station_id and sps.lane = co.lane and sps.sample_date = co.sample_date
-    left join district_feed_check as dfc
+
+    inner join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
 )
 
