@@ -13,9 +13,11 @@
       remove {{ url }};
       copy into {{ url }}
       from {{ this }}
-      file_format = (type=parquet)
       {% if partitioning %}
           partition by {{ partitioning }}
+      {% endif %}
+      file_format = (type=parquet)
+      {% if partitioning %}
           max_file_size = 134217728 -- 128 MiB
       {% else %}
           single = true
