@@ -6,7 +6,7 @@
 ) }}
 {% set n_lanes = 14 %}
 
-with raw as (
+with raw_with_dups as (
     select
         *,
         /* Create a timestamp truncated down to the nearest five
@@ -22,6 +22,11 @@ with raw as (
         ) as sample_timestamp_trunc
     from {{ ref("stg_db96__vds30sec") }}
     where {{ make_model_incremental('sample_date') }}
+),
+
+raw as (
+   select * from raw_with_dups
+   {{ make_model_duplicate_proof('sample_date', 'district', 'id', 'id') }}
 ),
 
 agg as (
