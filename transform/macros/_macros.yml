@@ -29,7 +29,7 @@ macros:
       parquet file with the same columns and data types as the table.
 
       ### Usage notes:
-      
+
       1. This is intended for unloading relatively small datasets. Right now,
           it supports partitioning, but not incremental unloads.
       1. This macro is intended to be used as a dbt post-hook.
@@ -39,7 +39,7 @@ macros:
           in the dbt model config block. This is so that unload partitioning can
           be independently configured for a suite of models that all have the same
           post-hook configured in the `dbt_project.yml`.
-      
+
     arguments:
       - name: strip_leading_words
         type: integer
@@ -56,4 +56,4 @@ macros:
           column for the unloading, and multiple parquet files will be uploaded as a result.
           Each value for the partitioning string will be in the file path for the files,
           so it is a good idea to construct the expression with that in mind. For more documentation,
-          see [here](https://docs.snowflake.com/en/sql-reference/sql/copy-into-location#partitioning-unloaded-rows-to-parquet-files)
+          see [here](https://docs.snowflake.com/en/sql-reference/sql/copy-into-location)
