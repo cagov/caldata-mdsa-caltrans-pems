@@ -30,6 +30,7 @@ detector_status as (
         set_assgnmt.active_date,
         set_assgnmt.station_id,
         set_assgnmt.district,
+        set_assgnmt.station_type,
         sps.* exclude (district, station_id),
         dfc.district_feed_working,
         co.min_occupancy_delta,

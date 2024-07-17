@@ -8,7 +8,7 @@ Good status on the date the flow values are calculated and 10 or more 30 second
 samples over a five minute period. These max capacity values will be used to
 determine the productivity performance metric and as a check for normalized flow values
 at the 5-minute aggregation level by lane.
-For the purposes of capacity the current PeMS (July 2024) Systems Calculations website
+For the purposes of capacity the current PeMS July 2024 Systems Calculations website
 states that the system looks at the historical measured data for each location and
 determines the maximum observed 15-minute flow. PeMS then uses the maximum of this
 value and 2076 v/l/h as the capacity at each location.
@@ -32,7 +32,7 @@ source_samples as (
 
 detector_status as (
     select * from {{ ref("int_diagnostics__detector_status") }}
-    where status = 'Good' and type in ('ML', 'HV')
+    where status = 'Good' and station_type in ('ML', 'HV')
     -- Use Good status stations with specific station types only
 ),
 
@@ -101,9 +101,9 @@ max_volume_5min_date as (
 )
 
 select
-    source.station_id,
-    source.lane,
-    source.detector_id,
+    source_samples.station_id,
+    source_samples.lane,
+    source_samples.detector_id,
     /*
     Use a max value of 2076 v/l/h as the capacity for hourly analysis.
     For the 5-minute max capacity analysis use 173 which represents
@@ -120,16 +120,16 @@ select
     mvh.volume_max_hour as max_hour_observed,
     173 as max_capacity_5min,
     2076 as max_capacity_hour
-from source
+from source_samples
 left join max_volume_5min as mvf
     on
-        source.station_id = mvf.station_id
-        and source.lane = mvf.lane
+        source_samples.station_id = mvf.station_id
+        and source_samples.lane = mvf.lane
 left join max_volume_hour as mvh
     on
-        source.station_id = mvh.station_id
-        and mvf.lane = mvh.lane
+        source_samples.station_id = mvh.station_id
+        and source_samples.lane = mvh.lane
 left join max_volume_5min_date as mvfd
     on
-        source.station_id = mvfd.station_id
-        and source.lane = mvfd.lane
+        source_samples.station_id = mvfd.station_id
+        and source_samples.lane = mvfd.lane
