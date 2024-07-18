@@ -98,7 +98,7 @@ models:
         description: |
           The date on which the coefficients in the global regression
           were evaluated.
-  - name: int_observed_imputated__detector_agg_five_minutes
+  - name: int_imputation__detector_imputed_agg_five_minutes
     description: |
       This model compared the imputed values (speed, volume and occupancy) obtained
       from three different methods (local, regional and global) for bad detectors and
