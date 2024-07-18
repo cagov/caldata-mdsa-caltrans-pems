@@ -28,6 +28,8 @@ hybrid_five_mins_agg as (
         sample_date,
         sample_timestamp,
         speed_five_mins,
+        absolute_postmile,
+        sample_ct,
         -- select the imputed value
         case
             when detector_is_good = false

@@ -19,7 +19,7 @@ station_five_minute as (
         absolute_postmile,
         latitude,
         longitude
-    from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
+    from {{ ref ("int_performance__station_metrics_agg_five_minutes") }}
     where
         {{ make_model_incremental('sample_date') }}
         and station_type in ('ML', 'HV')
