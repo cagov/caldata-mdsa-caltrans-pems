@@ -32,20 +32,19 @@ hybrid_five_mins_agg as (
         case
             when detector_is_good = false
                 then
-                    coalesce(volume_sum, volume_local_regression, volume_regional_regression, volume_global_regression)
+                    coalesce(volume_local_regression, volume_regional_regression, volume_global_regression)
             else volume_sum
         end as volume_sum,
         case
             when detector_is_good = false
                 then
-                    coalesce(speed_weighted, speed_local_regression, speed_regional_regression, speed_global_regression)
+                    coalesce(speed_local_regression, speed_regional_regression, speed_global_regression)
             else speed_weighted
         end as speed_weighted,
         case
             when detector_is_good = false
                 then
                     coalesce(
-                        occupancy_avg,
                         occupancy_local_regression,
                         occupancy_regional_regression,
                         occupancy_global_regression
@@ -98,16 +97,7 @@ hybrid_five_mins_agg as (
             else 'observed'
         end as occupancy_imputation_method
     from obs_imputed_five_minutes_agg
-),
-
-final_imputation_with_tag as (
-    select
-        *,
-        coalesce(detector_is_good = false and volume_sum is not null, false) as is_volume_imputed,
-        coalesce(detector_is_good = false and speed_weighted is not null, false) as is_speed_imputed,
-        coalesce(detector_is_good = false and occupancy_avg is not null, false) as is_occupancy_imputed
-    from hybrid_five_mins_agg
 )
 
 -- select the final observed and imputed five mins agg table
-select * from final_imputation_with_tag
+select * from hybrid_five_mins_agg
