@@ -47,7 +47,10 @@ models:
           regional counters.
   - name: int_imputation__detector_agg_five_minutes
     description: |
-      dfdf
+      This model presented the imputed values (speed, volume and occupancy)
+      from all three (local, regional and global) imputation method. We imputed
+      only for bad detectors while observe value is reported for the good
+      detectors.
     columns:
       - name: ID
         description: The station ID.
@@ -77,7 +80,103 @@ models:
         description: The occupancy based on regional regressions.
       - name: speed_regional_regression
         description: The speed based on regional regressions.
-      - name: regression_date
+      - name: volume_global_regression
+        description: The volume based on global regressions
+      - name: occupancy_global_regression
+        description: The occupancy based on global regressions.
+      - name: speed_global_regression
+        description: The speed based on global regressions.
+      - name: local_regression_date
         description: |
           The date on which the coefficients in the local regression
           were evaluated.
+      - name: regional_regression_date
+        description: |
+          The date on which the coefficients in the regional regression
+          were evaluated.
+      - name: global_regression_date
+        description: |
+          The date on which the coefficients in the global regression
+          were evaluated.
+  - name: int_observed_imputated__detector_agg_five_minutes
+    description: |
+      This model compared the imputed values (speed, volume and occupancy) obtained
+      from three different methods (local, regional and global) for bad detectors and
+      chosen the imuted based on the following priorities 'observe', 'local', 'regional'
+      and 'global' respectively. The model reported the observed values for all good detetcors.
+    columns:
+      - name: STATION_ID
+        description: The station ID.
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken.
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name : DETECTOR_IS_GOOD
+        description : Status of the detector based detector's diagonostics. 
+      - name: VOLUME_SUM
+        description: observed or imputed flow values for a detector over the sample period.
+      - name: OCCUPANCY_AVG
+        description: The average of the observed or imputed occupancy values over the sample period.
+      - name: SPEED_WEIGHTED
+        description: |
+          Flow-weighted observed or imputed speed.
+      - name: SPEED_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the speed.
+      - name: VOLUME_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the volume.
+      - name: OCCUPANCY_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the occupancy.
+      - name: regression_date
+        description: |
+          The date on which the coefficients in the regression
+          were evaluated.
+  - name: int_imputation__global_coefficients
+    description: |
+      Global regression slopes and intercepts for average of all
+      detectors across the  district, freeway, direction, station_type 
+      over the regression time period.
+    columns:
+      - name: STATION_ID
+        description: The station ID.
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken.
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: regression_date
+        description: |
+          The date on which the coefficients in the global regression
+          were evaluated.
+      - name: speed_slope
+        description: The slope of the speed regression.
+      - name: speed_intercept
+        description: The intercept of the speed regression.
+      - name: volume_slope
+        description: The slope of the volume regression.
+      - name: volume_intercept
+        description: The intercept of the volume regression.
+      - name: occupancy_slope
+        description: The slope of the occupancy regression.
+      - name: occupancy_intercept
+        description: The intercept of the occupancy regression.
