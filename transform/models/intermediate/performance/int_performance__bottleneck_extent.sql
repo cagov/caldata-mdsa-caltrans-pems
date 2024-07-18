@@ -8,15 +8,18 @@
 with
 
 bottleneck_duration as (
-    select * from {{ ref ("int_performance__bottleneck_duration") }}
+    select * from {{ ref ("int_performance__bottleneck_start") }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
 extent_cte as (
     select
-        station_id,
         sample_date,
         sample_timestamp,
+        station_id,
+        freeway,
+        direction,
+        station_type,
         is_bottleneck,
         case
             when is_bottleneck = true
