@@ -26,7 +26,7 @@ five_minute_agg as (
         station_type,
         station_valid_from,
         station_valid_to
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
