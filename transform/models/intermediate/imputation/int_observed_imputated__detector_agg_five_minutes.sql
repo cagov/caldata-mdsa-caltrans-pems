@@ -103,9 +103,9 @@ hybrid_five_mins_agg as (
 final_imputation_with_tag as (
     select
         *,
-        coalesce (detector_is_good = false and volume_sum is not null, false) as is_volume_imputed,
-        coalesce (detector_is_good = false and speed_weighted is not null, false) as is_speed_imputed,
-        coalesce (detector_is_good = false and occupancy_avg is not null, false) as is_occupancy_imputed
+        coalesce(detector_is_good = false and volume_sum is not null, false) as is_volume_imputed,
+        coalesce(detector_is_good = false and speed_weighted is not null, false) as is_speed_imputed,
+        coalesce(detector_is_good = false and occupancy_avg is not null, false) as is_occupancy_imputed
     from hybrid_five_mins_agg
 )
 
