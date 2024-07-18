@@ -122,8 +122,8 @@ models:
         description: The freeway where the VDS is located.
       - name: STATION_TYPE
         description: Two character string identify the VDS type.
-      - name : DETECTOR_IS_GOOD
-        description : Status of the detector based detector's diagonostics. 
+      - name: DETECTOR_IS_GOOD
+        description: Status of the detector based detector's diagonostics.
       - name: VOLUME_SUM
         description: observed or imputed flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
@@ -144,7 +144,7 @@ models:
   - name: int_imputation__global_coefficients
     description: |
       Global regression slopes and intercepts for average of all
-      detectors across the  district, freeway, direction, station_type 
+      detectors across the  district, freeway, direction, station_type
       over the regression time period.
     columns:
       - name: STATION_ID
