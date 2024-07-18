@@ -30,7 +30,7 @@ locals {
   # These are circular dependencies on the outputs. Unfortunate, but
   # necessary, as we don't know them until we've created the storage
   # integration, which itself depends on the assume role policy.
-  storage_aws_external_id  = "NGB13288_SFCRole=2_P94CCaZYR9XFUzpMIGN6HOit/zQ="
+  storage_aws_external_id  = "NGB13288_SFCRole=2_YhkANpChE8XgIr7PAY6q5lOqIf0="
   storage_aws_iam_user_arn = "arn:aws:iam::946158320428:user/uunc0000-s"
   pipe_sqs_queue_arn       = "arn:aws:sqs:us-west-2:946158320428:sf-snowpipe-AIDA5YS3OHMWCVTR5XHEE-YZjsweK3loK4rXlOJBWF_g"
 }
@@ -94,11 +94,11 @@ module "s3_lake" {
     aws = aws
   }
 
-  prefix                                         = "${local.owner}-${local.project}-${local.environment}"
-  region                                         = local.region
-  snowflake_raw_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
-  snowflake_raw_storage_integration_external_id  = local.storage_aws_external_id
-  snowflake_pipe_sqs_queue_arn                   = local.pipe_sqs_queue_arn
+  prefix                                     = "${local.owner}-${local.project}-${local.environment}"
+  region                                     = local.region
+  snowflake_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
+  snowflake_storage_integration_external_id  = local.storage_aws_external_id
+  snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
 }
 
 data "aws_iam_role" "mwaa_execution_role" {
@@ -137,7 +137,8 @@ module "snowflake_clearinghouse" {
   }
 
   environment          = upper(local.environment)
-  s3_url               = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  raw_s3_url           = "s3://${module.s3_lake.pems_raw_bucket.name}"
+  marts_s3_url         = "s3://${module.s3_lake.pems_marts_bucket.name}"
   storage_aws_role_arn = module.s3_lake.snowflake_storage_integration_role.arn
 }
 

@@ -9,13 +9,13 @@ variable "region" {
   default     = "us-west-2"
 }
 
-variable "snowflake_raw_storage_integration_iam_user_arn" {
+variable "snowflake_storage_integration_iam_user_arn" {
   description = "ARN for service account created by Snowflake to access external stage"
   type        = string
 }
 
-variable "snowflake_raw_storage_integration_external_id" {
-  description = "External ID for Snowflake storage integration"
+variable "snowflake_storage_integration_external_id" {
+  description = "External ID for Snowflake marts storage integration"
   type        = string
   default     = "0000"
 }

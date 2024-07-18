@@ -34,32 +34,33 @@ resource "snowflake_schema" "pems_db96" {
   data_retention_days = 14
 }
 
-# External stage
-resource "snowflake_storage_integration" "pems_raw" {
+# Storage integration
+resource "snowflake_storage_integration" "pems_storage_integration" {
   provider                  = snowflake.accountadmin
-  name                      = "PEMS_RAW_${var.environment}"
+  name                      = "PEMS_${var.environment}"
   type                      = "EXTERNAL_STAGE"
   storage_provider          = "S3"
   storage_aws_role_arn      = var.storage_aws_role_arn
-  storage_allowed_locations = [var.s3_url]
+  storage_allowed_locations = [var.raw_s3_url, var.marts_s3_url]
 }
 
-resource "snowflake_integration_grant" "pems_raw_to_sysadmin" {
+resource "snowflake_integration_grant" "pems_storage_integration_to_sysadmin" {
   provider               = snowflake.accountadmin
-  integration_name       = snowflake_storage_integration.pems_raw.name
+  integration_name       = snowflake_storage_integration.pems_storage_integration.name
   privilege              = "USAGE"
   roles                  = ["SYSADMIN"]
   enable_multiple_grants = true
 }
 
-
+# Raw stage
 resource "snowflake_stage" "pems_raw" {
   provider            = snowflake.sysadmin
   name                = "PEMS_RAW_${var.environment}"
-  url                 = var.s3_url
+  url                 = var.raw_s3_url
   database            = snowflake_schema.pems_clearinghouse.database
   schema              = snowflake_schema.pems_clearinghouse.name
-  storage_integration = snowflake_storage_integration.pems_raw.name
+  storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_integration_grant.pems_storage_integration_to_sysadmin]
 }
 
 resource "snowflake_stage_grant" "pems_raw" {
@@ -70,6 +71,27 @@ resource "snowflake_stage_grant" "pems_raw" {
   privilege              = "USAGE"
   stage_name             = snowflake_stage.pems_raw.name
   enable_multiple_grants = true
+}
+
+# Marts stage
+
+resource "snowflake_stage" "pems_marts" {
+  provider            = snowflake.sysadmin
+  name                = "PEMS_MARTS_${var.environment}"
+  url                 = var.marts_s3_url
+  database            = "ANALYTICS_${var.environment}"
+  schema              = "PUBLIC"
+  storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_integration_grant.pems_storage_integration_to_sysadmin]
+}
+
+resource "snowflake_stage_grant" "pems_marts" {
+  provider      = snowflake.sysadmin
+  database_name = snowflake_stage.pems_marts.database
+  schema_name   = snowflake_stage.pems_marts.schema
+  roles         = ["TRANSFORMER_${var.environment}"]
+  privilege     = "USAGE"
+  stage_name    = snowflake_stage.pems_marts.name
 }
 
 # Pipes

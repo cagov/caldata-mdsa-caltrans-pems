@@ -7,7 +7,7 @@ seeds:
       24 static records on detector and station type combinations and their descriptions.
       Reference: PeMSSampleReports.docx
     config:
-      schema: detector_health
+      schema: diagnostics
 
     columns:
       - name: DETECTOR_TYPE
@@ -27,7 +27,7 @@ seeds:
         - [PEMS User Guide](https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf)
         - PeMSSampleReports.docx
     config:
-      schema: detector_health
+      schema: diagnostics
 
     columns:
       - name: DT_SET_ID
@@ -38,3 +38,67 @@ seeds:
         description: Name of the diagnostic test condition associated with the station
       - name: DT_VALUE
         description: Threshold value associated with the diagnostic test condition
+
+  - name: districts
+    description: |
+      The districts seed file contains the 12 Caltrans Districts in California. The
+      District boundary definitions are primarily based on the California county
+      boundaries.
+    config:
+      schema: clearinghouse
+
+    columns:
+      - name: DISTRICT_ID
+        description: The Caltrans district code associated with a region. Values are 1 - 12.
+      - name: DISTRICT_NAME
+        description: The district name associated with the district code
+      - name: STATE_ID
+        description: The California FIPS code which is 6
+      - name: DISTRICT_LATITUDE
+        description: |
+          The latitude of a district used in PeMS associated with the approximate
+          mid point of the district (Standard projection of NAD 83)
+      - name: DISTRICT_LONGITUDE
+        description: |
+          The longitude of a district used in PeMS associated with the approximate
+          mid point of the district (Standard projection of NAD 83)
+
+  - name: counties
+    description: |
+      The counties seed file contains the relationships between counties and their associated
+      Caltrans Districts. The file also contains full county names and abbreviated naming
+      convention used in Caltrans. Additional information regarding FIPS codes can be found at:
+      https://www.census.gov/library/reference/code-lists/ansi.html
+    config:
+      schema: clearinghouse
+
+    columns:
+      - name: COUNTY_ID
+        description: FIPS numeric code associated with a county
+      - name: DISTRICT_ID
+        description: The Caltrans district that the county is located in (values are 1-12)
+      - name: COUNTY_NAME
+        description: The full name of the county
+      - name: NATIVE_ID
+        description: The 2-3 character abbreviation for the County used in Caltrans
+
+  - name: states
+    description: |
+      The states seed file contains the FIPS code and other associated location information
+      about the state of California used in PeMS
+    config:
+      schema: clearinghouse
+
+    columns:
+      - name: STATE_ID
+        description: The California FIPS code which is 6
+      - name: NATIVE_ID
+        description: Two chracter abbreviation for California
+      - name: STATE_NAME
+        description: The state name for California
+      - name: STATE_LATITUDE
+        description: |
+          The latitude of California used in PeMS  (Standard projection of NAD 83)
+      - name: STATE_LONGITUDE
+        description: |
+          The longitude of California used in PeMS (Standard projection of NAD 83)

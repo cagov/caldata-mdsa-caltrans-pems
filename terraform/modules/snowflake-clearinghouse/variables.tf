@@ -3,7 +3,12 @@ variable "environment" {
   type        = string
 }
 
-variable "s3_url" {
+variable "raw_s3_url" {
+  description = "S3 URL for the storage integration"
+  type        = string
+}
+
+variable "marts_s3_url" {
   description = "S3 URL for the storage integration"
   type        = string
 }
