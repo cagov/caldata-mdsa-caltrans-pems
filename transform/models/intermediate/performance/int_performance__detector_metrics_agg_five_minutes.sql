@@ -21,7 +21,6 @@ five_minute_agg as (
         volume_sum,
         occupancy_avg,
         speed_weighted,
-        speed_five_mins,
         station_type,
         station_valid_from,
         station_valid_to
