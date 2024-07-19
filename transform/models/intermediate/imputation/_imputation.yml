@@ -61,6 +61,16 @@ models:
       - name: LANE
         description: |
           The lane number of the detector, starting from 1.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DETECTOR_IS_GOOD
+        description: Status of the detector based detector's diagonostics.
       - name: VOLUME_SUM
         description: The sum of the flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
@@ -68,6 +78,9 @@ models:
       - name: SPEED_WEIGHTED
         description: |
           Flow-weighted speed reported by the device.
+      - name: speed_five_mins
+        description: |
+          Flow-weighted observed or imputed speed for five minutes time period.
       - name: volume_local_regression
         description: The volume based on local regressions.
       - name: occupancy_local_regression
@@ -127,7 +140,9 @@ models:
       - name: VOLUME_SUM
         description: observed or imputed flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
-        description: The average of the observed or imputed occupancy values over the sample period.
+      - name: SPEED_WEIGHTED
+        description: |
+          Flow-weighted speed reported by the device.
       - name: speed_five_mins
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
