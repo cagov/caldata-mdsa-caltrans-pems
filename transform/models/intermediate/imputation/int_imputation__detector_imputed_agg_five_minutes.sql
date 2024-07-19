@@ -27,6 +27,7 @@ hybrid_five_mins_agg as (
         city,
         district,
         freeway,
+        length,
         detector_is_good,
         sample_date,
         sample_timestamp,

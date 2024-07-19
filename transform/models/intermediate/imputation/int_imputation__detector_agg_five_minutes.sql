@@ -52,6 +52,7 @@ unimputed as (
         base.direction,
         base.county,
         base.city,
+        base.length,
         base.station_type,
         base.absolute_postmile,
         base.sample_ct,
