@@ -130,7 +130,7 @@ models:
         description: The average of the observed or imputed occupancy values over the sample period.
       - name: speed_five_mins
         description: |
-          Flow-weighted observed or imputed speed for five minutes timeperiod.
+          Flow-weighted observed or imputed speed for five minutes time period.
       - name: SPEED_IMPUTATION_METHOD
         description: The method (local/regional/global) used to impute the speed.
       - name: VOLUME_IMPUTATION_METHOD
