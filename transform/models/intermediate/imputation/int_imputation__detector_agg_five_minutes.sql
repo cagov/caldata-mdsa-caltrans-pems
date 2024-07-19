@@ -57,7 +57,7 @@ unimputed as (
         base.absolute_postmile,
         base.sample_ct,
         base.station_valid_from,
-        base.station_valid_to
+        base.station_valid_to,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
