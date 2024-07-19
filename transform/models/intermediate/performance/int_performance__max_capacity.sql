@@ -19,7 +19,7 @@ sum_volume as (
         /* we are looking at a window of 3 rows because that is a 15-minute window
         (5-min data * 3 = 15 minutes) */
             over (
-                partition by detector_id, sample_date
+                partition by station_id, sample_date
                 order by sample_timestamp rows between 2 preceding and current row
             )
             as volume_summed
@@ -28,7 +28,7 @@ sum_volume as (
 )
 
 select
-    detector_id,
+    station_id,
     /*
     Use max of 2076 v/l/h or 15 minute historical highest flow as the capacity
     at each location per PeMS website:

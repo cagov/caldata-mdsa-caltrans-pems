@@ -16,9 +16,7 @@ station_five_minute as (
         freeway,
         direction,
         station_type,
-        absolute_postmile,
-        latitude,
-        longitude
+        absolute_postmile
     from {{ ref ("int_performance__station_metrics_agg_five_minutes") }}
     where
         {{ make_model_incremental('sample_date') }}
