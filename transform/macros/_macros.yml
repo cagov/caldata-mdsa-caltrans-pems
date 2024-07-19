@@ -22,4 +22,3 @@ macros:
         1. Users implement their own date column
         2. This macros does not include a "where" keyword, but does include
         "and". Users are expected to use a "where" clause when implementing this.
-
