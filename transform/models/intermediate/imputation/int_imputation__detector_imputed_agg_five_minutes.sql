@@ -44,8 +44,8 @@ hybrid_five_mins_agg as (
             when detector_is_good = false
                 then
                     coalesce(speed_local_regression, speed_regional_regression, speed_global_regression)
-            else speed_weighted
-        end as speed_weighted,
+            else speed_five_mins
+        end as speed_five_mins,
         case
             when detector_is_good = false
                 then
