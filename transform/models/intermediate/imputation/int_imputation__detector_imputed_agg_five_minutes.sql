@@ -34,7 +34,7 @@ hybrid_five_mins_agg as (
         absolute_postmile,
         sample_ct,
         station_valid_from,
-        _valid_to,
+        station_valid_to,
         -- select the imputed value
         case
             when detector_is_good = false
