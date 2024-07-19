@@ -33,6 +33,10 @@ hybrid_five_mins_agg as (
         sample_timestamp,
         absolute_postmile,
         sample_ct,
+        occupancy_avg,
+        volume_sum,
+        station_valid_from,
+        _valid_to
         -- select the imputed value
         case
             when detector_is_good = false
