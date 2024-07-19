@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_timestamp"],
+    unique_key=["station_id", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -9,7 +9,6 @@ with
 five_minute_agg as (
     select
         station_id,
-        detector_id,
         sample_date,
         sample_timestamp,
         lane,
@@ -103,7 +102,7 @@ productivity_metrics as (
 
     from delay_metrics as dm
     inner join {{ ref("int_performance__max_capacity") }} as mc
-        on dm.detector_id = mc.detector_id
+        on dm.station_id = mc.station_id
 )
 
 select * from productivity_metrics
