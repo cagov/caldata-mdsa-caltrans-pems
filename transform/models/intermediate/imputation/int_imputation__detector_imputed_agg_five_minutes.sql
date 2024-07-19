@@ -30,7 +30,6 @@ hybrid_five_mins_agg as (
         detector_is_good,
         sample_date,
         sample_timestamp,
-        speed_five_mins,
         absolute_postmile,
         sample_ct,
         -- select the imputed value
