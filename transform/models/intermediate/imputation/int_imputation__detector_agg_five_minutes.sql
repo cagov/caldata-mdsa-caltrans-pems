@@ -40,6 +40,7 @@ detector to be operating correctly for a given day. */
 unimputed as (
     select
         base.station_id,
+        base.detector_id,
         base.lane,
         base.district,
         base.sample_date,
@@ -49,6 +50,8 @@ unimputed as (
         base.speed_weighted,
         base.freeway,
         base.direction,
+        base.county,
+        base.city,
         base.station_type,
         base.absolute_postmile,
         base.sample_ct,

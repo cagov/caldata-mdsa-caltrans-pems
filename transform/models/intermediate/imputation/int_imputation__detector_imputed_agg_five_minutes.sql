@@ -19,9 +19,12 @@ with obs_imputed_five_minutes_agg as (
 hybrid_five_mins_agg as (
     select
         station_id,
+        detector_id,
         station_type,
         lane,
         direction,
+        county,
+        city,
         district,
         freeway,
         detector_is_good,
