@@ -12,6 +12,7 @@ source as (
     where {{ make_model_incremental('sample_date') }}
 ),
 
+-- Check if district feed is working
 district_feed_check as (
     select
         source.district,
@@ -23,8 +24,10 @@ district_feed_check as (
     inner join {{ ref('districts') }} as d
         on source.district = d.district_id
     group by source.district
+    -- Groups by district to get the status per district
 ),
 
+-- Create a date spine from 2023-01-01 to the current date
 dates_raw as (
     {{ dbt_utils.date_spine(
         datepart="day",
@@ -34,6 +37,7 @@ dates_raw as (
     }}
 ),
 
+-- Join dates with the detector configuration
 detector_metdata as (
     select
         vdc.station_id,
@@ -42,13 +46,32 @@ detector_metdata as (
         vdc.lane,
         vdc._valid_from,
         vdc._valid_to,
-        dr.date_day
+        dr.date_day as sample_date
     from dates_raw as dr
     left join {{ ref('int_vds__detector_config') }} as vdc
-        on dr.date_day between vdc._valid_from and coalesce(vdc._valid_to, current_date)
+        on
+            dr.date_day between vdc._valid_from and coalesce(vdc._valid_to, current_date)
+            and vdc.lane is not null
 ),
 
+source_with_detector_metadata as (
+    select
+        dm.sample_date,
+        dm.station_id,
+        dm.detector_id,
+        dm.district,
+        dm.lane,
+        sps.* exclude (sample_date, district, station_id, lane)
+    from detector_metdata as dm
+    left outer join source as sps
+        on
+            dm.sample_date = sps.sample_date
+            and dm.station_id = sps.station_id
+            and dm.district = sps.district
+            and dm.lane = sps.lane
+),
 
+-- CTE to determine the status of each detector
 detector_status as (
     select
         set_assgnmt.active_date,
@@ -104,7 +127,7 @@ detector_status as (
         end as status
 
     from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
-    left join source as sps
+    left join source_with_detector_metadata as sps
         on
             set_assgnmt.station_id = sps.station_id
             and set_assgnmt.active_date = sps.sample_date
