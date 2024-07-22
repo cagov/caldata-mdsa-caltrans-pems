@@ -50,7 +50,7 @@ detector_metdata as (
     from dates_raw as dr
     left join {{ ref('int_vds__detector_config') }} as vdc
         on
-            dr.date_day between vdc._valid_from and coalesce(vdc._valid_to, current_date)
+            (dr.date_day >= vdc._valid_from and dr.date_day < coalesce(vdc._valid_to, current_date))
             and vdc.lane is not null
 ),
 
