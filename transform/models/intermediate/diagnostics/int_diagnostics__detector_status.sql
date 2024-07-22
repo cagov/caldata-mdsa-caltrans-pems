@@ -25,6 +25,15 @@ district_feed_check as (
     group by source.district
 ),
 
+dates_raw as (
+    {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="cast('2023-01-01' as date)",
+        end_date="current_date()"
+        )
+    }}
+),
+
 detector_status as (
     select
         set_assgnmt.active_date,
