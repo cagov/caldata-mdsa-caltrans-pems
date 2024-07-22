@@ -1,4 +1,3 @@
-<<<<<<< HEAD:transform/models/intermediate/clearinghouse/int_clearinghouse__station_agg_five_minutes.sql
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
@@ -87,4 +86,3 @@ station_aggregated_speed as (
 )
 
 select * from station_aggregated_speed
->>>>>>> 78af5cbeffa5158a1302ccd41a7d052faf0fc968:transform/models/intermediate/performance/int_performance__station_metrics_agg_five_minutes.sql
