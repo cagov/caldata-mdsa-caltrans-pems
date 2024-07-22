@@ -133,18 +133,14 @@ models:
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
   - name: int_vds__nearby_stations
     description: |
-      Metadata for a single loop detector. This is the device that actually records
-      flow, occupancy, and speed, and is typically installed in a single lane.
-      Multiple detectors across a set of lanes constitute a station.
-
-      Unlike the equivalent configuration models for controller and station,
-      this metadata model is further joined with metadata for each detector's
-      station. This adds some further denormalization to the table, but is a
-      practical response to so many downstream metrics relying on station metadata.
-
-      This table is a slowly-changing-dimension-2, meaning that it has multiple
-      different versions of the metadata for each controller, with `_valid_from`
-      and `_valid_to` datetime columns indicating when the version is correct.
+      The model employs postmile-based distance metrics to identify nearby stations, specifically
+      focusing on HOV and Mainline stations. This approach calculates distances between a target
+      station and its upstream and downstream counterparts, using these distances to pinpoint
+      secondary stations for data imputation purposes. For local regression, it utilizes the nearest
+      upstream and downstream stations, while regional regression incorporates all stations within
+      a 5-mile radius. This dual regression strategy aims to predict or analyze station-related data,
+      leveraging both spatial proximity and statistical techniques to enhance understanding and
+      planning within transportation contexts.
     columns:
       - name: station_id
         description: The ID of the station to which the detector is connected
