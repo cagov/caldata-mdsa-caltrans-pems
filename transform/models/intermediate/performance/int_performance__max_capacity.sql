@@ -9,7 +9,7 @@ with
 
 source as (
     select *
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
 ),
 
 sum_volume as (

@@ -16,10 +16,8 @@ station_five_minute as (
         freeway,
         direction,
         station_type,
-        absolute_postmile,
-        latitude,
-        longitude
-    from {{ ref ("int_clearinghouse__station_agg_five_minutes") }}
+        absolute_postmile
+    from {{ ref ("int_performance__station_metrics_agg_five_minutes") }}
     where
         {{ make_model_incremental('sample_date') }}
         and station_type in ('ML', 'HV')
@@ -87,7 +85,7 @@ temporal_extent_check as (
 
 temporal_extent as (
     select
-        * exclude (latitude, longitude, bottleneck_check, bottleneck_check_summed),
+        * exclude (bottleneck_check, bottleneck_check_summed),
         iff(bottleneck_check_summed >= 5, true, false) as is_bottleneck
     from temporal_extent_check
 )

@@ -19,14 +19,22 @@ with obs_imputed_five_minutes_agg as (
 hybrid_five_mins_agg as (
     select
         station_id,
+        detector_id,
         station_type,
         lane,
         direction,
+        county,
+        city,
         district,
         freeway,
+        length,
         detector_is_good,
         sample_date,
         sample_timestamp,
+        absolute_postmile,
+        sample_ct,
+        station_valid_from,
+        station_valid_to,
         -- select the imputed value
         case
             when detector_is_good = false

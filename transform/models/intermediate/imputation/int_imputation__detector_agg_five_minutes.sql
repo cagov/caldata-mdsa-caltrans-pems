@@ -40,6 +40,7 @@ detector to be operating correctly for a given day. */
 unimputed as (
     select
         base.station_id,
+        base.detector_id,
         base.lane,
         base.district,
         base.sample_date,
@@ -49,7 +50,14 @@ unimputed as (
         base.speed_weighted,
         base.freeway,
         base.direction,
+        base.county,
+        base.city,
+        base.length,
         base.station_type,
+        base.absolute_postmile,
+        base.sample_ct,
+        base.station_valid_from,
+        base.station_valid_to,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
