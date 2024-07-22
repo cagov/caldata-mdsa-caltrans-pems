@@ -166,11 +166,11 @@ models:
           delta_postmile indicates that `other_id` is downstream (greater postmile)
           from id.
       - name: OTHER_STATION_ID
-        description : The ID of upstream and downstream stations of the targetted station.
+        description: The ID of upstream and downstream stations of the targetted station.
       - name: OTHER_STATION_IS_LOCAL
         description: A boolean function that indicates wheather other statoin is local or not.
       - name: DISTANCE_RANKING
         description: |
-         The station was ranked based on absolute ascending distance value from
-         targetted station to upstream and downstream stations in purpose of identifying local,
-         and regional stations for imputation.
+          The station was ranked based on absolute ascending distance value from
+          targetted station to upstream and downstream stations in purpose of identifying local,
+          and regional stations for imputation.
