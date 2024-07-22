@@ -34,6 +34,21 @@ dates_raw as (
     }}
 ),
 
+detector_metdata as (
+    select
+        vdc.station_id,
+        vdc.detector_id,
+        vdc.district,
+        vdc.lane,
+        vdc._valid_from,
+        vdc._valid_to,
+        dr.date_day
+    from dates_raw as dr
+    left join {{ ref('int_vds__detector_config') }} as vdc
+        on dr.date_day between vdc._valid_from and coalesce(vdc._valid_to, current_date)
+),
+
+
 detector_status as (
     select
         set_assgnmt.active_date,
