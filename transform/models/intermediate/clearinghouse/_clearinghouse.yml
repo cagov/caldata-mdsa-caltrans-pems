@@ -101,7 +101,7 @@ models:
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow)
-          and occupancy values contain any non-null value
+          and occupancy values contain any non-null value.
       - name: lane
         description: |
           Lane associated with a route and station from raw data.
@@ -137,31 +137,3 @@ models:
     description: |
       Contains station meta data for all stations that were designated active on any
       given day.
-  - name: int_clearinghouse__nearby_stations
-    description: |
-      Station pairs for stations that are upstream and downstream, as well as
-      the same station. This can be used to compare values between neighboring
-      detectors, both in different lanes in the same station, as well as in
-      neighboring stations.
-    columns:
-      - name: ID
-        description: The id of the first station in the pair.
-      - name: OTHER_ID
-        description: The id of the second station in the pair.
-      - name: DIRECTION
-        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-      - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12.
-      - name: FREEWAY
-        description: The freeway where the VDS is located.
-      - name: TYPE
-        description: Two character string identify the VDS type.
-      - name: DELTA_POSTMILE
-        description: |
-          The difference in absolute postmile between the two stations. A positive
-          delta_postmile indicates that `other_id` is downstream (greater postmile)
-          from id.
-      - name: _VALID_FROM
-        description: The date from which this neighbor relation holds.
-      - name: _VALID_TO
-        description: The date to which this neighbor relation holds.

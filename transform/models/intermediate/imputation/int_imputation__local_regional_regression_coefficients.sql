@@ -36,10 +36,10 @@ regression_dates_to_evaluate as (
 -- Select all station pairs that are active for the chosen regression dates
 nearby_stations as (
     select
-        nearby.id,
-        nearby.other_id,
+        nearby.station_id,
+        nearby.other_station_id,
         nearby.other_station_is_local
-    from {{ ref('int_clearinghouse__nearby_stations') }} as nearby
+    from {{ ref('int_vds__nearby_stations') }} as nearby
     inner join regression_dates_to_evaluate
         on
             nearby._valid_from <= regression_dates_to_evaluate.regression_date
@@ -116,10 +116,10 @@ detector_counts_pairwise as (
         b.occupancy_avg as other_occupancy,
         nearby_stations.other_station_is_local
     from detector_counts as a
-    left join nearby_stations on a.station_id = nearby_stations.id
+    left join nearby_stations on a.station_id = nearby_stations.station_id
     inner join detector_counts as b
         on
-            nearby_stations.other_id = b.station_id
+            nearby_stations.other_station_id = b.station_id
             and a.sample_date = b.sample_date
             and a.sample_timestamp = b.sample_timestamp
 ),
