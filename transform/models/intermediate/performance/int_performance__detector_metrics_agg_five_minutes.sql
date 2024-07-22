@@ -8,6 +8,7 @@
 with
 five_minute_agg as (
     select
+        station_id,
         detector_id,
         sample_date,
         sample_timestamp,
