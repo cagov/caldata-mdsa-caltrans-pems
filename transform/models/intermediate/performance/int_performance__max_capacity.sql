@@ -28,7 +28,7 @@ sum_volume as (
 )
 
 select
-    station_id,
+    detector_id,
     /*
     Use max of 2076 v/l/h or 15 minute historical highest flow as the capacity
     at each location per PeMS website:
