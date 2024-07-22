@@ -101,7 +101,7 @@ models:
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow)
-          and occupancy values contain any non-null value
+          and occupancy values contain any non-null value.
       - name: lane
         description: |
           Lane associated with a route and station from raw data.
