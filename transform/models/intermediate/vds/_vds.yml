@@ -131,3 +131,46 @@ models:
         description: The timestamp from which this row is valid.
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+  - name: int_vds__nearby_stations
+    description: |
+      Metadata for a single loop detector. This is the device that actually records
+      flow, occupancy, and speed, and is typically installed in a single lane.
+      Multiple detectors across a set of lanes constitute a station.
+
+      Unlike the equivalent configuration models for controller and station,
+      this metadata model is further joined with metadata for each detector's
+      station. This adds some further denormalization to the table, but is a
+      practical response to so many downstream metrics relying on station metadata.
+
+      This table is a slowly-changing-dimension-2, meaning that it has multiple
+      different versions of the metadata for each controller, with `_valid_from`
+      and `_valid_to` datetime columns indicating when the version is correct.
+    columns:
+      - name: station_id
+        description: The ID of the station to which the detector is connected
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: station_type
+        description: The type of the station.
+      - name: _valid_from
+        description: The timestamp from which this row is valid.
+      - name: _valid_to
+        description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+      - name: DELTA_POSTMILE
+        description: |
+          The difference in absolute postmile between the two stations. A positive
+          delta_postmile indicates that `other_id` is downstream (greater postmile)
+          from id.
+      - name: OTHER_STATION_ID
+        description : |
+         The ID of upstream and downstream stations of the targetted station.
+      - name: OTHER_STATION_IS_LOCAL
+        description: A boolean function that indicates wheather other statoin is local or not.
+      - name: DISTANCE_RANKING
+        description: The station was ranked based on absolute ascending distance value from
+         targetted station to upstream and downstream stations in purpose of identifying local,
+         and regional stations for imputation.
