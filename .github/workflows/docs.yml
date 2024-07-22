@@ -3,13 +3,15 @@ on:
   push:
     branches:
       - main
+      - fix-docs-build
 
 permissions:
   contents: write
 
 env:
   DBT_PROFILES_DIR: transform/ci
-
+  DBT_RAW_DB: RAW_PRD
+  DBT_ANALYTICS_DB: ANALYTICS_PRD
   PRIVATE_KEY: ${{ SECRETS.SNOWFLAKE_PRIVATE_KEY_PRD }}
   SNOWFLAKE_USER: ${{ SECRETS.SNOWFLAKE_USER_PRD }}
   SNOWFLAKE_ACCOUNT: ${{ SECRETS.SNOWFLAKE_ACCOUNT }}
