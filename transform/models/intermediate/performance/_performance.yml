@@ -12,7 +12,7 @@ models:
         description: The date associated with five minute aggregated data samples.
         tests:
           - not_null
-      - name: station_id
+      - name: detector_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
