@@ -13,6 +13,10 @@ models:
         tests:
           - not_null
       - name: detector_id
+        description: The unique ID of the detector.
+        tests:
+          - not_null
+      - name: station_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
