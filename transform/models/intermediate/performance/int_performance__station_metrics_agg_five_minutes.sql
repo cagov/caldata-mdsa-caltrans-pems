@@ -21,7 +21,7 @@ station_aggregated_speed as (
         any_value(station_type) as station_type,
         any_value(absolute_postmile) as absolute_postmile,
         any_value(district) as district,
-        any_value(leangth) as length,
+        any_value(length) as length,
         sum(sample_ct) as sample_ct,
         sum(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
