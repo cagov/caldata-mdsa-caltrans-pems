@@ -21,6 +21,7 @@ extent_cte as (
         freeway,
         direction,
         station_type,
+        speed_five_mins,
         is_bottleneck,
         case
             when is_bottleneck = true

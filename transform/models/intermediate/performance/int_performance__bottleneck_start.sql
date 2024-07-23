@@ -12,7 +12,7 @@ station_five_minute as (
         station_id,
         sample_date,
         sample_timestamp,
-        speed_weighted,
+        speed_five_mins,
         freeway,
         direction,
         station_type,
@@ -33,11 +33,11 @@ calcs as (
         to get the speed there. When the direction is west or south, the "upstream" station has a
         larger postmile, and we need to lead to get the speed there. */
 
-        speed_weighted - lag(speed_weighted)
+        speed_five_mins - lag(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_ne,
 
-        speed_weighted - lead(speed_weighted)
+        speed_five_mins - lead(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_sw,
 
@@ -57,13 +57,13 @@ bottleneck_criteria as (
         *,
         case
             when
-                speed_weighted < 40
+                speed_five_mins < 40
                 and abs(distance_delta_ne) < 3
                 and speed_delta_ne <= -20
                 and (direction = 'N' or direction = 'E')
                 then 1
             when
-                speed_weighted < 40
+                speed_five_mins < 40
                 and abs(distance_delta_sw) < 3
                 and speed_delta_sw <= -20
                 and (direction = 'S' or direction = 'W')
