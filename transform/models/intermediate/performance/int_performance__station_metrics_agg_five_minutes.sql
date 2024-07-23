@@ -25,7 +25,7 @@ station_aggregated_speed as (
         sum(sample_ct) as sample_ct,
         sum(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
-        sum(volume_sum * speed_weighted) / nullifzero(sum(volume_sum)) as speed_weighted
+        sum(volume_sum * speed_five_mins) / nullifzero(sum(volume_sum)) as speed_five_mins
     from detector_agg_five_minutes
     group by station_id, sample_date, sample_timestamp
 )
