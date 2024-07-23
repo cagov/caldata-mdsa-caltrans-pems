@@ -1,0 +1,19 @@
+
+models:
+  - name: imputation__station_summary
+    description: |
+      This model summarize the pentration of imputation by each method.
+      It provides the total number of samples for five minutes in station
+      level as well as percetage of observed and imputed by each method
+      by sample date.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: SAMPLE_CT
+        description: The number of samples collected in five minutes time period.
