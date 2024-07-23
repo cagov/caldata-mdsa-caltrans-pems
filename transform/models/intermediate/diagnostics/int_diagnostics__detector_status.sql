@@ -2,6 +2,7 @@
     materialized="incremental",
     cluster_by=['sample_date'],
     unique_key=['station_id', 'lane', 'sample_date'],
+    on_schema_change='append_new_columns',
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -31,8 +32,8 @@ district_feed_check as (
 dates_raw as (
     {{ dbt_utils.date_spine(
         datepart="day",
-        start_date="cast('2023-01-01' as date)",
-        end_date="current_date()"
+        start_date="cast('2010-01-01' as date)",
+        end_date= "current_date + 1"
         )
     }}
 ),
@@ -51,7 +52,7 @@ detector_metdata as (
     left join {{ ref('int_vds__detector_config') }} as vdc
         on
             (dr.date_day >= vdc._valid_from and dr.date_day < coalesce(vdc._valid_to, current_date))
-            and vdc.lane is not null
+            and vdc.status != '0'
 ),
 
 source_with_detector_metadata as (
