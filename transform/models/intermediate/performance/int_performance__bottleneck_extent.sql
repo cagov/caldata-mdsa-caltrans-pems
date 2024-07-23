@@ -17,6 +17,7 @@ extent_cte as (
         sample_date,
         sample_timestamp,
         station_id,
+        absolute_postmile,
         freeway,
         direction,
         station_type,
