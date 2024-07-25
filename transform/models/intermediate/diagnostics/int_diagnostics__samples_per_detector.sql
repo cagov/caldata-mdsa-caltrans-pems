@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=['sample_date'],
-    unique_key=['station_id', 'sample_date', 'lane'],
+    unique_key=['detector_id', 'sample_date', 'lane'],
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -21,6 +21,7 @@ samples_per_station as (
         source.district,
         source.station_id,
         source.lane,
+        source.detector_id,
         source.sample_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
@@ -67,7 +68,7 @@ samples_per_station as (
 
     from source
     group by
-        source.district, source.station_id, source.lane, source.sample_date
+        source.district, source.station_id, source.lane, source.detector_id, source.sample_date
 )
 
 select * from samples_per_station

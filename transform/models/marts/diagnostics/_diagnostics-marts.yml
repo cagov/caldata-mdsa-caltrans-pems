@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: diagnostics__detector_daily_detail
+    description: |
+      This file contains detector status data aggregated to the deetector level.
+    columns:
+      - name: status
+        description: |
+          The detector health value based on a series of validations made from
+          sample counts
+        tests:
+          - not_null
+
+  - name: diagnostics__detector_daily_by_station
+    description: |
+      This file contains detector status data aggregated to the station level.
+    columns:
+      - name: station_id
+        description: |
+          An integer value that uniquely indentifies the Station Metadata.
+          Use this value to 'join' other clearinghouse files that contain Station Metadata.
+        tests:
+          - not_null

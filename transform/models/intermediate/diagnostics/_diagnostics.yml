@@ -16,7 +16,7 @@ models:
           - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
-      - name: type
+      - name: station_type
         description: Two character string identify the VDS type.
         tests:
           - not_null
@@ -103,6 +103,10 @@ models:
           - not_null
       - name: lane
         description: Lane associated with a route and station from raw data
+      - name: detector_id
+        description: The unique ID of the detector.
+        tests:
+          - not_null
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow) and occupancy

@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=['sample_date'],
-    unique_key=['station_id', 'lane', 'sample_date'],
+    unique_key=['detector_id', 'sample_date'],
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -30,7 +30,7 @@ detector_status as (
         set_assgnmt.active_date,
         set_assgnmt.station_id,
         set_assgnmt.district,
-        set_assgnmt.type,
+        set_assgnmt.station_type,
         sps.* exclude (district, station_id),
         dfc.district_feed_working,
         co.min_occupancy_delta,
