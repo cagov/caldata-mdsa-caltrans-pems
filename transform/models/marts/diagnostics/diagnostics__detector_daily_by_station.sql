@@ -3,28 +3,40 @@
 with
 
 detector_status as (
+    select * from {{ ref("int_diagnostics__detector_status") }}
+),
+
+detector_status_with_count as (
     select
-        *,
+        district,
+        station_id,
+        lane,
+        detector_id,
+        station_type,
+        sample_date,
+        sample_ct,
         count_if(status = 'Good') as good_detector,
         count_if(status != 'Good') as bad_detector
-    from {{ ref("int_diagnostics__detector_status") }}
+    from detector_status
+    group by district, station_id, lane, detector_id, station_type, sample_date, sample_ct
 ),
 
 detector_status_by_station as (
     select
         district,
         station_id,
+        station_type,
         sample_date,
         count(detector_id) as detector_count,
-        avg(sample_ct) as average_sample_count,
+        round(avg(sample_ct)) as average_sample_count,
         sum(good_detector) as good_detector_count,
         sum(bad_detector) as bad_detector_count
-    from detector_status
-    group by district, station_id, sample_date
+    from detector_status_with_count
+    group by district, station_id, station_type, sample_date
 ),
 
 dmeta as (
-    select * from {{ ref('int_vds__detector_config') }}
+    select * from {{ ref('int_vds__station_config') }}
 ),
 
 detector_status_by_station_with_metadata as (

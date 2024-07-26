@@ -15,6 +15,7 @@ source as (
 district_feed_check as (
     select
         source.district,
+        source.sample_date,
         case
             when (count_if(source.sample_ct > 0)) > 0 then 'Yes'
             else 'No'
@@ -22,7 +23,7 @@ district_feed_check as (
     from source
     inner join {{ ref('districts') }} as d
         on source.district = d.district_id
-    group by source.district
+    group by source.district, source.sample_date
 ),
 
 detector_status as (
@@ -89,7 +90,9 @@ detector_status as (
         on
             sps.station_id = co.station_id and sps.lane = co.lane and sps.sample_date = co.sample_date
     left join district_feed_check as dfc
-        on set_assgnmt.district = dfc.district
+        on
+            set_assgnmt.district = dfc.district
+            and set_assgnmt.active_date = dfc.sample_date
 )
 
-select * from detector_status
+select * from detector_status where sample_date is not null
