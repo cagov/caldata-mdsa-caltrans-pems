@@ -116,5 +116,5 @@ models:
         description: The number of good detectors per day and station
       - name: average_sample_count
         description: |
-          The average number of samples from all detectors reported from 
+          The average number of samples from all detectors reported from
           per station and day
