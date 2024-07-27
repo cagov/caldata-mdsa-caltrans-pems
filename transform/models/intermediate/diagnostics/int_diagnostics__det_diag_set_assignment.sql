@@ -10,9 +10,9 @@ station_diagnostic_set_assign as (
     */
     select
         active_date,
-        id as station_id,
+        station_id,
         district,
-        type,
+        station_type,
         _valid_from as station_valid_from,
         _valid_to as station_valid_to,
         case
@@ -28,7 +28,7 @@ station_diagnostic_set_assign as (
             else 'Urban'
         end as station_diagnostic_set_id,
         case
-            when type = 'OR' then 'ramp'
+            when station_type in ('FR', 'OR') then 'ramp'
             else 'mainline'
         end as station_diagnostic_method_id
 

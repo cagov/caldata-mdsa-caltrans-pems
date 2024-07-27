@@ -137,3 +137,7 @@ models:
     description: |
       Contains station meta data for all stations that were designated active on any
       given day.
+  - name: int_clearinghouse__active_detectors
+    description: |
+      Contains detector meta data for all detectors that were designated active on any
+      given day.

@@ -1,0 +1,120 @@
+version: 2
+
+models:
+  - name: diagnostics__detector_daily_detail
+    description: |
+      This file contains detector status data aggregated to the deetector level.
+    columns:
+      - name: station_id
+        description: The unique ID of the station.
+        tests:
+          - not_null
+      - name: status
+        description: |
+          The detector health value based on a series of validations made from
+          sample counts
+        tests:
+          - not_null
+      - name: sample_date
+        description: The date associated with raw data samples being counted.
+        tests:
+          - not_null
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station installed.
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: physical_lanes
+        description: The number of lanes in the station
+      - name: state_postmile
+        description: The State postmile for the station.
+      - name: absolute_postmile
+        description: The absolute postmile for the station.
+      - name: latitude
+        description: The latitude of the station.
+      - name: longitude
+        description: The longitude of the station.
+      - name: detector_id
+        description: The unique ID of the detector.
+      - name: sample_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) and occupancy
+          values contain any non-null value
+      - name: zero_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) value
+          equals 0
+      - name: zero_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy
+          value equals 0
+      - name: zero_vol_pos_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow)
+          value equals 0 but occupancy is greater than 0
+      - name: zero_occ_pos_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy
+          value equals 0 but volume (flow) is greater than 0
+      - name: high_volume_ct
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high value threshold
+          detector diagnostic parameter for a station.
+      - name: high_occupancy_ct
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value threshold
+          detector diagnostic parameter for a station.
+      - name: active_date
+        description: |
+          Date a station is considered active based on the meta data configuration file from district.
+          This value determines what calculations or diagnostics are associated with a station and it's
+          assocaited detectors on any given date while it is active.
+  - name: diagnostics__detector_daily_by_station
+    description: |
+      This file contains detector status data aggregated to the station level.
+    columns:
+      - name: station_id
+        description: The unique ID of the station.
+        tests:
+          - not_null
+      - name: sample_date
+        description: The date associated with raw data samples being counted.
+        tests:
+          - not_null
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station installed.
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: physical_lanes
+        description: The number of lanes in the station
+      - name: state_postmile
+        description: The State postmile for the station.
+      - name: absolute_postmile
+        description: The absolute postmile for the station.
+      - name: latitude
+        description: The latitude of the station.
+      - name: longitude
+        description: The longitude of the station.
+      - name: good_detector_count
+        description: The number of good detectors per day and station
+      - name: bad_detector_count
+        description: The number of good detectors per day and station
+      - name: average_sample_count
+        description: |
+          The average number of samples from all detectors reported from 
+          per station and day
