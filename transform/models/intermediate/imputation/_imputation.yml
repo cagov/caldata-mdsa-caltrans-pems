@@ -9,32 +9,32 @@ models:
       to vary with time, and for there to be backup measurements if one detector
       or the other are not operational for the regression dates.
     columns:
-      - name: id
+      - name: STATION_ID
         description: The ID of the station with the dependent variables.
-      - name: other_id
+      - name: OTHER_ID
         description: The ID of the station with the independent variables.
-      - name: lane
+      - name: LANE
         description: The lane of the detector with the dependent variables.
-      - name: other_lane
+      - name: OTHER_LANE
         description: The lane of the detector with the independent variables.
-      - name: district
+      - name: DISTRICT
         description: The district of the dependent detector.
-      - name: regression_date
+      - name: REGRESSION_DATE
         description: |
           The starting date for the regression. The regressions are evaluated
           over several days, but things like joins with slowly-changing-dimensions
           (i.e., `_valid_from`) are based on the start date.
-      - name: speed_slope
+      - name: SPEED_SLOPE
         description: The slope of the speed regression.
-      - name: speed_intercept
+      - name: SPEED_INTERCEPT
         description: The intercept of the speed regression.
-      - name: volume_slope
+      - name: VOLUME_SLOPE
         description: The slope of the volume regression.
-      - name: volume_intercept
+      - name: VOLUME_INTERCEPT
         description: The intercept of the volume regression.
-      - name: occupancy_slope
+      - name: OCCUPANCY_SLOPE
         description: The slope of the occupancy regression.
-      - name: occupancy_intercept
+      - name: OCCUPANCY_INTERCEPT
         description: The intercept of the occupancy regression.
       - name: OTHER_STATION_IS_LOCAL
         description: |
@@ -52,7 +52,7 @@ models:
       only for bad detectors while observe value is reported for the good
       detectors.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: The station ID.
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
@@ -61,6 +61,16 @@ models:
       - name: LANE
         description: |
           The lane number of the detector, starting from 1.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DETECTOR_IS_GOOD
+        description: Status of the detector based detector's diagonostics.
       - name: VOLUME_SUM
         description: The sum of the flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
@@ -68,33 +78,36 @@ models:
       - name: SPEED_WEIGHTED
         description: |
           Flow-weighted speed reported by the device.
-      - name: volume_local_regression
+      - name: SPEED_FIVE_MINS
+        description: |
+          Flow-weighted observed or imputed speed for five minutes time period.
+      - name: VOLUME_LOCAL_REGRESSION
         description: The volume based on local regressions.
-      - name: occupancy_local_regression
+      - name: OCCUPANCY_LOCAL_REGRESSION
         description: The occupancy based on local regressions.
-      - name: speed_local_regression
+      - name: SPEED_LOCAL_REGRESSION
         description: The speed based on local regressions.
-      - name: volume_regional_regression
+      - name: VOLUME_REGIONAL_REGRESSION
         description: The volume based on regional regressions
-      - name: occupancy_regional_regression
+      - name: OCCUPANCY_REGIONAL_REGRESSION
         description: The occupancy based on regional regressions.
-      - name: speed_regional_regression
+      - name: SPEED_REGIONAL_REGRESSION
         description: The speed based on regional regressions.
-      - name: volume_global_regression
+      - name: VOLUME_GLOBAL_REGRESSION
         description: The volume based on global regressions
-      - name: occupancy_global_regression
+      - name: OCCUPANCY_GLOBAL_REGRESSION
         description: The occupancy based on global regressions.
-      - name: speed_global_regression
+      - name: SPEED_GLOBAL_REGRESSION
         description: The speed based on global regressions.
-      - name: local_regression_date
+      - name: LOCAL_REGRESSION_DATE
         description: |
           The date on which the coefficients in the local regression
           were evaluated.
-      - name: regional_regression_date
+      - name: REGIONAL_REGRESSION_DATE
         description: |
           The date on which the coefficients in the regional regression
           were evaluated.
-      - name: global_regression_date
+      - name: GLOBAL_REGRESSION_DATE
         description: |
           The date on which the coefficients in the global regression
           were evaluated.
@@ -127,8 +140,10 @@ models:
       - name: VOLUME_SUM
         description: observed or imputed flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
-        description: The average of the observed or imputed occupancy values over the sample period.
-      - name: speed_five_mins
+      - name: SPEED_WEIGHTED
+        description: |
+          Flow-weighted speed reported by the device.
+      - name: SPEED_FIVE_MINS
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
       - name: SPEED_IMPUTATION_METHOD
@@ -137,7 +152,7 @@ models:
         description: The method (local/regional/global) used to impute the volume.
       - name: OCCUPANCY_IMPUTATION_METHOD
         description: The method (local/regional/global) used to impute the occupancy.
-      - name: regression_date
+      - name: REGRESSION_DATE
         description: |
           The date on which the coefficients in the regression
           were evaluated.
@@ -164,19 +179,19 @@ models:
         description: The freeway where the VDS is located.
       - name: STATION_TYPE
         description: Two character string identify the VDS type.
-      - name: regression_date
+      - name: REGRESSION_DATE
         description: |
           The date on which the coefficients in the global regression
           were evaluated.
-      - name: speed_slope
+      - name: SPEED_SLOPE
         description: The slope of the speed regression.
-      - name: speed_intercept
+      - name: SPEED_INTERCEPT
         description: The intercept of the speed regression.
-      - name: volume_slope
+      - name: VOLUME_SLOPE
         description: The slope of the volume regression.
-      - name: volume_intercept
+      - name: VOLUME_INTERCEPT
         description: The intercept of the volume regression.
-      - name: occupancy_slope
+      - name: OCCUPANCY_SLOPE
         description: The slope of the occupancy regression.
-      - name: occupancy_intercept
+      - name: OCCUPANCY_INTERCEPT
         description: The intercept of the occupancy regression.
