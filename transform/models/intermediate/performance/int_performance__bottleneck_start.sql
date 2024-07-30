@@ -12,7 +12,7 @@ station_five_minute as (
         station_id,
         sample_date,
         sample_timestamp,
-        speed_five_mins,
+        nullifzero(speed_five_mins) as speed_five_mins,
         freeway,
         direction,
         station_type,
