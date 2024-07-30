@@ -84,3 +84,5 @@ models:
       +database: "{{ env_var('DBT_ANALYTICS_DB', 'ANALYTICS_DEV') }}"
       performance:
         +schema: performance
+      diagnostics:
+        +schema: diagnostics

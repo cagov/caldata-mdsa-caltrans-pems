@@ -26,7 +26,7 @@ detector_status_by_station as (
         station_id,
         station_type,
         sample_date,
-        count(lane) as detector_count,
+        count(*) as detector_count,
         round(avg(sample_ct)) as average_sample_count,
         sum(good_detector) as good_detector_count,
         sum(bad_detector) as bad_detector_count
