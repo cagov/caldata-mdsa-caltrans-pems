@@ -1,6 +1,36 @@
 version: 2
 
 macros:
+  - name: generate_schema_name
+    description: |
+      Returns the name of a schema in which a model should land in Snowflake.
+
+      For production models, the value from `dbt_project.yml` will be used, or any
+      custom name provided in the model's config block.
+
+      For development models, the schema from `profiles.yml` will be prepended
+      to the custom value found in `dbt_project.yml` or the model's config block.
+
+    arguments:
+      - name: custom_schema_name
+        type: string
+        description: |
+          The schema provided via `dbt_project.yml` or model config
+      - name: node
+        type: string
+        description: |
+          The node that is currently being processed by dbt
+
+  - name: get_snowflake_warehouse
+    description: |
+      Returns the name of a Snowflake warehouse, given an input size. The dbt target
+      (i.e. 'dev' or 'prd') is taken into account when returning a warehouse.
+    arguments:
+      - name: size
+        type: string
+        description: |
+          Snowflake warehouse size (default is 'XS')
+
   - name: get_snowflake_refresh_warehouse
     description: |
       Full refreshes of incremental models sometimes need a little bit of
@@ -9,7 +39,17 @@ macros:
       the following conditions are met:
 
       * The target table doesn't exist (i.e., hasn't been built yet)
-      * the `--full-refresh` flag is set via the CLI.
+      * The `--full-refresh` flag is set via the CLI.
+    arguments:
+      - name: small
+        type: string
+        description: |
+          Snowflake warehouse size to use when *not* performing a full-refresh
+      - name: big
+        type: string
+        description: |
+          Snowflake warehouse size to use when performing a full-refresh
+
   - name: make_model_incremental
     description: |
       This allows for the implementation of complex incremental model
@@ -20,8 +60,14 @@ macros:
       "dev_model_look_back", which limits the amount of data selected in dev.
       Two things to note:
         1. Users implement their own date column
-        2. This macros does not include a "where" keyword, but does include
+        2. This macro does not include a "where" keyword, but does include
         "and". Users are expected to use a "where" clause when implementing this.
+    arguments:
+      - name: date_col
+        type: string
+        description: |
+          Name of date column to use for limiting selected data
+
   - name: unload_relation
     description: |
       Unloads a table or view to the project public marts bucket. The resulting file
