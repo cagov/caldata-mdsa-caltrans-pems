@@ -88,3 +88,6 @@ models:
         +schema: imputation
       diagnostics:
         +schema: diagnostics
+      geo:
+        +schema: geo
+        +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"
