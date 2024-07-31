@@ -133,7 +133,3 @@ models:
         description: |
           Speed in the lane as measured by the detector in miles/hour.
           Weighted by count of samples in each period.
-  - name: int_clearinghouse__active_stations
-    description: |
-      Contains station meta data for all stations that were designated active on any
-      given day.
