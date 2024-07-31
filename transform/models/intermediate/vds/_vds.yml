@@ -170,3 +170,13 @@ models:
           The station was ranked based on absolute ascending distance value from
           targetted station to upstream and downstream stations in purpose of identifying local,
           and regional stations for imputation.
+
+  - name: int_vds__active_stations
+    description: |
+      Contains station meta data for all stations that were designated active on any
+      given day.
+
+  - name: int_vds__active_detectors
+    description: |
+      Contains detector meta data for all detectors that were designated active on any
+      given day.
