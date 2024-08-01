@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','other_id','lane', 'other_lane','regression_date'],
-    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+    unique_key=['station_id','other_station_id','lane', 'other_lane','regression_date'],
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
 -- Generate dates using dbt_utils.date_spine
@@ -26,11 +26,18 @@ regression_dates as (
 ),
 
 regression_dates_to_evaluate as (
-    select * from regression_dates
-    {% if is_incremental() %}
-        minus
-        select distinct regression_date from {{ this }}
-    {% endif %}
+    select cast (value as date) as regression_date from table(
+        flatten(
+            [
+                cast ('2023-02-03' as date),
+                cast ('2023-05-03' as date),
+                cast ('2023-08-03' as date),
+                cast ('2023-11-03' as date),
+                cast ('2024-02-03' as date),
+                cast ('2024-05-03' as date)
+            ]
+        )
+    )
 ),
 
 -- Select all station pairs that are active for the chosen regression dates
