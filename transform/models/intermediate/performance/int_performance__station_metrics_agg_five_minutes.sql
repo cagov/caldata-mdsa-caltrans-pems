@@ -1,5 +1,6 @@
 {{ config(
     materialized="incremental",
+    on_schema_change="append_new_columns",
     cluster_by=["sample_date"],
     unique_key=["station_id", "sample_date", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL")
