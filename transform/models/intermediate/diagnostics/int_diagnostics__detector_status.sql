@@ -78,7 +78,7 @@ detector_status as (
         set_assgnmt.active_date,
         set_assgnmt.station_id,
         set_assgnmt.district,
-        set_assgnmt.type,
+        set_assgnmt.station_type,
         sps.* exclude (district, station_id),
         dfc.district_feed_working,
         co.min_occupancy_delta,
@@ -121,7 +121,9 @@ detector_status as (
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
                 > (set_assgnmt.occupancy_flow_percent / 100)
                 then 'Intermittent'
-            when coalesce(co.min_occupancy_delta = 0, false)
+            when
+                coalesce(co.min_occupancy_delta = 0, false)
+                and set_assgnmt.station_diagnostic_method_id = 'mainline'
                 then 'Constant'
             --Feed unstable case needed
             else 'Good'

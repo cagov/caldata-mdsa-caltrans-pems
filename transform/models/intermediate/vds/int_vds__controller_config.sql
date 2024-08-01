@@ -28,6 +28,7 @@ config_scd as (
     from config_log_with_validity
     left join config
         on config_log_with_validity.controller_id = config.controller_id
+    where config_log_with_validity.status = 1
 )
 
 select * from config_scd
