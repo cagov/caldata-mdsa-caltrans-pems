@@ -1,4 +1,7 @@
-{{ config(materialized="table") }}
+{{ config(
+    materialized="table",
+    unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
+) }}
 
 with
 
