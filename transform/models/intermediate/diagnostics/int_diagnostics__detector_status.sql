@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
-    cluster_by=['active_date'],
-    unique_key=['station_id', 'lane', 'active_date'],
+    cluster_by=['sample_date'],
+    unique_key=['station_id', 'lane', 'sample_date'],
     on_schema_change='sync_all_columns',
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
@@ -28,7 +28,7 @@ district_feed_check as (
 
 source_with_detector_metadata as (
     select
-        dm.active_date,
+        dm.active_date as sample_date,
         dm.station_id,
         dm.district,
         dm.physical_lanes,
@@ -49,7 +49,7 @@ detector_status as (
         set_assgnmt.station_id,
         set_assgnmt.district,
         set_assgnmt.station_type,
-        sps.* exclude (active_date, district, station_id),
+        sps.* exclude (district, station_id),
         dfc.district_feed_working,
         co.min_occupancy_delta,
         case
@@ -103,11 +103,13 @@ detector_status as (
     left join source_with_detector_metadata as sps
         on
             set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.active_date = sps.active_date
+            and set_assgnmt.active_date = sps.sample_date
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
-            sps.station_id = co.station_id and sps.physical_lanes = co.lane and sps.active_date = co.sample_date
+            sps.station_id = co.station_id
+            and sps.physical_lanes = co.lane
+            and sps.sample_date = co.sample_date
     left join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
 )
