@@ -16,7 +16,7 @@ with base as (
 /* Get all detectors that are "real" in that they represent lanes that exist
    (rather than lane 8 in a two lane road) with a status of "Good" */
 good_detectors as (
-    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    select * from {{ ref('int_diagnostics__detector_status') }}
     where status = 'Good'
 ),
 
