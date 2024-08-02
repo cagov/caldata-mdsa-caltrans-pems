@@ -26,18 +26,11 @@ regression_dates as (
 ),
 
 regression_dates_to_evaluate as (
-    select cast(value as date) as regression_date from table(
-        flatten(
-            [
-                cast('2023-02-03' as date),
-                cast('2023-05-03' as date),
-                cast('2023-08-03' as date),
-                cast('2023-11-03' as date),
-                cast('2024-02-03' as date),
-                cast('2024-05-03' as date)
-            ]
-        )
-    )
+    select * from regression_dates
+    {% if is_incremental() %}
+        minus
+        select distinct regression_date from {{ this }}
+    {% endif %}
 ),
 
 -- Select all station pairs that are active for the chosen regression dates
