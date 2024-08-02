@@ -26,15 +26,15 @@ regression_dates as (
 ),
 
 regression_dates_to_evaluate as (
-    select cast (value as date) as regression_date from table(
+    select cast(value as date) as regression_date from table(
         flatten(
             [
-                cast ('2023-02-03' as date),
-                cast ('2023-05-03' as date),
-                cast ('2023-08-03' as date),
-                cast ('2023-11-03' as date),
-                cast ('2024-02-03' as date),
-                cast ('2024-05-03' as date)
+                cast('2023-02-03' as date),
+                cast('2023-05-03' as date),
+                cast('2023-08-03' as date),
+                cast('2023-11-03' as date),
+                cast('2024-02-03' as date),
+                cast('2024-05-03' as date)
             ]
         )
     )
@@ -45,7 +45,8 @@ nearby_stations as (
     select
         nearby.station_id,
         nearby.other_station_id,
-        nearby.other_station_is_local
+        nearby.other_station_is_local,
+        regression_dates_to_evaluate.regression_date
     from {{ ref('int_vds__nearby_stations') }} as nearby
     inner join regression_dates_to_evaluate
         on
@@ -61,7 +62,7 @@ good_detectors as (
         lane,
         district,
         sample_date
-    from {{ ref("int_diagnostics__real_detector_status") }}
+    from {{ ref("int_diagnostics__detector_status") }}
     where status = 'Good'
 ),
 
@@ -93,7 +94,6 @@ detector_counts as (
     inner join regression_dates_to_evaluate
         on
             agg.sample_date >= regression_dates_to_evaluate.regression_date
-            -- TODO: use variable for regression window
             and agg.sample_date
             < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
@@ -123,7 +123,10 @@ detector_counts_pairwise as (
         b.occupancy_avg as other_occupancy,
         nearby_stations.other_station_is_local
     from detector_counts as a
-    left join nearby_stations on a.station_id = nearby_stations.station_id
+    left join nearby_stations
+        on
+            a.station_id = nearby_stations.station_id
+            and a.regression_date = nearby_stations.regression_date
     inner join detector_counts as b
         on
             nearby_stations.other_station_id = b.station_id
