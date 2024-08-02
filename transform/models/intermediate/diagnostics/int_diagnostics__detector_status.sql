@@ -31,7 +31,7 @@ source_with_detector_metadata as (
         dm.active_date as sample_date,
         dm.station_id,
         dm.district,
-        dm.physical_lanes,
+        dm.physical_lanes as lane,
         sps.* exclude (sample_date, district, station_id, lane)
     from {{ ref ('int_vds__active_stations') }} as dm
     left outer join source as sps
@@ -108,7 +108,7 @@ detector_status as (
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             sps.station_id = co.station_id
-            and sps.physical_lanes = co.lane
+            and sps.lane = co.lane
             and sps.sample_date = co.sample_date
     left join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
