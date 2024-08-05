@@ -11,7 +11,7 @@ models:
     columns:
       - name: STATION_ID
         description: The ID of the station with the dependent variables.
-      - name: OTHER_ID
+      - name: OTHER_STATION_ID
         description: The ID of the station with the independent variables.
       - name: LANE
         description: The lane of the detector with the dependent variables.

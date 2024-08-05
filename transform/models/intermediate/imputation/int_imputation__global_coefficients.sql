@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     unique_key=['station_id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
-    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
 -- Generate dates using dbt_utils.date_spine
@@ -41,7 +41,7 @@ good_detectors as (
         lane,
         district,
         sample_date
-    from {{ ref("int_diagnostics__real_detector_status") }}
+    from {{ ref("int_diagnostics__detector_status") }}
     where status = 'Good'
 ),
 

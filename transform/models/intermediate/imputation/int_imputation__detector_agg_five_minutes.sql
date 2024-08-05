@@ -16,7 +16,7 @@ with base as (
 /* Get all detectors that are "real" in that they represent lanes that exist
    (rather than lane 8 in a two lane road) with a status of "Good" */
 good_detectors as (
-    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    select * from {{ ref('int_diagnostics__detector_status') }}
     where status = 'Good'
 ),
 
@@ -126,7 +126,7 @@ samples_not_requiring_imputation as (
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples_requiring_imputation.*,
-        local_regional_coeffs.other_id,
+        local_regional_coeffs.other_station_id,
         local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
         local_regional_coeffs.speed_intercept,
@@ -158,7 +158,7 @@ samples_requiring_imputation_with_local_neighbors as (
     from samples_requiring_imputation_with_local_regional_coeffs as local_imp
     inner join samples_not_requiring_imputation as non_imp
         on
-            local_imp.other_id = non_imp.station_id
+            local_imp.other_station_id = non_imp.station_id
             and local_imp.sample_date = non_imp.sample_date
             and local_imp.sample_timestamp = non_imp.sample_timestamp
     where local_imp.other_station_is_local = true
@@ -177,7 +177,7 @@ samples_requiring_imputation_with_regional_neighbors as (
     from samples_requiring_imputation_with_local_regional_coeffs as regional_imp
     inner join samples_not_requiring_imputation as non_imp
         on
-            regional_imp.other_id = non_imp.station_id
+            regional_imp.other_station_id = non_imp.station_id
             and regional_imp.sample_date = non_imp.sample_date
             and regional_imp.sample_timestamp = non_imp.sample_timestamp
 ),
