@@ -28,15 +28,15 @@ Here we can see a [GIS representation of bottleneck](https://gisdata-caltrans.op
 
 **North/East**
 Absolute postmile increases going north and east. This means when the direction of the freeway for a station is north or east, the **"upstream" station has a smaller postmile**, and we need to *lag* our calculations.
-![Example of north or east bound bottlnecks](images/Bottlenecks_NE.png)
+![Example of north or east bound bottlenecks](images/Bottlenecks_NE.png)
 
 **South or West**
 Absolute postmile decreases going south and west. This means when the direction of the freeway for a station is south or west, the **"upstream" station has a larger postmile**, and we need to *lead* our calculations.
-![Example of south or west bound bottlnecks](images/Bottlenecks_SW.png)
+![Example of south or west bound bottlenecks](images/Bottlenecks_SW.png)
 
 Bottlenecks are analyzed across all lanes so any variables we use in developing bottleneck-related calculations should also be across all lanes at a given station. This also means we do not partition the data by lane.
 
 Additional information about bottlenecks from FHWA can be found at the following links. These details do not impact current bottleneck analysis but can be useful in future discussions: https://ops.fhwa.dot.gov/bn/lbr.htm and https://ops.fhwa.dot.gov/bn/bnchart.htm
 
 Below we can see an example of five instances (highlighted in green) of when the four conditions mentioned above are met out of a rolling window of 7.
-![Example of bottlnecks being flagged for 5 rows in a window of 7](images/bottleneck_ex_1.png)
+![Example of bottlenecks being flagged for 5 rows in a window of 7](images/bottleneck_ex_1.png)
