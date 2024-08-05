@@ -30,11 +30,13 @@ Here we can see a [GIS representation of bottleneck](https://gisdata-caltrans.op
 [read additional details](https://dot.ca.gov/programs/traffic-operations/mpr/bottleneck) of what this map represents.
 
 When performing calculations for bottlenecks, we observe that absolute postmile increases going north and east. This means when the direction of the freeway for a
-station is **north or east**, the **"upstream" station has a smaller postmile**, and we need to lag our calculations. When the direction is **west or south**, the
-**"upstream" station has a larger postmile**, and we need to lead to get the speed there.
+station is **north or east**, the **"upstream" station has a smaller postmile**, and we need to *lag* our calculations. When the direction is **west or south**, the
+**"upstream" station has a larger postmile**, and we need to *lead* to get the speed there.
 
 Bottlenecks are analyzed across all lanes so any variables we use in developing bottleneck-related calculations should also be across all lanes at a given station.
 This also means we do not partition the data by lane.
 
 Additional information about bottlenecks from FHWA can be found at the following links. These details do not impact current bottleneck analysis but can be useful
 in future discussions: https://ops.fhwa.dot.gov/bn/lbr.htm and https://ops.fhwa.dot.gov/bn/bnchart.htm
+
+Below we can see an example of five instances (highlighted in green) of when the four conditions mentioned above are met out of a rolling window of 7.
