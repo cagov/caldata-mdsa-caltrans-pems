@@ -67,7 +67,7 @@ def snowflake_connection_from_environment(**kwargs):
         "database": database,
         "schema": schema,
         "role": role,
-        "authenticator": authenticator
+        "authenticator": authenticator,
     }
 
     # Check that there is only one authentication mechanism implied between
