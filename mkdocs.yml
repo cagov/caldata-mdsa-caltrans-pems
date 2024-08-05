@@ -31,3 +31,4 @@ nav:
   - Data:
       - Exploratory Data Analysis: data/exploratory-data-analysis.md
       - Data Relay: data/data-relay.md
+      - Bottlenecks: data/bottlenecks.md
