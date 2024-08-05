@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','other_id','lane', 'other_lane','regression_date'],
-    snowflake_warehouse=get_snowflake_warehouse(size="XL")
+    unique_key=['station_id','other_station_id','lane', 'other_lane','regression_date'],
+    on_schema_change="append_new_columns",
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
 -- Generate dates using dbt_utils.date_spine
@@ -33,17 +34,29 @@ regression_dates_to_evaluate as (
     {% endif %}
 ),
 
+agg as (
+    select *
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+),
+
 -- Select all station pairs that are active for the chosen regression dates
 nearby_stations as (
     select
         nearby.station_id,
         nearby.other_station_id,
-        nearby.other_station_is_local
+        nearby.other_station_is_local,
+        regression_dates_to_evaluate.regression_date
     from {{ ref('int_vds__nearby_stations') }} as nearby
     inner join regression_dates_to_evaluate
         on
             nearby._valid_from <= regression_dates_to_evaluate.regression_date
             and regression_dates_to_evaluate.regression_date < coalesce(nearby._valid_to, current_date)
+    /* This filters the nearby_stations model further to make sure we don't do the pairwise
+    join below on more dates than we need. In theory, the parwise join *should* be able to
+    do this filtering already, but in some profiling Snowflake was doing some join reordering
+    that caused an unnecessary row explosion, where the date filtering was happening
+    after the pairwise join. So this helps avoid that behavior. */
+    where regression_dates_to_evaluate.regression_date >= (select min(sample_date) from agg)
 ),
 
 -- Get all of the detectors that are producing good data, based on
@@ -54,13 +67,8 @@ good_detectors as (
         lane,
         district,
         sample_date
-    from {{ ref("int_diagnostics__real_detector_status") }}
+    from {{ ref("int_diagnostics__detector_status") }}
     where status = 'Good'
-),
-
-agg as (
-    select *
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
@@ -86,7 +94,6 @@ detector_counts as (
     inner join regression_dates_to_evaluate
         on
             agg.sample_date >= regression_dates_to_evaluate.regression_date
-            -- TODO: use variable for regression window
             and agg.sample_date
             < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
@@ -103,7 +110,7 @@ detector_counts as (
 detector_counts_pairwise as (
     select
         a.station_id,
-        b.station_id as other_id,
+        b.station_id as other_station_id,
         a.district,
         a.regression_date,
         a.lane,
@@ -116,7 +123,10 @@ detector_counts_pairwise as (
         b.occupancy_avg as other_occupancy,
         nearby_stations.other_station_is_local
     from detector_counts as a
-    left join nearby_stations on a.station_id = nearby_stations.station_id
+    left join nearby_stations
+        on
+            a.station_id = nearby_stations.station_id
+            and a.regression_date = nearby_stations.regression_date
     inner join detector_counts as b
         on
             nearby_stations.other_station_id = b.station_id
@@ -129,7 +139,7 @@ detector_counts_pairwise as (
 detector_counts_regression as (
     select
         station_id,
-        other_id,
+        other_station_id,
         lane,
         other_lane,
         district,
@@ -145,8 +155,8 @@ detector_counts_regression as (
         regr_slope(occupancy, other_occupancy) as occupancy_slope,
         regr_intercept(occupancy, other_occupancy) as occupancy_intercept
     from detector_counts_pairwise
-    where not (station_id = other_id and lane = other_lane)-- don't bother regressing on self!
-    group by station_id, other_id, lane, other_lane, district, regression_date, other_station_is_local
+    where not (station_id = other_station_id and lane = other_lane)-- don't bother regressing on self!
+    group by station_id, other_station_id, lane, other_lane, district, regression_date, other_station_is_local
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having
