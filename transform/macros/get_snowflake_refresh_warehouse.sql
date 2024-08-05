@@ -1,4 +1,4 @@
-{% macro get_snowflake_refresh_warehouse(big="4XL", small="XS") %}
+{% macro get_snowflake_refresh_warehouse(big="XL", small="XS") %}
   {% if target.name == 'prd' %}
     {% set suffix = 'PRD' %}
   {% else %}
