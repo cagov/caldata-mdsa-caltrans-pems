@@ -31,7 +31,7 @@ source_with_detector_metadata as (
         dm.active_date as sample_date,
         dm.station_id,
         dm.district,
-        dm.physical_lanes as lane,
+        cast(dm.physical_lanes as NUMBER(1, 0)) as lane,
         sps.* exclude (sample_date, district, station_id, lane)
     from {{ ref ('int_vds__active_stations') }} as dm
     left outer join source as sps
