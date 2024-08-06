@@ -528,6 +528,6 @@ sources:
           - name: "Direction"
             description: The direction of the highway. Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
           - name: "Shape__Length"
-            description:
+            description: The length of the state highway.
           - name: "geometry"
-            description:
+            description: The geometry of the state highway.
