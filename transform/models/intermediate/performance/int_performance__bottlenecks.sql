@@ -157,7 +157,8 @@ congestion_length as (
                     )
         end as bottleneck_extent
     from congestion_events
-    qualify is_bottleneck = true  -- TODO: also filter if upstream is a bottleneck start?
+    qualify is_bottleneck = true and congestion_status_change = 1 -- TODO: also filter if upstream is a bottleneck start?
+    
 )
 
 select * from congestion_length
