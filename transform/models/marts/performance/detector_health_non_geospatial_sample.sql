@@ -8,7 +8,7 @@ WITH DETECTOR_HEALTH AS (
         D.LANE,
         D.SAMPLE_DATE,
         D.STATUS
-    FROM {{ ref('int_diagnostics__real_detector_status') }} AS D
+    FROM {{ ref('int_diagnostics__detector_status') }} AS D
     WHERE D.SAMPLE_DATE = '2024-07-18'
 )
 
