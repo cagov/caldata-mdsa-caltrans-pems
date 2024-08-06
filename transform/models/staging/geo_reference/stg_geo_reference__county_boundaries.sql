@@ -11,6 +11,6 @@ select
     DISTRICT,
     "Shape__Area" as AREA,
     "Shape__Length" as LENGTH,
-    GEOMETRY
+    "geometry" as GEOMETRY
 
-from {{ source('geo_reference', 'county_boundaries') }}
+from {{ source('geo_reference', 'COUNTY_BOUNDARIES') }}

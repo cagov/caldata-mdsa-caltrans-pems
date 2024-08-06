@@ -47,15 +47,15 @@ models:
       [Data source](https://gisdata-caltrans.opendata.arcgis.com/datasets/0144574f750f4ccc88749004aca6eb0c_0/about)
     columns:
       - name: DISTRICT
-        description: tk
-      - name: Region
-        description: tk
+        description: The territorial division (as for administrative or electoral purposes). Values are 1-12.
+      - name: REGION
+        description: The administrative area of the district.
       - name: AREA
-        description: tk
+        description: The area of the district.
       - name: LENGTH
-        description: tk
+        description: The length of the district.
       - name: GEOMETRY
-        description: tk
+        description: The geometry of the district.
   - name: stg_geo_reference__shn_lines
     description: |
       StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
@@ -85,9 +85,7 @@ models:
       these values as each highway is realigned (and made longer or shorter) over time. [Data
       source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
     columns:
-      - name: Route
-        description: tk
-      - name: RteSuffix
+      - name: ROUTE
         description: tk
       - name: RouteS
         description: tk
@@ -115,11 +113,11 @@ models:
         description: tk
       - name: AlignCode
         description: tk
-      - name: RouteType
+      - name: ROUTE_TYPE
         description: tk
-      - name: Direction
+      - name: DIRECTION
         description: tk
-      - name: Shape__Length
+      - name: LENGTH
         description: tk
-      - name: geometry
+      - name: GEOMETRY
         description: tk

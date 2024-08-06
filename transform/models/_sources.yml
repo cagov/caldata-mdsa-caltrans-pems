@@ -413,7 +413,7 @@ sources:
     schema: geo_reference
     description: tk
     tables:
-      - name: county_boundaries
+      - name: COUNTY_BOUNDARIES
         description: |
           This polygon feature class represents the California county boundaries. Based on TIGER/Line 2010 county
           files, the Caltrans districts and California county name abbreviation were added to this layer for
@@ -442,9 +442,9 @@ sources:
             description: The area of the county boundary.
           - name: "Shape__Length"
             description: The length of the county boundary.
-          - name: GEOMETRY
+          - name: "geometry"
             description: The geometry of the county boundary.
-      - name: districts
+      - name: DISTRICTS
         description: |
           The District feature class is a polygon coverage representing the California Department of Transportation
           (Caltrans) district boundaries. There are 12 Caltrans Districts in California. Caltrans also has Regions
@@ -458,9 +458,17 @@ sources:
           respectively. The BOE data was also used to create the district boundary layers along the coastline.
           [Data source](https://gisdata-caltrans.opendata.arcgis.com/datasets/0144574f750f4ccc88749004aca6eb0c_0/about)
         columns:
-          - name: tk
-            description: tk
-      - name: shn_lines
+          - name: DISTRICT
+            description: The territorial division (as for administrative or electoral purposes). Values are 1-12.
+          - name: "Region"
+            description: The administrative area of the district.
+          - name: "Shape__Area"
+            description: The area of the district.
+          - name: "Shape__Length"
+            description: The length of the district.
+          - name: "geometry"
+            description: The geometry of the district.
+      - name: SHN_LINES
         description: |
           StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
           layer represents a highway segment where the county, route, postmile prefix, and postmile suffix are the
@@ -489,5 +497,39 @@ sources:
           these values as each highway is realigned (and made longer or shorter) over time. [Data
           source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
         columns:
-          - name: tk
-            description: tk
+          - name: "Route"
+            description: 
+          - name: "RouteS"
+            description:
+          - name: "PMRouteID"
+            description:
+          - name: "County"
+            description:
+          - name: "District"
+            description:
+          - name: "PMPrefix"
+            description:
+          - name: "bPM"
+            description:
+          - name: "ePM"
+            description:
+          - name: "PMSuffix"
+            description:
+          - name: "bPMc"
+            description:
+          - name: "ePMc"
+            description:
+          - name: "bOdometer"
+            description:
+          - name: "eOdometer"
+            description:
+          - name: "AlignCode"
+            description:
+          - name: "RouteType"
+            description:
+          - name: "Direction"
+            description:
+          - name: "Shape__Length"
+            description:
+          - name: "geometry"
+            description:
