@@ -85,39 +85,37 @@ models:
       these values as each highway is realigned (and made longer or shorter) over time. [Data
       source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
     columns:
-      - name: ROUTE
-        description: tk
-      - name: RouteS
-        description: tk
-      - name: PMRouteID
-        description: tk
-      - name: County
-        description: tk
-      - name: District
-        description: tk
-      - name: PMPrefix
-        description: tk
-      - name: bPM
-        description: tk
-      - name: ePM
-        description: tk
-      - name: PMSuffix
-        description: tk
-      - name: bPMc
-        description: tk
-      - name: ePMc
-        description: tk
-      - name: bOdometer
-        description: tk
-      - name: eOdometer
-        description: tk
-      - name: AlignCode
-        description: tk
+      - name: ROUTE_WITH_SUFFIX
+        description: Unknown.
+      - name: PM_ROUTE_ID
+        description: Unknown.
+      - name: COUNTY
+        description: Three chracter county code.
+      - name: DISTRICT
+        description: The district in which the highway is located. Values are 1-12.
+      - name: PM_PREFIX
+        description: Unknown.
+      - name: BPM
+        description: Unknown.
+      - name: EPM
+        description: Unknown.
+      - name: PM_SUFFIX
+        description: Unknown.
+      - name: BPMC
+        description: Unknown.
+      - name: EPMC
+        description: Unknown.
+      - name: B_ODOMETER
+        description: Unknown.
+      - name: E_ODOMETER
+        description: Unknown.
+      - name: ALIGN_CODE
+        description: Unknown.
       - name: ROUTE_TYPE
-        description: tk
+        description: The type of route of the highway. Values are State, US, and Interstate.
       - name: DIRECTION
-        description: tk
+        description: The direction of the highway. Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
       - name: LENGTH
-        description: tk
+        description: The length of the state highway.
       - name: GEOMETRY
-        description: tk
+        description: The geometry of the state highway.

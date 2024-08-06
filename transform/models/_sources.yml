@@ -411,9 +411,9 @@ sources:
   - name: geo_reference
     database: RAW_DEV
     schema: geo_reference
-    description: tk
+    description: Geographic tables to be used in creating maps and other GIS-related visualizations.
     tables:
-      - name: COUNTY_BOUNDARIES
+      - name: county_boundaries
         description: |
           This polygon feature class represents the California county boundaries. Based on TIGER/Line 2010 county
           files, the Caltrans districts and California county name abbreviation were added to this layer for
@@ -444,7 +444,7 @@ sources:
             description: The length of the county boundary.
           - name: "geometry"
             description: The geometry of the county boundary.
-      - name: DISTRICTS
+      - name: districts
         description: |
           The District feature class is a polygon coverage representing the California Department of Transportation
           (Caltrans) district boundaries. There are 12 Caltrans Districts in California. Caltrans also has Regions
@@ -468,7 +468,7 @@ sources:
             description: The length of the district.
           - name: "geometry"
             description: The geometry of the district.
-      - name: SHN_LINES
+      - name: shn_lines
         description: |
           StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
           layer represents a highway segment where the county, route, postmile prefix, and postmile suffix are the
@@ -497,38 +497,36 @@ sources:
           these values as each highway is realigned (and made longer or shorter) over time. [Data
           source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
         columns:
-          - name: "Route"
-            description: 
           - name: "RouteS"
-            description:
+            description: Unknown.
           - name: "PMRouteID"
-            description:
+            description: Unknown.
           - name: "County"
-            description:
+            description: Three chracter county code.
           - name: "District"
-            description:
+            description: The district in which the highway is located. Values are 1-12.
           - name: "PMPrefix"
-            description:
+            description: Unknown.
           - name: "bPM"
-            description:
+            description: Unknown.
           - name: "ePM"
-            description:
+            description: Unknown.
           - name: "PMSuffix"
-            description:
+            description: Unknown.
           - name: "bPMc"
-            description:
+            description: Unknown.
           - name: "ePMc"
-            description:
+            description: Unknown.
           - name: "bOdometer"
-            description:
+            description: Unknown.
           - name: "eOdometer"
-            description:
+            description: Unknown.
           - name: "AlignCode"
-            description:
+            description: Unknown.
           - name: "RouteType"
-            description:
+            description: The type of route of the highway. Values are State, US, and Interstate.
           - name: "Direction"
-            description:
+            description: The direction of the highway. Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
           - name: "Shape__Length"
             description:
           - name: "geometry"

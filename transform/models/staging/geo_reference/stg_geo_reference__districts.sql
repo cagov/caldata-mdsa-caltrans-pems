@@ -6,4 +6,4 @@ select
     "Shape__Length" as LENGTH,
     "geometry" as GEOMETRY
 
-FROM {{ source('geo_reference', 'DISTRICTS') }}
+FROM {{ source('geo_reference', 'districts') }}

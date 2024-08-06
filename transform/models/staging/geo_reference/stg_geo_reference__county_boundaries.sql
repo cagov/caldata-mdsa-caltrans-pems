@@ -13,4 +13,4 @@ select
     "Shape__Length" as LENGTH,
     "geometry" as GEOMETRY
 
-from {{ source('geo_reference', 'COUNTY_BOUNDARIES') }}
+from {{ source('geo_reference', 'county_boundaries') }}
