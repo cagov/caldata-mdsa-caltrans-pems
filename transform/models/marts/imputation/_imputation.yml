@@ -1,5 +1,5 @@
 models:
-  - name: imputation__station_summary
+  - name: imputation__detector_summary
     description: |
       This model summarize the pentration of imputation by each method.
       It provides the total number of samples for five minutes in station
