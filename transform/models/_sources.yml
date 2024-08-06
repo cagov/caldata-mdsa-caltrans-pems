@@ -472,29 +472,33 @@ sources:
         description: |
           StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
           layer represents a highway segment where the county, route, postmile prefix, and postmile suffix are the
-          same. Each segment has a begin and end postmile. This geometry is based upon the extraction from TSN on 10 October 2022.
+          same. Each segment has a begin and end postmile. This geometry is based upon the extraction from TSN on
+          10 October 2022.
 
-          Each segment is coded with the district, county, route, postmile prefix (if any), begin postmile, end postmile, and
-          postmile suffix (if any). One additional field - AlignCode - should be understood by the user for effective use of this
-          data set (refer to the Entity and Attribute Information section of this metadata).
+          Each segment is coded with the district, county, route, postmile prefix (if any), begin postmile, end
+          postmile, and postmile suffix (if any). One additional field - AlignCode - should be understood by the
+          user for effective use of this data set (refer to the Entity and Attribute Information section of this
+          metadata).
 
-          AlignCode indicates if the state highway segment is on a Right alignment, Left alignment, Right side of an independent
-          alignment or Left side of an independent alignment. Where TSN (Transportation System Network - the source database)
-          considers most state highways to have just a centerline, the underlying LRS (Linear Referencing System) linework that
-          these segments are based upon has a line for each direction.
+          AlignCode indicates if the state highway segment is on a Right alignment, Left alignment, Right side of
+          an independent alignment or Left side of an independent alignment. Where TSN (Transportation System
+          Network - the source database) considers most state highways to have just a centerline, the underlying
+          LRS (Linear Referencing System) linework that these segments are based upon has a line for each direction.
 
-          On undivided highways the right and left lines are identical. On divided highways the right and left are separated,
-          but TSN treats the segment as a single centerline. In the last case where highways are not only divided but also have
-          different lengths (where the right and left carriageway diverge around physical obstacles or are separated onto
-          different one-way streets) the underlying linework has dual carriageways, and TSN treats the segment as an
-          "independent alignment".  In some cases (especially for small-scale mapping), it may be appropriate to display
-          linework for just one alignment (e.g. Right alignment), and only for the other side where TSN indicates independent
-          right and left alignments. In other cases (e.g. large-scale mapping), it may be appropriate to display postmiles for
-          both alignments, regardless of how TSN treats the segment.
+          On undivided highways the right and left lines are identical. On divided highways the right and left are
+          separated, but TSN treats the segment as a single centerline. In the last case where highways are not only
+          divided but also have different lengths (where the right and left carriageway diverge around physical
+          obstacles or are separated onto different one-way streets) the underlying linework has dual carriageways,
+          and TSN treats the segment as an "independent alignment".  In some cases (especially for small-scale
+          mapping), it may be appropriate to display linework for just one alignment (e.g. Right alignment), and
+          only for the other side where TSN indicates independent right and left alignments. In other cases (e.g.
+          large-scale mapping), it may be appropriate to display postmiles for both alignments, regardless of how
+          TSN treats the segment.
 
-          The bOdometer and eOdometer fields represent the actual distance in miles from the start of the highway to the begin
-          and end of each highway section.  This is in contrast to the begin and end postmile values, which no longer represent
-          these values as each highway is realigned (and made longer or shorter) over time. [Data
+          The bOdometer and eOdometer fields represent the actual distance in miles from the start of the highway
+          to the beginning and end of each highway section.  This is in contrast to the begin and end postmile
+          values, which no longer represent these values as each highway is realigned (and made longer or shorter)
+          over time. [Data
           source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
         columns:
           - name: "RouteS"
@@ -518,9 +522,13 @@ sources:
           - name: "ePMc"
             description: Unknown.
           - name: "bOdometer"
-            description: Unknown.
+            description: |
+              Represents the distance in miles from the start of the highway to 
+              the beginning and end of each highway section.
           - name: "eOdometer"
-            description: Unknown.
+            description: |
+              Represents the distance in miles from the start of the highway to 
+              the beginning and end of each highway section.
           - name: "AlignCode"
             description: Unknown.
           - name: "RouteType"
