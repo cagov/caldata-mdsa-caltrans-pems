@@ -109,15 +109,21 @@ models:
       - name: EPMC
         description: Unknown.
       - name: B_ODOMETER
-        description: Unknown.
+        description: |
+          Represents the distance in miles from the start of the highway to
+          the beginning and end of each highway section.
       - name: E_ODOMETER
-        description: Unknown.
+        description: |
+          Represents the distance in miles from the start of the highway to
+          the beginning and end of each highway section.
       - name: ALIGN_CODE
         description: Unknown.
       - name: ROUTE_TYPE
         description: The type of route of the highway. Values are State, US, and Interstate.
       - name: DIRECTION
-        description: The direction of the highway. Values are NB, SB, EB, WB (north-, south-, east-, and west-bound).
+        description: |
+          The direction of the highway.
+          Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
       - name: LENGTH
         description: The length of the state highway.
       - name: GEOMETRY

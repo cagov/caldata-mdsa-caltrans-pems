@@ -523,18 +523,20 @@ sources:
             description: Unknown.
           - name: "bOdometer"
             description: |
-              Represents the distance in miles from the start of the highway to 
+              Represents the distance in miles from the start of the highway to
               the beginning and end of each highway section.
           - name: "eOdometer"
             description: |
-              Represents the distance in miles from the start of the highway to 
+              Represents the distance in miles from the start of the highway to
               the beginning and end of each highway section.
           - name: "AlignCode"
             description: Unknown.
           - name: "RouteType"
             description: The type of route of the highway. Values are State, US, and Interstate.
           - name: "Direction"
-            description: The direction of the highway. Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
+            description: |
+              The direction of the highway.
+              Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
           - name: "Shape__Length"
             description: The length of the state highway.
           - name: "geometry"
