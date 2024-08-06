@@ -1,4 +1,4 @@
-select 
+select
 
     DISTRICT,
     "Region" as REGION,
@@ -6,4 +6,4 @@ select
     "Shape__Length" as LENGTH,
     "geometry" as GEOMETRY
 
-FROM {{ source('geo_reference', 'districts') }}
+from {{ source('geo_reference', 'districts') }}

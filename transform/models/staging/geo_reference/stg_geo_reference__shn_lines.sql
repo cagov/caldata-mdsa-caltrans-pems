@@ -1,6 +1,6 @@
-select 
+select
 
-    /* RteSuffix was dropped because less than 1% of it 
+    /* RteSuffix was dropped because less than 1% of it
     was filled and as such it didn't seem very useful.
     Route is very similar to RouteS and was therefore dropped
     as well. */
@@ -21,6 +21,6 @@ select
     "RouteType" as ROUTE_TYPE,
     "Direction" as DIRECTION,
     "Shape__Length" as LENGTH,
-    "geometry" as GEOMETRY,
-    
-FROM {{ source('geo_reference', 'shn_lines') }}
+    "geometry" as GEOMETRY
+
+from {{ source('geo_reference', 'shn_lines') }}
