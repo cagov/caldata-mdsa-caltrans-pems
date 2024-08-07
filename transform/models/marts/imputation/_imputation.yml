@@ -1,0 +1,54 @@
+models:
+  - name: imputation__detector_summary
+    description: |
+      This model summarize the pentration of imputation by each method.
+      It provides the total number of samples for five minutes in station
+      level as well as percetage of observed and imputed by each method
+      by sample date.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: SAMPLE_CT
+        description: The number of samples collected in five minutes time period.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LANE
+        description: Total number of lanes for a specific VDS.
+      - name: PCT_OF_OCCUPANCY_GLOBAL_REGRESSION
+        description: Percentage of imputed occupancy using global regression.
+      - name: PCT_OF_OCCUPANCY_LOCAL_REGRESSION
+        description: Percentage of imputed occupancy using local regression.
+      - name: PCT_OF_OCCUPANCY_REGIONAL_REGRESSION
+        description: Percentage of imputed occupancy using regional regression.
+      - name: PCT_OF_OCCUPANCY_OBSERVED
+        description: Percentage of observed occupancy.
+      - name: PCT_OF_OCCUPANCY_UNOBSERVED_UNIMPUTED
+        description: Percentage of unobserved and unimputed occupancy.
+      - name: PCT_OF_SPEED_GLOBAL_REGRESSION
+        description: Percentage of imputed speed using global regression.
+      - name: PCT_OF_SPEED_LOCAL_REGRESSION
+        description: Percentage of imputed speed using local regression.
+      - name: PCT_OF_SPEED_REGIONAL_REGRESSION
+        description: Percentage of imputed speed using regional regression.
+      - name: PCT_OF_SPEED_OBSERVED
+        description: Percentage of observed speed.
+      - name: PCT_OF_SPEED_UNOBSERVED_UNIMPUTED
+        description: Percentage of unobserved and unimputed speed.
+      - name: PCT_OF_VOLUME_GLOBAL_REGRESSION
+        description: Percentage of imputed volume using global regression.
+      - name: PCT_OF_VOLUME_LOCAL_REGRESSION
+        description: Percentage of imputed volume using local regression.
+      - name: PCT_OF_VOLUME_REGIONAL_REGRESSION
+        description: Percentage of imputed volume using regional regression.
+      - name: PCT_OF_VOLUME_OBSERVED
+        description: Percentage of observed volume.
+      - name: PCT_OF_VOLUME_UNOBSERVED_UNIMPUTED
+        description: Percentage of unobserved and unimputed volume.
