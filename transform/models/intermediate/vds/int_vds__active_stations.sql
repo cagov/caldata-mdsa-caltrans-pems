@@ -23,7 +23,7 @@ active_station as (
     inner join
         station_meta as sm
         on
-            {{ get_scd_2_data('dr.active_date','sm._valid_from','sm._valid_to') }} 
+            {{ get_scd_2_data('dr.active_date','sm._valid_from','sm._valid_to') }}
             and sm.status = 1
 )
 
