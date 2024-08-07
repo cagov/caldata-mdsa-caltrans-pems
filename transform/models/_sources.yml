@@ -409,7 +409,7 @@ sources:
           - name: volume_flag
           - name: logical_position
   - name: geo_reference
-    database: RAW_DEV
+    database: "{{ env_var('DBT_RAW_DB', 'RAW_PRD') }}"
     schema: geo_reference
     description: Geographic tables to be used in creating maps and other GIS-related visualizations.
     tables:
