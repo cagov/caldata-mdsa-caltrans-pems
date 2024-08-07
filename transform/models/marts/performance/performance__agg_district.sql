@@ -11,11 +11,11 @@ with station_daily_data as (
 -- now aggregate daily volume, occupancy and speed to weekly
 spatial_metrics as (
     select
-        city,
+        district,
         sample_year,
-        sum(daily_volume) as yearly_volume,
-        avg(daily_occupancy) as yearly_occupancy,
-        sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as yearly_speed,
+        sum(daily_volume) as yearly_volume_sum,
+        avg(daily_occupancy) as yearly_occupancy_avg,
+        sum(daily_volume * daily_speed) / nullifzero(sum(daily_volume)) as yearly_speed_avg,
         sum(daily_vmt) as yearly_vmt,
         sum(daily_vht) as yearly_vht,
         yearly_vmt / nullifzero(yearly_vht) as yearly_q_value,
@@ -39,7 +39,7 @@ spatial_metrics as (
         {% endfor %}
     from station_daily_data
     group by
-        city, sample_year
+        district, sample_year
 )
 
 select * from spatial_metrics
