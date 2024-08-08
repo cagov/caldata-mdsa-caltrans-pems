@@ -3,6 +3,11 @@ name: caldata_mdsa_caltrans_pems
 version: "1.0.0"
 config-version: 2
 
+flags:
+  send_anonymous_usage_stats: false
+  use_colors: true
+  warn_error: false
+
 # This setting configures which "profile" dbt uses for this project.
 profile: caltrans_pems
 
