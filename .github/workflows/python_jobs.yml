@@ -1,0 +1,42 @@
+name: python_jobs
+on:
+  # Run nightly at 8AM UTC (12AM Pacific)
+  schedule:
+    - cron: "7 8 * * 1-5"
+  # Also allow for manual triggers
+  workflow_dispatch:
+
+env:
+  SNOWFLAKE_PRIVATE_KEY: ${{ SECRETS.SNOWFLAKE_PRIVATE_KEY_PRD }}
+  SNOWFLAKE_USER: ${{ SECRETS.SNOWFLAKE_USER_PRD }}
+  SNOWFLAKE_ACCOUNT: ${{ SECRETS.SNOWFLAKE_ACCOUNT }}
+
+jobs:
+  build-models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "poetry"
+      - uses: actions/cache@v2
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+      - name: Install dependencies
+        run: poetry install --no-root
+      - name: Load GIS Datasets
+        env:
+          SNOWFLAKE_DATABASE: RAW_PRD
+          SNOWFLAKE_WAREHOUSE: LOADING_XS_PRD
+          SNOWFLAKE_ROLE: LOADER_PRD
+        run: poetry run python -m jobs.load_geo_reference_data
+      - name: Create UDFs
+        env:
+          SNOWFLAKE_DATABASE: ANALYTICS_PRD
+          SNOWFLAKE_WAREHOUSE: TRANSFORMING_XS_PRD
+          SNOWFLAKE_ROLE: TRANSFORMER_PRD
+        run: poetry run python -m jobs.create_stored_procedures
