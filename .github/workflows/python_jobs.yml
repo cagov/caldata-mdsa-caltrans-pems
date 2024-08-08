@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-      - unload-geojson
   workflow_dispatch:
 
 env:
