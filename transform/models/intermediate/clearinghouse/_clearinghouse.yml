@@ -1,54 +1,6 @@
 version: 2
 
 models:
-  - name: int_clearinghouse__station_meta
-    description: |
-      Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
-    columns:
-      - name: META_DATE
-        description: Date of the metadata file.
-      - name: ID
-        description: |
-          An integer value that uniquely indenties the Station Metadata.
-          Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
-          - not_null
-      - name: ABSOLUTE_POSTMILE
-        description: Absolute postmile value along a partilcuar state route where the VDS is located.
-      - name: STATE_POSTMILE
-        description: State Postmile value.
-      - name: CITY
-        description: The city number where the VDS is located, if available.
-      - name: COUNTY
-        description: The unique number that identifies the county that contains a specific VDS within PeMS.
-      - name: DIRECTION
-        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-      - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12.
-      - name: FREEWAY
-        description: The freeway where the VDS is located.
-      - name: LANES
-        description: Total number of lanes for a specific VDS.
-      - name: LATITUDE
-        description: Latitude of a specific VDS.
-      - name: LENGTH
-        description: The length associated with a VDS.
-      - name: LONGITUDE
-        description: Longitude of a specific VDS.
-      - name: NAME
-        description: A descriptive name assocaited with a VDS.
-      - name: TYPE
-        description: Two character string identify the VDS type.
-      - name: _VALID_FROM
-        description: |
-          The date that this metadata became valid. Should be the same as `META_DATE`.
-          Finding the right metadata for a date should involve a check with
-          `_VALID_FROM <= date < _VALID_TO`.
-      - name: _VALID_TO
-        description: |
-          The date that this metadata became *invalid*.
-          Finding the right metadata for a date should involve a check with
-          `_VALID_FROM <= date < _VALID_TO`.
   - name: int_clearinghouse__station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
