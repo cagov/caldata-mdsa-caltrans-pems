@@ -43,6 +43,8 @@ imputation_pct as (
         lane,
         sample_ct,
         coalesce(occ_local_imputation_sample, 0) / nullifzero(sample_ct)
+        * 100 as pct_of_occupancy_local_regression,
+        coalesce(occ_regional_imputation_sample, 0) / nullifzero(sample_ct)
         * 100 as pct_of_occupancy_regional_regression,
         coalesce(occ_global_imputation_sample, 0) / nullifzero(sample_ct) * 100 as pct_of_occupancy_global_regression,
         coalesce(occ_unobserved_unimputed, 0) / nullifzero(sample_ct) * 100 as pct_of_occupancy_unobserved_unimputed,
