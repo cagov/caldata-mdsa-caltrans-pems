@@ -23,8 +23,8 @@ active_detector as (
     inner join
         detector_meta as dm
         on
-            dr.active_date >= dm._valid_from
-            and (dr.active_date < dm._valid_to or dm._valid_to is null)
+            {{ get_scd_2_data('dr.active_date','dm._valid_from','dm._valid_to') }}
+
     where dm.status = 1
 )
 

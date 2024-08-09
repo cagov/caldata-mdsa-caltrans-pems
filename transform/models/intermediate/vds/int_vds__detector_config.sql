@@ -47,8 +47,9 @@ config_scd as (
     left join station_config
         on
             config_log_with_validity.station_id = station_config.station_id
-            and config_log_with_validity._valid_from >= station_config._valid_from
-            and (config_log_with_validity._valid_from < station_config._valid_to or station_config._valid_to is null)
+            and
+            {{ get_scd_2_data('config_log_with_validity._valid_from',
+            'station_config._valid_from','station_config._valid_to') }}
     where config_log_with_validity.status = 1
 )
 

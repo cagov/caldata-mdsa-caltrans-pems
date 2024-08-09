@@ -49,8 +49,8 @@ nearby_stations as (
     from {{ ref('int_vds__nearby_stations') }} as nearby
     inner join regression_dates_to_evaluate
         on
-            nearby._valid_from <= regression_dates_to_evaluate.regression_date
-            and regression_dates_to_evaluate.regression_date < coalesce(nearby._valid_to, current_date)
+            {{ get_scd_2_data('regression_dates_to_evaluate.regression_date','nearby._valid_from','nearby._valid_to') }}
+
     /* This filters the nearby_stations model further to make sure we don't do the pairwise
     join below on more dates than we need. In theory, the parwise join *should* be able to
     do this filtering already, but in some profiling Snowflake was doing some join reordering
