@@ -119,3 +119,102 @@ models:
       - name: slot
       - name: volume_flag
       - name: logical_position
+  - name: vds30sec
+    description: |
+      30-second resolution VDS data from DB96, a legacy Oracle database within Caltrans'
+      on-premise network.
+    columns:
+      - name: id
+        description: The unique ID of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: sample_date
+        description: The date on which this data was collected (in America/Los_Angeles timezone).
+      - name: sample_timestamp
+        description: |
+          The timestamp for the 30-second resolution data. This is a timezone-naive timestamp,
+          as it is also that in the source system. However, it seems to be in America/Los_Angeles.
+      - name: volume_1
+        description: Flow volume for lane 1.
+      - name: volume_2
+        description: Flow volume for lane 2.
+      - name: volume_3
+        description: Flow volume for lane 3.
+      - name: volume_4
+        description: Flow volume for lane 4.
+      - name: volume_5
+        description: Flow volume for lane 5.
+      - name: volume_6
+        description: Flow volume for lane 6.
+      - name: volume_7
+        description: Flow volume for lane 7.
+      - name: volume_8
+        description: Flow volume for lane 8.
+      - name: volume_9
+        description: Flow volume for lane 9.
+      - name: volume_10
+        description: Flow volume for lane 10.
+      - name: volume_11
+        description: Flow volume for lane 11.
+      - name: volume_12
+        description: Flow volume for lane 12.
+      - name: volume_13
+        description: Flow volume for lane 13.
+      - name: volume_14
+        description: Flow volume for lane 14.
+      - name: occupancy_1
+        description: Flow occupancy for lane 1.
+      - name: occupancy_2
+        description: Flow occupancy for lane 2.
+      - name: occupancy_3
+        description: Flow occupancy for lane 3.
+      - name: occupancy_4
+        description: Flow occupancy for lane 4.
+      - name: occupancy_5
+        description: Flow occupancy for lane 5.
+      - name: occupancy_6
+        description: Flow occupancy for lane 6.
+      - name: occupancy_7
+        description: Flow occupancy for lane 7.
+      - name: occupancy_8
+        description: Flow occupancy for lane 8.
+      - name: occupancy_9
+        description: Flow occupancy for lane 9.
+      - name: occupancy_10
+        description: Flow occupancy for lane 10.
+      - name: occupancy_11
+        description: Flow occupancy for lane 11.
+      - name: occupancy_12
+        description: Flow occupancy for lane 12.
+      - name: occupancy_13
+        description: Flow occupancy for lane 13.
+      - name: occupancy_14
+        description: Flow occupancy for lane 14.
+      - name: speed_1
+        description: Flow speed for lane 1.
+      - name: speed_2
+        description: Flow speed for lane 2.
+      - name: speed_3
+        description: Flow speed for lane 3.
+      - name: speed_4
+        description: Flow speed for lane 4.
+      - name: speed_5
+        description: Flow speed for lane 5.
+      - name: speed_6
+        description: Flow speed for lane 6.
+      - name: speed_7
+        description: Flow speed for lane 7.
+      - name: speed_8
+        description: Flow speed for lane 8.
+      - name: speed_9
+        description: Flow speed for lane 9.
+      - name: speed_10
+        description: Flow speed for lane 10.
+      - name: speed_11
+        description: Flow speed for lane 11.
+      - name: speed_12
+        description: Flow speed for lane 12.
+      - name: speed_13
+        description: Flow speed for lane 13.
+      - name: speed_14
+        description: Flow speed for lane 14.

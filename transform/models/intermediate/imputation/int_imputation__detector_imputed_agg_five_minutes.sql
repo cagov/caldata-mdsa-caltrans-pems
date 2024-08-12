@@ -19,30 +19,37 @@ with obs_imputed_five_minutes_agg as (
 hybrid_five_mins_agg as (
     select
         station_id,
+        detector_id,
         station_type,
         lane,
         direction,
+        county,
+        city,
         district,
         freeway,
+        length,
         detector_is_good,
         sample_date,
         sample_timestamp,
-        speed_five_mins,
+        absolute_postmile,
+        sample_ct,
+        station_valid_from,
+        station_valid_to,
         -- select the imputed value
         case
-            when detector_is_good = false
+            when detector_is_good = false or volume_sum is null
                 then
                     coalesce(volume_local_regression, volume_regional_regression, volume_global_regression)
             else volume_sum
         end as volume_sum,
         case
-            when detector_is_good = false
+            when detector_is_good = false or speed_five_mins is null
                 then
                     coalesce(speed_local_regression, speed_regional_regression, speed_global_regression)
-            else speed_weighted
-        end as speed_weighted,
+            else speed_five_mins
+        end as speed_five_mins,
         case
-            when detector_is_good = false
+            when detector_is_good = false or occupancy_avg is null
                 then
                     coalesce(
                         occupancy_local_regression,
@@ -53,7 +60,11 @@ hybrid_five_mins_agg as (
         end as occupancy_avg,
         -- assign the imputation date
         case
-            when detector_is_good = false
+            when
+                detector_is_good = false
+                or volume_sum is null
+                or occupancy_avg is null
+                or speed_five_mins is null
                 then
                     coalesce(local_regression_date, regional_regression_date, global_regression_date)
             else sample_date
@@ -62,37 +73,37 @@ hybrid_five_mins_agg as (
         -- assign the imputation method
         case
             when
-                detector_is_good = false and volume_local_regression is not null
+                (detector_is_good = false or volume_sum is null) and volume_local_regression is not null
                 then 'local'
             when
-                detector_is_good = false and volume_regional_regression is not null
+                (detector_is_good = false or volume_sum is null) and volume_regional_regression is not null
                 then 'regional'
             when
-                detector_is_good = false and volume_global_regression is not null
+                (detector_is_good = false or volume_sum is null) and volume_global_regression is not null
                 then 'global'
             else 'observed'
         end as volume_imputation_method,
         case
             when
-                detector_is_good = false and speed_local_regression is not null
+                (detector_is_good = false or speed_five_mins is null) and speed_local_regression is not null
                 then 'local'
             when
-                detector_is_good = false and speed_regional_regression is not null
+                (detector_is_good = false or speed_five_mins is null) and speed_regional_regression is not null
                 then 'regional'
             when
-                detector_is_good = false and speed_global_regression is not null
+                (detector_is_good = false or speed_five_mins is null) and speed_global_regression is not null
                 then 'global'
             else 'observed'
         end as speed_imputation_method,
         case
             when
-                detector_is_good = false and occupancy_local_regression is not null
+                (detector_is_good = false or occupancy_avg is null) and occupancy_local_regression is not null
                 then 'local'
             when
-                detector_is_good = false and occupancy_regional_regression is not null
+                (detector_is_good = false or occupancy_avg is null) and occupancy_regional_regression is not null
                 then 'regional'
             when
-                detector_is_good = false and occupancy_global_regression is not null
+                (detector_is_good = false or occupancy_avg is null) and occupancy_global_regression is not null
                 then 'global'
             else 'observed'
         end as occupancy_imputation_method

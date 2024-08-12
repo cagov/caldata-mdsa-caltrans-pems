@@ -3,6 +3,11 @@ name: caldata_mdsa_caltrans_pems
 version: "1.0.0"
 config-version: 2
 
+flags:
+  send_anonymous_usage_stats: false
+  use_colors: true
+  warn_error: false
+
 # This setting configures which "profile" dbt uses for this project.
 profile: caltrans_pems
 
@@ -84,3 +89,10 @@ models:
       +database: "{{ env_var('DBT_ANALYTICS_DB', 'ANALYTICS_DEV') }}"
       performance:
         +schema: performance
+      imputation:
+        +schema: imputation
+      diagnostics:
+        +schema: diagnostics
+      geo:
+        +schema: geo
+        +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"

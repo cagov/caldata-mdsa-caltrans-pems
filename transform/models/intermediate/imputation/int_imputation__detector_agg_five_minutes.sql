@@ -16,12 +16,12 @@ with base as (
 /* Get all detectors that are "real" in that they represent lanes that exist
    (rather than lane 8 in a two lane road) with a status of "Good" */
 good_detectors as (
-    select * from {{ ref('int_diagnostics__real_detector_status') }}
+    select * from {{ ref('int_diagnostics__detector_status') }}
     where status = 'Good'
 ),
 
 nearby_stations as (
-    select * from {{ ref("int_clearinghouse__nearby_stations") }}
+    select * from {{ ref("int_vds__nearby_stations") }}
 ),
 
 /* Local/regional regression coefficients. These are pairwise betweens detectors
@@ -44,6 +44,7 @@ detector to be operating correctly for a given day. */
 unimputed as (
     select
         base.station_id,
+        base.detector_id,
         base.lane,
         base.district,
         base.sample_date,
@@ -53,7 +54,14 @@ unimputed as (
         base.speed_weighted,
         base.freeway,
         base.direction,
+        base.county,
+        base.city,
+        base.length,
         base.station_type,
+        base.absolute_postmile,
+        base.sample_ct,
+        base.station_valid_from,
+        base.station_valid_to,
         -- If the station_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date. TODO: likely restructure
         -- once the real_detectors model is eliminated.
@@ -119,7 +127,7 @@ samples_not_requiring_imputation as (
 samples_requiring_imputation_with_local_regional_neighbors as (
     select
         imp.*,
-        non_imp.station_id as other_id,
+        non_imp.station_id as other_station_id,
         non_imp.lane as other_lane,
         non_imp.occupancy_avg as occupancy_avg_nbr,
         non_imp.volume_sum as volume_sum_nbr,
@@ -128,12 +136,12 @@ samples_requiring_imputation_with_local_regional_neighbors as (
     from samples_requiring_imputation as imp
     inner join nearby_stations
         on
-            imp.station_id = nearby_stations.id
+            imp.station_id = nearby_stations.station_id
             and imp.sample_date >= nearby_stations._valid_from
             and (imp.sample_date < nearby_stations._valid_to or nearby_stations._valid_to is null)
     inner join samples_not_requiring_imputation as non_imp
         on
-            nearby_stations.other_id = non_imp.station_id
+            nearby_stations.other_station_id = non_imp.station_id
             and (imp.station_id != non_imp.station_id or imp.lane != non_imp.lane)
             and imp.sample_date = non_imp.sample_date
             and imp.sample_timestamp = non_imp.sample_timestamp
@@ -148,7 +156,7 @@ samples_requiring_imputation_with_local_regional_neighbors as (
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples.*,
-        local_regional_coeffs.other_id,
+        local_regional_coeffs.other_station_id,
         local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
         local_regional_coeffs.speed_intercept,

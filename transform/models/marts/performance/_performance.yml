@@ -134,3 +134,215 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
+  - name: performance__agg_yearly_freeway_type_direction
+    description: |
+      yearly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across freeway, type and direction. This metrics will measure the yearly performance
+      of the state highway system. This can be used to understand the SHS performance
+      in perspective of spatial variation.
+    columns:
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: SAMPLE_YEAR
+        description: The sample collection year.
+      - name: YEARLY_SPEED_AVG
+        description: flow weighted speed over the sample year.
+      - name: YEARLY_VOLUME_SUM
+        description:
+          The sum of the flow values over the sample period across freeway, direction
+          and type.
+      - name: YEARLY_OCCUPANCY_AVG
+        description:
+          The average of the occupancy values over the sample period across freeway, direction
+          and type.
+      - name: YEARLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given year and
+          a given freeway, direction and type.
+      - name: YEARLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given a year and a
+          given freeway, direction and type. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given year.
+      - name: YEARLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time across freeway, direction
+          and type. The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
+          For loop-based performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: YEARLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given year across freeway, direction
+          and type. For a single location its interpretation is the average speed.
+      - name: DELAY
+        description: |
+          yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across freeway, direction and type.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across caltrans district.
+          The lost Productivity perfromance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
+  - name: performance__agg_district
+    description: |
+      yearly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across district. This metrics will measure the yearly performance
+      by caltrans district. This can be used to understand the SHS performance
+      in perspective of spatial variation.
+    columns:
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: SAMPLE_YEAR
+        description: The sample collection year.
+      - name: YEARLY_SPEED_AVG
+        description: flow weighted speed over the sample year.
+      - name: YEARLY_VOLUME_SUM
+        description: The sum of the flow values over the sample period across caltrans district.
+      - name: YEARLY_OCCUPANCY_AVG
+        description: The average of the occupancy values over the sample period across caltrans district.
+      - name: YEARLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given year and
+          a given caltrans district.
+      - name: YEARLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given a year and a
+          given caltrans district. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given year.
+      - name: YEARLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time across caltrans district.
+          The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
+          For loop-based performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: YEARLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given year across caltrans district.
+          For a single location its interpretation is the average speed.
+      - name: DELAY
+        description: |
+          yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across caltrans district.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across caltrans district.
+          The lost Productivity perfromance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
+  - name: performance__agg_yearly_county
+    description: |
+      yearly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across county. This metrics will measure the yearly performance
+      by county. This can be used to understand the SHS performance
+      in perspective of spatial variation.
+    columns:
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_YEAR
+        description: The sample collection year.
+      - name: YEARLY_SPEED_AVG
+        description: flow weighted speed over the sample year.
+      - name: YEARLY_VOLUME_SUM
+        description: The sum of the flow values over the sample period across county.
+      - name: YEARLY_OCCUPANCY_AVG
+        description: The average of the occupancy values over the sample period across county.
+      - name: YEARLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given year and
+          a given county.
+      - name: YEARLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given a year and a
+          given county. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given year.
+      - name: YEARLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time across county.
+          The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
+          For loop-based performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: YEARLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given year across county.
+          For a single location its interpretation is the average speed.
+      - name: DELAY
+        description: |
+          yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across county.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across county.
+          The lost Productivity perfromance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
+  - name: performance__agg_yearly_city
+    description: |
+      yearly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across city. This metrics will measure the yearly performance
+      by city. This can be used to understand the SHS performance
+      in perspective of spatial variation.
+    columns:
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: SAMPLE_YEAR
+        description: The sample collection year.
+      - name: YEARLY_SPEED_AVG
+        description: flow weighted speed over the sample year.
+      - name: YEARLY_VOLUME_SUM
+        description: The sum of the flow values over the sample period across city.
+      - name: YEARLY_OCCUPANCY_AVG
+        description: The average of the occupancy values over the sample period across city.
+      - name: YEARLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given year and
+          a given city.
+      - name: YEARLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given a year and a
+          given city. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given year.
+      - name: YEARLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time across city.
+          The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
+          For loop-based performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: YEARLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given year across city.
+          For a single location its interpretation is the average speed.
+      - name: DELAY
+        description: |
+          yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across city.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across city.
+          The lost Productivity perfromance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
