@@ -17,27 +17,27 @@ We report three main findings about the nature of the data.
 2. Do some regions have more missing data than others? The Caltrans/PeMS data is organized by districts. This map shows how Caltrans carves the state into 11 districts. An analysis of data in 2022 and 2023 shows 19.2 thousand sensors with almost 28 billion observations. Some 5.6% of the sensors had all null observations (`FLOW_1`) and 9.1% of the sensors had all zero observations (`FLOW_1`) . We observed a few different types of missing data: single missing observations, intermittent outages for a few minutes during the day, and hours to months long outages.
 3. Do the calculations for speed and traffic flow make sense? The Caltrans/PeMS data uses some heuristics to calculate speed and traffic flow. Are these reasonable? To answer this question, we can try to confirm some basic traffic patterns. For example: Does traffic increase during [peak traffic hours](https://dot.ca.gov/programs/traffic-operations/hov), which is 6am to 10am and again from 3pm to 7pm in Northern California? While there are some anomalous observations, the flow and speed generally follow a pattern with low speeds and high flow during peak traffic hours. See Figure 6 for an example.
 
-![Figure 1. An example of a null observation.](images/fig1.png)
+![Figure 1. An example of a null observation.](/images/fig1.png)
 
 Figure 1. An example of a null observation.
 
-![Figure 2. An example of an observation containing all zero values.](images/fig2.png)
+![Figure 2. An example of an observation containing all zero values.](/images/fig2.png)
 
 Figure 2. An example of an observation containing all zero values.
 
-![Figure 3. Average lane 1 flow from all California sensors in 2022 and 2023. Black dots represent sensors with all null values.](images/fig3.png)
+![Figure 3. Average lane 1 flow from all California sensors in 2022 and 2023. Black dots represent sensors with all null values.](/images/fig3.png)
 
 Figure 3. Average lane 1 flow from all California sensors in 2022 and 2023. Black dots represent sensors with all null values.
 
-![Figure 4. Sensors reporting all null values for 2022 and 2023.](images/fig4.png)
+![Figure 4. Sensors reporting all null values for 2022 and 2023.](/images/fig4.png)
 
 Figure 4. Sensors reporting all null values for 2022 and 2023.
 
-![Figure 5. Sensors reporting all zero values for 2022 and 2023. These appear to be centered around the major metropolitan areas.](images/fig5.png)
+![Figure 5. Sensors reporting all zero values for 2022 and 2023. These appear to be centered around the major metropolitan areas.](/images/fig5.png)
 
 Figure 5. Sensors reporting all zero values for 2022 and 2023. These appear to be centered around the major metropolitan areas.
 
-![Figure 6. The speed (left) and flow (right) of traffic over the Bay Bridge on Tuesday, September 13, 2022.](images/fig6.png)
+![Figure 6. The speed (left) and flow (right) of traffic over the Bay Bridge on Tuesday, September 13, 2022.](/images/fig6.png)
 
 Figure 6. The speed (left) and flow (right) of traffic over the Bay Bridge on Tuesday, September 13, 2022.
 
