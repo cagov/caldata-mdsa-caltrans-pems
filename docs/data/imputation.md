@@ -117,4 +117,4 @@ The above snippet creates the following chart, which shows how on August 5th,
 some unphysically high occupancy reads caused a detector to be flagged as unreliable,
 resulting in our imputation schemes being used:
 
-![Imputation visialization](/images/imputation.png)
+![Imputation visialization](../images/imputation.png)

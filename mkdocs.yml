@@ -26,7 +26,7 @@ nav:
   - Setup: setup.md
   - Writing Documentation: writing-documentation.md
   - Data Loading: data-loading.md
-  - Incremental Models: incremental-models.md
+  - Incremental Models: incremental.md
   - Data Relay: data/data-relay.md
   - Data Warehouse Performance: data-warehouse-performance.md
   - dbt Project: dbt_docs/index.html
