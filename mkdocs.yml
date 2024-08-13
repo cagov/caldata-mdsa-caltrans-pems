@@ -25,10 +25,13 @@ nav:
   - Introduction: index.md
   - Setup: setup.md
   - Writing Documentation: writing-documentation.md
-  - Data loading: data-loading.md
+  - Data Loading: data-loading.md
+  - Incremental Models: incremental.md
+  - Data Relay: data/data-relay.md
   - Data Warehouse Performance: data-warehouse-performance.md
   - dbt Project: dbt_docs/index.html
-  - Data:
+  - Data Analysis:
       - Exploratory Data Analysis: data/exploratory-data-analysis.md
       - Data Relay: data/data-relay.md
       - Bottlenecks: data/bottlenecks.md
+      - Imputation: data/imputation.md
