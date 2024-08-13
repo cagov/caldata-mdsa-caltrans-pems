@@ -1,6 +1,6 @@
 # Bottlenecks
 
-The PeMS system runs a bottleneck identification algorithm every day. The original algorithm was presented in, "[Systematic Identification of Freeway Bottlenecks](files/Systematic_Identification_of_Freeway_Bottlenecks.1.pdf)," by Chen, C., Skabardonis, A., Varaiya, P. (2003). Transportation Research Board, 2004.
+The PeMS system runs a bottleneck identification algorithm every day. The original algorithm was presented in, "[Systematic Identification of Freeway Bottlenecks](../files/Systematic_Identification_of_Freeway_Bottlenecks.1.pdf)," by Chen, C., Skabardonis, A., Varaiya, P. (2003). Transportation Research Board, 2004.
 
 This model identifies bottlenecks at every station. A bottleneck is defined by the following conditions:
 
@@ -28,15 +28,21 @@ Here we can see a [GIS representation of bottleneck](https://gisdata-caltrans.op
 
 **North/East**
 Absolute postmile increases going north and east. This means when the direction of the freeway for a station is north or east, the **"upstream" station has a smaller postmile**, and we need to *lag* our calculations.
-![Example of north or east bound bottlenecks](images/Bottlenecks_NE.png)
+![Example of north or east bound bottlenecks](../images/bottlenecks_ne.png)
 
 **South or West**
 Absolute postmile decreases going south and west. This means when the direction of the freeway for a station is south or west, the **"upstream" station has a larger postmile**, and we need to *lead* our calculations.
-![Example of south or west bound bottlenecks](images/Bottlenecks_SW.png)
+![Example of south or west bound bottlenecks](../images/bottlenecks_sw.png)
 
 Bottlenecks are analyzed across all lanes so any variables we use in developing bottleneck-related calculations should also be across all lanes at a given station. This also means we do not partition the data by lane.
 
 Additional information about bottlenecks from FHWA can be found at the following links. These details do not impact current bottleneck analysis but can be useful in future discussions: https://ops.fhwa.dot.gov/bn/lbr.htm and https://ops.fhwa.dot.gov/bn/bnchart.htm
 
 Below we can see an example of five instances (highlighted in green) of when the four conditions mentioned above are met out of a rolling window of 7.
-![Example of bottlenecks being flagged for 5 rows in a window of 7](images/bottleneck_ex_1.png)
+![Example of bottlenecks being flagged for 5 rows in a window of 7](../images/bottleneck_ex_1.png)
+
+## Our current implementation of Bottlenecks versus Systematic Identification of Freeway Bottlenecks
+
+The diagram below illustrates the logic in the "Systematic Identification of Freeway Bottlenecks" paper linked to above and also states how our implementation is a reversal. We are currently in agreement that while our implementation is different, it is also easier to understand. To match our logic with what is in the paper we'd simply have to do sign reversal in various places in our model.
+
+![Example of bottleneck logic from the Systematic Identification of Freeway Bottlenecks paper versus our current code](../images/bottleneck_diagram.png)
