@@ -32,4 +32,6 @@ nav:
   - dbt Project: dbt_docs/index.html
   - Data Analysis:
       - Exploratory Data Analysis: data/exploratory-data-analysis.md
+      - Data Relay: data/data-relay.md
+      - Bottlenecks: data/bottlenecks.md
       - Imputation: data/imputation.md
