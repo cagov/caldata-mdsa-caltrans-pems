@@ -82,20 +82,20 @@ agg as (
             district,
             sample_ct_{{ lane }} as sample_ct,
             {{ lane }} as lane,
-            volume_{{ lane }} as volume_sum,
+            volume_{{ lane }} as volume_observed,
             round(iff(
                 sample_ct_{{ lane }} >= 10, volume_{{ lane }},
                 10 / nullifzero(sample_ct_{{ lane }}) * volume_{{ lane }}
             ))
                 as volume_normalized,
             zero_vol_ct_{{ lane }} as zero_vol_ct,
-            occupancy_{{ lane }} as occupancy_avg,
+            occupancy_{{ lane }} as occupancy,
             zero_occ_ct_{{ lane }} as zero_occ_ct,
             zero_vol_pos_occ_ct_{{ lane }} as zero_vol_pos_occ_ct,
             zero_occ_pos_vol_ct_{{ lane }} as zero_occ_pos_vol_ct,
             high_volume_ct_{{ lane }} as high_volume_ct,
             high_occupancy_ct_{{ lane }} as high_occupancy_ct,
-            speed_weighted_{{ lane }} as speed_weighted
+            speed_weighted_{{ lane }} as speed
         from agg
     ),
 {% endfor %}

@@ -71,14 +71,14 @@ models:
         description: Two character string identify the VDS type.
       - name: DETECTOR_IS_GOOD
         description: Status of the detector based detector's diagonostics.
-      - name: VOLUME_SUM
+      - name: VOLUME
         description: The sum of the flow values for a detector over the sample period.
-      - name: OCCUPANCY_AVG
+      - name: OCCUPANCY
         description: The average of the occupancy values over the sample period.
-      - name: SPEED_WEIGHTED
+      - name: SPEED_OBSERVED
         description: |
           Flow-weighted speed reported by the device.
-      - name: SPEED_FIVE_MINS
+      - name: SPEED
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
       - name: VOLUME_LOCAL_REGRESSION
@@ -137,13 +137,13 @@ models:
         description: Two character string identify the VDS type.
       - name: DETECTOR_IS_GOOD
         description: Status of the detector based detector's diagonostics.
-      - name: VOLUME_SUM
+      - name: VOLUME
         description: observed or imputed flow values for a detector over the sample period.
-      - name: OCCUPANCY_AVG
-      - name: SPEED_WEIGHTED
+      - name: OCCUPANCY
+      - name: SPEED_OBSERVED
         description: |
           Flow-weighted speed reported by the device.
-      - name: SPEED_FIVE_MINS
+      - name: SPEED
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
       - name: SPEED_IMPUTATION_METHOD

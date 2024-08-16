@@ -105,8 +105,9 @@ models:
       - name: lane
         description: |
           Lane associated with a route and station from raw data.
-      - name: volume_sum
-        description: Number of vehicle that passed over the detector during the sample period for the lane.
+      - name: volume_observed
+        description: |
+          Sum of the 30-second samples actually observed and collected
       - name: volume_normalized
         description: |
           For the 5-minute aggregation there should be 10 30-second samples collected. If 10 or more
@@ -135,7 +136,7 @@ models:
         description: |
           Counts the number of occupancy values in a lane that exceeded the high value
           threshold detector diagnostic parameter for a station.
-      - name: speed_weighted
+      - name: speed
         description: |
           Speed in the lane as measured by the detector in miles/hour.
           Weighted by count of samples in each period.

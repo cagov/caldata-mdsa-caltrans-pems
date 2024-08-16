@@ -23,9 +23,9 @@ calculate_occupancy_delta as (
         sample_timestamp,
         sample_date,
         lane,
-        occupancy_avg,
-        occupancy_avg
-        - LAG(occupancy_avg)
+        occupancy,
+        occupancy
+        - LAG(occupancy)
             over (partition by station_id, lane, sample_date order by sample_timestamp)
             as occupancy_delta
     from source
@@ -45,7 +45,7 @@ sum_occupancy_delta as (
             as abs_val_occupancy_delta_summed
     from calculate_occupancy_delta
     qualify
-        (occupancy_avg != 0 or occupancy_avg is not null)
+        (occupancy != 0 or occupancy is not null)
         and ROW_NUMBER() over (
             partition by station_id, lane, sample_date
             order by sample_timestamp
