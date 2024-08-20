@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: int__db96_detector_agg_five_minutes
+    description: |
+      Raw 30 second sample data aggregated to the 5 minute level.
+      Volume values are summed, occupancy is averaged.
+    columns:
+      - name: district
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: id
+        description: The station ID.
+      - name: sample_date
+        description: The date on which the sample was taken.
+      - name: sample_timestamp
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: lane
+        description: |
+          Lane associated with a route and station from raw data.
+      - name: flow
+        description: Number of vehicle that passed over the detector during the sample period for the lane.
+      - name: occupancy
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
+      - name: speed
+        description: |
+          Speed in the lane as measured by the detector in miles/hour.
+          Weighted by count of samples in each period.
