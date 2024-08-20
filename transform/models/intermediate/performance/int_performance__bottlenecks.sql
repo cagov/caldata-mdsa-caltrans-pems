@@ -7,7 +7,7 @@
 
 with
 
-station_five_minute as (
+station_metrics as (
     select
         station_id,
         sample_date,
@@ -22,6 +22,25 @@ station_five_minute as (
     where
         {{ make_model_incremental('sample_date') }}
         and station_type in ('ML', 'HV')
+),
+
+station_config as (
+    select
+        station_id,
+        max(latitude) as lat,
+        min(longitude) as long
+    from {{ ref("int_vds__station_config") }}
+    group by station_id
+),
+
+station_five_minute as (
+    select
+        m.*,
+        c.lat,
+        c.long
+    from station_metrics as m
+    left join station_config as c
+        on m.station_id = c.station_id
 ),
 
 calcs as (
