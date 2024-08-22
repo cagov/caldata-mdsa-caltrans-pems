@@ -6,11 +6,13 @@ with detector_conf as (
         latitude,
         longitude,
         direction,
+        freeway,
         station_type,
-        angle,
         district
     from {{ ref('int_vds__station_config') }}
-    where latitude is not null and longitude is not null
+    where
+        latitude is not null and longitude is not null
+        and station_type in ('HV', 'ML')
 )
 
 select * from detector_conf
