@@ -116,7 +116,11 @@ samples_not_requiring_imputation as (
         occupancy_avg,
         speed_five_mins
     from unimputed
-    where detector_is_good
+    where
+        detector_is_good
+        and volume_sum is not null
+        and occupancy_avg is not null
+        and speed_five_mins is not null
 ),
 
 /** LOCAL/REGIONAL Regression follows **/
@@ -156,7 +160,6 @@ samples_requiring_imputation_with_local_regional_neighbors as (
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples.*,
-        local_regional_coeffs.other_station_id,
         local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
         local_regional_coeffs.speed_intercept,
