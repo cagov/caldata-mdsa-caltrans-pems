@@ -9,7 +9,7 @@
 
 /* Unimputed data aggregated to five minutes" */
 with base as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
