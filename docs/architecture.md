@@ -14,6 +14,7 @@ It is described in some detail in ODI CalData's
 ```mermaid
 flowchart TB
 subgraph External Data Source
+  G[(Geo Data)]
   CT[(\nCHP)]
   TR[(\nTransit)]
 end
@@ -21,9 +22,10 @@ subgraph Caltrans VPN
     direction TB
     PQ[(\nDistrict TMC Servers)]
     C[(\nOther Data Source)]
+  end
+    PY>Python Scripts]
     LS>Landing Server]
     RS>Relay Server]
-  end
 subgraph AWS
   direction TB
   A[\AWS S3 Bucket/]
@@ -43,6 +45,7 @@ subgraph AWS
   end
 end
 P{{PowerBI}}
+Pe{{PeMS}}
 
 RS -- LOADER_PRD --> A
 A -- Data Pipelines --> RP
@@ -54,10 +57,14 @@ TD -- TRANSFORMER_DEV --> AD
 RP -- TRANSFORMER_PRD --> TP
 TP -- TRANSFORMER_PRD --> AP
 RP -- TRANSFORMER_DEV --> TD
-AD -- REPORTER_DEV --> P
-AP -- REPORTER_PRD --> P
+AD -- REPORTER_DEV --> P & Pe
+AP -- REPORTER_PRD --> P & Pe
+AP --> A
 C --> LS
 PQ --> LS
+G --> PY
+PY -- LOADER_PRD --> RP
+PY -- LOADER_DEV --> RD
 ```
 
 ## Snowflake architecture
@@ -79,7 +86,7 @@ We have six primary databases in our project:
 Where our **Source** data lives
 
 - **`RAW_DEV`**: Dev space for loading new source data.
-- **`RAW_PRD`**:Landing database for production source data.
+- **`RAW_PRD`**: Landing database for production source data.
 
 Where data from our **Staging and Intermediate** models lives
 
@@ -192,7 +199,7 @@ To them, the whole rest of the architecture doesn't exist, and they can only see
 1. Write a new Python script (or configure an equivalent loading tool) for loading the data to Snowflake.
 1. Assume the `LOADER_DEV` role and load the data into the `RAW_DEV` database.
 1. Verify that the data was loaded and looks correct in Snowflake.
-1. Schedule the Python script to run using the `LOADER_PRD` role and the `RAW_PRD` database. These data are now ready for dbt modeling.
+1. Schedule the Python script to run using the `LOADER_PRD` role and the `RAW_PRD` database. This data are now ready for dbt modeling.
 1. Once the data is loaded to the `RAW_PRD` database, drop the data from the `RAW_DEV` database, it’s not needed anymore.
 
 ### Scenario: creating a new dashboard
