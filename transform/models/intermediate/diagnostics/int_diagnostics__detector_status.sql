@@ -13,6 +13,20 @@ source as (
     where {{ make_model_incremental('sample_date') }}
 ),
 
+detector_config as (
+    select
+        vdtc.detector_id,
+        vdtc.station_id,
+        vdtc.lane,
+        sd.sample_date,
+        vdtc._valid_from,
+        vdtc._valid_to
+    from {{ ref('int_vds__detector_config') }} as vdtc
+    inner join (select min(sample_date) as sample_date from source) as sd
+        on (vdtc._valid_to > sd.sample_date or vdtc._valid_to is null)
+
+),
+
 district_feed_check as (
     select
         source.district,
@@ -26,21 +40,6 @@ district_feed_check as (
     group by source.district
 ),
 
-source_with_detector_metadata as (
-    select
-        dm.active_date as sample_date,
-        dm.station_id,
-        dm.district,
-        cast(dm.physical_lanes as NUMBER(1, 0)) as lane,
-        sps.* exclude (sample_date, district, station_id, lane)
-    from {{ ref ('int_vds__active_stations') }} as dm
-    left outer join source as sps
-        on
-            dm.active_date = sps.sample_date
-            and dm.station_id = sps.station_id
-            and dm.district = sps.district
-            and dm.physical_lanes = sps.lane
-),
 
 
 detector_status as (
@@ -49,7 +48,9 @@ detector_status as (
         set_assgnmt.station_id,
         set_assgnmt.district,
         set_assgnmt.station_type,
-        sps.* exclude (district, station_id),
+        set_assgnmt.active_date as sample_date,
+        dtc.lane,
+        sps.* exclude (district, station_id, lane, sample_date),
         dfc.district_feed_working,
         co.min_occupancy_delta,
         case
@@ -100,16 +101,24 @@ detector_status as (
         end as status
 
     from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
-    left join source_with_detector_metadata as sps
+    inner join detector_config as dtc
+        on
+            set_assgnmt.active_date >= dtc._valid_from
+            and (set_assgnmt.active_date < dtc._valid_to or dtc._valid_to is null)
+            and set_assgnmt.station_id = dtc.station_id
+
+
+    left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
             and set_assgnmt.active_date = sps.sample_date
+            and dtc.lane = sps.lane
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
-            sps.station_id = co.station_id
-            and sps.lane = co.lane
-            and sps.sample_date = co.sample_date
+            set_assgnmt.station_id = co.station_id
+            and dtc.lane = co.lane
+            and set_assgnmt.active_date = co.sample_date
     left join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
 )
