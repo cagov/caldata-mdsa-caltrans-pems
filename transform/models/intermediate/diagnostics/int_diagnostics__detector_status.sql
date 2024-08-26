@@ -13,6 +13,10 @@ source as (
     where {{ make_model_incremental('sample_date') }}
 ),
 
+sample_date as (
+    select min(sample_date) as sample_date from source
+),
+
 detector_config as (
     select
         vdtc.detector_id,
@@ -22,7 +26,7 @@ detector_config as (
         vdtc._valid_from,
         vdtc._valid_to
     from {{ ref('int_vds__detector_config') }} as vdtc
-    inner join (select min(sample_date) as sample_date from source) as sd
+    inner join sample_date as sd
         on (vdtc._valid_to > sd.sample_date or vdtc._valid_to is null)
 
 ),
