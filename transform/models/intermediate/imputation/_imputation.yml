@@ -99,6 +99,18 @@ models:
         description: The occupancy based on global regressions.
       - name: SPEED_GLOBAL_REGRESSION
         description: The speed based on global regressions.
+      - name: VOLUME_LOCAL_AVG
+        description: The average volume from local detectors.
+      - name: VOLUME_REGIONAL_AVG
+        description: The average volume from regional detectors
+      - name: SPEED_LOCAL_AVG
+        description: The average speed from local detectors.
+      - name: SPEED_REGIONAL_AVG
+        description: The average speed from regional detectors
+      - name: OCCUPANCY_LOCAL_AVG
+        description: The average occupancy from local detectors.
+      - name: OCCUPANCY_REGIONAL_AVG
+        description: The average occupancy from regional detectors
       - name: LOCAL_REGRESSION_DATE
         description: |
           The date on which the coefficients in the local regression
