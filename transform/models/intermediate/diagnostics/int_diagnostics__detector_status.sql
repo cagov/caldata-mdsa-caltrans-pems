@@ -53,6 +53,7 @@ detector_status as (
         set_assgnmt.district,
         set_assgnmt.station_type,
         set_assgnmt.active_date as sample_date,
+        dtc.detector_id,
         dtc.lane,
         sps.* exclude (district, station_id, lane, sample_date),
         dfc.district_feed_working,

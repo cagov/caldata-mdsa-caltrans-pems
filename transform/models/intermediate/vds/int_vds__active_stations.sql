@@ -8,7 +8,7 @@ with date_range as (
 ),
 
 date_range_updated as (
-    select date_{{ "day" }} as active_date from date_range
+    select to_date(date_{{ "day" }}) as active_date from date_range
 ),
 
 station_meta as (
