@@ -39,13 +39,25 @@ hybrid_five_mins_agg as (
         case
             when detector_is_good = false or volume_sum is null
                 then
-                    coalesce(volume_local_regression, volume_regional_regression, volume_global_regression)
+                    coalesce(
+                        volume_local_regression,
+                        volume_regional_regression,
+                        volume_global_regression,
+                        volume_local_avg,
+                        volume_regional_avg
+                    )
             else volume_sum
         end as volume_sum,
         case
             when detector_is_good = false or speed_five_mins is null
                 then
-                    coalesce(speed_local_regression, speed_regional_regression, speed_global_regression)
+                    coalesce(
+                        speed_local_regression,
+                        speed_regional_regression,
+                        speed_global_regression,
+                        speed_local_avg,
+                        speed_regional_avg
+                    )
             else speed_five_mins
         end as speed_five_mins,
         case
@@ -54,7 +66,9 @@ hybrid_five_mins_agg as (
                     coalesce(
                         occupancy_local_regression,
                         occupancy_regional_regression,
-                        occupancy_global_regression
+                        occupancy_global_regression,
+                        occupancy_local_avg,
+                        occupancy_regional_avg
                     )
             else occupancy_avg
         end as occupancy_avg,
@@ -81,6 +95,12 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or volume_sum is null) and volume_global_regression is not null
                 then 'global'
+            when
+                (detector_is_good = false or volume_sum is null) and volume_local_avg is not null
+                then 'local_avg'
+            when
+                (detector_is_good = false or volume_sum is null) and volume_regional_avg is not null
+                then 'regional_avg'
             else 'observed'
         end as volume_imputation_method,
         case
@@ -93,6 +113,12 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or speed_five_mins is null) and speed_global_regression is not null
                 then 'global'
+            when
+                (detector_is_good = false or speed_five_mins is null) and speed_local_avg is not null
+                then 'local_avg'
+            when
+                (detector_is_good = false or speed_five_mins is null) and speed_regional_avg is not null
+                then 'regional_avg'
             else 'observed'
         end as speed_imputation_method,
         case
@@ -105,6 +131,12 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or occupancy_avg is null) and occupancy_global_regression is not null
                 then 'global'
+            when
+                (detector_is_good = false or occupancy_avg is null) and occupancy_local_avg is not null
+                then 'local_avg'
+            when
+                (detector_is_good = false or occupancy_avg is null) and occupancy_regional_avg is not null
+                then 'regional_avg'
             else 'observed'
         end as occupancy_imputation_method
     from obs_imputed_five_minutes_agg

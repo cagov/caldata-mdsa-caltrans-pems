@@ -28,6 +28,10 @@ models:
         description: Percentage of imputed occupancy using local regression.
       - name: PCT_OF_OCCUPANCY_REGIONAL_REGRESSION
         description: Percentage of imputed occupancy using regional regression.
+      - name: PCT_OF_OCCUPANCY_LOCAL_AVG
+        description: Percentage of imputed occupancy using local average.
+      - name: PCT_OF_OCCUPANCY_REGIONAL_AVG
+        description: Percentage of imputed occupancy using regional average.
       - name: PCT_OF_OCCUPANCY_OBSERVED
         description: Percentage of observed occupancy.
       - name: PCT_OF_OCCUPANCY_UNOBSERVED_UNIMPUTED
@@ -38,6 +42,10 @@ models:
         description: Percentage of imputed speed using local regression.
       - name: PCT_OF_SPEED_REGIONAL_REGRESSION
         description: Percentage of imputed speed using regional regression.
+      - name: PCT_OF_SPEED_LOCAL_AVG
+        description: Percentage of imputed speed using local average.
+      - name: PCT_OF_SPEED_REGIONAL_AVGN
+        description: Percentage of imputed speed using regional average.
       - name: PCT_OF_SPEED_OBSERVED
         description: Percentage of observed speed.
       - name: PCT_OF_SPEED_UNOBSERVED_UNIMPUTED
@@ -48,6 +56,10 @@ models:
         description: Percentage of imputed volume using local regression.
       - name: PCT_OF_VOLUME_REGIONAL_REGRESSION
         description: Percentage of imputed volume using regional regression.
+      - name: PCT_OF_VOLUME_LOCAL_AVG
+        description: Percentage of imputed volume using local average.
+      - name: PCT_OF_VOLUME_REGIONAL_AVG
+        description: Percentage of imputed volume using regional average.
       - name: PCT_OF_VOLUME_OBSERVED
         description: Percentage of observed volume.
       - name: PCT_OF_VOLUME_UNOBSERVED_UNIMPUTED
