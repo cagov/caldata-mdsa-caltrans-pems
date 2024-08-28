@@ -4,6 +4,7 @@ models:
   - name: int_clearinghouse__station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
+      This model is not recommended for further use, instead use int_vds__detector_config or int_vds__station_config.
     columns:
       - name: META_DATE
         description: Date of the metadata file.
