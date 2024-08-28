@@ -103,3 +103,24 @@ macros:
           Each value for the partitioning string will be in the file path for the files,
           so it is a good idea to construct the expression with that in mind. For more documentation,
           see [here](https://docs.snowflake.com/en/sql-reference/sql/copy-into-location)
+
+  - name: timestamp_spine
+    description: |
+      Generates a table with 1 column; a list of timestamps from a start date to an end date. The
+      user can choose a constant spacing between the timestamps (the default is a whole day). The
+      spine will include the `start_date`, but not the `end_date`.
+    arguments:
+      - name: start_date
+        type: string
+        description: |
+          Beginning date for timestamp spine. The day will start at 00:00:00.
+      - name: end_date
+        type: string
+        description: |
+          End date for timestamp spine. Note that this date is not included in the output
+          spine, only days up until it.
+      - name: second_increment
+        type: integer
+        description: |
+          Number of seconds between each timestamp in the spine. Invalid values will result in
+          the default value being selected.
