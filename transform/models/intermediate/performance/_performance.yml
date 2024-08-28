@@ -433,7 +433,7 @@ models:
       This model identifies bottlenecks at every station. A bottleneck is defined by the following
       conditions:
          1. There is a drop in speed of at least 20 mph between stations during the same time
-         2. The speed at the current station (downstream station) is less than 40 mph.
+         2. The speed at the current station (upstream station) is less than 40 mph.
          3. The stations are less than 3 miles apart.
          4. The speed drop persists for at least 5 out of any 7 contiguous 5-minute data points.
 
@@ -469,3 +469,26 @@ models:
         description: |
           A boolean value that evaluates to True when all criteria for a bottleneck is met for at least 5 rows
           in a forward-looking window of seven, otherwise it will give a value of False.
+      - name: IS_CONGESTED
+        description: 
+          A boolean value that evaluates to True when the speed of a station is below 40 mph in a 5-minute period,
+          otherwise it will give a value of False.
+      - name: CONGESTION_LENGTH
+        description: Returns station length when the station is congested, otherwise it will return 0.
+      - name: UPSTREAM_IS_CONGESTED
+        description: 
+          A boolean value that evaluates to True when the upstream station is also congested, otherwise it will
+          give a value of False. 
+      - name: CONGESTION_STATUS_CHANGE
+        description: 
+          A binary value that evaluates to 1 when the congestion status changes between stations, either
+          from congested to uncongested or uncongested to congested.
+      - name: CONGESTION_SEQUENCE
+        description: 
+          Calculates the summation of congestion_status_change values accumulatively. For different stations
+          with same sequence values will maintain the same congestion status (either congested or uncongested).
+      - name: BOTTLENECK_EXTENT
+        description: 
+          Calculates the congestion region starting from the bottleneck location towards upstream adjacent 
+          congested stations, which is the summation of congestion lengths with same congestion sequence values.
+          

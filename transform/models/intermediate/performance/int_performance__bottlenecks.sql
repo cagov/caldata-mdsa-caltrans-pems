@@ -7,7 +7,7 @@
 
 with
 
-station_metrics as (
+station_five_minute as (
     select
         station_id,
         sample_date,
@@ -24,25 +24,6 @@ station_metrics as (
         and station_type in ('ML', 'HV')
 ),
 
-station_config as (
-    select
-        station_id,
-        max(latitude) as lat,
-        min(longitude) as long
-    from {{ ref("int_vds__station_config") }}
-    group by station_id
-),
-
-station_five_minute as (
-    select
-        m.*,
-        c.lat,
-        c.long
-    from station_metrics as m
-    left join station_config as c
-        on m.station_id = c.station_id
-),
-
 calcs as (
     select
         *,
@@ -52,19 +33,19 @@ calcs as (
         to get the speed there. When the direction is west or south, the "upstream" station has a
         larger postmile, and we need to lead to get the speed there. */
 
-        speed_five_mins - lag(speed_five_mins)
+        speed_five_mins - lead(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_ne,
 
-        speed_five_mins - lead(speed_five_mins)
+        speed_five_mins - lag(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_sw,
 
-        absolute_postmile - lag(absolute_postmile)
+        absolute_postmile - lead(absolute_postmile)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as distance_delta_ne,
 
-        absolute_postmile - lead(absolute_postmile)
+        absolute_postmile - lag(absolute_postmile)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as distance_delta_sw
 
