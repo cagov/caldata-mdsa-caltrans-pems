@@ -128,11 +128,8 @@ agg_with_metadata as (
         on
             agg.station_id = dmeta.station_id
             and agg.lane = dmeta.lane
-            and agg.sample_date >= dmeta._valid_from
-            and (
-                agg.sample_date < dmeta._valid_to
-                or dmeta._valid_to is null
-            )
+            and {{ get_scd_2_data('agg.sample_date','dmeta._valid_from','dmeta._valid_to') }}
+
 )
 
 select * from agg_with_metadata

@@ -16,7 +16,6 @@ dmeta as (
 detector_status_with_metadata as (
     select
         ds.*,
-        dmeta.detector_id,
         dmeta.state_postmile,
         dmeta.absolute_postmile,
         dmeta.latitude,
