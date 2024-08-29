@@ -57,7 +57,7 @@ base as (
         agg.high_volume_ct,
         agg.high_occupancy_ct,
         agg.speed_weighted,
-        agg.volume_normalized,
+        agg.volume_observed,
         coalesce(agg.state_postmile, dmeta.state_postmile) as state_postmile,
         coalesce(agg.absolute_postmile, dmeta.absolute_postmile) as absolute_postmile,
         coalesce(agg.latitude, dmeta.latitude) as latitude,
