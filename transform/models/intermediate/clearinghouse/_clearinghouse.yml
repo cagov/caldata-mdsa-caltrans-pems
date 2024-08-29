@@ -4,6 +4,7 @@ models:
   - name: int_clearinghouse__station_meta
     description: |
       Vehicle detector station metadata from the [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
+      This model is not recommended for further use, instead use int_vds__detector_config or int_vds__station_config.
     columns:
       - name: META_DATE
         description: Date of the metadata file.
@@ -139,3 +140,10 @@ models:
         description: |
           Speed in the lane as measured by the detector in miles/hour.
           Weighted by count of samples in each period.
+  - name: int_clearinghouse__detector_agg_five_minutes_with_missing_rows
+    description: |
+      This model takes the `int_clearinghouse__detector_agg_five_minutes` model and fills in "missing"
+      rows. Missing rows are added at the 5-minute timestamp level between each detector's min and max sample
+      dates (from the parent model). For all resulting rows, metadata is filled in but data values (eg.
+      `volume_sum`, `occupancy_avg`, etc) are set to null, to be imputed later. Column descriptions can be found
+      in `int_clearinghouse__detector_agg_five_minutes`.
