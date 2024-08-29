@@ -32,7 +32,7 @@ with base as (
             when volume_sum = 0 and occupancy_avg = 0 then 0
             else speed_weighted
         end as speed_weighted
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows')}}
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
