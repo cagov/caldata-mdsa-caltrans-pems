@@ -1,0 +1,130 @@
+version: 2
+
+models:
+  - name: stg_geo_reference__county_boundaries
+    description: |
+      This polygon feature class represents the California county boundaries. Based on TIGER/Line 2010 county
+      files, the Caltrans districts and California county name abbreviation were added to this layer for
+      Caltrans internal GIS application. [Data
+      source](https://gisdata-caltrans.opendata.arcgis.com/datasets/111030d0d67e49d789080c47d9e4e618_0/about)
+    columns:
+      - name: COUNTY_FIPS
+        description: 2020 Census county FIPS code.
+      - name: GEO_ID
+        description: 2020 Census state and county FIPS codes concatenated.
+      - name: NAME
+        description: The County's name.
+      - name: LAND
+        description: unknown.
+      - name: WATER
+        description: unknown.
+      - name: LATITUDE
+        description: The latitude of the county boundary.
+      - name: LONGITUDE
+        description: The longitude of the county boundary.
+      - name: COUNTY_CODE
+        description: Three chracter county code.
+      - name: DISTRICT
+        description: The district in which the county boundary is located. Values are 1-12.
+      - name: AREA
+        description: The area of the county boundary.
+      - name: LENGTH
+        description: The length of the county boundary.
+      - name: GEOMETRY
+        description: The geometry of the county boundary.
+  - name: stg_geo_reference__districts
+    description: |
+      The District feature class is a polygon coverage representing the California Department of Transportation
+      (Caltrans) district boundaries. There are 12 Caltrans Districts in California. Caltrans also has Regions
+      as higher level management areas. The names of Caltrans Regions are included in the layer attribute table.
+
+      The District boundary definitions are primarily based on the California county boundaries. The Board of
+      Equalization (BOE) County and City Boundary web service is the authoritative source of County boundaries
+      and this was used to digitize the district boundaries based on the data from March 2023. This data is
+      solely for informational purposes. District 9 has been operating independent of the Central Region since
+      November 1, 2015. Kern County remains the only split county in the state, between Districts 6 and 9
+      respectively. The BOE data was also used to create the district boundary layers along the coastline.
+      [Data source](https://gisdata-caltrans.opendata.arcgis.com/datasets/0144574f750f4ccc88749004aca6eb0c_0/about)
+    columns:
+      - name: DISTRICT
+        description: The territorial division (as for administrative or electoral purposes). Values are 1-12.
+      - name: REGION
+        description: The administrative area of the district.
+      - name: AREA
+        description: The area of the district.
+      - name: LENGTH
+        description: The length of the district.
+      - name: GEOMETRY
+        description: The geometry of the district.
+  - name: stg_geo_reference__shn_lines
+    description: |
+      StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
+      layer represents a highway segment where the county, route, postmile prefix, and postmile suffix are the
+      same. Each segment has a begin and end postmile. This geometry is based upon the extraction from TSN on
+      10 October 2022.
+
+      Each segment is coded with the district, county, route, postmile prefix (if any), begin postmile, end
+      postmile, and postmile suffix (if any). One additional field - AlignCode - should be understood by the
+      user for effective use of this data set (refer to the Entity and Attribute Information section of this
+      metadata).
+
+      AlignCode indicates if the state highway segment is on a Right alignment, Left alignment, Right side of
+      an independent alignment or Left side of an independent alignment. Where TSN (Transportation System
+      Network - the source database) considers most state highways to have just a centerline, the underlying
+      LRS (Linear Referencing System) linework that these segments are based upon has a line for each direction.
+
+      On undivided highways the right and left lines are identical. On divided highways the right and left are
+      separated, but TSN treats the segment as a single centerline. In the last case where highways are not only
+      divided but also have different lengths (where the right and left carriageway diverge around physical
+      obstacles or are separated onto different one-way streets) the underlying linework has dual carriageways,
+      and TSN treats the segment as an "independent alignment".  In some cases (especially for small-scale
+      mapping), it may be appropriate to display linework for just one alignment (e.g. Right alignment), and only
+      for the other side where TSN indicates independent right and left alignments. In other cases (e.g.
+      large-scale mapping), it may be appropriate to display postmiles for both alignments, regardless of how TSN
+      treats the segment.
+
+      The bOdometer and eOdometer fields represent the actual distance in miles from the start of the highway to
+      the begin and end of each highway section.  This is in contrast to the begin and end postmile values, which
+      no longer represent these values as each highway is realigned (and made longer or shorter) over time. [Data
+      source](https://gisdata-caltrans.opendata.arcgis.com/datasets/77f2d7ba94e040a78bfbe36feb6279da_0/about)
+    columns:
+      - name: ROUTE_WITH_SUFFIX
+        description: Unknown.
+      - name: PM_ROUTE_ID
+        description: Unknown.
+      - name: COUNTY
+        description: Three chracter county code.
+      - name: DISTRICT
+        description: The district in which the highway is located. Values are 1-12.
+      - name: PM_PREFIX
+        description: Unknown.
+      - name: BPM
+        description: Unknown.
+      - name: EPM
+        description: Unknown.
+      - name: PM_SUFFIX
+        description: Unknown.
+      - name: BPMC
+        description: Unknown.
+      - name: EPMC
+        description: Unknown.
+      - name: B_ODOMETER
+        description: |
+          Represents the distance in miles from the start of the highway to
+          the beginning and end of each highway section.
+      - name: E_ODOMETER
+        description: |
+          Represents the distance in miles from the start of the highway to
+          the beginning and end of each highway section.
+      - name: ALIGN_CODE
+        description: Unknown.
+      - name: ROUTE_TYPE
+        description: The type of route of the highway. Values are State, US, and Interstate.
+      - name: DIRECTION
+        description: |
+          The direction of the highway.
+          Values are NB, SB, EB, and WB (north-, south-, east-, and west-bound).
+      - name: LENGTH
+        description: The length of the state highway.
+      - name: GEOMETRY
+        description: The geometry of the state highway.
