@@ -83,13 +83,19 @@ models:
           maximum observed 15-minute flow. We use the maximum of this value and 2076 v/l/h
           as the capacity at each location. The threshold values used are 35, 40, 45, 50, 55,
           and 60 MPH.
-      - name: int_performance__station_metrics_agg_hourly
-        description: |
-          hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
-          each station regardless of lanes. This metrics will measure the hourly performance of the state
-          highway system at the station level.This can be used for daily aggregation of PeMS performance
-          metrics at the station level.
-          columns:
+      - name: speed_imputation_method
+        description: The method (local/regional/global) used to impute the speed.
+      - name: volume_imputation_method
+        description: The method (local/regional/global) used to impute the volume.
+      - name: occupancy_imputation_method
+        description: The method (local/regional/global) used to impute the occupancy.
+  - name: int_performance__station_metrics_agg_hourly
+    description: |
+      hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each station regardless of lanes. This metrics will measure the hourly performance of the state
+      highway system at the station level.This can be used for daily aggregation of PeMS performance
+      metrics at the station level.
+    columns:
       - name: ID
         description: |
           An integer value that uniquely indentifies a station.

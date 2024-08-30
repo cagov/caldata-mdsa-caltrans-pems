@@ -106,9 +106,9 @@ models:
       - name: lane
         description: |
           Lane associated with a route and station from raw data.
+      - name: volume_observed
+        description: Number of vehicles that passed over the detector during the sample period for the lane.
       - name: volume_sum
-        description: Number of vehicle that passed over the detector during the sample period for the lane.
-      - name: volume_normalized
         description: |
           For the 5-minute aggregation there should be 10 30-second samples collected. If 10 or more
           samples are collected the aggregated (sum) volume rounded to the nearest integer value is used
