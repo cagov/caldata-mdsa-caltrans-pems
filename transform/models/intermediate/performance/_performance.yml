@@ -510,7 +510,7 @@ models:
           with same sequence values will maintain the same congestion status (either congested or uncongested).
       - name: BOTTLENECK_EXTENT
         description: |
-          Calculates the congestion region starting from the bottleneck location towards upstream adjacent 
+          Calculates the congestion region starting from the bottleneck location towards upstream adjacent
           congested stations, which is the summation of congestion lengths with same congestion sequence values.
   - name: int_performance__detector_metrics_agg_hourly
     description: |
