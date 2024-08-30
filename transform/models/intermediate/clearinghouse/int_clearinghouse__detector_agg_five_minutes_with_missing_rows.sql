@@ -3,7 +3,7 @@
     cluster_by=["sample_date"],
     unique_key=["detector_id", "sample_timestamp","sample_date"],
     on_schema_change="append_new_columns",
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL", big="XL")
 ) }}
 
 with timestamp_spine as (
