@@ -457,6 +457,27 @@ models:
          entire duration and spatial extent of the bottleneck. The delay is calculated with
          respect to a threshold speed of 60 mph.
     columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: SPEED_FIVE_MINS
+        description: |
+          Actual reported speed if available otherwise the preliminary speed calculation
+          in miles/hour based on the simplified version of the speed formula located at
+          https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: LENGTH
+        description: length of the station.
       - name: DISTANCE_DELTA_NE
         description: Calculates the delta between postmiles that have a direction of N or E.
       - name: DISTANCE_DELTA_SW
@@ -476,7 +497,7 @@ models:
       - name: CONGESTION_LENGTH
         description: Returns station length when the station is congested, otherwise it will return 0.
       - name: UPSTREAM_IS_CONGESTED
-        description:
+        description: |
           A boolean value that evaluates to True when the upstream station is also congested, otherwise it will
           give a value of False.
       - name: CONGESTION_STATUS_CHANGE
@@ -491,13 +512,13 @@ models:
         description: |
           Calculates the congestion region starting from the bottleneck location towards upstream adjacent 
           congested stations, which is the summation of congestion lengths with same congestion sequence values.
-      - name: int_performance__detector_metrics_agg_hourly
-        description: |
-          hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
-          each detetcor lane. This metrics will measure the hourly performance of the state
-          highway system at the detecctor level.This can be used for daily aggregation of PeMS performance
-          metrics at the detector level.
-          columns:
+  - name: int_performance__detector_metrics_agg_hourly
+    description: |
+      hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each detetcor lane. This metrics will measure the hourly performance of the state
+      highway system at the detecctor level.This can be used for daily aggregation of PeMS performance
+      metrics at the detector level.
+    columns:
       - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
