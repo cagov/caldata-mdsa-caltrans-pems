@@ -1,0 +1,29 @@
+name: terraform
+
+on:
+  pull_request:
+  push:
+    branches: [main,tr_update_pre_commit_checks_217]
+
+env:
+  PRIVATE_KEY: ${{ SECRETS.SNOWFLAKE_PRIVATE_KEY_DEV }}
+  SNOWFLAKE_USER: ${{ SECRETS.SNOWFLAKE_USER_DEV }}
+  SNOWFLAKE_ACCOUNT: ${{ SECRETS.SNOWFLAKE_ACCOUNT }}
+  SNOWFLAKE_PRIVATE_KEY_PATH: /tmp/private_key.p8
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v3
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: v1.4.0
+      - name: Install tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/\
+          tflint/master/install_linux.sh | bash
+      - name: Run terraform fmt
+        run: |
+          terraform fmt
