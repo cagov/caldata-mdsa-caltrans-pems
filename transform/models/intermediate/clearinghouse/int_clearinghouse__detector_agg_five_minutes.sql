@@ -87,7 +87,9 @@ agg as (
                 sample_ct_{{ lane }} >= 10, volume_{{ lane }},
                 10 / nullifzero(sample_ct_{{ lane }}) * volume_{{ lane }}
             ))
-                as volume_sum, --Represents the normalized flow value
+                as volume_sum,
+                --Represents the observed or normalized flow value based on the
+                --number of samples recieved by the device
             zero_vol_ct_{{ lane }} as zero_vol_ct,
             occupancy_{{ lane }} as occupancy_avg,
             zero_occ_ct_{{ lane }} as zero_occ_ct,
