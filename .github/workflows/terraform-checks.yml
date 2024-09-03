@@ -5,8 +5,8 @@ on:
   push:
     branches: [main,tr_update_pre_commit_checks_217]
 
-env:
-  TFLINT_LOG: debug
+##env:
+##  TFLINT_LOG: debug
 
 jobs:
   terraform-checks:
