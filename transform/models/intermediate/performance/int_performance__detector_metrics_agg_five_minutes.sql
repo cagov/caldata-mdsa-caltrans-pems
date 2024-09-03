@@ -24,6 +24,9 @@ five_minute_agg as (
         occupancy_avg,
         speed_five_mins as speed_weighted,
         station_type,
+        volume_imputation_method,
+        speed_imputation_method,
+        occupancy_imputation_method,
         station_valid_from,
         station_valid_to
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
