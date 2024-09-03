@@ -32,4 +32,4 @@ jobs:
           terraform validate
       - name: Run terraform tflint
         run: |
-          tflint --chdir=terraform/
+          tflint --chdir=terraform/ --recursive
