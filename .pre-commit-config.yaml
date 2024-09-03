@@ -19,15 +19,6 @@ repos:
     hooks:
       - id: yamllint
         args: []
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.77.1
-    hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
-        # Exclude modules to work around
-        # https://github.com/hashicorp/terraform/issues/28490
-        exclude: "terraform/modules/[^/]+/[^/]+$"
-      - id: terraform_tflint
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.6
     hooks:
