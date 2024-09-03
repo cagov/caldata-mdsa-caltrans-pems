@@ -6,10 +6,7 @@ on:
     branches: [main,tr_update_pre_commit_checks_217]
 
 env:
-  PRIVATE_KEY: ${{ SECRETS.SNOWFLAKE_PRIVATE_KEY_DEV }}
-  SNOWFLAKE_USER: ${{ SECRETS.SNOWFLAKE_USER_DEV }}
-  SNOWFLAKE_ACCOUNT: ${{ SECRETS.SNOWFLAKE_ACCOUNT }}
-  SNOWFLAKE_PRIVATE_KEY_PATH: /tmp/private_key.p8
+  TFLINT_LOG: debug
 
 jobs:
   terraform-checks:
