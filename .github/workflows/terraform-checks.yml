@@ -3,7 +3,7 @@ name: terraform-checks
 on:
   pull_request:
   push:
-    branches: [main,tr_update_pre_commit_checks_217]
+    branches: [main]
 
 ##env:
 ##  TFLINT_LOG: debug
