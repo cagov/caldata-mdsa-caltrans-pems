@@ -1,5 +1,6 @@
 {{ config(
     materialized="incremental",
+    on_schema_change="append_new_columns",
     cluster_by=["sample_date"],
     unique_key=["station_id", "sample_date", "sample_timestamp"],
     snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL")
@@ -21,6 +22,7 @@ station_aggregated_speed as (
         any_value(station_type) as station_type,
         any_value(absolute_postmile) as absolute_postmile,
         any_value(district) as district,
+        any_value(length) as length,
         sum(sample_ct) as sample_ct,
         sum(volume_sum) as volume_sum,
         avg(occupancy_avg) as occupancy_avg,
