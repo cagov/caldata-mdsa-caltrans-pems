@@ -37,32 +37,24 @@ detector_status_by_station as (
     group by district, station_id, station_type, sample_date
 ),
 
-dmeta as (
-    select * from {{ ref('int_vds__station_config') }}
-),
-
 detector_status_by_station_with_metadata as (
     select
         dsbs.*,
-        dmeta.state_postmile,
-        dmeta.absolute_postmile,
-        dmeta.latitude,
-        dmeta.longitude,
-        dmeta.physical_lanes,
-        dmeta.county,
-        dmeta.city,
-        dmeta.freeway,
-        dmeta.direction,
-        dmeta.length
+        detector_status.state_postmile,
+        detector_status.absolute_postmile,
+        detector_status.latitude,
+        detector_status.longitude,
+        detector_status.physical_lanes,
+        detector_status.county,
+        detector_status.city,
+        detector_status.freeway,
+        detector_status.direction,
+        detector_status.length
     from detector_status_by_station as dsbs
-    inner join dmeta
+    inner join detector_status
         on
-            dsbs.station_id = dmeta.station_id
-            and dsbs.sample_date >= dmeta._valid_from
-            and (
-                dsbs.sample_date < dmeta._valid_to
-                or dmeta._valid_to is null
-            )
+            dsbs.station_id = detector_status.station_id
+            and dsbs.sample_date = detector_status.active_date
     where dsbs.sample_date is not null
 )
 
