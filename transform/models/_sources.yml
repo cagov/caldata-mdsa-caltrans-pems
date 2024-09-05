@@ -57,7 +57,7 @@ sources:
           Each line contains the sample timestamp and Station ID followed by flow,
           occupancy and speed for each lane. Note that occupancy and/or speed may be empty
           depending on the measurement capabilities of the detectors.
-        freshness: 
+        freshness:
           warn_after:
             count: 2
             period: day
@@ -169,7 +169,7 @@ sources:
     description: |
       Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
       db96 within the Caltrans network.
-    freshness: 
+    freshness:
       warn_after:
         count: 2
         period: day
