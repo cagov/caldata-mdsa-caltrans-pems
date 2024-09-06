@@ -148,6 +148,28 @@ models:
           sample counts
         tests:
           - not_null
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station installed.
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: physical_lanes
+        description: The number of lanes in the station
+      - name: state_postmile
+        description: The State postmile for the station.
+      - name: absolute_postmile
+        description: The absolute postmile for the station.
+      - name: latitude
+        description: The latitude of the station.
+      - name: longitude
+        description: The longitude of the station.
 
   - name: int_diagnostics__constant_occupancy
     description: |
