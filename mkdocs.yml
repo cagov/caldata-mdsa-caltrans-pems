@@ -36,3 +36,5 @@ nav:
       - Data Relay: data/data-relay.md
       - Bottlenecks: data/bottlenecks.md
       - Imputation: data/imputation.md
+      - Data Transformation: data/data-transform.md
+      - Performance Calculations: data/performance_calcs.md
