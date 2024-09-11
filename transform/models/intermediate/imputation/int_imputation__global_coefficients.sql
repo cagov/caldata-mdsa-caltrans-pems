@@ -46,7 +46,7 @@ good_detectors as (
 ),
 
 agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
@@ -60,7 +60,7 @@ detector_counts as (
         agg.lane,
         agg.sample_date,
         agg.sample_timestamp,
-        agg.volume_sum,
+        agg.volume_normalized as volume_sum,
         agg.occupancy_avg,
         agg.speed_weighted,
         agg.district,
@@ -68,7 +68,7 @@ detector_counts as (
         agg.direction,
         agg.station_type,
         -- TODO: Can we give this a better name? Can we move this into the base model?
-        coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
+        coalesce(agg.speed_weighted, (volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates_to_evaluate.regression_date
     from agg

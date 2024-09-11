@@ -36,7 +36,7 @@ regression_dates_to_evaluate as (
 
 agg as (
     select *
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
 ),
 
 -- Select all station pairs that are active for the chosen regression dates
@@ -82,12 +82,12 @@ detector_counts as (
         agg.lane,
         agg.sample_date,
         agg.sample_timestamp,
-        agg.volume_sum,
+        agg.volume_normalized as volume_sum,
         agg.occupancy_avg,
         agg.speed_weighted,
         good_detectors.district,
         -- TODO: Can we give this a better name? Can we move this into the base model?
-        coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
+        coalesce(agg.speed_weighted, (volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
         regression_dates_to_evaluate.regression_date
     from agg

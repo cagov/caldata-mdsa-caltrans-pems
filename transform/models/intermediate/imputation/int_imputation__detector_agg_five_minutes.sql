@@ -16,7 +16,7 @@ with base as (
         district,
         sample_date,
         sample_timestamp,
-        volume_sum,
+        volume_normalized as volume_sum,
         occupancy_avg,
         freeway,
         direction,
@@ -29,7 +29,7 @@ with base as (
         station_valid_from,
         station_valid_to,
         case
-            when volume_sum = 0 and occupancy_avg = 0 then 0
+            when volume_normalized = 0 and occupancy_avg = 0 then 0
             else speed_weighted
         end as speed_weighted
     from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
