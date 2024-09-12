@@ -1,8 +1,8 @@
 # Detector Health Diagnostics
 
 Vehicle detectors are the main source of data in the system and provide the best source of real-time traffic data
-available to Caltrans. Data from the detectors is relayed from the field to District TMC's which ultimatley
-makes it's way to the system. The detector data is combined with equipment data
+available to Caltrans. Data from the detectors is relayed from the field to District TMC's which ultimately
+makes its way to the system. The detector data is combined with equipment data
 (i.e. detector id, district, county, route, postmile, description, etc.) in order to calculate performance
 measures and aggregate them spatially and temporally. Since the detector data serves as the source for most
 of the performance calculations, the resulting performance measures are only as accurate as the underlying data.
@@ -15,7 +15,7 @@ The Detector Health Diagnostic checks performed in the system serve multiple pur
 4.  Used as a data quality measure for imputation, bottleneck and other calculations
 
 Caltrans has installed detectors to cover most urban freeways on the State Highway System. The data collected,
-however, can contain missing values (also referred to as "holes") or “bad” (incorrect) values that require
+however, can contain missing values (also referred to as "holes") or "bad" (incorrect) values that require
 data quality analysis to ensure the highest level of data quality is being used to produce reliable results.
 The system contains various data quality checks to detect when data is "bad" to ensure the "bad" data is not used
 to compute performance measures. When "bad" or missing data is encountered, the system imputes values to fill these

@@ -45,7 +45,7 @@ then multiply one minus this ratio by the length of the segment to determine the
 this represents. For the capacity we 2076 v/l/h at each location. For example, the formula for Lost Productivity during a 5-minute interval
 for a single station is:
 
-    Lost Productivity = 1 - (5-minute Flow / 173 v/l/5-min) \* Station Length
+    Lost Productivity = 1 - (5-minute Flow / 173 v/l/5-min) * Station Length
 
 It is important to note that if the actual speed is above the user selected threshold a value of 0 will be returned. A Lost Productivity value
 will only be calculated if the actual speed is less than the user selected threshold value.
