@@ -21,7 +21,7 @@ The current version of PeMS also contains the following issues:
 1. High maintenance costs
 2. Service interruptions
 3. Utilizes a sole source contractor
-4. Limited access to algorithm's being used in calcuations/analysis
+4. Limited access to algorithm's being used in calculations/analysis
 5. Data loss
 6. Slow user experience
 

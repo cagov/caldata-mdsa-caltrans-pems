@@ -4,7 +4,7 @@ Vehicle detectors are the main source of data in the system and provide the best
 available to Caltrans. Data from the detectors is relayed from the field to District TMC's which ultimatley
 makes it's way to the system. The detector data is combined with equipment data
 (i.e. detector id, district, county, route, postmile, description, etc.) in order to calculate performance
-measures and aggregate them spatially and temporaly. Since the detector data serves as the source for most
+measures and aggregate them spatially and temporally. Since the detector data serves as the source for most
 of the performance calculations, the resulting performance measures are only as accurate as the underlying data.
 
 The Detector Health Diagnostic checks performed in the system serve multiple purposes:
@@ -77,11 +77,11 @@ equipment, device, communications links, etc.) or can also involve non-physical,
 configuration of the device such as associating the wrong county, route and postmile with a station, or assigning the wrong
 identification number to a station. These human errors can be difficult to diagnose.
 
-## Understanding Errors When No Data is Recieved
+## Understanding Errors When No Data is Received
 
 The systems detector health diagnostic approach is to assign a failure status to individual detectors. When the system
 receives data samples, it can test the samples against the threshold values to determine a number of different types of
-errors. But when the system recieves no data samples it's difficult to tell if the detector itself is "bad".
+errors. But when the system receives no data samples it's difficult to tell if the detector itself is "bad".
 If we know the physical data collection infrastructure, which means knowing which detectors are connected to which stations,
 or which stations are connected to which controllers we can focus our diagnostics to the equipment level.
 
@@ -96,7 +96,7 @@ are the least robust methods due to a lack of observed data.
 As another example, if we know that all of the detectors that are connected to a single station are not sending any data samples,
 then it's likely that the issue is related to the station. It could also mean that all of the detectors connected to the station
 have issues but that is less likely. If some detectors are reporting samples to a station and other detectors are not reporting
-samples then the detectors not reporting samples are the likely source of the issue. If a controller is not recieving any samples
+samples then the detectors not reporting samples are the likely source of the issue. If a controller is not receiving any samples
 from connected stations there could be no power at the controller, or it could have been damaged in an accident (or removed
 during construction).
 
@@ -104,10 +104,10 @@ If we receive samples from some stations connected to a controller but not other
 down and the loops belonging to those controllers are marked as station down. If we receive samples from some detectors but not
 others for a single station then the non-reporting detectors are considered to be down but not the station and are marked as no
 data. It should be pointed out that we're assuming that the district feed, controller or stations are the problem if we don't
-receive data samples from the detectors underneath them. But it could be that all of the individual loops are broken althought
+receive data samples from the detectors underneath them. But it could be that all of the individual loops are broken although
 this is considered unlikely.
 
 In districts where we don't have the physical topology of the data collection infrastructure, or the data collection
-infrastructure is just a star the detector staus checks are more limited. District 4 doesn't provide us with their
+infrastructure is just a star the detector status checks are more limited. District 4 doesn't provide us with their
 data collection infrastructure and District 10 has only wireless modems that are sending data back to a centralized point so
 not all of the detector status checks are possible.
