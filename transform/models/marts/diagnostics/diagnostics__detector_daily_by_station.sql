@@ -40,13 +40,13 @@ detector_status_by_station as (
         round(avg(sample_ct)) as average_sample_count,
         sum(good_detector) as good_detector_count,
         sum(bad_detector) as bad_detector_count,
-        sum(good) as good,
-        sum(down_or_no_data) as down_or_no_data,
-        sum(insufficient_data) as insufficient_data,
-        sum(card_off) as card_off,
-        sum(high_val) as high_val,
-        sum(intermittent) as intermittent,
-        sum(constant) as constant
+        sum(good) as good_count,
+        sum(down_or_no_data) as down_or_no_data_count,
+        sum(insufficient_data) as insufficient_data_count,
+        sum(card_off) as card_off_count,
+        sum(high_val) as high_val_count,
+        sum(intermittent) as intermittent_count,
+        sum(constant) as constant_count
     from detector_status_with_count
     group by district, station_id, station_type, sample_date
 ),
