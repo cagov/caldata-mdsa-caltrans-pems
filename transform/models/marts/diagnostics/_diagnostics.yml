@@ -119,7 +119,7 @@ models:
           The average number of samples from all detectors reported from.
           per station and day
       - name: down_or_no_data_count
-        description: The number of down or no data bad detectors count per day and station.
+        description: The number of down or no data bad detectors per day and station.
       - name: insufficient_data_count
         description: The number of bad detectors per day and station that have insufficient data.
       - name: card_off_count
@@ -157,8 +157,6 @@ models:
         description: The freeway on which the station is installed.
       - name: direction
         description: The direction of travel for the freeway on which the station is installed.
-      - name: physical_lanes
-        description: The number of lanes in the station in that time period.
       - name: state_postmile
         description: The State postmile for the station in that time period.
       - name: absolute_postmile
@@ -178,7 +176,7 @@ models:
           The total number of samples from all detectors reported from.
           per station for a month
       - name: down_or_no_data_count
-        description: The number of down or no data bad detectors count per month and station.
+        description: The number of down or no data bad detectors per month and station.
       - name: insufficient_data_count
         description: The number of bad detectors per month and station that have insufficient data.
       - name: card_off_count
@@ -187,7 +185,5 @@ models:
         description: The number of bad detectors per month and station that had extremely high value.
       - name: intermittent_count
         description: The number of bad detectors per month and station that had intermittent detector issues.
-
       - name: constant_count
         description: The number of bad detectors per month and station that had constant occupancy issues.
-
