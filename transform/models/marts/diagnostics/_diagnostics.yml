@@ -132,7 +132,8 @@ models:
         description: The number of bad detectors per day and station that had constant count.
   - name: diagnostics__detector_monthly_by_station
     description: |
-      This file contains detector status data aggregated to the station level in monthly tempporal resulation.
+      This file contains detector status data aggregated to the station level in monthly temporal resolution.
+
     columns:
       - name: station_id
         description: The unique ID of the station.
