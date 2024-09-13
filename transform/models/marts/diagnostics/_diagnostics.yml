@@ -149,7 +149,8 @@ models:
       - name: district
         description: The Caltrans district for the station.
       - name: county
-        description: The county FIPS code in which the station installed.
+        description: The county FIPS code in which the station is installed.
+
       - name: city
         description: The city FIPS code in which the station is installed.
       - name: freeway
