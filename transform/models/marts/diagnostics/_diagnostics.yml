@@ -129,7 +129,8 @@ models:
       - name: intermittent_count
         description: The number of bad detectors per day and station that had intermittent detector issues.
       - name: constant_count
-        description: The number of bad detectors per day and station that had constant count.
+        description: The number of bad detectors per day and station that had constant occupancy issues.
+
   - name: diagnostics__detector_monthly_by_station
     description: |
       This file contains detector status data aggregated to the station level in monthly temporal resolution.
