@@ -6,50 +6,31 @@
 with detector_daily_status as (
     select
         *,
-        DATE_TRUNC(month, sample_date) as sample_month
+        DATE_TRUNC(month, sample_date) as sample_month,
+        ROW_NUMBER() over (partition by sample_month, station_id order by sample_date desc) as rn
     from {{ ref('diagnostics__detector_daily_by_station') }}
-),
-
-recent_data as (
-    select
-        district,
-        station_id,
-        station_type,
-        sample_month,
-        county,
-        city,
-        freeway,
-        direction,
-        latitude,
-        longitude,
-        length,
-        state_postmile,
-        absolute_postmile,
-        ROW_NUMBER() over (
-            partition by
-                district, station_id, station_type, sample_month, county, city, freeway, direction, latitude, longitude
-            order by sample_date desc
-        ) as rn
-    from
-        detector_daily_status
 ),
 
 detector_monthly_status_by_station as (
     select
-        district,
-        station_id,
-        station_type,
         sample_month,
-        county,
-        city,
-        freeway,
-        direction,
-        latitude,
-        longitude,
+        station_id,
+        MAX(case when rn = 1 then district end) as district,
+        MAX(case when rn = 1 then state_postmile end) as state_postmile,
+        MAX(case when rn = 1 then absolute_postmile end) as absolute_postmile,
+        MAX(case when rn = 1 then latitude end) as latitude,
+        MAX(case when rn = 1 then longitude end) as longitude,
+        MAX(case when rn = 1 then physical_lanes end) as physical_lanes,
+        MAX(case when rn = 1 then station_type end) as station_type,
+        MAX(case when rn = 1 then county end) as county,
+        MAX(case when rn = 1 then city end) as city,
+        MAX(case when rn = 1 then freeway end) as freeway,
+        MAX(case when rn = 1 then direction end) as direction,
+        MAX(case when rn = 1 then length end) as length,
         SUM(detector_count) as monthly_detector_count,
         ROUND(SUM(average_sample_count)) as monthly_sample_count,
         SUM(good_detector_count) as monthly_good_detector_count,
-        SUM(good_count) as good_count,
+        SUM(bad_detector_count) as monthly_bad_detector_count,
         SUM(down_or_no_data_count) as down_or_no_data_count,
         SUM(insufficient_data_count) as insufficient_data_count,
         SUM(card_off_count) as card_off_count,
@@ -59,41 +40,8 @@ detector_monthly_status_by_station as (
     from
         detector_daily_status
     group by
-        district,
         station_id,
-        station_type,
-        sample_month,
-        county,
-        city,
-        freeway,
-        direction,
-        latitude,
-        longitude
-),
-
-monthly_station_health as (
-    select
-        dms.*,
-        recent.length,
-        recent.state_postmile,
-        recent.absolute_postmile
-    from
-        detector_monthly_status_by_station as dms
-    left join
-        recent_data
-            as recent
-        on
-            dms.district = recent.district
-            and dms.station_id = recent.station_id
-            and dms.station_type = recent.station_type
-            and dms.sample_month = recent.sample_month
-            and dms.county = recent.county
-            and dms.city = recent.city
-            and dms.freeway = recent.freeway
-            and dms.direction = recent.direction
-            and dms.latitude = recent.latitude
-            and dms.longitude = recent.longitude
-            and recent.rn = 1
+        sample_month
 )
 
-select * from monthly_station_health
+select * from detector_monthly_status_by_station
