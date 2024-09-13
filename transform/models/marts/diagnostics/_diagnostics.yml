@@ -189,4 +189,5 @@ models:
         description: The number of bad detectors per month and station that had intermittent detector issues.
 
       - name: constant_count
-        description: The number of bad detectors per month and station that had constant count.
+        description: The number of bad detectors per month and station that had constant occupancy issues.
+
