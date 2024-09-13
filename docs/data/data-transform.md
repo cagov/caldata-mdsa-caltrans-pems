@@ -44,17 +44,17 @@ The station configuration data is later combined with the raw 30-second data in 
    5-minute intervals for all stations/detectors that are considered active on any given date for all 24 hours.
 5. The 5-minute data aggregations are then processed in the following order:
 
-   - If 10 or more samples are reported in a 5-minute timeframe the sum of the flow value is checked to ensure it is between 0
-     and the 5-minute max capacity value. If the flow value meet this condition it is used. The average occupancy values are checked
-     to ensure they are between 0 and 1. If the occupancy value meets this condition it is used. If a speed value is reported by the
-     device the flow weighted speed value is calculated and used.
-   - If between 1-9 samples are reported in a 5-minute timeframe the flow data is normalized as if 10 samples were received using the
-     following formula: (reported flow ) \* (10 / number of samples reported). The resulting value for the normalized flow is used. The
-     average of the reported occupancy values is used, no normalization is done for occupancy or speed. The flow weighted speed value is
-     used based on the raw data provided, no normalization is done with speed data.
-   - If the flow or occupancy values fail any of the checks above or if the detector is diagnosed as BAD based on the diagnostic tests,
-     than the flow, occupancy and speed are imputed. The data models related to imputation are intermediate models contained in the
-     IMPUTATION schema.
+    - If 10 or more samples are reported in a 5-minute timeframe the sum of the flow value is checked to ensure it is between 0
+      and the 5-minute max capacity value. If the flow value meet this condition it is used. The average occupancy values are checked
+      to ensure they are between 0 and 1. If the occupancy value meets this condition it is used. If a speed value is reported by the
+      device the flow weighted speed value is calculated and used.
+    - If between 1-9 samples are reported in a 5-minute timeframe the flow data is normalized as if 10 samples were received using the
+      following formula: (reported flow ) \* (10 / number of samples reported). The resulting value for the normalized flow is used. The
+      average of the reported occupancy values is used, no normalization is done for occupancy or speed. The flow weighted speed value is
+      used based on the raw data provided, no normalization is done with speed data.
+    - If the flow or occupancy values fail any of the checks above or if the detector is diagnosed as BAD based on the diagnostic tests,
+      than the flow, occupancy and speed are imputed. The data models related to imputation are intermediate models contained in the
+      IMPUTATION schema.
 
 6. Once the data 5-minute data aggregations for flow, occupancy and speed are completely populated, performance metrics are calculated
    at the detector/lane level. The data is then aggregated to the station level with the following exception: the delay for a station is
