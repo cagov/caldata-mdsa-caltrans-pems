@@ -186,6 +186,7 @@ models:
       - name: high_val_count
         description: The number of bad detectors per month and station that had extremely high value.
       - name: intermittent_count
-        description: The number of bad detectors per month and station that had intermittent count.
+        description: The number of bad detectors per month and station that had intermittent detector issues.
+
       - name: constant_count
         description: The number of bad detectors per month and station that had constant count.
