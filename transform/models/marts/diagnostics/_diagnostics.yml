@@ -111,10 +111,75 @@ models:
       - name: longitude
         description: The longitude of the station.
       - name: good_detector_count
-        description: The number of good detectors per day and station
+        description: The number of good detectors per day and station.
       - name: bad_detector_count
-        description: The number of good detectors per day and station
+        description: The number of bad detectors per day and station.
       - name: average_sample_count
         description: |
-          The average number of samples from all detectors reported from
+          The average number of samples from all detectors reported from.
           per station and day
+      - name: down_or_no_data_count
+        description: The number of down or no data bad detectors per day and station.
+      - name: insufficient_data_count
+        description: The number of bad detectors per day and station that have insufficient data.
+      - name: card_off_count
+        description: The number of bad detectors per day and station that card was off.
+      - name: high_val_count
+        description: The number of bad detectors per day and station that had extremely high value.
+      - name: intermittent_count
+        description: The number of bad detectors per day and station that had intermittent detector issues.
+      - name: constant_count
+        description: The number of bad detectors per day and station that had constant occupancy issues.
+
+  - name: diagnostics__detector_monthly_by_station
+    description: |
+      This file contains detector status data aggregated to the station level in monthly temporal resolution.
+
+    columns:
+      - name: station_id
+        description: The unique ID of the station.
+        tests:
+          - not_null
+      - name: sample_month
+        description: The month associated with raw data samples being counted.
+        tests:
+          - not_null
+      - name: station_type
+        description: The type of the station.
+      - name: district
+        description: The Caltrans district for the station.
+      - name: county
+        description: The county FIPS code in which the station is installed.
+
+      - name: city
+        description: The city FIPS code in which the station is installed.
+      - name: freeway
+        description: The freeway on which the station is installed.
+      - name: direction
+        description: The direction of travel for the freeway on which the station is installed.
+      - name: state_postmile
+        description: The State postmile for the station in that time period.
+      - name: absolute_postmile
+        description: The absolute postmile for the station.
+      - name: latitude
+        description: The latitude of the station.
+      - name: longitude
+        description: The longitude of the station.
+      - name: monthly_detector_count
+        description: Total number of good and bad detectors in a month per station.
+      - name: monthly_good_detector_count
+        description: The number of good detectors per month and station.
+      - name: monthly_bad_detector_count
+        description: The number of bad detectors per month and station.
+      - name: down_or_no_data_count
+        description: The number of down or no data bad detectors per month and station.
+      - name: insufficient_data_count
+        description: The number of bad detectors per month and station that have insufficient data.
+      - name: card_off_count
+        description: The number of bad detectors per month and station that card was off.
+      - name: high_val_count
+        description: The number of bad detectors per month and station that had extremely high value.
+      - name: intermittent_count
+        description: The number of bad detectors per month and station that had intermittent detector issues.
+      - name: constant_count
+        description: The number of bad detectors per month and station that had constant occupancy issues.
