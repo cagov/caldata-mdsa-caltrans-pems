@@ -167,15 +167,10 @@ models:
         description: The longitude of the station.
       - name: monthly_detector_count
         description: Total number of good and bad detectors in a month per station.
-
       - name: monthly_good_detector_count
         description: The number of good detectors per month and station.
       - name: monthly_bad_detector_count
         description: The number of bad detectors per month and station.
-      - name: monthly_sample_count
-        description: |
-          The total number of samples from all detectors reported from.
-          per station for a month
       - name: down_or_no_data_count
         description: The number of down or no data bad detectors per month and station.
       - name: insufficient_data_count

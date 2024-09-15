@@ -26,7 +26,6 @@ detector_monthly_status_by_station as (
         MAX(case when rn = 1 then freeway end) as freeway,
         MAX(case when rn = 1 then direction end) as direction,
         SUM(detector_count) as monthly_detector_count,
-        ROUND(SUM(average_sample_count)) as monthly_sample_count,
         SUM(good_detector_count) as monthly_good_detector_count,
         SUM(bad_detector_count) as monthly_bad_detector_count,
         SUM(down_or_no_data_count) as down_or_no_data_count,
