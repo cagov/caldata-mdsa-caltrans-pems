@@ -29,7 +29,7 @@ max_capacity_detector as (
         */
         173 as max_capacity_5min
     from source
-    group by detector_id, station_id, physical_lanes
+    group by detector_id
 )
 
 select * from max_capacity_detector
