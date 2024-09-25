@@ -16,11 +16,12 @@ source as (
         and {{ make_model_incremental('sample_date') }}
 ),
 
-samples_per_station as (
+samples_per_detector as (
     select
         source.district,
         source.station_id,
         source.lane,
+        source.detector_id,
         source.sample_date,
         /*
         This following counts a sample if the volume (flow) and occupancy values contain any value
@@ -67,7 +68,7 @@ samples_per_station as (
 
     from source
     group by
-        source.district, source.station_id, source.lane, source.sample_date
+        source.district, source.station_id, source.lane, source.detector_id, source.sample_date
 )
 
-select * from samples_per_station
+select * from samples_per_detector
