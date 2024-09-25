@@ -32,6 +32,7 @@ week_gen as (
     from detector_agg
 ),
 
+/* Generate 60-th percentile of the observed occupancies as occupancy threshold for a week dataset */
 threshold as (
     select
         *,
@@ -46,6 +47,9 @@ threshold as (
     from week_gen
 ),
 
+/* Generate a table of free-flow speeds that are used to calculate g factor. 
+ * For detailed information, please refer to https://pems.dot.ca.gov/?dnode=Help&content=help_calc#speeds
+*/
 free_speed as (
     select
         *,
@@ -193,6 +197,7 @@ free_speed as (
     from threshold
 ),
 
+/* Calculate hourly based g factor, set as 22 if there is a null dataset in the mean function */
 hourly_g_factor as (
     select
         *,
@@ -207,6 +212,7 @@ hourly_g_factor as (
     from free_speed
 ),
 
+/* Calculate exponential filter denoted as p factor */
 p_factor_value as (
     select
         *,
@@ -214,6 +220,7 @@ p_factor_value as (
     from hourly_g_factor
 ),
 
+/* Calculate preliminary speed based on g factor, occupancy, and flow */
 speed_preliminary_value as (
     select
         *,

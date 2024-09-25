@@ -4,7 +4,9 @@
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 
-
+/* Create a recursive algorithm to compute the smoothing speed at time t
+ * variables: p factor, preliminary speed, and smoothing speed at time t-1
+ */
 with
 
 recursive smoothed_data as (
