@@ -147,3 +147,10 @@ models:
       dates (from the parent model). For all resulting rows, metadata is filled in but data values (eg.
       `volume_sum`, `occupancy_avg`, etc) are set to null, to be imputed later. Column descriptions can be found
       in `int_clearinghouse__detector_agg_five_minutes`.
+  - name: int_clearinghouse__detector_g_factor_based_speed
+    description: |
+      This model calculates the g factor based preliminary speed.
+  - name: int_clearinghouse__detector_speed_smoothing
+    description: |
+      This model calculates the smoothing speed.
+
