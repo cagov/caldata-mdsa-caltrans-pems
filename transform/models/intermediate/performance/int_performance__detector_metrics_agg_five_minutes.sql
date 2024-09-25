@@ -24,6 +24,7 @@ five_minute_agg as (
         occupancy_avg,
         speed_five_mins as speed_weighted,
         station_type,
+        absolute_postmile,
         volume_imputation_method,
         speed_imputation_method,
         occupancy_imputation_method,
