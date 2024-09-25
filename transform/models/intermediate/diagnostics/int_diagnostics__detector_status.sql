@@ -109,7 +109,5 @@ from detector_status as ds
 inner join
     detector_meta as dm
     on
-        ds.station_id = dm.station_id
+        ds.detector_id = dm.detector_id
         and {{ get_scd_2_data('ds.active_date','dm._valid_from','dm._valid_to') }}
-where
-    ds.detector_id = dm.detector_id
