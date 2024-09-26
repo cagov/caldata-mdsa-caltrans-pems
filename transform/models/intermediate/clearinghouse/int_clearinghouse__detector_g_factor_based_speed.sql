@@ -47,7 +47,7 @@ threshold as (
     from week_gen
 ),
 
-/* Generate a table of free-flow speeds that are used to calculate g factor. 
+/* Generate a table of free-flow speeds that are used to calculate g factor.
  * For detailed information, please refer to https://pems.dot.ca.gov/?dnode=Help&content=help_calc#speeds
 */
 free_speed as (
@@ -226,6 +226,18 @@ speed_preliminary_value as (
         *,
         volume_sum * g_factor / nullifzero(occupancy_avg) * (1 / 440) as speed_preliminary
     from p_factor_value
+),
+
+speed_smoothed_value as (
+    select
+        *,
+        res.value_smoothed as speed_smoothed
+    from 
+        speed_preliminary_value,
+        table(
+            public.exponential_smooth(speed_preliminary, p_factor::float)
+                over (partition by detector_id order by sample_timestamp)
+        ) as res
 )
 
-select * from speed_preliminary_value
+select * from speed_smoothed_value

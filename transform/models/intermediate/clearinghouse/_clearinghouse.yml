@@ -149,8 +149,4 @@ models:
       in `int_clearinghouse__detector_agg_five_minutes`.
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
-      This model calculates the g factor based preliminary speed.
-  - name: int_clearinghouse__detector_speed_smoothing
-    description: |
-      This model calculates the smoothing speed.
-
+      This model calculates the g factor based smoothing speed.
