@@ -4,82 +4,48 @@ with station_meta as (
     select * from {{ ref('int_vds__station_config') }}
 ),
 
-mainline as (
-    select
-        station_id as ml_station_id,
-        station_type,
-        district,
-        city,
-        county,
-        freeway,
-        direction,
-        absolute_postmile,
-        physical_lanes as ml_lanes,
-        _valid_from,
-        _valid_to
-    from station_meta
-    where station_type in ('ML')
-),
-
-hov as (
-    select
-        station_id as hov_station_id,
-        station_type,
-        district,
-        freeway,
-        direction,
-        name as hov_name,
-        latitude as hov_lat,
-        longitude as hov_long,
-        absolute_postmile,
-        length as hov_length,
-        physical_lanes as hov_lanes,
-        _valid_from,
-        _valid_to
-    from station_meta
-    where station_type in ('HV')
-),
-
 station_pairs as (
     select
-        a.ml_station_id,
-        b.hov_station_id,
-        b.hov_length,
-        a.ml_lanes,
-        b.hov_name,
-        b.hov_lanes,
-        b.hov_lat,
-        b.hov_long,
-        a.district,
-        a.city,
-        a.county,
-        a.freeway,
-        a.direction,
-        abs(b.absolute_postmile - a.absolute_postmile) as delta_postmile,
-        a._valid_from,
-        a._valid_to
-    from mainline as a
-    inner join hov as b
+        ml.station_id as ml_station_id,
+        ml.district,
+        ml.city,
+        ml.county,
+        ml.freeway,
+        ml.direction,
+        ml.absolute_postmile as ml_absolute_postmile,
+        ml.physical_lanes as ml_lanes,
+        ml._valid_from as ml_valid_from,
+        ml._valid_to as ml_valid_to,
+        hov.station_id as hov_station_id,
+        hov.name as hov_name,
+        hov.latitude as hov_latitude,
+        hov.longitude as hov_longitude,
+        hov.absolute_postmile as hov_absolute_postmile,
+        hov.length as hov_length,
+        hov.physical_lanes as hov_lanes,
+        abs(ml.absolute_postmile - hov.absolute_postmile) as delta_postmile
+    from
+        station_meta as ml
+    inner join
+        station_meta as hov
         on
-            a.freeway = b.freeway
-            and a.direction = b.direction
-            and a._valid_from = b._valid_from
-            and a.ml_station_id != b.hov_station_id
-),
-
-closest_stations as (
-    select
-        *,
-        row_number() over (partition by ml_station_id, _valid_from order by delta_postmile asc) as distance_ranking
-    from station_pairs
+            ml.freeway = hov.freeway
+            and ml.direction = hov.direction
+            and ml._valid_from = hov._valid_from
+            and ml.station_id != hov.station_id
+            and ml.station_type = 'ML'
+            and hov.station_type = 'HV'
 ),
 
 closest_station_with_selection as (
-    select *
-    from closest_stations
+    select
+        *,
+        row_number() over (partition by ml_station_id, ml_valid_from order by delta_postmile asc) as distance_ranking
+    from station_pairs
     where
+        delta_postmile <= 5
+    qualify
         distance_ranking = 1
-        and delta_postmile <= 5
 ),
 
 hourly_station_volume as (
@@ -93,57 +59,41 @@ hourly_station_volume as (
         hourly_vht,
         station_type
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
-    where sample_date = dateadd('day', -25, current_date())
-),
-
-hourly_station_ml_metrics as (
-    select *
-    from hourly_station_volume
-    where station_type = 'ML'
-),
-
-hourly_station_hov_metrics as (
-    select *
-    from hourly_station_volume
-    where station_type = 'HV'
-),
-
-station_with_ml_metrics as (
-    select
-        ax.*,
-        bx.sample_date,
-        bx.sample_hour,
-        bx.hourly_volume as ml_hourly_volume,
-        bx.hourly_vmt as ml_hourly_vmt,
-        bx.hourly_vht as ml_hourly_vht
-    from closest_station_with_selection as ax
-    inner join hourly_station_ml_metrics as bx
-        on
-            ax.ml_station_id = bx.station_id
-            and ax.direction = bx.direction
+    where sample_date = dateadd('day', -11, current_date())
 ),
 
 station_with_ml_hov_metrics as (
     select
-        ay.*,
-        cy.hourly_volume as hov_hourly_volume,
-        cy.hourly_vmt as hov_hourly_vmt,
-        cy.hourly_vht as hov_hourly_vht
-    from station_with_ml_metrics as ay
-    inner join hourly_station_hov_metrics as cy
+        ax.*,
+        ml.sample_date,
+        ml.sample_hour,
+        ml.hourly_volume as ml_hourly_volume,
+        ml.hourly_vmt as ml_hourly_vmt,
+        ml.hourly_vht as ml_hourly_vht,
+        hov.hourly_volume as hov_hourly_volume,
+        hov.hourly_vmt as hov_hourly_vmt,
+        hov.hourly_vht as hov_hourly_vht
+    from closest_station_with_selection as ax
+    inner join hourly_station_volume as ml
         on
-            ay.hov_station_id = cy.station_id
-            and ay.direction = cy.direction
-            and ay.sample_date = cy.sample_date
-            and ay.sample_hour = cy.sample_hour
+            ax.ml_station_id = ml.station_id
+            and ax.direction = ml.direction
+            and ml.station_type = 'ML'
+    inner join hourly_station_volume as hov
+        on
+            ax.hov_station_id = hov.station_id
+            and ax.direction = hov.direction
+            and ml.sample_date = hov.sample_date
+            and ml.sample_hour = hov.sample_hour
+            and hov.station_type = 'HV'
 ),
 
 station_metric_agg as (
     select
         hov_station_id,
         hov_name,
-        hov_lat,
-        hov_long,
+        hov_latitude,
+        hov_longitude,
         avg(hov_length) as hov_length_avg,
         district,
         city,
@@ -165,8 +115,8 @@ station_metric_agg as (
     group by
         hov_station_id,
         hov_name,
-        hov_lat,
-        hov_long,
+        hov_latitude,
+        hov_longitude,
         district,
         city,
         county,
@@ -176,34 +126,56 @@ station_metric_agg as (
         sample_hour
 ),
 
-final_data_with_catagory as (
+final_data_with_category as (
     select
         station_metric_agg.*,
+
+        -- Hourly Category (Based on peak/off-peak periods)
         case
-            when extract(hour from station_metric_agg.sample_hour) between 6 and 8 then 'Morning Peak'
-            when extract(hour from station_metric_agg.sample_hour) between 9 and 11 then 'Morning Off Peak'
-            when extract(hour from station_metric_agg.sample_hour) between 12 and 14 then 'Afternoon Off Peak'
-            when extract(hour from station_metric_agg.sample_hour) between 15 and 18 then 'Afternoon Peak'
-            else 'Night Off Peak'
+            -- AM Peak
+            when
+                to_time(station_metric_agg.sample_hour) between to_time({{ var("am_peak_start") }}) and to_time(
+                    {{ var("am_peak_end") }}
+                )
+                then 'am_peak'
+
+            -- Day Off-Peak
+            when
+                to_time(station_metric_agg.sample_hour) between to_time({{ var("day_off_peak_start") }}) and to_time(
+                    {{ var("day_off_peak_end") }}
+                )
+                then 'day_off_peak'
+
+            -- PM Peak
+            when
+                to_time(station_metric_agg.sample_hour) between to_time({{ var("pm_peak_start") }}) and to_time(
+                    {{ var("pm_peak_end") }}
+                )
+                then 'pm_peak'
+
+            -- Night Off-Peak (default)
+            else 'night_off_peak'
         end as hourly_category,
 
         -- Weekday/Weekend Category
         case
-            -- Monday to Friday
-            when extract(dayofweek from station_metric_agg.sample_date) in (2, 3, 4, 5, 6) then 'Weekday'
+            when dayofweek(station_metric_agg.sample_date) in (1, 2, 3, 4, 5) then 'Weekday'
             else 'Weekend'
         end as weekday_status,
 
+        -- Day of the Week Name
         case
-            when extract(dayofweek from station_metric_agg.sample_date) = 1 then 'Sunday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 2 then 'Monday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 3 then 'Tuesday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 4 then 'Wednesday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 5 then 'Thursday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 6 then 'Friday'
-            when extract(dayofweek from station_metric_agg.sample_date) = 7 then 'Saturday'
+            when station_metric_agg.sample_date is null then 'No Date'
+            when dayofweek(station_metric_agg.sample_date) = 0 then 'Sunday'
+            when dayofweek(station_metric_agg.sample_date) = 1 then 'Monday'
+            when dayofweek(station_metric_agg.sample_date) = 2 then 'Tuesday'
+            when dayofweek(station_metric_agg.sample_date) = 3 then 'Wednesday'
+            when dayofweek(station_metric_agg.sample_date) = 4 then 'Thursday'
+            when dayofweek(station_metric_agg.sample_date) = 5 then 'Friday'
+            when dayofweek(station_metric_agg.sample_date) = 6 then 'Saturday'
+            else 'Unknown' -- This should not normally happen
         end as weekday
     from station_metric_agg
 )
 
-select * from final_data_with_catagory
+select * from final_data_with_category
