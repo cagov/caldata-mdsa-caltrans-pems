@@ -2,6 +2,7 @@
     materialized="incremental",
     cluster_by=["sample_date"],
     unique_key=["detector_id", "sample_timestamp"],
+    on_schema_change="sync_all_columns",
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
@@ -24,6 +25,7 @@ five_minute_agg as (
         occupancy_avg,
         speed_five_mins as speed_weighted,
         station_type,
+        absolute_postmile,
         volume_imputation_method,
         speed_imputation_method,
         occupancy_imputation_method,

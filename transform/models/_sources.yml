@@ -57,6 +57,14 @@ sources:
           Each line contains the sample timestamp and Station ID followed by flow,
           occupancy and speed for each lane. Note that occupancy and/or speed may be empty
           depending on the measurement capabilities of the detectors.
+        freshness:
+          warn_after:
+            count: 2
+            period: day
+          error_after:
+            count: 3
+            period: day
+        loaded_at_field: SAMPLE_TIMESTAMP
         columns:
           - name: FILENAME
             description: The name of the file in the clearinghouse where the data was obtained from.
@@ -161,11 +169,20 @@ sources:
     description: |
       Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
       db96 within the Caltrans network.
+    freshness:
+      warn_after:
+        count: 2
+        period: day
+      error_after:
+        count: 3
+        period: day
+    loaded_at_field: time_id
     tables:
       - name: vds30sec
         description: |
           30-second resolution VDS data from DB96, a legacy Oracle database within Caltrans'
           on-premise network.
+        loaded_at_field: SAMPLE_TIME
         columns:
           - name: FILENAME
             description: The name of the parquet file uploaded to S3 and loaded to Snowflake via Snowpipe.
@@ -271,6 +288,7 @@ sources:
           stations hooked up to a single controller. For example, the same
           controller might have a station for the mainline as well as a station
           for an onramp.
+        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -323,6 +341,7 @@ sources:
         description: |
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
+        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -381,6 +400,7 @@ sources:
           Metadata for a single loop detector. This is the device that actually records
           flow, occupancy, and speed, and is typically installed in a single lane.
           Multiple detectors across a set of lanes constitute a station.
+        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.

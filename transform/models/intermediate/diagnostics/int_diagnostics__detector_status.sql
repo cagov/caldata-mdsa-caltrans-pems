@@ -13,22 +13,8 @@ source as (
     where {{ make_model_incremental('sample_date') }}
 ),
 
-sample_date as (
-    select min(sample_date) as sample_date from source
-),
-
-detector_config as (
-    select
-        vdtc.detector_id,
-        vdtc.station_id,
-        vdtc.lane,
-        sd.sample_date,
-        vdtc._valid_from,
-        vdtc._valid_to
-    from {{ ref('int_vds__detector_config') }} as vdtc
-    inner join sample_date as sd
-        on (vdtc._valid_to > sd.sample_date or vdtc._valid_to is null)
-
+detector_meta as (
+    select * from {{ ref("int_vds__detector_config") }}
 ),
 
 district_feed_check as (
@@ -44,8 +30,6 @@ district_feed_check as (
     group by source.district
 ),
 
-
-
 detector_status as (
     select
         set_assgnmt.active_date,
@@ -53,9 +37,7 @@ detector_status as (
         set_assgnmt.district,
         set_assgnmt.station_type,
         set_assgnmt.active_date as sample_date,
-        dtc.detector_id,
-        dtc.lane,
-        sps.* exclude (district, station_id, lane, sample_date),
+        sps.* exclude (district, station_id, sample_date),
         dfc.district_feed_working,
         co.min_occupancy_delta,
         case
@@ -106,26 +88,26 @@ detector_status as (
         end as status
 
     from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
-    inner join detector_config as dtc
-        on
-            set_assgnmt.active_date >= dtc._valid_from
-            and (set_assgnmt.active_date < dtc._valid_to or dtc._valid_to is null)
-            and set_assgnmt.station_id = dtc.station_id
-
-
     left join source as sps
         on
             set_assgnmt.station_id = sps.station_id
             and set_assgnmt.active_date = sps.sample_date
-            and dtc.lane = sps.lane
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
             set_assgnmt.station_id = co.station_id
-            and dtc.lane = co.lane
+            and sps.lane = co.lane
             and set_assgnmt.active_date = co.sample_date
     left join district_feed_check as dfc
         on set_assgnmt.district = dfc.district
 )
 
-select * from detector_status
+select
+    ds.*,
+    dm.* exclude (district, station_id, detector_id, lane, station_type, status, _valid_from, _valid_to)
+from detector_status as ds
+inner join
+    detector_meta as dm
+    on
+        ds.detector_id = dm.detector_id
+        and {{ get_scd_2_data('ds.active_date','dm._valid_from','dm._valid_to') }}
