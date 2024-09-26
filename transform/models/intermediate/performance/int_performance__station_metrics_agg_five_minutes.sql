@@ -17,6 +17,7 @@ station_aggregated as (
         station_id,
         sample_date,
         sample_timestamp,
+        any_value(absolute_postmile) as absolute_postmile,
         any_value(freeway) as freeway,
         any_value(direction) as direction,
         any_value(station_type) as station_type,
