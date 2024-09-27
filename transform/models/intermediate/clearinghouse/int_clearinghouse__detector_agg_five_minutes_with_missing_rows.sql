@@ -29,10 +29,9 @@ detector_meta as (
 detector_date_range as (
     select
         detector_id,
-        min(sample_date) as min_date,
-        max(sample_date) as max_date
-    from detector_agg
-    group by detector_id
+        active_date
+    from {{ ref('int_vds__active_detectors') }}
+    where {{ make_model_incremental('active_date') }}
 ),
 
 /* Expand timestamp spine to include values per detector but only for days within the detector's date range */
@@ -41,7 +40,7 @@ spine as (
         ts.timestamp_column,
         dd.detector_id
     from timestamp_spine as ts inner join detector_date_range as dd
-        on to_date(ts.timestamp_column) >= dd.min_date and to_date(ts.timestamp_column) <= dd.max_date
+        on to_date(ts.timestamp_column) = dd.active_date
 ),
 
 /* Join 5-minute aggregated data to the spine to get a table without missing rows */
