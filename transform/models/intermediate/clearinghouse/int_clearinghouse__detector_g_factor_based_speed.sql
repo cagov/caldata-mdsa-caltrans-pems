@@ -204,10 +204,10 @@ hourly_g_factor as (
         coalesce(
             avg(case
                 when occupancy_avg < occupancy_threshold
-                    then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * 440
+                    then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * {{ var("mph_conversion") }}
             end)
                 over (partition by detector_id, week_start, hour),
-            22)
+            {{ var("vehicle effective length") }})
             as g_factor
     from free_speed
 ),
@@ -216,7 +216,7 @@ hourly_g_factor as (
 p_factor_value as (
     select
         *,
-        volume_sum / (volume_sum + 50) as p_factor
+        volume_sum / (volume_sum + {{ var("p_factor_smoothing_constant") }}) as p_factor
     from hourly_g_factor
 ),
 
@@ -224,24 +224,9 @@ p_factor_value as (
 speed_preliminary_value as (
     select
         *,
-        volume_sum * g_factor / nullifzero(occupancy_avg) * (1 / 440) as speed_preliminary
+        volume_sum * g_factor / nullifzero(occupancy_avg) * (1 / {{ var("mph_conversion") }}) as speed_preliminary
     from p_factor_value
 ),
-
--- speed_smoothed_value as (
---     select
---         spv.*,
---         lateral_result.speed_smoothed
---     from
---         speed_preliminary_value as spv
---     cross join lateral (
---         select
---             public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
---                 over (partition by spv.detector_id order by spv.sample_timestamp) as exponential_smooth
---         from
---             dual
---     ) as lateral_result on true
--- )
 
 speed_smoothed_value as (
     select
@@ -250,7 +235,7 @@ speed_smoothed_value as (
     from
         speed_preliminary_value as spv,
         table(
-            public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
+            {{ target.database }}.public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
                 over (partition by spv.detector_id order by spv.sample_timestamp)
         ) as res
 )
