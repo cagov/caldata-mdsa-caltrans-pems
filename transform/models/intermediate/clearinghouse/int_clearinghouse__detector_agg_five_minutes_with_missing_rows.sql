@@ -24,7 +24,6 @@ detector_meta as (
 
 /*
  * Get date range where a detector is expected to be collecting data.
- * This could pull from the active stations model instead?
  */
 detector_date_range as (
     select
