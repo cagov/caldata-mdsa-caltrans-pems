@@ -228,15 +228,30 @@ speed_preliminary_value as (
     from p_factor_value
 ),
 
+-- speed_smoothed_value as (
+--     select
+--         spv.*,
+--         lateral_result.speed_smoothed
+--     from
+--         speed_preliminary_value as spv
+--     cross join lateral (
+--         select
+--             public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
+--                 over (partition by spv.detector_id order by spv.sample_timestamp) as exponential_smooth
+--         from
+--             dual
+--     ) as lateral_result on true
+-- )
+
 speed_smoothed_value as (
     select
-        *,
+        spv.*,
         res.value_smoothed as speed_smoothed
-    from 
-        speed_preliminary_value,
+    from
+        speed_preliminary_value as spv,
         table(
-            public.exponential_smooth(speed_preliminary, p_factor::float)
-                over (partition by detector_id order by sample_timestamp)
+            public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
+                over (partition by spv.detector_id order by spv.sample_timestamp)
         ) as res
 )
 
