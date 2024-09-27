@@ -7,7 +7,7 @@
 ) }}
 
 with timestamp_spine as (
-    {{ timestamp_spine(start_date="'1998-10-01'",
+    {{ timestamp_spine(start_date="'2023-01-01'",
         end_date="current_date()",
         second_increment=60*5
     ) }}
@@ -31,7 +31,6 @@ detector_date_range as (
         detector_id,
         active_date
     from {{ ref('int_vds__active_detectors') }}
-    where {{ make_model_incremental('active_date') }}
 ),
 
 /* Expand timestamp spine to include values per detector but only for days within the detector's date range */

@@ -38,6 +38,7 @@ detector_status as (
         set_assgnmt.station_type,
         set_assgnmt.active_date as sample_date,
         dm.detector_id,
+        dm.detector_type,
         dm.lane,
         dm.state_postmile,
         dm.absolute_postmile,
