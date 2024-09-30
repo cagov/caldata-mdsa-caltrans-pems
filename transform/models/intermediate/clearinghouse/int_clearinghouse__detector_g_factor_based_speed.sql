@@ -207,7 +207,7 @@ hourly_g_factor as (
                     then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * {{ var("mph_conversion") }}
             end)
                 over (partition by detector_id, week_start, hour),
-            {{ var("vehicle effective length") }})
+            {{ var("vehicle_effective_length") }})
             as g_factor
     from free_speed
 ),

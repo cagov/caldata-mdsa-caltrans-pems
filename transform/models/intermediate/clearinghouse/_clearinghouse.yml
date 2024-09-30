@@ -150,3 +150,26 @@ models:
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
       This model calculates the g factor based smoothing speed.
+    columns:
+      - name: threshold
+        description: |
+          Count the 60th percentile of observed occupancies within a month.
+      - name: free_flow_speed
+        description: |
+          A specific free flow speed based on the type of freeway (meaning the total number of lanes)
+          and the particular lane that the detector is. For example, the free-flow speed in lane 2 of 
+          a 2-lane freeway is different from the free-flow speed in lane 2 of a 5-lane freeway.
+      - name: g_factor
+        description: |
+          Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
+          and real-time occupancy.
+      - name: p_factor
+        description: An exponential filter with weights that vary as a function of the flow.
+      - name: speed_preliminary
+        description: |
+          An initial speed estimate is passed through the p_factor based exponential filter. When the
+          flow at the loop is low the smoothing is quite severe. When the flow is high, there is little
+          smoothing. This allows us to quickly adapt to periods of congestion as well as to have stable 
+          speeds when there is very little data (like in the middle of the night).
+      - name: speed_smoothed
+        description: A smoothed version of the estimated speed by passing through the exponential filter.

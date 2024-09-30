@@ -56,7 +56,7 @@ vars:
   noon_shift_end: "'14:59:59'"
   pm_shift_start: "'15:00:00'"
   pm_shift_end: "'20:00:00'"
-  vehicle effective length: 22
+  vehicle_effective_length: 22
   p_factor_smoothing_constant: 50
 
 models:
