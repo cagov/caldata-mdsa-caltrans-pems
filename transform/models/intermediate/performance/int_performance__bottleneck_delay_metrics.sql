@@ -19,7 +19,13 @@ station_five_minute as (
         station_type,
         absolute_postmile,
         length,
-        volume_sum
+        volume_sum,
+        delay_35_mph,
+        delay_40_mph,
+        delay_45_mph,
+        delay_50_mph,
+        delay_55_mph,
+        delay_60_mph
     from {{ ref ("int_performance__station_metrics_agg_five_minutes") }}
     where
         {{ make_model_incremental('sample_date') }}
@@ -161,6 +167,41 @@ congestion_length as (
     from congestion_events
     qualify is_bottleneck = true -- TODO: also filter if upstream is a bottleneck start?
 
+),
+
+shift as (
+    select
+        *,
+        case
+            when extract(hour from sample_timestamp) >= 5 and extract(hour from sample_timestamp) <= 10
+                then 'AM'
+            when extract(hour from sample_timestamp) >= 10 and extract(hour from sample_timestamp) <= 15
+                then 'NOON'
+            when extract(hour from sample_timestamp) >= 15 and extract(hour from sample_timestamp) <= 20
+                then 'PM'
+        end as time_shift
+    from congestion_length
+),
+
+bottleneck_delay as (
+    select
+        * exclude (
+            congestion_sequence,
+            congestion_status_change,
+            is_bottleneck,
+            speed_delta_ne,
+            speed_delta_sw,
+            distance_delta_sw,
+            distance_delta_ne,
+            volume_sum,
+            length,
+            upstream_is_congested,
+            is_congested,
+            speed_five_mins,
+            congestion_length
+        )
+    from shift
+
 )
 
-select * from congestion_length
+select * from bottleneck_delay
