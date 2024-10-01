@@ -173,11 +173,17 @@ shift as (
     select
         *,
         case
-            when extract(hour from sample_timestamp) >= 5 and extract(hour from sample_timestamp) <= 10
+            when
+                cast(sample_timestamp as time) >= {{ var('am_shift_start') }}
+                and cast(sample_timestamp as time) <= {{ var('am_shift_end') }}
                 then 'AM'
-            when extract(hour from sample_timestamp) >= 10 and extract(hour from sample_timestamp) <= 15
+            when
+                cast(sample_timestamp as time) >= {{ var('noon_shift_start') }}
+                and cast(sample_timestamp as time) <= {{ var('noon_shift_end') }}
                 then 'NOON'
-            when extract(hour from sample_timestamp) >= 15 and extract(hour from sample_timestamp) <= 20
+            when
+                cast(sample_timestamp as time) >= {{ var('pm_shift_start') }}
+                and cast(sample_timestamp as time) <= {{ var('pm_shift_end') }}
                 then 'PM'
         end as time_shift
     from congestion_length
