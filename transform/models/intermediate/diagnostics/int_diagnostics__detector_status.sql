@@ -1,47 +1,78 @@
 {{ config(
     materialized="incremental",
-    cluster_by=['sample_date'],
-    unique_key=['station_id', 'lane', 'sample_date'],
-    on_schema_change='sync_all_columns',
+    cluster_by=["sample_date"],
+    unique_key=["detector_id", "sample_date"],
+    on_schema_change="sync_all_columns",
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
 with
-
 source as (
     select * from {{ ref('int_diagnostics__samples_per_detector') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
 detector_meta as (
-    select * from {{ ref("int_vds__detector_config") }}
+    select * from {{ ref('int_vds__detector_config') }}
 ),
 
-district_feed_check as (
+assignment_with_meta as (
     select
-        source.district,
-        case
-            when (count_if(source.sample_ct > 0)) > 0 then 'Yes'
-            else 'No'
-        end as district_feed_working
-    from source
-    inner join {{ ref('districts') }} as d
-        on source.district = d.district_id
-    group by source.district
+        set_assgnmt.*,
+        dm.detector_id,
+        dm.detector_type,
+        dm.lane,
+        dm.state_postmile,
+        dm.absolute_postmile,
+        dm.latitude,
+        dm.longitude,
+        dm.physical_lanes,
+        dm.county,
+        dm.city,
+        dm.freeway,
+        dm.direction,
+        dm.length
+    from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
+    inner join detector_meta as dm
+        on
+            set_assgnmt.station_id = dm.station_id
+            and {{ get_scd_2_data('set_assgnmt.active_date','dm._valid_from','dm._valid_to') }}
 ),
 
 detector_status as (
     select
-        set_assgnmt.active_date,
-        set_assgnmt.station_id,
-        set_assgnmt.district,
-        set_assgnmt.station_type,
-        set_assgnmt.active_date as sample_date,
-        sps.* exclude (district, station_id, sample_date),
-        dfc.district_feed_working,
+        awm.active_date,
+        awm.station_id,
+        awm.district,
+        awm.station_type,
+        awm.station_diagnostic_method_id,
+        awm.active_date as sample_date,
+        awm.detector_id,
+        awm.detector_type,
+        awm.lane,
+        awm.state_postmile,
+        awm.absolute_postmile,
+        awm.latitude,
+        awm.longitude,
+        awm.physical_lanes,
+        awm.county,
+        awm.city,
+        awm.freeway,
+        awm.direction,
+        awm.length,
+        sps.* exclude (district, station_id, lane, detector_id, sample_date),
+        nds.district_feed_working,
+        nds.line_num_working,
+        nds.controller_feed_working,
+        nds.station_feed_working,
+        nds.detector_feed_working,
         co.min_occupancy_delta,
         case
-            when dfc.district_feed_working = 'No' then 'District Feed Down'
+            when nds.district_feed_working = 'No' then 'District Feed Down'
+            when nds.line_num_working = 'No' then 'Line Down'
+            when nds.controller_feed_working = 'No' then 'Controller Down'
+            when nds.station_feed_working = 'No' then 'Station Down'
+            when nds.detector_feed_working = 'No' then 'No Data'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
             /* # of samples < 60% of the max collected during the test period
@@ -50,64 +81,61 @@ detector_status as (
             when sps.sample_ct between 1 and (0.6 * ({{ var("detector_status_max_sample_value") }}))
                 then 'Insufficient Data'
             when
-                set_assgnmt.station_diagnostic_method_id = 'ramp'
+                awm.station_diagnostic_method_id = 'ramp'
                 and sps.zero_vol_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.zero_flow_percent / 100)
+                > (awm.zero_flow_percent / 100)
                 then 'Card Off'
             when
-                set_assgnmt.station_diagnostic_method_id = 'mainline'
+                awm.station_diagnostic_method_id = 'mainline'
                 and sps.zero_occ_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.zero_occupancy_percent / 100)
+                > (awm.zero_occupancy_percent / 100)
                 then 'Card Off'
             when
-                set_assgnmt.station_diagnostic_method_id = 'ramp'
+                awm.station_diagnostic_method_id = 'ramp'
                 and sps.high_volume_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.high_flow_percent / 100)
+                > (awm.high_flow_percent / 100)
                 then 'High Val'
             when
-                set_assgnmt.station_diagnostic_method_id = 'mainline'
+                awm.station_diagnostic_method_id = 'mainline'
                 and sps.high_occupancy_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.high_occupancy_percent / 100)
+                > (awm.high_occupancy_percent / 100)
                 then 'High Val'
             when
-                set_assgnmt.station_diagnostic_method_id = 'mainline'
+                awm.station_diagnostic_method_id = 'mainline'
                 and sps.zero_vol_pos_occ_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.flow_occupancy_percent / 100)
+                > (awm.flow_occupancy_percent / 100)
                 then 'Intermittent'
             when
-                set_assgnmt.station_diagnostic_method_id = 'mainline'
+                awm.station_diagnostic_method_id = 'mainline'
                 and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
-                > (set_assgnmt.occupancy_flow_percent / 100)
+                > (awm.occupancy_flow_percent / 100)
                 then 'Intermittent'
             when
                 coalesce(co.min_occupancy_delta = 0, false)
-                and set_assgnmt.station_diagnostic_method_id = 'mainline'
+                and awm.station_diagnostic_method_id = 'mainline'
                 then 'Constant'
             --Feed unstable case needed
             else 'Good'
         end as status
 
-    from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
+    from assignment_with_meta as awm
+
     left join source as sps
         on
-            set_assgnmt.station_id = sps.station_id
-            and set_assgnmt.active_date = sps.sample_date
+            awm.detector_id = sps.detector_id
+            -- and awm.lane = sps.lane
+            and awm.active_date = sps.sample_date
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
-            set_assgnmt.station_id = co.station_id
+            awm.station_id = co.station_id
             and sps.lane = co.lane
-            and set_assgnmt.active_date = co.sample_date
-    left join district_feed_check as dfc
-        on set_assgnmt.district = dfc.district
+            and awm.active_date = co.sample_date
+
+    left join {{ ref('int_diagnostics__no_data_status') }} as nds
+        on
+            awm.active_date = nds.active_date
+            and awm.detector_id = nds.detector_id
 )
 
-select
-    ds.*,
-    dm.* exclude (district, station_id, detector_id, lane, station_type, status, _valid_from, _valid_to)
-from detector_status as ds
-inner join
-    detector_meta as dm
-    on
-        ds.detector_id = dm.detector_id
-        and {{ get_scd_2_data('ds.active_date','dm._valid_from','dm._valid_to') }}
+select * from detector_status
