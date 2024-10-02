@@ -185,3 +185,62 @@ models:
           Selects the minimum of the abs_val_occupancy_delta_summed column
           which takes the absolute value of the delta between occupancy and
           previous occupancy summed over a window of 4 hours.
+
+  - name: int_diagnostics__no_data_status
+    description: |
+      This data model is built to perform diagnostic tests related to equipment where no data is being
+      recieved from field devices. The diagnostic checks in this data model are used to determine the
+      detector status in the downstream int_diagnostics__detector_status model.
+    columns:
+      - name: active_date
+        description: |
+          Date a station is considered active based on the meta data configuration file from district.
+          This value determines what calculations or diagnostics are associated with a station and it's
+          assocaited detectors on any given date while it is active.
+        tests:
+          - not_null
+      - name: district
+        description: The Caltrans district associated with the detector.
+      - name: station_id
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+        tests:
+          - not_null
+      - name: detector_id
+        description: |
+          The detector ID. In general, there can be several detectors for a single
+          station, corresponding to different lanes of traffic.
+        tests:
+          - not_null
+      - name: line_num
+        description: |
+          The communication line identifier value provided in the district configuration file. Information
+          about communication lines is not always available so this value can be null.
+      - name: sample_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) and occupancy
+          values contain any non-null value.
+      - name: controller_id
+        description: |
+          The controller identifier value provided in the district configuration file.
+      - name: district_feed_working.
+        description: |
+          Returns No if no detector samples are recieved in a district on a daily basis, otherwise
+          Yes is returned.
+      - name: line_num_working
+        description: |
+          Returns No if no detector samples are recieved on a communication line associated with a 
+          specific line and district on a daily basis, otherwise Yes is returned.
+      - name: controller_feed_working
+        description: |
+          Returns No if no detector samples are recieved from a controller on a daily basis,
+          otherwise Yes is returned
+      - name: station_feed_working
+        description: |
+          Returns No if no detector samples are recieved from a station on a daily basis,
+          otherwise Yes is returned
+      - name: detector_feed_working
+        description: |
+          Returns No if a detector send no samples to PeMS on a daily basis, otherwise Yes is 
+          returned
