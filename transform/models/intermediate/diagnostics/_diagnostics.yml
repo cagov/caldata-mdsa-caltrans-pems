@@ -224,23 +224,23 @@ models:
       - name: controller_id
         description: |
           The controller identifier value provided in the district configuration file.
-      - name: district_feed_working.
+      - name: district_feed_working
         description: |
           Returns No if no detector samples are recieved in a district on a daily basis, otherwise
           Yes is returned.
       - name: line_num_working
         description: |
-          Returns No if no detector samples are recieved on a communication line associated with a 
+          Returns No if no detector samples are recieved on a communication line associated with a
           specific line and district on a daily basis, otherwise Yes is returned.
       - name: controller_feed_working
         description: |
           Returns No if no detector samples are recieved from a controller on a daily basis,
-          otherwise Yes is returned
+          otherwise Yes is returned.
       - name: station_feed_working
         description: |
           Returns No if no detector samples are recieved from a station on a daily basis,
-          otherwise Yes is returned
+          otherwise Yes is returned.
       - name: detector_feed_working
         description: |
-          Returns No if a detector send no samples to PeMS on a daily basis, otherwise Yes is 
-          returned
+          Returns No if a detector send no samples to PeMS on a daily basis, otherwise Yes is
+          returned.
