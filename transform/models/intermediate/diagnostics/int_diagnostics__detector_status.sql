@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=["sample_date"],
-    unique_key=["station_id", "lane", "sample_date"],
+    unique_key=["detector_id", "sample_date"],
     on_schema_change="sync_all_columns",
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
@@ -122,8 +122,8 @@ detector_status as (
 
     left join source as sps
         on
-            awm.station_id = sps.station_id
-            and awm.lane = sps.lane
+            awm.detector_id = sps.detector_id
+            -- and awm.lane = sps.lane
             and awm.active_date = sps.sample_date
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
