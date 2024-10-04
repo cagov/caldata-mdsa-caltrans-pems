@@ -7,7 +7,7 @@
 ) }}
 
 with timestamp_spine as (
-    {{ timestamp_spine(start_date="'2023-01-01'",
+    {{ timestamp_spine(start_date=var("pems_clearinghouse_start_date"),
         end_date="current_date()",
         second_increment=60*5
     ) }}
