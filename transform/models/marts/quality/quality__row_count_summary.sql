@@ -17,7 +17,7 @@ detector_status_daily_count as (
         sample_date,
         count_if(status = 'Good') as good_status_count,
         count_if(status != 'Good') as bad_status_count,
-        count(*) as total_count
+        count(*) as detector_status_total_count
     from {{ ref('int_diagnostics__detector_status') }}
     group by sample_date
 ),
