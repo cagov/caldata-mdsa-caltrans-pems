@@ -11,7 +11,7 @@ detector_status_daily_count as (
     * - int_clearinghouse__detector_agg_five_minutes_with_missing_rows
     * - int_imputation__detector_imputed_agg_five_minutes
     * - int_performance__detector_metrics_agg_five_minutes
-    * The daily detector counts for these tables should match
+    * The daily detector counts for these models should match
     */
     select
         sample_date,
