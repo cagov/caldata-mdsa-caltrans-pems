@@ -9,11 +9,15 @@
 with
 source as (
     select * from {{ ref('int_diagnostics__samples_per_detector') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 detector_meta as (
     select * from {{ ref('int_vds__detector_config') }}
+),
+
+set_assgnmt as (
+    select * from {{ ref('int_diagnostics__det_diag_set_assignment') }}
+    where {{ make_model_incremental('active_date') }}
 ),
 
 assignment_with_meta as (
@@ -32,7 +36,7 @@ assignment_with_meta as (
         dm.freeway,
         dm.direction,
         dm.length
-    from {{ ref('int_diagnostics__det_diag_set_assignment') }} as set_assgnmt
+    from set_assgnmt
     inner join detector_meta as dm
         on
             set_assgnmt.station_id = dm.station_id
