@@ -29,7 +29,10 @@ clean-targets: # directories to be removed by `dbt clean`
 vars:
   #max_value comes from the detector_status model.
   #max value is calculated by taking 2 samples per min * 60 mins/hr * 17 hrs in a day == 1224
+  # conversion to get miles per hour (5280 ft / mile and 12 5-minute intervals in an hour)
+  # 5280 / 12 = 440
   detector_status_max_sample_value: 2 * 60 * 17
+  mph_conversion: 440
   high_volume_threshold: 20
   high_occupancy_threshold: 0.7
   incremental_model_look_back: -2
@@ -53,6 +56,8 @@ vars:
   noon_shift_end: "'14:59:59'"
   pm_shift_start: "'15:00:00'"
   pm_shift_end: "'20:00:00'"
+  vehicle_effective_length: 22
+  p_factor_smoothing_constant: 50
 
 models:
   caldata_mdsa_caltrans_pems:
