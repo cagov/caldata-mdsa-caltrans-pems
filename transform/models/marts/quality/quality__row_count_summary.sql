@@ -1,9 +1,6 @@
-{{ config(
-    materialized="table"
-) }}
-
 with
-detector_status_daily_count as (
+
+ML_HV_DETECTOR_STATUS_DAILY_COUNT as (
     /*
     * This CTE returns the number of total rows created daily in
     * the int_diagnostics__detector_status model. This count should be
@@ -11,57 +8,73 @@ detector_status_daily_count as (
     * - int_clearinghouse__detector_agg_five_minutes_with_missing_rows
     * - int_imputation__detector_imputed_agg_five_minutes
     * - int_performance__detector_metrics_agg_five_minutes
-    * The daily detector counts for these models should match
+    * The daily detector counts for these models should match for
     */
     select
-        sample_date,
-        count_if(status = 'Good') as good_status_count,
-        count_if(status != 'Good') as bad_status_count,
-        count(*) as detector_status_total_count
+        SAMPLE_DATE,
+        count(*) as ML_HV_DETECTOR_STATUS_TOTAL_COUNT
     from {{ ref('int_diagnostics__detector_status') }}
-    group by sample_date
+    where STATION_TYPE = 'ML' or STATION_TYPE = 'HV'
+    group by SAMPLE_DATE
 ),
 
 -- Clearinghouse Detector Count per Day
-clearinghouse_detector_daily_count as (
+ML_HV_CLEARINGHOUSE_DETECTOR_DAILY_COUNT as (
     select
-        sample_date,
-        count(distinct detector_id) as clearinghouse_detector_count
+        SAMPLE_DATE,
+        count(distinct DETECTOR_ID) as ML_HV_CLEARINGHOUSE_DETECTOR_COUNT
     from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
-    group by sample_date
+    where STATION_TYPE = 'ML' or STATION_TYPE = 'HV'
+    group by SAMPLE_DATE
 ),
 
 -- Imputation Detector Count per Day
-imputation_detector_daily_count as (
+ML_HV_IMPUTATION_DETECTOR_DAILY_COUNT as (
     select
-        sample_date,
-        count(distinct detector_id) as imputation_detector_count
+        SAMPLE_DATE,
+        count(distinct DETECTOR_ID) as ML_HV_IMPUTATION_DETECTOR_COUNT
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
-    group by sample_date
+    group by SAMPLE_DATE
 ),
 
 -- Performance Detector Count per Day
-performance_detector_daily_count as (
+ML_HV_PERFORMANCE_DETECTOR_DAILY_COUNT as (
     select
-        sample_date,
-        count(distinct detector_id) as performance_detector_count
+        SAMPLE_DATE,
+        count(distinct DETECTOR_ID) as ML_HV_PERFORMANCE_DETECTOR_COUNT
     from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
-    group by sample_date
+    group by SAMPLE_DATE
 ),
 
-daily_detector_count_check as (
+-- Returns count for all station types per Day
+DETECTOR_STATUS_COUNT as (
     select
-        dsdc.*,
-        cddc.clearinghouse_detector_count,
-        iddc.imputation_detector_count,
-        pddc.performance_detector_count
-    from detector_status_daily_count as dsdc
-    left join clearinghouse_detector_daily_count as cddc
-        on dsdc.sample_date = cddc.sample_date
-    left join imputation_detector_daily_count as iddc
-        on dsdc.sample_date = iddc.sample_date
-    left join performance_detector_daily_count as pddc
-        on dsdc.sample_date = pddc.sample_date
+        SAMPLE_DATE,
+        count_if(STATUS = 'Good') as GOOD_STATUS_COUNT,
+        count_if(STATUS != 'Good') as BAD_STATUS_COUNT,
+        count(*) as ALL_DETECTOR_STATUS_TOTAL_COUNT
+    from {{ ref('int_diagnostics__detector_status') }}
+    group by SAMPLE_DATE
+),
+
+DAILY_DETECTOR_COUNT_CHECK as (
+    select
+        MHDSDC.*,
+        CDDC.ML_HV_CLEARINGHOUSE_DETECTOR_COUNT,
+        IDDC.ML_HV_IMPUTATION_DETECTOR_COUNT,
+        PDDC.ML_HV_PERFORMANCE_DETECTOR_COUNT,
+        DSC.GOOD_STATUS_COUNT,
+        DSC.BAD_STATUS_COUNT,
+        DSC.ALL_DETECTOR_STATUS_TOTAL_COUNT
+    from ML_HV_DETECTOR_STATUS_DAILY_COUNT as MHDSDC
+    left join ML_HV_CLEARINGHOUSE_DETECTOR_DAILY_COUNT as CDDC
+        on MHDSDC.SAMPLE_DATE = CDDC.SAMPLE_DATE
+    left join ML_HV_IMPUTATION_DETECTOR_DAILY_COUNT as IDDC
+        on MHDSDC.SAMPLE_DATE = IDDC.SAMPLE_DATE
+    left join ML_HV_PERFORMANCE_DETECTOR_DAILY_COUNT as PDDC
+        on MHDSDC.SAMPLE_DATE = PDDC.SAMPLE_DATE
+    left join DETECTOR_STATUS_COUNT as DSC
+        on MHDSDC.SAMPLE_DATE = DSC.SAMPLE_DATE
 )
 
-select * from daily_detector_count_check
+select * from DAILY_DETECTOR_COUNT_CHECK
