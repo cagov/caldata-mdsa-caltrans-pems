@@ -40,22 +40,44 @@ calcs as (
         station is north or east, the "upstream" station has a smaller postmile, and we need to lag
         to get the speed there. When the direction is west or south, the "upstream" station has a
         larger postmile, and we need to lead to get the speed there. */
+        /*There are five routes (NS: Route 71; EW: Route 282, 580, 780) in California which do not
+        follow this rule. We need to specify them in the speed difference and distance difference
+        calculation*/
 
         speed_five_mins - lead(speed_five_mins)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as speed_delta_ne,
 
-        speed_five_mins - lag(speed_five_mins)
-            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
-            as speed_delta_sw,
-
         absolute_postmile - lead(absolute_postmile)
             over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
             as distance_delta_ne,
+        case
+            when
+                (freeway = 71 and direction = 'S')
+                or (freeway = 282 and direction = 'W')
+                or (freeway = 580 and direction = 'W')
+                or (freeway = 780 and direction = 'W')
+                then speed_five_mins - lag(speed_five_mins)
+                    over (
+                        partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
+                    )
+            else speed_five_mins - lag(speed_five_mins)
+                over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
+        end as speed_delta_sw,
 
-        absolute_postmile - lag(absolute_postmile)
-            over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
-            as distance_delta_sw
+        case
+            when
+                (freeway = 71 and direction = 'S')
+                or (freeway = 282 and direction = 'W')
+                or (freeway = 580 and direction = 'W')
+                or (freeway = 780 and direction = 'W')
+                then absolute_postmile - lag(absolute_postmile)
+                    over (
+                        partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
+                    )
+            else absolute_postmile - lag(absolute_postmile)
+                over (partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile asc)
+        end as distance_delta_sw
 
     from station_five_minute
 ),
