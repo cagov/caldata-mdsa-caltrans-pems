@@ -1,0 +1,35 @@
+version: 2
+
+models:
+  - name: quality__row_count_summary
+    description: |
+      This model counts the number of detectors across multiple models on a daily basis
+      to ensure that the detector count is consistent between all of the models. The models
+      where detector counts are being evaluated are:
+      - int_diagnostics__detector_status model
+      - int_clearinghouse__detector_agg_five_minutes_with_missing_rows
+      - int_imputation__detector_imputed_agg_five_minutes
+      - int_performance__detector_metrics_agg_five_minutes
+      The daily detector counts for these models should match. As an additional aggregation
+      the number of good and bad detectors in calculated in this model as well to monitor
+      for any changes that should be investigated. The number of detectors and their health
+      should not vary drastically so this model can help identify anamolies that should be
+      investigated.
+    columns:
+      - name: sample_date
+        description: |
+          The date associated with the aggregate counts down in the 5 models to be compared.
+      - name: good_status_count
+        description: |
+          Counts the number of detectors with a status of Good on a daily basis.
+      - name: bad_status_count
+        description: |
+          Counts the number of detectors with a status other than Good on a daily basis.
+      - name: detector_status_total_count
+        description: Counts the number of rows/detectors on a daily basis
+      - name: clearinghouse_detector_count
+        description: Counts the number of distinct detectors on a daily basis
+      - name: imputation_detector_count
+        description: Counts the number of distinct detectors on a daily basis
+      - name: performance_detector_count
+        description: Counts the number of distinct detectors on a daily basis
