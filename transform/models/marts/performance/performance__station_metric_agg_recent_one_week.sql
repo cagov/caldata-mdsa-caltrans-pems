@@ -179,6 +179,6 @@ final_data_with_category as (
 )
 
 select
-    * exclude (sample_hour),
-    extract(hour from sample_hour) as sample_hour
+    *,
+    extract(hour from sample_hour) as hour_day
 from final_data_with_category
