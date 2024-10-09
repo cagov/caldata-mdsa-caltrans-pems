@@ -5,7 +5,7 @@
     on_schema_change='sync_all_columns',
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
 ) }}
-{% set delay_metrics = ['delay_35_mph', 'delay_40_mph', 'delay_45_mph', 'delay_50_mph', 'delay_55_mph', 
+{% set delay_metrics = ['delay_35_mph', 'delay_40_mph', 'delay_45_mph', 'delay_50_mph', 'delay_55_mph',
 'delay_60_mph'] %}
 
 with
