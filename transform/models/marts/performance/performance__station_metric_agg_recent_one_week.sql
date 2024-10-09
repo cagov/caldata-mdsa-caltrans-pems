@@ -59,7 +59,7 @@ hourly_station_volume as (
         hourly_vht,
         station_type
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
-    where sample_date >= dateadd('day', -11, current_date())
+    where sample_date >= dateadd('day', -8, current_date())
 ),
 
 station_with_ml_hov_metrics as (
@@ -178,4 +178,7 @@ final_data_with_category as (
     from station_metric_agg
 )
 
-select * from final_data_with_category
+select
+    * exclude (sample_hour),
+    extract(hour from sample_hour) as sample_hour
+from final_data_with_category
