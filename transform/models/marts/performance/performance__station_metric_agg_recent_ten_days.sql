@@ -59,7 +59,7 @@ hourly_station_volume as (
         hourly_vht,
         station_type
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
-    where sample_date = dateadd('day', -11, current_date())
+    where sample_date >= dateadd('day', -8, current_date())
 ),
 
 station_with_ml_hov_metrics as (
