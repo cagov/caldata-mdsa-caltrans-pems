@@ -35,6 +35,8 @@ station_pairs as (
             and ml.station_id != hov.station_id
             and ml.station_type = 'ML'
             and hov.station_type = 'HV'
+            and ml.district != 4
+            and hov.district != 4
 ),
 
 closest_station_with_selection as (
