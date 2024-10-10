@@ -346,3 +346,70 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
+  - name: performance__station_metric_agg_recent_one_week
+    description: |
+      Hourly aggregation of volume, vmt, and vht for HOV and mainline pairs for recent one week.
+      This model calculated HOV volume, vmt and vht penetration using corresponding
+      mainline station. The corresponding mainline station of HOV station was
+      determined based on proximity, and direction.
+    columns:
+      - name: TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: HOURLY_CATEGORY
+        description: 24-hrs have been catagorized as am peak (6-10 am),
+          am off peak (10 am to 3 pm), pm peak (3 pm to 7 pm) and
+          pm off peak (7 pm to  6am).
+      - name: HOV_NAME
+        description: Name of the HOV street.
+      - name: HOV_STATION_ID
+        description: An integer value that uniquely indentifies of a HOV station.
+      - name: HOUR_DAY
+        description: Hour of day varies from 0 to 23.
+      - name: HOV_LATITUDE
+        description: latitude of HOV station.
+      - name: HOV_LONGITUDE
+        description: longitude of HOV station.
+      - name: HOV_LENGTH_AVG
+        description: Length of HOV station.
+      - name: SAMPLE_DATE
+        description: The sample collection date.
+      - name: SAMPLE_HOUR
+        description: The sample collection hour with date.
+      - name: WEEKDAY
+        description: The day of week when the data was collected.
+      - name: WEEKDAY_STATUS
+        description: Identify weather the data was collected in weekday or weekend.
+      - name: HOV_HOURLY_AVERAGE_VHT
+        description: Hourly average HOV station vht.
+      - name: HOV_HOURLY_AVERAGE_VMT
+        description: Hourly average HOV station vmt.
+      - name: HOV_HOURLY_AVERAGE_VOLUME
+        description: Hourly average HOV station volume.
+      - name: ML_HOURLY_AVERAGE_VHT
+        description: Hourly average mainline station vht.
+      - name: ML_HOURLY_AVERAGE_VMT
+        description: Hourly average mainline station vmt.
+      - name: ML_HOURLY_AVERAGE_VOLUME
+        description: Hourly average mainline station volume.
+      - name: HOV_VHT_PENETRATION
+        description:
+          The ratio of HOV houlry average vht to mainline houlry average vht.
+          it is expressed as percentage
+      - name: HOV_VMT_PENETRATION
+        description:
+          The ratio of HOV houlry average vmt to mainline houlry average vmt.
+          it is expressed as percentage.
+      - name: HOV_VOLUME_PENETRATION
+        description:
+          The ratio of HOV houlry average volume to mainline houlry average volume.
+          it is expressed as percentage.
