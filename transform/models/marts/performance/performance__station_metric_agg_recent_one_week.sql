@@ -1,5 +1,3 @@
-{{ config(materialized="table") }}
-
 with station_meta as (
     select * from {{ ref('int_vds__station_config') }}
 ),
@@ -130,7 +128,7 @@ station_metric_agg as (
         (sum(hov_hourly_vmt) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vmt,
         (sum(hov_hourly_vht) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vht,
         (sum(hov_hourly_volume) / nullif(sum(ml_hourly_volume), 0)) * 100 as hov_volume_penetration,
-        (sum(hov_hourly_vht) / nullif(sum(hov_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
+        (sum(hov_hourly_vmt) / nullif(sum(hov_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
         (sum(hov_hourly_vht) / nullif(sum(ml_hourly_vht), 0)) * 100 as hov_vht_penetration
     from station_with_ml_hov_metrics
     group by
