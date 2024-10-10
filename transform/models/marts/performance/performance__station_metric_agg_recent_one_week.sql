@@ -1,7 +1,24 @@
-{{ config(materialized="table") }}
-
 with station_meta as (
     select * from {{ ref('int_vds__station_config') }}
+),
+
+county as (
+    select
+        county_id,
+        county_name
+    from {{ ref('counties') }}
+),
+
+station_with_county as (
+    -- Perform the join between station_meta and county on county_id
+    select
+        sm.* exclude (county),
+        c.county_name
+    from
+        station_meta as sm
+    inner join
+        county as c
+        on sm.county = c.county_id
 ),
 
 station_pairs as (
@@ -9,7 +26,7 @@ station_pairs as (
         ml.station_id as ml_station_id,
         ml.district,
         ml.city,
-        ml.county,
+        ml.county_name as county,
         ml.freeway,
         ml.direction,
         ml.absolute_postmile as ml_absolute_postmile,
@@ -25,9 +42,9 @@ station_pairs as (
         hov.physical_lanes as hov_lanes,
         abs(ml.absolute_postmile - hov.absolute_postmile) as delta_postmile
     from
-        station_meta as ml
+        station_with_county as ml
     inner join
-        station_meta as hov
+        station_with_county as hov
         on
             ml.freeway = hov.freeway
             and ml.direction = hov.direction
@@ -35,6 +52,8 @@ station_pairs as (
             and ml.station_id != hov.station_id
             and ml.station_type = 'ML'
             and hov.station_type = 'HV'
+            and ml.district != 4
+            and hov.district != 4
 ),
 
 closest_station_with_selection as (
@@ -59,7 +78,7 @@ hourly_station_volume as (
         hourly_vht,
         station_type
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
-    where sample_date = dateadd('day', -11, current_date())
+    where sample_date >= dateadd('day', -8, current_date())
 ),
 
 station_with_ml_hov_metrics as (
@@ -109,7 +128,7 @@ station_metric_agg as (
         (sum(hov_hourly_vmt) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vmt,
         (sum(hov_hourly_vht) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vht,
         (sum(hov_hourly_volume) / nullif(sum(ml_hourly_volume), 0)) * 100 as hov_volume_penetration,
-        (sum(hov_hourly_vht) / nullif(sum(hov_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
+        (sum(hov_hourly_vmt) / nullif(sum(hov_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
         (sum(hov_hourly_vht) / nullif(sum(ml_hourly_vht), 0)) * 100 as hov_vht_penetration
     from station_with_ml_hov_metrics
     group by
@@ -178,4 +197,7 @@ final_data_with_category as (
     from station_metric_agg
 )
 
-select * from final_data_with_category
+select
+    *,
+    extract(hour from sample_hour) as hour_day
+from final_data_with_category
