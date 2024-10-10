@@ -37,7 +37,7 @@ vars:
   high_occupancy_threshold: 0.7
   incremental_model_look_back: -2
   dev_model_look_back: -7
-  special_routes: (71, 153, 282, 580, 780)
+  backward_routes: (71, 153, 282, 580, 780)
   day_start: "'05:00:00'"
   day_end: "'21:59:59'"
   V_t: [35, 40, 45, 50, 55, 60]

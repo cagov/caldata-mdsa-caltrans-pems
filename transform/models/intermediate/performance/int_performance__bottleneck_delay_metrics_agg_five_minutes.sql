@@ -5,8 +5,6 @@
     on_schema_change='sync_all_columns',
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
 ) }}
-{% set delay_metrics = ['delay_35_mph', 'delay_40_mph', 'delay_45_mph', 'delay_50_mph', 'delay_55_mph',
-'delay_60_mph'] %}
 
 with
 
@@ -17,6 +15,7 @@ station_five_minute as (
         sample_timestamp,
         nullifzero(speed_five_mins) as speed_five_mins,
         freeway,
+        freeway in {{ var("backward_routes") }} as is_backward_routes,
         direction,
         station_type,
         absolute_postmile,
@@ -49,7 +48,7 @@ calcs as (
         specifically*/
         case
             when
-                freeway in {{ var("special_routes") }}
+                is_backward_routes
                 then speed_five_mins - lead(speed_five_mins)
                     over (
                         partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
@@ -60,7 +59,7 @@ calcs as (
 
         case
             when
-                freeway in {{ var("special_routes") }}
+                is_backward_routes
                 then absolute_postmile - lead(absolute_postmile)
                     over (
                         partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
@@ -71,7 +70,7 @@ calcs as (
 
         case
             when
-                freeway in {{ var("special_routes") }}
+                is_backward_routes
                 then speed_five_mins - lag(speed_five_mins)
                     over (
                         partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
@@ -82,7 +81,7 @@ calcs as (
 
         case
             when
-                freeway in {{ var("special_routes") }}
+                is_backward_routes
                 then absolute_postmile - lag(absolute_postmile)
                     over (
                         partition by sample_timestamp, freeway, direction, station_type order by absolute_postmile desc
@@ -151,28 +150,28 @@ congestion as (
         follow this rule. We need to specify them in the speed difference and distance difference
         calculation*/
         case
-            when (freeway in {{ var("special_routes") }} and direction in ('N', 'E'))
+            when (is_backward_routes and direction in ('N', 'E'))
                 then
                     lag(is_congested)
                         over (
                             partition by sample_timestamp, freeway, direction, station_type
                             order by absolute_postmile desc
                         )
-            when (direction in ('N', 'E') and freeway not in {{ var("special_routes") }})
+            when (direction in ('N', 'E') and is_backward_routes = false)
                 then
                     lag(is_congested)
                         over (
                             partition by sample_timestamp, freeway, direction, station_type
                             order by absolute_postmile asc
                         )
-            when (freeway in {{ var("special_routes") }} and direction in ('S', 'W'))
+            when (is_backward_routes and direction in ('S', 'W'))
                 then
                     lead(is_congested)
                         over (
                             partition by sample_timestamp, freeway, direction, station_type
                             order by absolute_postmile desc
                         )
-            when (direction in ('S', 'W') and freeway not in {{ var("special_routes") }})
+            when (direction in ('S', 'W') and is_backward_routes = false)
                 then
                     lead(is_congested)
                         over (
@@ -188,7 +187,7 @@ congestion_events as (
     select
         *,
         case
-            when freeway in {{ var("special_routes") }}
+            when is_backward_routes
                 then
                     sum(congestion_status_change)
                         over (
@@ -212,8 +211,8 @@ congestion_length as (
         *,
         case
             when
-                (direction in ('N', 'E') and freeway not in {{ var("special_routes") }})
-                or (direction in ('S', 'W') and freeway in {{ var("special_routes") }})
+                (direction in ('N', 'E') and is_backward_routes = false)
+                or (direction in ('S', 'W') and is_backward_routes)
                 then
                     sum(congestion_length) over (
                         partition by sample_timestamp, freeway, direction, station_type, congestion_sequence
@@ -221,8 +220,8 @@ congestion_length as (
                         rows between unbounded preceding and current row
                     )
             when
-                (direction in ('S', 'W') and freeway not in {{ var("special_routes") }})
-                or (direction in ('N', 'E') and freeway in {{ var("special_routes") }})
+                (direction in ('S', 'W') and is_backward_routes = false)
+                or (direction in ('N', 'E') and is_backward_routes)
                 then
                     sum(congestion_length) over (
                         partition by sample_timestamp, freeway, direction, station_type, congestion_sequence
@@ -238,27 +237,27 @@ congestion_length as (
 agg_spatial_delay as (
     select
         *,
-        {% for delay in delay_metrics %}
+        {% for value in var("V_t") %}
             case
                 when
-                    (direction in ('N', 'E') and freeway not in {{ var("special_routes") }})
-                    or (direction in ('S', 'W') and freeway in {{ var("special_routes") }})
+                    (direction in ('N', 'E') and is_backward_routes = false)
+                    or (direction in ('S', 'W') and is_backward_routes)
                     then
-                        sum({{ delay }}) over (
+                        sum(delay_{{ value }}_mph) over (
                             partition by sample_timestamp, freeway, direction, station_type, congestion_sequence
                             order by absolute_postmile asc
                             rows between unbounded preceding and current row
                         )
                 when
-                    (direction in ('S', 'W') and freeway not in {{ var("special_routes") }})
-                    or (direction in ('N', 'E') and freeway in {{ var("special_routes") }})
+                    (direction in ('S', 'W') and is_backward_routes = false)
+                    or (direction in ('N', 'E') and is_backward_routes)
                     then
-                        sum({{ delay }}) over (
+                        sum(delay_{{ value }}_mph) over (
                             partition by sample_timestamp, freeway, direction, station_type, congestion_sequence
                             order by absolute_postmile asc
                             rows between current row and unbounded following
                         )
-            end as spatial_{{ delay }}
+            end as spatial_delay_{{ value }}_mph
             {% if not loop.last %}
                 ,
             {% endif %}
@@ -292,12 +291,14 @@ bottleneck_delay as (
         * exclude (
             congestion_sequence,
             congestion_status_change,
-            is_bottleneck,
+            bottleneck_check,
+            bottleneck_check_summed,
             speed_delta_ne,
             speed_delta_sw,
             distance_delta_sw,
             distance_delta_ne,
             volume_sum,
+            is_backward_routes,
             length,
             upstream_is_congested,
             is_congested,

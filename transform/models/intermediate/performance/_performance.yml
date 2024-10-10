@@ -430,7 +430,7 @@ models:
         description: 50th highest hour volume in the precceding year.
       - name: K_100
         description: 100th highest hour volume in the precceding year.
-  - name: int_performance__bottleneck_delay_metrics
+  - name: int_performance__bottleneck_delay_metrics_agg_five_minutes
     description: |
       The PeMS system runs a bottleneck identification algorithm every day. The original algorithm was
       presented in, "Systematic Identification of Freeway Bottlenecks," by Chen, C., Skabardonis, A.,
