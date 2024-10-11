@@ -102,6 +102,8 @@ models:
       geo:
         +schema: geo
         +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"
+      quality:
+        +schema: quality
 
 on-run-start:
   - "{{create_udfs()}}"
