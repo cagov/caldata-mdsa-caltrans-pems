@@ -441,6 +441,8 @@ models:
         description: The latitude of the station.
       - name: LONGITUDE
         description: The longitude of the station.
+      - name: LOCATION
+        description: The geolocation of the station.
       - name: AADT_1
         description:
           This is simply the average of all daily traffic flows over the entire year.

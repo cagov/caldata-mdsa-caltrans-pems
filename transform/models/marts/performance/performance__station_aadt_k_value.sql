@@ -26,6 +26,7 @@ geo as (
         station_id,
         latitude,
         longitude,
+        concat(longitude, ',', latitude) as location,
         absolute_postmile
     from {{ ref('geo__current_detectors') }}
 ),
@@ -35,7 +36,8 @@ aadt_county_geo as (
         aadt_with_county.*,
         geo.absolute_postmile,
         geo.latitude,
-        geo.longitude
+        geo.longitude,
+        geo.location
     from
         aadt_with_county
     inner join
