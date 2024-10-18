@@ -291,8 +291,6 @@ bottleneck_delay as (
         * exclude (
             congestion_sequence,
             congestion_status_change,
-            bottleneck_check,
-            bottleneck_check_summed,
             speed_delta_ne,
             speed_delta_sw,
             distance_delta_sw,

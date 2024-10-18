@@ -29,6 +29,6 @@ daily_time_shift_spatial_bottleneck_delay_metrics as (
         {% endfor %}
     from hourly_spatial_bottleneck_delay_metrics
     group by station_id, sample_date, time_shift
-),
+)
 
 select * from daily_time_shift_spatial_bottleneck_delay_metrics
