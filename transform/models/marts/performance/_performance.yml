@@ -413,3 +413,86 @@ models:
         description:
           The ratio of HOV houlry average volume to mainline houlry average volume.
           it is expressed as percentage.
+  - name: performance__station_aadt_k_value
+    description: |
+      Station level annual average daily traffic and k th highest hour volume in the precceding year.
+      This model only used detector reported observe value and did not impute any missing value to
+      calculate the AADT and k value. More details can be found in the paper "Using Incomplete Archived
+      ITS Data to Calculate Annual Average Traffic Statistics" by Shawn Turner and Eun Sug Park
+      (Proceedings of the Transportation Research Board 87th Annual Meeting, Washington, D.C., 2008).
+    columns:
+      - name: ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The name of the county that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LATITUDE
+        description: The latitude of the station.
+      - name: LONGITUDE
+        description: The longitude of the station.
+      - name: LOCATION
+        description: The geolocation of the station.
+      - name: AADT_1
+        description:
+          This is simply the average of all daily traffic flows over the entire year.
+          it is known as Arithmetic Mean.
+      - name: AADT_2
+        description: |
+          This procedure begins by calculating Monthly Average Days of the Week (MADW) values,
+          which are the average daily flows for each day of the week and each month of the
+          year (a total of 84 values). From these, 12 Monthly Average Daily Traffic (MADT)
+          values are calculated as the average of the non-missing MADW values for each month.
+          Finally, AADT_2 is computed as the average of all MADT values. This algorithm allows
+          one or more of the 7 weekday values to be missing for the MADT computation,
+          but none of the 12 MADT values may be missing for the final average. This is known as
+          ASTM Standard 1442.
+      - name: AADT_3
+        description: |
+          This algorithm also starts with the MADW values, computed as described above for AADT_2.
+          From these, an Annual Average Days of the Week (AADW) value is computed for each day of
+          the week as the average across all 12 months. Finally, AADT_3 is computed as the average
+          of these 7 AADW values.Missing data are not imputed; therefore, incomplete days are not
+          used in the calculation of MADW values.This is known as Conventional AASHTO Procedures.
+      - name: AADT_4
+        description: |
+          This procedure first calculates, across all 12 months, the monthly average flow for each
+          hour of the week (MAHW), which results in 24 x 7 = 168 values per month. Then for each month
+          and day of the week, the 24 MAHW values are summed to produce a MADW value. Then, just as in
+          AADT_3, 7 AADW values are produced as the averages of MADW across 12 months, which are then
+          averaged to yield AADT_4.This method is known as Provisional AASHTO Procedures.
+      - name: AADT_5
+        description: |
+          For each hour of the day, hourly traffic flow is averaged across all days of the year,
+          resulting in 24 annual average hourly values. AADT_5 is computed as the sum of the 24 hourly
+          values.This method is known as Sum of 24 Annual Average Hourly Traffic Volumes.
+      - name: AADT_6
+        description: |
+          This procedure is a modified version of AADT_2, in which 1 of the 12 MADT values may be
+          missing for the final AADT calculation. This is the Modified ASTM Standard.
+      - name: AADT_7
+        description: |
+          This procedure is a modified version of AADT_3, in which 1 of the 12 MADW values may be
+          missing in the AADW subcomputation, and/or 1 of the 7 AADW values may be missing in the
+          final AADT_7 computation. This is Modified Conventional AASHTO.
+      - name: AADT_8
+        description: |
+          Similarly, this procedure is a modified version of AADT_4, in which 1 of the 12 MADW
+          values may be missing in the AADW subcomputation, and/or 1 of the 7 AADW values may
+          be missing in the final AADT_8 computation. This is Modified Provisional AASHTO.
+      - name: K_30
+        description: 30th highest hour volume in the precceding year.
+      - name: K_50
+        description: 50th highest hour volume in the precceding year.
+      - name: K_100
+        description: 100th highest hour volume in the precceding year.
