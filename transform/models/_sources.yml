@@ -412,6 +412,13 @@ sources:
         description: |
           A log table showing updates to the detector config. This can be joined
           with the `detector_config` table to get a full history of detector metadata.
+        freshness: 
+          warn_after:
+            count: 14
+            period: day
+          error_after:
+            count: 28
+            period: day
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
