@@ -63,9 +63,9 @@ imputation_status_check as (
                 then 'check_passed'
             else 'check_failed'
         end as speed_imputation_check,
-        coalesce(occ_observed_sample = sample_ct, FALSE) as occ_imputed,
-        coalesce(vol_observed_sample = sample_ct, FALSE) as vol_imputed,
-        coalesce(speed_observed_sample = sample_ct, FALSE) as speed_imputed
+        coalesce(occ_observed_sample = sample_ct, FALSE) as occ_observed,
+        coalesce(vol_observed_sample = sample_ct, FALSE) as vol_observed,
+        coalesce(speed_observed_sample = sample_ct, FALSE) as speed_observed
     from imputation_status_count
 )
 
