@@ -15,6 +15,8 @@ monthly_spatial_bottleneck_delay_metrics as (
         station_id,
         sample_month,
         time_shift,
+        any_value(district) as district,
+        any_value(county) as county,
         any_value(station_type) as station_type,
         any_value(freeway) as freeway,
         any_value(direction) as direction,

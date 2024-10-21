@@ -14,6 +14,8 @@ station_five_minute as (
         sample_date,
         sample_timestamp,
         nullifzero(speed_five_mins) as speed_five_mins,
+        district,
+        county,
         freeway,
         freeway in {{ var("backward_routes") }} as is_backward_routes,
         direction,
