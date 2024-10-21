@@ -476,12 +476,18 @@ models:
           Actual reported speed if available otherwise the preliminary speed calculation
           in miles/hour based on the simplified version of the speed formula located at
           https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: FREEWAY
         description: The freeway where the VDS is located.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: STATION_TYPE
         description: Two character string identify the VDS type.
+      - name: ABSOLUTE_POSTMILE
+        description: The absolute postmile location of the station.
       - name: LENGTH
         description: length of the station.
       - name: DISTANCE_DELTA_NE
@@ -518,6 +524,134 @@ models:
         description: |
           Calculates the congestion region starting from the bottleneck location towards upstream adjacent
           congested stations, which is the summation of congestion lengths with same congestion sequence values.
+      - name: SPATIAL_DELAY MPH
+        description: |
+          Delay for different threshold of congestion speed such as 35, 40, 45, 50, 55, and 60 for each station lane.
+          The delay performance metric is the amount of additional time spent by the vehicles on a section of road 
+          due to congestion.
+      - name: SHIFT
+        description: |
+         - AM shift (5am - 10am)
+         - Noon shift (10am - 3pm)
+         - PM shift (3pm - 8pm)
+  - name: int_performance__bottleneck_delay_metrics_agg_hourly
+    description: |
+      Hourly aggregation of bottleneck performance by each station. It will measure the hourly performance
+      of the state highway system at the station level. This can be used for hourly aggregation of bottleneck
+      performance metrics.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: SAMPLE_DATE
+        description: The date associated with hourly aggregated data samples.
+      - name: SAMPLE_HOUR
+        description: The hour associated with hourly aggregated data samples.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: ABSOLUTE_POSTMILE
+        description: The absolute postmile location of the station.
+      - name: TIME_SHIFT
+        description: |
+         - AM shift (5am - 10am)
+         - Noon shift (10am - 3pm)
+         - PM shift (3pm - 8pm)
+      - name: HOURLY_DURATION
+        description: This is how long the bottleneck was active within an hour during that particular shift on that day.
+      - name: HOURLY_BOTTLENECK_EXTENT
+        description: |
+          Calculates the hourly congestion region starting from the bottleneck location towards upstream adjacent
+          congested stations, which is the summation of congestion lengths with same congestion sequence values.
+      - name: HOURLY_SPATIAL_DELAY_MPH
+        description: |
+          Hourly delay for different thresholds such as 35, 40, 45, 50, 55, and 60 for each station lane.
+          The delay performance metric is the amount of additional time spent by the vehicles on a section of road 
+          due to congestion.
+  - name: int_performance__bottleneck_delay_metrics_agg_daily
+    description: |
+      Daily aggregation of bottleneck performance by each station. It will measure the hourly performance
+      of the state highway system at the station level. This can be used for daily aggregation of bottleneck
+      performance metrics.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: SAMPLE_DATE
+        description: The date associated with hourly aggregated data samples.
+      - name: SAMPLE_HOUR
+        description: The hour associated with hourly aggregated data samples.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: ABSOLUTE_POSTMILE
+        description: The absolute postmile location of the station.
+      - name: DAILY_TIME_SHIFT_DURATION
+        description: How long the bottleneck was active within a time shift during that particular shift on that day.
+      - name: DAILY_TIME_SHIFT_BOTTLENECK_EXTENT
+        description: |
+          Calculates the time shift congestion region starting from the bottleneck location towards upstream adjacent
+          congested stations, which is the summation of congestion lengths with same congestion sequence values.
+      - name: DAILY_TIME_SHIFT_SPATIAL_DELAY_MPH
+        description: |
+          Daily time shift delay for different thresholds such as 35, 40, 45, 50, 55, and 60 for each station lane.
+          The delay performance metric is the amount of additional time spent by the vehicles on a section of road 
+          due to congestion.
+  - name: int_performance__bottleneck_delay_metrics_agg_monthly
+    description: |
+      Monthly aggregation of bottleneck performance by each station. It will measure the hourly performance
+      of the state highway system at the station level. This can be used for monthly aggregation of bottleneck
+      performance metrics.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: SAMPLE_DATE
+        description: The date associated with hourly aggregated data samples.
+      - name: SAMPLE_HOUR
+        description: The hour associated with hourly aggregated data samples.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: ABSOLUTE_POSTMILE
+        description: The absolute postmile location of the station.
+      - name: MONTHLY_TIME_SHIFT_DURATION
+        description: How long the bottleneck was active within a month during that particular shift on that day.
+      - name: MONTHLY_ACTIVE_DAYS
+        description: How many days the bottleneck was active within a month.
+      - name: MONTHLY_TIME_SHIFT_EXTENT
+        description: |
+          Calculates the monthly congestion region starting from the bottleneck location towards upstream adjacent
+          congested stations, which is the summation of congestion lengths with same congestion sequence values.
+      - name: MONTHLY_TIME_SHIFT_SPATIAL_DELAY_MPH
+        description: |
+          Monthly delay for different thresholds such as 35, 40, 45, 50, 55, and 60 for each station lane.
+          The delay performance metric is the amount of additional time spent by the vehicles on a section of road 
+          due to congestion.
   - name: int_performance__detector_metrics_agg_hourly
     description: |
       hourly aggregation of volume, occupancy and speed along with delays and lost productivity by

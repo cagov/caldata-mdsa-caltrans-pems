@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['detector_id','sample_date', 'sample_hour'],
+    unique_key=['station_id','sample_date', 'sample_hour'],
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
 ) }}
 
