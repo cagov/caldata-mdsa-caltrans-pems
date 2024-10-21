@@ -59,10 +59,10 @@ sources:
           depending on the measurement capabilities of the detectors.
         freshness:
           warn_after:
-            count: 2
+            count: 14
             period: day
           error_after:
-            count: 3
+            count: 28
             period: day
         loaded_at_field: SAMPLE_TIMESTAMP
         columns:
