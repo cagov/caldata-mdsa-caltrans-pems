@@ -115,7 +115,7 @@
 
 ```
 ---
-# Workflow from Data Source to Final Destination 
+# Workflow from Data Source to Final Destination
 
 **From: PeMS Oracle Database**
 
@@ -124,7 +124,7 @@
 
 ```bash
 ssh jupyter@svgcmdl01.dot.ca.gov
-password: 
+password:
 ```
 
 **To： Snowflake**
@@ -136,7 +136,7 @@ password:
 jupyter@svgcmdl02.dot.ca.gov
 # account 2
 s159123@svgcmdl02.dot.ca.gov
-password: 
+password:
 ```
 
 ## Puller Side: `Server svgcmdl01`
@@ -152,7 +152,7 @@ sudo ls /etc/systemd/system
 # File structure
 Gateway:
 ├── /etc/systemd/system
-│   ├── oracle_puller.service  
+│   ├── oracle_puller.service
 │   └── oracle_puller.service.sh
 ```
 
@@ -160,7 +160,7 @@ Gateway:
 
 ```bash
 sudo ls /etc/systemd/system/oracle_puller.service
-		# File contents 
+		# File contents
 		# ----------------------------------------------------
 		[Unit]
 		Description=Oracle Puller Daemon
@@ -170,7 +170,7 @@ sudo ls /etc/systemd/system/oracle_puller.service
 		WorkingDirectory=/data/projects/crawler
 		Restart=always
 		User=jupyter
-		
+
 		[Install]
 		WantedBy=multi-user.target
 		# ----------------------------------------------------
@@ -181,7 +181,7 @@ sudo ls /etc/systemd/system/oracle_puller.service
 
 ```bash
 /etc/systemd/system/oracle_puller.service.sh
-		# File contents 
+		# File contents
 		# ----------------------------------------------------
 		#!/user/bin/bashrc
 		source /home/jupyter/.bashrc
@@ -195,7 +195,7 @@ sudo ls /etc/systemd/system/oracle_puller.service
 ```bash
 
 ├── /data/projects/crawler
-│   └── oracle_puller_daemon.py 
+│   └── oracle_puller_daemon.py
 		# running continuously to pull data from Oracle
 ```
 
@@ -244,7 +244,7 @@ crontab -e
 0 2,5,8,11,14,17,20,23 * * * cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue && python3 append_to_crawl_queue.py --append_to_queue --githash '3110c63' --day_partition_number 8
 	# explanation -------------------------------------------------------------------
 		# 0: minutes
-		# 2,5,8,11,14,17,20,23: hours, 8 times in a day for the crontab job to 
+		# 2,5,8,11,14,17,20,23: hours, 8 times in a day for the crontab job to
 																   # launch the following script
 		# * * *: every day; day, month, year
 		# cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue: go to the working folder
@@ -281,7 +281,7 @@ crontab -e
 
 ```bash
 # db96 Task Generator file path
-cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue 
+cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
 python3 append_to_crawl_queue.py
 ```
 
@@ -307,7 +307,7 @@ python3 append_to_crawl_queue.py
         - Kafka service distributes the tasks
     - **Server cluster:** `KAFKA_SERVERS=(PLAINTEXT://svgcmdl03:9092, PLAINTEXT://svgcmdl04:9092,PLAINTEXT://svgcmdl05:9092)`
     - **SQL template:**
-        
+
         - **Purpose:** SQL command that enables the puller to extract data from the Oracle database
         - **Interpretation:** Each SQL query represents a distinct task to be executed
         - **On the puller side:** The system performs parameter replacement to generate the final SQL query. Read the SQL statement in the SQL queue one by one, and consume it.
@@ -317,7 +317,7 @@ python3 append_to_crawl_queue.py
 
 ```bash
 # DWO Task Generator file path
-cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue 
+cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
 python3 append_to_crawl_queue_config.py
 ```
 
@@ -332,16 +332,16 @@ python3 append_to_crawl_queue_config.py
     - Populate/Produce the task queues for `oracle_puller` to pull configuration data from the DWO database daily
 - **Explanation**
     - refer other similar detailed explanation to the db96
-    
+
     Some other commands for testing
-    
+
     ```bash
     python3.9 append_to_crawl_queue.py --output_csv_file db96.text.csv --day_partition_number 8 --crawl_window_start "2024-03-01 18:00:00" --githash default
     vi db96.text.csv
     python3.9 append_to_crawl_queue.py --output_csv_file dwo.text.csv --day_partition_number 8 --crawl_window_start "2024-03-01 18:00:00" --githash default
     vi dwo.text.csv
     ```
-    
+
 
 ### Data Uploaders/Consumers on svgcmdl02 (D2)
 
@@ -403,11 +403,11 @@ cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
 ```
 
 - Perform a health check for the Kafka service by verifying if each server is running
-    
+
     ```bash
     telnet svgcmd102/3/4/5 9092
     ```
-    
+
 
 ### Different Kafka Topics
 
@@ -479,27 +479,27 @@ Uploader on D2 svgcml02 will be able to consume the data in `D3.VDS30SEC` and ba
 - Write some SQL statement such as the ones in `snowsql/scratch.sql` (exemplary SQL statements)
 - Procedure to run:
     - **Step 1:** Load snowflake credentials `SNOWSQL_PWD` in `/home/s159123/.bashrc` to the environment:
-        
+
         ```bash
         source /home/s159123/.bashrc
         ```
-        
+
     - **Step 2.0:** Use Snowsql command (test):
-        
+
         ```bash
-        REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt 
+        REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
         snowsql -a NGB13288 -u MWAA_SVC_USER_DEV -o insecure_mode=True -f
         /nfsdata/dataop/uploader/snowsql/scratch.sql -d RAW_DEV
         ```
-        
+
     - **Step 2.1:** Use Snowsql command (real program):
-        
+
         ```bash
-        REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt 
+        REQUESTS_CA_BUNDLE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
         snowsql -a NGB13288 -u MWAA_SVC_USER_DEV -o insecure_mode=True -f
         /nfsdata/dataop/uploader/snowsql/snowsql_load_CONTROLLER_CONFIG_LOG.sql -d RAW_DEV
         ```
-        
+
 - Snowflake DBs (Transformed data)
     - Transformed DB96 tables:
         - DB96.VDS30SEC
@@ -564,7 +564,7 @@ Uploader on D2 svgcml02 will be able to consume the data in `D3.VDS30SEC` and ba
     - **In this workflow:** Buffer topics (e.g., `D3.VDS30SEC`) temporarily hold the data pulled from Oracle before it is uploaded to AWS or Snowflake.
 
 11. **Producers and Consumers:**
-    - **Producer:** In Kafka, a producer is a service or application that sends data to a Kafka topic. 
+    - **Producer:** In Kafka, a producer is a service or application that sends data to a Kafka topic.
     - **Consumer:** A consumer reads data from a Kafka topic and processes it further.
     - **In this workflow:** svgcmdl02 acts as a producer of task queues, while svgcmdl01 is a consumer of tasks (SQL queries). Similarly, svgcmdl01 produces data, and svgcmdl02 consumes it for uploading.
 
