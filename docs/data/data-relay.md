@@ -159,14 +159,14 @@ Gateway:
 - Gateway Contents `Oracle_puller.service`
 
 ```bash
-sudo ls /ect/systemd/system/oracle_puller.service
+sudo ls /etc/systemd/system/oracle_puller.service
 		# File contents 
 		# ----------------------------------------------------
 		[Unit]
-		Description=Orcale Puller Daemon
+		Description=Oracle Puller Daemon
 		After=network.target
 		[Service]
-		ExecStart=/etc/systemd/system/oracle_puller_service.sh
+		ExecStart=/etc/systemd/system/oracle_puller.service.sh
 		WorkingDirectory=/data/projects/crawler
 		Restart=always
 		User=jupyter
@@ -180,7 +180,7 @@ sudo ls /ect/systemd/system/oracle_puller.service
 - Gateway Configuration: `oracle_puller.service.sh`
 
 ```bash
-/ect/systemd/system/oracle_puller.service.sh
+/etc/systemd/system/oracle_puller.service.sh
 		# File contents 
 		# ----------------------------------------------------
 		#!/user/bin/bashrc
@@ -452,7 +452,7 @@ Uploader on D2 svgcml02 will be able to consume the data in `D3.VDS30SEC` and ba
         - `LOOP8_VOL`
     - Credentials in `/home/jupyter/.bashrc on svgcmdl01` (i.e. `DB_USER` `DB96_PASSWORD`)
     - Test some simple query `query_db96_debug.py`:
-        - `cd /data/projets/crawler/agent_oracle_puller_queue/`
+        - `cd /data/projects/crawler/agent_oracle_puller_queue/`
         - `python3.9 query_db96_debug.py`
             - `Get_Data_From_PeMS(dbname: DB96/DWO,  sql statement)` :
             - To stop the process: Use `ps -ef | grep query` to find the process ID, then `kill [process_id]` (e.g., `kill 66472`)
@@ -501,8 +501,8 @@ Uploader on D2 svgcml02 will be able to consume the data in `D3.VDS30SEC` and ba
         ```
         
 - Snowflake DBs (Transformed data)
-    - Transformed DB96 tables[? by ODI]:
-        - DB96.VDS30SEC[?]
+    - Transformed DB96 tables:
+        - DB96.VDS30SEC
     - Transformed DWO tables:
         - Six Tables
             - `DB96.CONTROLLER_CONFIG`
