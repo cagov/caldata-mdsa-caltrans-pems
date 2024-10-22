@@ -64,3 +64,48 @@ models:
         description: Percentage of observed volume.
       - name: PCT_OF_VOLUME_UNOBSERVED_UNIMPUTED
         description: Percentage of unobserved and unimputed volume.
+  - name: imputation__detector_imputed_agg_five_minutes
+    description: |
+      This model compared the imputed values (speed, volume and occupancy) obtained
+      from three different methods (local, regional and global) for bad detectors and
+      chosen the imuted based on the following priorities 'observe', 'local', 'regional'
+      and 'global' respectively. The model reported the observed values for all good detetcors.
+    columns:
+      - name: STATION_ID
+        description: The station ID.
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken.
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DETECTOR_IS_GOOD
+        description: Status of the detector based detector's diagonostics.
+      - name: VOLUME_SUM
+        description: observed or imputed flow values for a detector over the sample period.
+      - name: OCCUPANCY_AVG
+      - name: SPEED_WEIGHTED
+        description: |
+          Flow-weighted speed reported by the device.
+      - name: SPEED_FIVE_MINS
+        description: |
+          Flow-weighted observed or imputed speed for five minutes time period.
+      - name: SPEED_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the speed.
+      - name: VOLUME_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the volume.
+      - name: OCCUPANCY_IMPUTATION_METHOD
+        description: The method (local/regional/global) used to impute the occupancy.
+      - name: REGRESSION_DATE
+        description: |
+          The date on which the coefficients in the regression
+          were evaluated.
