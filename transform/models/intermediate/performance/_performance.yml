@@ -654,7 +654,7 @@ models:
       - name: MONTHLY_TIME_SHIFT_SPATIAL_DELAY_MPH
         description: |
           Monthly delay for different thresholds such as 35, 40, 45, 50, 55, and 60 for each station lane.
-          The delay performance metric is the amount of additional time spent by the vehicles on a section of road 
+          The delay performance metric is the amount of additional time spent by the vehicles on a section of road
           due to congestion.
   - name: int_performance__detector_metrics_agg_hourly
     description: |
