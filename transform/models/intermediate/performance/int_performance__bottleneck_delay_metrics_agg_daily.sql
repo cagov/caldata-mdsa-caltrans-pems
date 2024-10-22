@@ -7,7 +7,7 @@
 with hourly_spatial_bottleneck_delay_metrics as (
     select *
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_hourly') }}
-    where {{ make_model_incremental('sample_date') }} 
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 /*aggregate hourly delay and bottleneck extent in a daily level. Since one day has
