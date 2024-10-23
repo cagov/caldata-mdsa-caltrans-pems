@@ -15,13 +15,13 @@ detector_monthly_status_by_station as (
     select
         sample_month,
         station_id,
+        county,
         MAX(case when rn = 1 then district end) as district,
         MAX(case when rn = 1 then state_postmile end) as state_postmile,
         MAX(case when rn = 1 then absolute_postmile end) as absolute_postmile,
         MAX(case when rn = 1 then latitude end) as latitude,
         MAX(case when rn = 1 then longitude end) as longitude,
         MAX(case when rn = 1 then station_type end) as station_type,
-        MAX(case when rn = 1 then county end) as county,
         MAX(case when rn = 1 then city end) as city,
         MAX(case when rn = 1 then freeway end) as freeway,
         MAX(case when rn = 1 then direction end) as direction,
@@ -38,7 +38,8 @@ detector_monthly_status_by_station as (
         detector_daily_status
     group by
         station_id,
-        sample_month
+        sample_month,
+        county
 )
 
 select * from detector_monthly_status_by_station
