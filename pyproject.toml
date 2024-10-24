@@ -26,8 +26,8 @@ snowflake-snowpark-python = "^1.20"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.3.1"
-sqlfluff = "3.1.0"
-sqlfluff-templater-dbt = "3.1.0"
+sqlfluff = "3.1.1"
+sqlfluff-templater-dbt = "3.1.1"
 
 [build-system]
 requires = ["poetry-core"]

@@ -5,6 +5,10 @@
 
 with daily as (
     select * from {{ ref('int_performance__station_metrics_agg_daily') }}
+),
+
+dailyc as (
+    {{ get_county_name('daily') }}
 )
 
-select * from daily
+select * from dailyc

@@ -2,23 +2,8 @@ with station_meta as (
     select * from {{ ref('int_vds__station_config') }}
 ),
 
-county as (
-    select
-        county_id,
-        county_name
-    from {{ ref('counties') }}
-),
-
-station_with_county as (
-    -- Perform the join between station_meta and county on county_id
-    select
-        sm.* exclude (county),
-        c.county_name
-    from
-        station_meta as sm
-    inner join
-        county as c
-        on sm.county = c.county_id
+stationc as (
+    {{ get_county_name('station_meta') }}
 ),
 
 station_pairs as (
@@ -26,7 +11,7 @@ station_pairs as (
         ml.station_id as ml_station_id,
         ml.district,
         ml.city,
-        ml.county_name as county,
+        ml.county,
         ml.freeway,
         ml.direction,
         ml.absolute_postmile as ml_absolute_postmile,
@@ -42,9 +27,9 @@ station_pairs as (
         hov.physical_lanes as hov_lanes,
         abs(ml.absolute_postmile - hov.absolute_postmile) as delta_postmile
     from
-        station_with_county as ml
+        stationc as ml
     inner join
-        station_with_county as hov
+        stationc as hov
         on
             ml.freeway = hov.freeway
             and ml.direction = hov.direction
@@ -114,6 +99,7 @@ station_metric_agg as (
         hov_latitude,
         hov_longitude,
         avg(hov_length) as hov_length_avg,
+        max(hov_absolute_postmile) as hov_absolute_postmile,
         district,
         city,
         county,
