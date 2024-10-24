@@ -10,6 +10,10 @@ with imputation_five_mins as (
     where
         station_type in ('ML', 'HV')
         and sample_date >= dateadd(day, -4, current_date)
+),
+
+imputation_five_minsc as (
+    {{ get_county_name('imputation_five_mins') }}
 )
 
-select * from imputation_five_mins
+select * from imputation_five_minsc

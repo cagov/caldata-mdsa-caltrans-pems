@@ -8,6 +8,10 @@ current_detectors as (
         st_makepoint(longitude, latitude) as geometry
     from detector_config
     where _valid_to is null
+),
+
+current_detectorsc as (
+    {{ get_county_name('current_detectors') }}
 )
 
-select * from current_detectors
+select * from current_detectorsc
