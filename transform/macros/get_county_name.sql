@@ -5,7 +5,6 @@
             lower(county_name) as county
         from {{ ref('counties') }}
     ),
-    
     station_with_county as (
         select
             {{ table_with_county_id }}.* exclude (county),
