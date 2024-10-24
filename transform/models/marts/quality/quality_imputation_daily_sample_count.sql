@@ -45,7 +45,7 @@ imputation_status_count as (
 ),
 
 
-imputation_status_check as (
+sample_count as (
     select
         *,
         case
@@ -53,33 +53,48 @@ imputation_status_check as (
                 coalesce(occ_unobserved_unimputed, 0)
                 + coalesce(occ_imputed_sample, 0)
                 + coalesce(occ_observed_sample, 0)
-                = coalesce(sample_ct, 0)
-                then 'check_passed'
-            else 'check_failed'
+                = sample_ct
+                then 'pass'
+            else 'fail'
         end as occ_imputation_check,
+
         case
             when
                 coalesce(vol_unobserved_unimputed, 0)
                 + coalesce(vol_imputed_sample, 0)
                 + coalesce(vol_observed_sample, 0)
-                = coalesce(sample_ct, 0)
-                then 'check_passed'
-            else 'check_failed'
+                = sample_ct
+                then 'pass'
+            else 'fail'
         end as vol_imputation_check,
+
         case
             when
                 coalesce(speed_unobserved_unimputed, 0)
                 + coalesce(speed_imputed_sample, 0)
                 + coalesce(speed_observed_sample, 0)
-                = coalesce(sample_ct, 0)
-                then 'check_passed'
-            else 'check_failed'
+                = sample_ct
+                then 'pass'
+            else 'fail'
         end as speed_imputation_check,
-        coalesce(occ_observed_sample = sample_ct, FALSE) as occ_observed,
-        coalesce(vol_observed_sample = sample_ct, FALSE) as vol_observed,
-        coalesce(speed_observed_sample = sample_ct, FALSE) as speed_observed
+
+        case
+            when occ_observed_sample = sample_ct then 'observed'
+            else 'observed_imputed'
+        end as occ_observed,
+
+        case
+            when vol_observed_sample = sample_ct then 'observed'
+            else 'observed_imputed'
+        end as vol_observed,
+
+        case
+            when speed_observed_sample = sample_ct then 'observed'
+            else 'observed_imputed'
+        end as speed_observed
+
     from imputation_status_count
 )
 
 select *
-from imputation_status_check
+from sample_count
