@@ -49,17 +49,29 @@ imputation_status_check as (
     select
         *,
         case
-            when occ_unobserved_unimputed + occ_imputed_sample + occ_observed_sample = sample_ct
+            when
+                coalesce(occ_unobserved_unimputed, 0)
+                + coalesce(occ_imputed_sample, 0)
+                + coalesce(occ_observed_sample, 0)
+                = coalesce(sample_ct, 0)
                 then 'check_passed'
             else 'check_failed'
         end as occ_imputation_check,
         case
-            when vol_unobserved_unimputed + vol_imputed_sample + vol_observed_sample = sample_ct
+            when
+                coalesce(vol_unobserved_unimputed, 0)
+                + coalesce(vol_imputed_sample, 0)
+                + coalesce(vol_observed_sample, 0)
+                = coalesce(sample_ct, 0)
                 then 'check_passed'
             else 'check_failed'
         end as vol_imputation_check,
         case
-            when speed_unobserved_unimputed + speed_imputed_sample + speed_observed_sample = sample_ct
+            when
+                coalesce(speed_unobserved_unimputed, 0)
+                + coalesce(speed_imputed_sample, 0)
+                + coalesce(speed_observed_sample, 0)
+                = coalesce(sample_ct, 0)
                 then 'check_passed'
             else 'check_failed'
         end as speed_imputation_check,
@@ -69,4 +81,5 @@ imputation_status_check as (
     from imputation_status_count
 )
 
-select * from imputation_status_check
+select *
+from imputation_status_check
