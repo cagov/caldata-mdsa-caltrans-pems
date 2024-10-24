@@ -7,9 +7,16 @@
 ) }}
 
 with
+source as (
+    select
+        sample_date as active_date,
+        * exclude sample_date
+    from {{ ref('int_diagnostics__samples_per_detector') }}
+    where {{ make_model_incremental('active_date') }}
+),
+
 detector_meta as (
     select * from {{ ref('int_vds__active_detectors') }}
-    where {{ make_model_incremental('active_date') }}
 ),
 
 station_meta as (
@@ -25,36 +32,32 @@ equipment_meta as (
         dm.*,
         sm.controller_id,
         sm.name,
-        sm.angle
+        sm.angle,
+        cm.line_num,
+        cm.stn_address,
+        cm.controller_type
     from detector_meta as dm
     inner join station_meta as sm
         on
             dm.station_id = sm.station_id
             and {{ get_scd_2_data('dm.active_date','sm._valid_from','sm._valid_to') }}
-),
-
-equipment_all_meta as (
-    select
-        em.*,
-        cm.line_num,
-        cm.stn_address,
-        cm.controller_type
-    from equipment_meta as em
     inner join controller_meta as cm
         on
-            em.controller_id = cm.controller_id
-            and {{ get_scd_2_data('em.active_date','cm._valid_from','cm._valid_to') }}
+            sm.controller_id = cm.controller_id
+            and {{ get_scd_2_data('dm.active_date','cm._valid_from','cm._valid_to') }}
+    -- Constrain dates to not exceed those in the samples_per_detector model.
+    where dm.active_date between (select min(active_date) from source) and (select max(active_date) from source)
 ),
 
 equipment_with_samples as (
     select
-        eam.*,
+        em.*,
         source.sample_ct
-    from equipment_all_meta as eam
-    left join {{ ref('int_diagnostics__samples_per_detector') }} as source
+    from equipment_meta as em
+    left join source
         on
-            eam.detector_id = source.detector_id
-            and eam.active_date = source.sample_date
+            em.detector_id = source.detector_id
+            and em.active_date = source.active_date
 ),
 
 district_feed_check as (
