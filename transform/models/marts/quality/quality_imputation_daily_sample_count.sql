@@ -44,54 +44,37 @@ imputation_status_count as (
     group by sample_date
 ),
 
-
 sample_count as (
     select
         *,
-        case
-            when
-                coalesce(occ_unobserved_unimputed, 0)
-                + coalesce(occ_imputed_sample, 0)
-                + coalesce(occ_observed_sample, 0)
-                = sample_ct
-                then 'pass'
-            else 'fail'
-        end as occ_imputation_check,
+        (vol_imputed_sample / nullif(sample_ct, 0)) * 100 as pct_vol_imputed,
+        (vol_observed_sample / nullif(sample_ct, 0)) * 100 as pct_vol_observed,
+        (vol_unobserved_unimputed / nullif(sample_ct, 0)) * 100 as pct_vol_unobserved,
+        (speed_imputed_sample / nullif(sample_ct, 0)) * 100 as pct_speed_imputed,
+        (speed_observed_sample / nullif(sample_ct, 0)) * 100 as pct_speed_observed,
+        (speed_unobserved_unimputed / nullif(sample_ct, 0)) * 100 as pct_speed_unobserved,
+        (occ_imputed_sample / nullif(sample_ct, 0)) * 100 as pct_occ_imputed,
+        (occ_observed_sample / nullif(sample_ct, 0)) * 100 as pct_occ_observed,
+        (occ_unobserved_unimputed / nullif(sample_ct, 0)) * 100 as pct_occ_unobserved,
 
-        case
-            when
-                coalesce(vol_unobserved_unimputed, 0)
-                + coalesce(vol_imputed_sample, 0)
-                + coalesce(vol_observed_sample, 0)
-                = sample_ct
-                then 'pass'
-            else 'fail'
-        end as vol_imputation_check,
+        -- Volume check: Sum of all volume percentages should equal 100
+        coalesce(
+            coalesce(pct_vol_imputed, 0) + coalesce(pct_vol_observed, 0) + coalesce(pct_vol_unobserved, 0) = 100,
+            FALSE
+        ) as volume_check_ok,
 
-        case
-            when
-                coalesce(speed_unobserved_unimputed, 0)
-                + coalesce(speed_imputed_sample, 0)
-                + coalesce(speed_observed_sample, 0)
-                = sample_ct
-                then 'pass'
-            else 'fail'
-        end as speed_imputation_check,
+        -- Speed check: Sum of all speed percentages should equal 100
+        coalesce(
+            coalesce(pct_speed_imputed, 0) + coalesce(pct_speed_observed, 0) + coalesce(pct_speed_unobserved, 0)
+            = 100,
+            FALSE
+        ) as speed_check_ok,
 
-        case
-            when occ_observed_sample = sample_ct then 'observed'
-            else 'observed_imputed'
-        end as occ_observed,
-
-        case
-            when vol_observed_sample = sample_ct then 'observed'
-            else 'observed_imputed'
-        end as vol_observed,
-
-        case
-            when speed_observed_sample = sample_ct then 'observed'
-            else 'observed_imputed'
-        end as speed_observed
+        -- Occupancy check: Sum of all occupancy percentages should equal 100
+        coalesce(
+            coalesce(pct_occ_imputed, 0) + coalesce(pct_occ_observed, 0) + coalesce(pct_occ_unobserved, 0) = 100,
+            FALSE
+        ) as occ_check_ok
 
     from imputation_status_count
 )
