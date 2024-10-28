@@ -40,6 +40,10 @@ spatial_metrics as (
     from station_daily_data
     group by
         county, sample_year
+),
+
+spatial_metricsc as (
+    {{ get_county_name('spatial_metrics') }}
 )
 
-select * from spatial_metrics
+select * from spatial_metricsc
