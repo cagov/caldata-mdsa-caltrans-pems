@@ -25,7 +25,7 @@ geo as (
         station_id,
         latitude,
         longitude,
-        concat(longitude, ',', latitude) as location,
+        concat(longitude, ',', latitude) as location
     from {{ ref('geo__current_detectors') }}
 ),
 
