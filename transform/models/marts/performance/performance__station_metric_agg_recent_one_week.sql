@@ -1,8 +1,9 @@
 with station_meta as (
-    select * from {{ ref('int_vds__station_config') }}
+    select * from {{ ref('int_vds__active_stations') }}
+    where active_date >= dateadd('day', -8, current_date())
 ),
 
-stationc as (
+station_county as (
     {{ get_county_name('station_meta') }}
 ),
 
@@ -16,8 +17,7 @@ station_pairs as (
         ml.direction,
         ml.absolute_postmile as ml_absolute_postmile,
         ml.physical_lanes as ml_lanes,
-        ml._valid_from as ml_valid_from,
-        ml._valid_to as ml_valid_to,
+        ml.active_date,
         hov.station_id as hov_station_id,
         hov.name as hov_name,
         hov.latitude as hov_latitude,
@@ -27,13 +27,13 @@ station_pairs as (
         hov.physical_lanes as hov_lanes,
         abs(ml.absolute_postmile - hov.absolute_postmile) as delta_postmile
     from
-        stationc as ml
+        station_county as ml
     inner join
-        stationc as hov
+        station_county as hov
         on
             ml.freeway = hov.freeway
             and ml.direction = hov.direction
-            and ml._valid_from = hov._valid_from
+            and ml.active_date = hov.active_date
             and ml.station_id != hov.station_id
             and ml.station_type = 'ML'
             and hov.station_type = 'HV'
@@ -44,7 +44,7 @@ station_pairs as (
 closest_station_with_selection as (
     select
         *,
-        row_number() over (partition by ml_station_id, ml_valid_from order by delta_postmile asc) as distance_ranking
+        row_number() over (partition by ml_station_id, active_date order by delta_postmile asc) as distance_ranking
     from station_pairs
     where
         delta_postmile <= 5
@@ -82,6 +82,7 @@ station_with_ml_hov_metrics as (
         on
             ax.ml_station_id = ml.station_id
             and ax.direction = ml.direction
+            and ax.active_date = ml.sample_date
             and ml.station_type = 'ML'
     inner join hourly_station_volume as hov
         on
