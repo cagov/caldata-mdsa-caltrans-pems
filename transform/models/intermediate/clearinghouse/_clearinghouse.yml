@@ -8,6 +8,8 @@ models:
     columns:
       - name: META_DATE
         description: Date of the metadata file.
+        tests:
+          - not_null
       - name: ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
@@ -15,7 +17,7 @@ models:
         tests:
           - not_null
       - name: ABSOLUTE_POSTMILE
-        description: Absolute postmile value along a partilcuar state route where the VDS is located.
+        description: Absolute postmile value along a particular state route where the VDS is located.
       - name: STATE_POSTMILE
         description: State Postmile value.
       - name: CITY
@@ -24,8 +26,14 @@ models:
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+        tests:
+          - accepted_values:
+              values: ["N", "E", "S", "W", "n", "e", "s", "w"]
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
+        tests:
+          - accepted_values:
+              values: '{{ var("districts") }}'
       - name: FREEWAY
         description: The freeway where the VDS is located.
       - name: LANES
@@ -50,6 +58,10 @@ models:
           The date that this metadata became *invalid*.
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
+      - name: FILENAME
+        description: |
+          the clearinghouse path and filename where the station meta data was
+          obtained from
   - name: int_clearinghouse__station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
@@ -57,18 +69,29 @@ models:
     columns:
       - name: META_DATE
         description: The date of the XML metadata file.
+        tests:
+          - not_null
       - name: STATION_ID
         description: The station ID.
+        tests:
+          - not_null
       - name: DETECTOR_ID
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
+        tests:
+          - not_null
       - name: DETECTOR_NAME
         description: The name of the detector.
       - name: DETECTOR_STATUS
         description: |
           Detector status as reported by the XML file. Probably not useful when determining
           *actual* status of the detector.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+        tests:
+          - accepted_values:
+              values: '{{ var("districts") }}'
       - name: LAST_UPDATE_TIME
         description: The last updated time. This seems to be empty for the whole dataset.
       - name: LANE_NUMBER
@@ -86,26 +109,69 @@ models:
           The date that this metadata became *invalid*.
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
+      - name: FILENAME
+        description: |
+          the clearinghouse path and filename where the data models meta data was
+          obtained from
   - name: int_clearinghouse__detector_agg_five_minutes
     description: |
-      Raw 30 second sample data aggregated to the 5 minute level.
-      Volume values are summed, occupancy is averaged.
+      The data model contains the raw 30 second sample data aggregated to the 5 minute level.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: The station ID.
+        tests:
+          - not_null
+      - name: detector_id
+        description: The unique detector ID.
+        tests:
+          - not_null
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
+        tests:
+          - not_null
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
+        tests:
+          - not_null
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+        tests:
+          - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
+        tests:
+          - accepted_values:
+              values: '{{ var("districts") }}'
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+        tests:
+          - accepted_values:
+              values: ["N", "E", "S", "W", "n", "e", "s", "w"]
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: ABSOLUTE_POSTMILE
+        description: Absolute postmile value along a particular state route where the VDS is located.
+      - name: STATE_POSTMILE
+        description: State Postmile value.
+      - name: LATITUDE
+        description: Latitude of a specific VDS.
+      - name: LENGTH
+        description: The length associated with a VDS.
+      - name: LONGITUDE
+        description: Longitude of a specific VDS.
+      - name: PHYSICAL_LANES
+        description: Total number of lanes for a specific VDS.
       - name: sample_ct
         description: |
           Counts the number of raw data samples where a lane's volume (flow)
           and occupancy values contain any non-null value.
       - name: lane
         description: |
-          Lane associated with a route and station from raw data.
+          Lane associated with a detector located along a route and station from raw data.
       - name: volume_observed
         description: Number of vehicles that passed over the detector during the sample period for the lane.
       - name: volume_sum
@@ -139,7 +205,17 @@ models:
       - name: speed_weighted
         description: |
           Speed in the lane as measured by the detector in miles/hour.
-          Weighted by count of samples in each period.
+          Weighted by number of vehicles in each sample period.
+      - name: STATION_VALID_FROM
+        description: |
+          The date that this metadata became valid. Should be the same as `META_DATE`.
+          Finding the right metadata for a date should involve a check with
+          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
+      - name: STATION_VALID_TO
+        description: |
+          The date that this metadata became *invalid*.
+          Finding the right metadata for a date should involve a check with
+          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
   - name: int_clearinghouse__detector_agg_five_minutes_with_missing_rows
     description: |
       This model takes the `int_clearinghouse__detector_agg_five_minutes` model and fills in "missing"
@@ -147,11 +223,6 @@ models:
       dates (from the parent model). For all resulting rows, metadata is filled in but data values (eg.
       `volume_sum`, `occupancy_avg`, etc) are set to null, to be imputed later. Column descriptions can be found
       in `int_clearinghouse__detector_agg_five_minutes`.
-    columns:
-      - name: detector_id
-        description: The unique detector ID.
-      - name: SAMPLE_DATE
-        description: The date on which the sample was taken.
     tests:
       - five_minute_daily_count:
           select_columns: ["detector_id", "sample_date"]
