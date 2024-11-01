@@ -8,6 +8,10 @@ with
 detector_status as (
     select * from {{ ref("int_diagnostics__detector_status") }}
     where sample_date is not null and lane is not null
+),
+
+detector_statusc as (
+    {{ get_county_name('detector_status') }}
 )
 
-select * from detector_status
+select * from detector_statusc

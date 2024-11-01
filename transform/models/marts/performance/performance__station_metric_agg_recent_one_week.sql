@@ -1,7 +1,10 @@
-{{ config(materialized="table") }}
-
 with station_meta as (
-    select * from {{ ref('int_vds__station_config') }}
+    select * from {{ ref('int_vds__active_stations') }}
+    where active_date >= dateadd('day', -8, current_date())
+),
+
+station_county as (
+    {{ get_county_name('station_meta') }}
 ),
 
 station_pairs as (
@@ -14,8 +17,7 @@ station_pairs as (
         ml.direction,
         ml.absolute_postmile as ml_absolute_postmile,
         ml.physical_lanes as ml_lanes,
-        ml._valid_from as ml_valid_from,
-        ml._valid_to as ml_valid_to,
+        ml.active_date,
         hov.station_id as hov_station_id,
         hov.name as hov_name,
         hov.latitude as hov_latitude,
@@ -25,22 +27,24 @@ station_pairs as (
         hov.physical_lanes as hov_lanes,
         abs(ml.absolute_postmile - hov.absolute_postmile) as delta_postmile
     from
-        station_meta as ml
+        station_county as ml
     inner join
-        station_meta as hov
+        station_county as hov
         on
             ml.freeway = hov.freeway
             and ml.direction = hov.direction
-            and ml._valid_from = hov._valid_from
+            and ml.active_date = hov.active_date
             and ml.station_id != hov.station_id
             and ml.station_type = 'ML'
             and hov.station_type = 'HV'
+            and ml.district != 4
+            and hov.district != 4
 ),
 
 closest_station_with_selection as (
     select
         *,
-        row_number() over (partition by ml_station_id, ml_valid_from order by delta_postmile asc) as distance_ranking
+        row_number() over (partition by ml_station_id, active_date order by delta_postmile asc) as distance_ranking
     from station_pairs
     where
         delta_postmile <= 5
@@ -59,7 +63,7 @@ hourly_station_volume as (
         hourly_vht,
         station_type
     from {{ ref('int_performance__station_metrics_agg_hourly') }}
-    where sample_date = dateadd('day', -11, current_date())
+    where sample_date >= dateadd('day', -8, current_date())
 ),
 
 station_with_ml_hov_metrics as (
@@ -78,6 +82,7 @@ station_with_ml_hov_metrics as (
         on
             ax.ml_station_id = ml.station_id
             and ax.direction = ml.direction
+            and ax.active_date = ml.sample_date
             and ml.station_type = 'ML'
     inner join hourly_station_volume as hov
         on
@@ -95,6 +100,7 @@ station_metric_agg as (
         hov_latitude,
         hov_longitude,
         avg(hov_length) as hov_length_avg,
+        max(hov_absolute_postmile) as hov_absolute_postmile,
         district,
         city,
         county,
@@ -109,7 +115,7 @@ station_metric_agg as (
         (sum(hov_hourly_vmt) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vmt,
         (sum(hov_hourly_vht) / nullif(sum(hov_lanes), 0)) as hov_hourly_average_vht,
         (sum(hov_hourly_volume) / nullif(sum(ml_hourly_volume), 0)) * 100 as hov_volume_penetration,
-        (sum(hov_hourly_vht) / nullif(sum(hov_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
+        (sum(hov_hourly_vmt) / nullif(sum(ml_hourly_vmt), 0)) * 100 as hov_vmt_penetration,
         (sum(hov_hourly_vht) / nullif(sum(ml_hourly_vht), 0)) * 100 as hov_vht_penetration
     from station_with_ml_hov_metrics
     group by
@@ -178,4 +184,7 @@ final_data_with_category as (
     from station_metric_agg
 )
 
-select * from final_data_with_category
+select
+    *,
+    extract(hour from sample_hour) as hour_day
+from final_data_with_category

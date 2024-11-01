@@ -124,3 +124,8 @@ macros:
         description: |
           Number of seconds between each timestamp in the spine. Invalid values will result in
           the default value being selected.
+      - name: get_county_name
+        type: string
+        description: |
+          This function replace the county numeric code to county full name. The county name was made lower case
+          to make it insensitive for kibana search option.

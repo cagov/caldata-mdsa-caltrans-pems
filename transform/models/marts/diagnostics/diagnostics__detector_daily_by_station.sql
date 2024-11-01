@@ -76,6 +76,10 @@ detector_status_by_station_with_metadata as (
                 or dmeta._valid_to is null
             )
     where dsbs.sample_date is not null
+),
+
+detector_status_by_station_with_metadatac as (
+    {{ get_county_name('detector_status_by_station_with_metadata') }}
 )
 
-select * from detector_status_by_station_with_metadata
+select * from detector_status_by_station_with_metadatac

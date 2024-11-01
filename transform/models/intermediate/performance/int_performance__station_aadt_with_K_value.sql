@@ -461,4 +461,24 @@ aadt_1_8_kfactors as (
             and aadt_1_8.sample_year = k_100.kfactor_year
 )
 
-select * from aadt_1_8_kfactors
+select distinct
+    station_id,
+    station_type,
+    sample_year,
+    city,
+    county,
+    direction,
+    district,
+    freeway,
+    aadt_1,
+    aadt_2,
+    aadt_3,
+    aadt_4,
+    aadt_5,
+    aadt_6,
+    aadt_7,
+    aadt_8,
+    k_30,
+    k_50,
+    k_100
+from aadt_1_8_kfactors

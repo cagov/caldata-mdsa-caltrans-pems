@@ -1,0 +1,36 @@
+version: 2
+
+models:
+  - name: quality__row_count_summary
+    description: |
+      This model counts the number of ML and HV detectors across multiple models on a daily basis
+      to ensure that the detector count is consistent between all of the models. The models
+      where detector counts are being evaluated are:
+      - int_diagnostics__detector_status model
+      - int_clearinghouse__detector_agg_five_minutes_with_missing_rows
+      - int_imputation__detector_imputed_agg_five_minutes
+      - int_performance__detector_metrics_agg_five_minutes
+      The daily detector counts for these models should match. As an additional aggregation
+      the number of good, bad, and total detectors is calculated in this model as well to monitor
+      for any changes that should be investigated. The number of detectors and their health
+      should not vary drastically between days so this model can help identify anamolies.
+    columns:
+      - name: SAMPLE_DATE
+        description: |
+          The date associated with the aggregate counts down in the 5 models to be compared.
+      - name: ML_HV_DETECTOR_STATUS_TOTAL_COUNT
+        description: Counts the number of distinct ML and HV detectors on a daily basis
+      - name: ML_HV_CLEARINGHOUSE_DETECTOR_COUNT
+        description: Counts the number of distinct ML and HV detectors on a daily basis
+      - name: ML_HV_IMPUTATION_DETECTOR_COUNT
+        description: Counts the number of distinct ML and HV detectors on a daily basis
+      - name: ML_HV_PERFORMANCE_DETECTOR_COUNT
+        description: Counts the number of distinct ML and HV detectors on a daily basis
+      - name: GOOD_STATUS_COUNT
+        description: |
+          Counts the total number of detectors with a status of Good on a daily basis.
+      - name: BAD_STATUS_COUNT
+        description: |
+          Counts the total number of detectors with a status other than Good on a daily basis.
+      - name: ALL_DETECTOR_STATUS_TOTAL_COUNT
+        description: Counts the total number of rows/detectors on a daily basis
