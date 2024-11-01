@@ -101,6 +101,14 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or volume_sum is null) and volume_regional_avg is not null
                 then 'regional_avg'
+            when
+                (detector_is_good = false or volume_sum is null)
+                and volume_local_regression is null
+                and volume_regional_regression is null
+                and volume_global_regression is null
+                and volume_local_avg is null
+                and volume_regional_avg is null
+                then 'observed_unimputed'
             else 'observed'
         end as volume_imputation_method,
         case
@@ -119,6 +127,14 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or speed_five_mins is null) and speed_regional_avg is not null
                 then 'regional_avg'
+            when
+                (detector_is_good = false or speed_five_mins is null)
+                and speed_local_regression is null
+                and speed_regional_regression is null
+                and speed_global_regression is null
+                and speed_local_avg is null
+                and speed_regional_avg is null
+                then 'observed_unimputed'
             else 'observed'
         end as speed_imputation_method,
         case
@@ -137,6 +153,14 @@ hybrid_five_mins_agg as (
             when
                 (detector_is_good = false or occupancy_avg is null) and occupancy_regional_avg is not null
                 then 'regional_avg'
+            when
+                (detector_is_good = false or occupancy_avg is null)
+                and occupancy_local_regression is null
+                and occupancy_regional_regression is null
+                and occupancy_global_regression is null
+                and occupancy_local_avg is null
+                and occupancy_regional_avg is null
+                then 'observed_unimputed'
             else 'observed'
         end as occupancy_imputation_method
     from obs_imputed_five_minutes_agg
