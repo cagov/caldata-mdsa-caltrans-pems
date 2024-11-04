@@ -33,7 +33,7 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
         tests:
           - accepted_values:
-              values: '{{ var("districts") }}'
+              values: "{{ var('districts') }}"
       - name: FREEWAY
         description: The freeway where the VDS is located.
       - name: LANES
@@ -91,7 +91,7 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
         tests:
           - accepted_values:
-              values: '{{ var("districts") }}'
+              values: "{{ var('districts') }}"
       - name: LAST_UPDATE_TIME
         description: The last updated time. This seems to be empty for the whole dataset.
       - name: LANE_NUMBER
@@ -141,7 +141,7 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
         tests:
           - accepted_values:
-              values: '{{ var("districts") }}'
+              values: "{{ var('districts') }}"
       - name: CITY
         description: The city number where the VDS is located, if available.
       - name: COUNTY
