@@ -52,7 +52,7 @@ ML_HV_PERFORMANCE_STATION_DAILY_COUNT as (
         count(distinct STATION_ID) as ML_HV_PERFORMANCE_STATION_COUNT
     from {{ ref('int_performance__station_metrics_agg_five_minutes') }}
     where
-        STATION_TYPE in ('ML', 'HV') 
+        STATION_TYPE in ('ML', 'HV')
         and SAMPLE_DATE >= current_date - 16
     group by SAMPLE_DATE
 ),
@@ -70,7 +70,6 @@ DAILY_STATION_COUNT_CHECK as (
         on MHDSDC.SAMPLE_DATE = ISDC.SAMPLE_DATE
     left join ML_HV_PERFORMANCE_STATION_DAILY_COUNT as PSDC
         on MHDSDC.SAMPLE_DATE = PSDC.SAMPLE_DATE
-
 )
 
 select * from DAILY_STATION_COUNT_CHECK
