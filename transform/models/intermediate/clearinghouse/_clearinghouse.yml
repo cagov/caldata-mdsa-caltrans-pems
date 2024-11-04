@@ -225,7 +225,6 @@ models:
       in `int_clearinghouse__detector_agg_five_minutes`.
     tests:
       - five_minute_daily_count:
-          select_columns: ["detector_id", "sample_date"]
           group_by_columns: ["detector_id", "sample_date"]
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
