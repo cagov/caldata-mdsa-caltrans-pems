@@ -34,3 +34,79 @@ models:
           Counts the total number of detectors with a status other than Good on a daily basis.
       - name: ALL_DETECTOR_STATUS_TOTAL_COUNT
         description: Counts the total number of rows/detectors on a daily basis
+  - name: quality_imputation_daily_sample_count
+    description: |
+      This model counts the number of imputed, observed and observed-unimputed daily sample as
+      well as their percentage. The count of imputed sampe was again breakdon by imputation methodology.
+    columns:
+      - name: SAMPLE_DATE
+        description: |
+          The date associated with the aggregate daily counts of sample.
+      - name: SAMPLE_CT
+        description: Daily sample count that includes observed and null.
+      - name: VOL_LOCAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily volume sample that was imputed by local average method.
+      - name: VOL_LOCAL_IMPUTATION_SAMPLE
+        description: Number of daily volume sample that was imputed by local regression method.
+      - name: VOL_OBSERVED_SAMPLE
+        description: Number of daily volume sample that do not need imputation.
+      - name: VOL_IMPUTED_SAMPLE
+        description: Number of daily volume sample that was imputation.
+      - name: VOL_REGIONAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily volume sample that was imputed by regional average method.
+      - name: VOL_REGIONAL_IMPUTATION_SAMPLE
+        description: Number of daily volume sample that was imputed by regional regression method.
+      - name: VOL_UNOBSERVED_UNIMPUTED
+        description: Number of daily volume sample that was not imputed but is observed and null.
+      - name: VOL_GLOBAL_IMPUTATION_SAMPLE
+        description: Number of daily volume sample that was imputed by global regression method.
+      - name: SPEED_LOCAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily speed sample that was imputed by local average method.
+      - name: SPEED_LOCAL_IMPUTATION_SAMPLE
+        description: Number of daily speed sample that was imputed by local regression method.
+      - name: SPEED_OBSERVED_SAMPLE
+        description: Number of daily speed sample that do not need imputation.
+      - name: SPEED_IMPUTED_SAMPLE
+        description: Number of daily speed sample that was imputation.
+      - name: SPEED_REGIONAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily speed sample that was imputed by regional average method.
+      - name: SPEED_REGIONAL_IMPUTATION_SAMPLE
+        description: Number of daily speed sample that was imputed by regional regression method.
+      - name: SPEED_UNOBSERVED_UNIMPUTED
+        description: Number of daily speed sample that was not imputed but is observed and null.
+      - name: SPEED_GLOBAL_IMPUTATION_SAMPLE
+        description: Number of daily speed sample that was imputed by global regression method.
+      - name: OCC_LOCAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily occupancy sample that was imputed by local average method.
+      - name: OCC_LOCAL_IMPUTATION_SAMPLE
+        description: Number of daily occupancy sample that was imputed by local regression method.
+      - name: OCC_OBSERVED_SAMPLE
+        description: Number of daily occupancy sample that do not need imputation.
+      - name: OCC_IMPUTED_SAMPLE
+        description: Number of daily occupancy sample that was imputation.
+      - name: OCC_REGIONAL_AVG_IMPUTATION_SAMPLE
+        description: Number of daily occupancy sample that was imputed by regional average method.
+      - name: OCC_REGIONAL_IMPUTATION_SAMPLE
+        description: Number of daily occupancy sample that was imputed by regional regression method.
+      - name: OCC_UNOBSERVED_UNIMPUTED
+        description: Number of daily occupancy sample that was not imputed but is observed and null.
+      - name: OCC_GLOBAL_IMPUTATION_SAMPLE
+        description: Number of daily occupancy sample that was imputed by global regression method.
+      - name: PCT_OCC_IMPUTED
+        description: Percentage of daily occupancy sample that was imputed.
+      - name: PCT_SPEED_IMPUTED
+        description: Percentage of daily speed sample that was imputed.
+      - name: PCT_VOL_IMPUTED
+        description: Percentage of daily volume sample that was imputed.
+      - name: PCT_SPEED_OBSERVED
+        description: Percentage of daily speed sample that was observed.
+      - name: PCT_OCC_OBSERVED
+        description: Percentage of daily occupancy sample that was observed.
+      - name: PCT_VOL_OBSERVED
+        description: Percentage of daily volume sample that was observed.
+      - name: PCT_OCC_OBSERVED_UNIMPUTED
+        description: Percentage of daily occupancy sample that was observed but not imputed.
+      - name: PCT_SPEED_OBSERVED_UNIMPUTED
+        description: Percentage of daily speed sample that was observed but not imputed.
+      - name: PCT_VOL_OBSERVED_UNIMPUTED
+        description: Percentage of daily volume sample that was observed but not imputed.
