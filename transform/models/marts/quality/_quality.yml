@@ -37,7 +37,7 @@ models:
   - name: quality_imputation_daily_sample_count
     description: |
       This model counts the number of imputed, observed and observed-unimputed daily sample as
-      well as their percentage. The count of imputed sample was again brokedown by imputation methodology.
+      well as their percentage. The count of imputed sample was again broken down by imputation methodology.
     columns:
       - name: SAMPLE_DATE
         description: |
