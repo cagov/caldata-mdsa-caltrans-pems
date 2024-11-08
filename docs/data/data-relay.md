@@ -475,7 +475,7 @@ Uploader on D2 svgcml02 will be able to consume the data in `D3.VDS30SEC` and ba
 #### **How to navigate**
 
 - Login to [`ssh s159123@svgcmdl02.dot.ca.gov`](mailto:to`s159123@svgcmdl02.dot.ca.gov)
-- `cd /nfsdata/dataup/uploader/`
+- `cd /nfsdata/dataop/uploader/`
 - Write some SQL statement such as the ones in `snowsql/scratch.sql` (exemplary SQL statements)
 - Procedure to run:
     - **Step 1:** Load snowflake credentials `SNOWSQL_PWD` in `/home/s159123/.bashrc` to the environment:
