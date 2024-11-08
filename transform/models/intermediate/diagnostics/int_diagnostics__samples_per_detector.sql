@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     cluster_by=['sample_date'],
-    unique_key=['station_id', 'sample_date', 'lane'],
+    unique_key=['detector_id', 'sample_date'],
     on_schema_change='sync_all_columns',
     snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
 ) }}
