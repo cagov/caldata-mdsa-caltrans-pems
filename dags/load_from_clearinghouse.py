@@ -106,7 +106,7 @@ def pems_clearinghouse_to_s3_task(**context):
 @dag(
     description="Load data from the PeMS clearinghouse webserver to S3",
     start_date=datetime(1994, 12, 1),
-    schedule_interval="0 12 * * *",  # 4 AM PST
+    schedule_interval="0 8 * * *",  # 12 AM PST
     default_args={
         "owner": "Traffic Operations",
         "depends_on_past": False,
