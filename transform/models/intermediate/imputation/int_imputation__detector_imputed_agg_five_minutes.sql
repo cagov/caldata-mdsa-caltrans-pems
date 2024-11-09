@@ -2,7 +2,7 @@
         materialized='incremental',
         on_schema_change="append_new_columns",
         cluster_by=["sample_date"],
-        unique_key=["station_id", "lane", "sample_timestamp", "sample_date"],
+        unique_key=["detector_id", "sample_timestamp", "sample_date"],
         snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
     )
 }}
