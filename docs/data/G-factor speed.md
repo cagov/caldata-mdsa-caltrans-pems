@@ -1,9 +1,7 @@
 # G-Factor Speed
 
-The PeMS system has the ability to compute speed for sensors that don't report speed, like single loop detectors. 
-If the sensors are reporting speed, like with radar detectors deployed head-on, or double loop detectors, then we can use those speed measurement directly. 
-Single loop detectos are prevalent for traffic measurement like occupancy and flow but do not directly measure speed, a critical variable for traffic control and information systems. 
-By establishing a relationship between vehicle count, occupancy, and vehicle length, this model proposes a novel method to estimate speed indirectly.
+The PeMS system possesses the ability to compute speed for sensors that don't report speed, like single loop detectors. In fact, even many double loop detectors, which often fail to report speed, depend on estimations. 
+Single loop detectos are prevalent for traffic measurement like occupancy and flow but do not directly measure speed. By establishing a relationship between vehicle count, occupancy, and vehicle length, this model proposes a method to estimate speed indirectly.
 
 ## Methodology
 - **Statement**: Single loop detectors estimates vehicle speed by dynamically adjusting the assumed vehicle length based on observed traffic conditions, overcoming the limitations of fixed-length assumptions commonly used in other models. The estimated vehicle length is called **g-factor**.
@@ -14,7 +12,7 @@ By establishing a relationship between vehicle count, occupancy, and vehicle len
 
 ### Why Speed QC
 - **Ambiguity**: We noted that even though the existing PeMS system claimed to follow the procedures of the orginal paper, they have made significant changes to smooth the speed calculation without additional detailed documentations that we can follow. It turns out difficult for us to generate the exact same logic to estimate the speed.
-- **Availability**: Through investigations, it seems hard to obtain the datasets of other components, including g-factor and p-factor. They are the preliminaries to implement a kalman filter to smooth the speed. 
+- **Availability**: Through investigations, it seems hard to obtain the datasets of other components, including g-factor and p-factor. They are key parameters to implement a kalman filter for speed smoothing. 
 - **Accuracy**: Speed is a fundamental metric in PeMS that directly influences the assessment of downstream performance metrics, such as bottleneck identification, congestion levels and VHT. Before performance metrics QC, it is essential to guarantee the accuracy of speed calculation as a basis.
 - **Quantity**: Visual assessments are insufficient to measure the difference.  To accurately identify and measure these variations and adjusted parameters at the detector level, it is essential to adopt quantitative methods.
 
@@ -63,7 +61,7 @@ def decompose_lane(data, station_lane, dataset_name):
     return lane_data
 ```
 
-### The STL Algorithm
+### [STL Algorithm](https://www.statsmodels.org/dev/examples/notebooks/generated/stl_decomposition.html)
 
 STL decomposition involves the following steps:
 
@@ -75,12 +73,6 @@ STL decomposition involves the following steps:
    - Subtract the trend and seasonal components from the original series.
 
 STL uses locally weighted regression (Loess) for smoothing, providing flexibility in modeling non-linear patterns.
-
-### Advantages of STL
-
-- **Robustness**: Handles outliers effectively.
-- **Flexibility**: Accommodates changing seasonality.
-- **Configurability**: Allows control over smoothing parameters.
 
 ---
 
@@ -161,14 +153,90 @@ summary_df['significant_station_lanes'].fillna(0, inplace=True)
 summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df['total_station_lanes']) * 100
 ```
 
+##### Comparison of Significant Differences Across Datasets (%)
+| Model | seasonal | resid | trend |
+| ----- | -------- | ----- | ----- |
+| 1     | 2.24     | 49.30 | 98.32 |
+| 2     | 1.68     | 62.75 | 98.88 |
+| 3     | 1.68     | 61.06 | 98.60 |
+| 4     | 1.68     | 62.75 | 98.88 |
+| 5     | 0.84     | 55.74 | 96.64 |
+| 6     | 1.68     | 59.10 | 98.60 |
+| 7     | 1.68     | 61.06 | 98.88 |
+| 8     | 1.12     | 51.54 | 95.51 |
+| 9     | 1.68     | 57.14 | 97.48 |
+| 10    | 2.52     | 59.10 | 98.60 |
+ 
+Detector-level performance with moving average window seems to be the optimal chocie. But t-test is not appropriate for trend comparison given the nature of time series data. We need to explore alternative ways to deal with the presence of such non-linear patterns.
+
 #### MSE, MAE, RMSE, and Spearman's Rank Correlation Coefficient
 
-While the t-statistics are not appropriate for trend comparison given the nature of time series data, we explore alternative ways to deal with the presence of such non-linear patterns. One way is to quantitatively measue the difference between two models using error metrics.
+One way is to quantitatively measue the difference between two models using error metrics.
 
 - **Mean Absolute Error**: MAE measures the average error magnitude that each error contibutes equally to the total average.
 - **Root Mean Squared Error**: RMSE is sensitive to large errors.
 - **Mean Absolute Percentage Error**: MAPE express error as a percentage of the actual values, which is useful when dealing with relative errors and percentages.
 - **Spearman's Rank Correlation Coefficient**:  It measures the strength and direction of the monotonic relationship between two datasets, which is a non-parametric model that captures non-linear relationships.
+
+```python
+def compute_error_metrics(lane, data_old, data_modern, component='trend'):
+    # Extract components for the lane
+    comp_old = data_old.loc[data_old['station_lane'] == lane, component].copy()
+    comp_modern = data_modern.loc[data_modern['station_lane'] == lane, component].copy()
+
+ 
+    merged_data = pd.merge(
+        comp_old.reset_index(),
+        comp_modern.reset_index(),
+        on='timestamp',
+        how='inner',
+        suffixes=('_old', '_modern')
+    )
+
+    # Drop NaNs
+    merged_data.dropna(subset=[f'{component}_old', f'{component}_modern'], inplace=True)
+
+    # Check if data is sufficient
+    if len(merged_data) == 0:
+        return None, None, None
+
+    # Compute error metrics
+    mae = np.mean(np.abs(merged_data[f'{component}_old'] - merged_data[f'{component}_modern']))
+    rmse = np.sqrt(np.mean((merged_data[f'{component}_old'] - merged_data[f'{component}_modern']) ** 2))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        mape = np.mean(np.abs((merged_data[f'{component}_old'] - merged_data[f'{component}_modern']) / merged_data[f'{component}_old'])) * 100
+    return mae, rmse, mape
+
+def compute_correlation(lane, data_old, data_modern, component='trend', method='spearman'):
+    # Extract components for the lane
+    comp_old = data_old.loc[data_old['station_lane'] == lane, component].copy()
+    comp_modern = data_modern.loc[data_modern['station_lane'] == lane, component].copy()
+
+    # Align data by timestamps
+    merged_data = pd.merge(
+        comp_old.reset_index(),
+        comp_modern.reset_index(),
+        on='timestamp',
+        how='inner',
+        suffixes=('_old', '_modern')
+    )
+
+    # Drop NaNs
+    merged_data.dropna(subset=[f'{component}_old', f'{component}_modern'], inplace=True)
+
+    # Check if data is sufficient
+    if len(merged_data) < 10:
+        return None, None
+
+    # Compute Spearman's correlation
+    if method == 'spearman':
+        corr_coeff, p_value = spearmanr(merged_data[f'{component}_old'], merged_data[f'{component}_modern'])
+    else:
+        corr_coeff, p_value = pearsonr(merged_data[f'{component}_old'], merged_data[f'{component}_modern'])
+
+    return corr_coeff, p_value
+
+```
 
 
 
