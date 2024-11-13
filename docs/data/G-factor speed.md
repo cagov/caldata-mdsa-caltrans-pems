@@ -6,32 +6,170 @@ Single loop detectos are prevalent for traffic measurement like occupancy and fl
 By establishing a relationship between vehicle count, occupancy, and vehicle length, this model proposes a novel method to estimate speed indirectly.
 
 ## Methodology
-**Statement**: Single loop detectors estimates vehicle speed by dynamically adjusting the assumed vehicle length based on observed traffic conditions, overcoming the limitations of fixed-length assumptions commonly used in other models.
-1. **Traffic Data Representation**:
-   - Let $N(d, t)$ represent the vehicle count ("flow") and $\rho(d, t)$ the occupancy measured at a loop detector on day $d$ during the time interval $t$.
-   - Occupancy is defined as the fraction of time the detector is occupied by vehicles.
+- **Statement**: Single loop detectors estimates vehicle speed by dynamically adjusting the assumed vehicle length based on observed traffic conditions, overcoming the limitations of fixed-length assumptions commonly used in other models. The estimated vehicle length is called **g-factor**.
 
-2. **Initial Speed Estimation Assumption**:
-   - If vehicle speeds are uniform, the occupancy $\rho$ can be represented as:
-     $$
-     \rho = \frac{\sum_{i=1}^{N} L_i}{v}
-     $$
-     where $L_i$ is the length of the $i$-th vehicle and $v$ is the uniform speed of all vehicles.
+- **Procedures**: The steps for estimation of speed from is available via [PeMS Documentation](https://pems.dot.ca.gov/?dnode=Help&content=help_calc#speeds), which we won't duplicate the documentation here.
 
-3. **Revising Vehicle Length Assumption**:
-   - Recognizing that vehicle lengths vary, they are treated as random variables with a mean $\mu$.
-   - The mean vehicle length $\mu$ is not constant and varies with traffic conditions, specifically it is affected by the proportion of trucks to cars at different times.
+## STL Decomposition for Comparing Speed Datasets
 
-4. **Estimating Mean Vehicle Length ($\mu_t$)**:
-   - During low occupancy, it's assumed that all vehicles travel at a known free-flow speed $v_{FF}$, allowing for an estimation of $\mu_t$ based on observed occupancy and vehicle count:
-     ```math
-     \mu_t = \frac{v_{FF} \times \rho(d, t)}{N(d, t)}
-     ```
-   - This formula helps estimate the average vehicle length dynamically, factoring in varying traffic compositions throughout the day.
+### Why Speed QC
+- **Ambiguity**: We noted that even though the existing PeMS system claimed to follow the procedures of the orginal paper, they have made significant changes to smooth the speed calculation without additional detailed documentations that we can follow. It turns out difficult for us to generate the exact same logic to estimate the speed.
+- **Availability**: Through investigations, it seems hard to obtain the datasets of other components, including g-factor and p-factor. They are the preliminaries to implement a kalman filter to smooth the speed. 
+- **Accuracy**: Speed is a fundamental metric in PeMS that directly influences the assessment of downstream performance metrics, such as bottleneck identification, congestion levels and VHT. Before performance metrics QC, it is essential to guarantee the accuracy of speed calculation as a basis.
+- **Quantity**: Visual assessments are insufficient to measure the difference.  To accurately identify and measure these variations and adjusted parameters at the detector level, it is essential to adopt quantitative methods.
 
-5. **Final Speed Estimation**:
- - The speed estimation formula adjusts the average vehicle length in the calculation:
-   $$
-   v \approx \frac{N(d, t) \times \mu_t}{\rho(d, t)}
-   $$
-   - This method provides a more accurate and less biased speed estimate, especially useful in variable traffic conditions.
+![Daily Average Speed for Each GP Lane](https://github.com/user-attachments/assets/e96bf5ab-6f7a-4b4c-99c0-48da7be3411d)
+![Daily Average Speed for Each GP Lane PeMS Modernization](https://github.com/user-attachments/assets/0c0e51d8-d145-4586-949b-aa34c07cfec4)
+
+### Why Use STL Decomposition?
+
+Seasonal-Trend Decomposition using Loess (STL) is a robust method for decomposing a time series into three additive components:
+
+- **Trend**: The long-term progression of the series.
+- **Seasonal**: The repeating short-term cycle in the series.
+- **Residual**: The remaining variation after removing trend and seasonal components.
+
+A speed time series $Y_t$ can be expressed as:
+```math
+Y_t = T_t + S_t + R_t
+```
+- $T_t$: Trend component.
+- $S_t$: Seasonal component.
+- $R_t$: Residual component.
+
+```python
+def decompose_lane(data, station_lane, dataset_name):
+    # Filter data for the lane
+    lane_data = data[data['station_lane'] == station_lane].copy()
+    lane_data.set_index('timestamp', inplace=True)
+    lane_data.sort_index(inplace=True)
+
+    # Ensure sufficient data points for STL
+    if len(lane_data) < 288: # Drop lane data if the sample size is less in a day
+        return None
+
+    # Set the seasonal period
+    seasonal_period = 288 
+
+    # Apply STL decomposition
+    stl = STL(lane_data['speed'], period=seasonal_period, robust=True).fit()
+    lane_data['trend'] = stl.trend
+    lane_data['seasonal'] = stl.seasonal
+    lane_data['resid'] = stl.resid
+
+    # Add dataset identifier
+    lane_data['dataset'] = dataset_name
+
+    return lane_data
+```
+
+### The STL Algorithm
+
+STL decomposition involves the following steps:
+
+1. **Estimation of the Trend Component**:
+   - Smooth the time series data to capture the long-term trend.
+2. **Estimation of the Seasonal Component**:
+   - Extract repeating patterns by averaging over cycles.
+3. **Calculation of the Residual Component**:
+   - Subtract the trend and seasonal components from the original series.
+
+STL uses locally weighted regression (Loess) for smoothing, providing flexibility in modeling non-linear patterns.
+
+### Advantages of STL
+
+- **Robustness**: Handles outliers effectively.
+- **Flexibility**: Accommodates changing seasonality.
+- **Configurability**: Allows control over smoothing parameters.
+
+---
+
+## Experimental Study
+
+**Goal**: Compare speed calculations from an old PeMS system and multiple versions of a modernized PeMS system to determine which modernized version best matches the existing system. The adjusting parameters including:
+
+- [X] **Baseline**: Fixed vehicle length vs dynamic vechile length
+- [X] **Spatial**: G-factor aggregation: detector, station, corridor
+- [X] **Temporal**: Moving average smoothing length: 2, 12
+
+| Variation | Baseline | Spatial | Temporal |
+| --------- | -------- | ------- | -------- |
+| 1         |    ✔️    |         |          |
+| 2         |          | detector|         |
+| 3         |          | station |         |
+| 4         |          | corridor |         |
+| 5         |          | detector | 2       |
+| 6         |          | station  | 2       |
+| 7         |          | corridor  | 2       |
+| 8         |          | detector  | 12       |
+| 9         |          | station  | 12       |
+| 10         |          | corridor  | 12       |
+
+## Data Preparation: SR 91
+
+### Datasets information:
+
+1. **Time Window**: `10/4/2024 - 10/10/2024`
+2. **Temporal Aggregation Level**: `5-minute`
+3. **Spatial Aggregation Level**: Detector level (`803` unique statsions containing different numbers of lanes).
+4. **Detector Status**: Choose only detectors which are diagnosed as `good`. Specifically, for existing PeMS speed, we only choose data if there are two consecutive days reporting good data.
+5. **Sample Size**: Around `700000` records for each variation.
+6. **Seasonality**: `288` Assume the speed has a daily pattern (12*24 = 288).
+
+### Evaluation Metrics:
+
+#### Statistical Tests
+
+For each detector with 3 components (`trend`, `seasonal`, `resid`), we perform independent Two-sample T-Test:
+- **$H_0$**: The means of components in existing speed are equal to the ones in modernized speed.
+- **$H_a$**: Their means are different.
+
+```python
+def compare_components(lane, component, data_old, data_modern):
+
+    data_old_comp = data_old.loc[data_old['station_lane'] == lane, component].copy()
+    data_modern_comp = data_modern.loc[data_modern['station_lane'] == lane, component].copy()
+
+    data_old_comp = data_old_comp.dropna()
+    data_modern_comp = data_modern_comp.dropna()
+
+    # Perform t-test
+    t_stat, p_value = ttest_ind(
+        data_old_comp,
+        data_modern_comp,
+        equal_var=False
+    )
+    return t_stat, p_value
+```
+
+#### Summary Tables
+1. A component is significantly different if $p$ < 0.05.
+2. Count the number of detectors with significant differences for each component and calculate the percentage relative to the total number of detectors analyzed.
+3. Compare all modernized PeMS speed datasets to the existing PeMS dataset.
+4. Identify the dataset with the lowest percetange of significant differences.
+
+```python
+# Summarize significant differences
+significant_differences = component_tests_df[component_tests_df['p_value'] < 0.05]
+total_station_lanes = component_tests_df['station_lane'].nunique()
+significant_counts = significant_differences.groupby('component')['station_lane'].nunique().reset_index()
+significant_counts.rename(columns={'station_lane': 'significant_station_lanes'}, inplace=True)
+total_counts = component_tests_df.groupby('component')['station_lane'].nunique().reset_index()
+total_counts.rename(columns={'station_lane': 'total_station_lanes'}, inplace=True)
+summary_df = pd.merge(total_counts, significant_counts, on='component', how='left')
+summary_df['significant_station_lanes'].fillna(0, inplace=True)
+summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df['total_station_lanes']) * 100
+```
+
+#### MSE, MAE, RMSE, and Spearman's Rank Correlation Coefficient
+
+While the t-statistics are not appropriate for trend comparison given the nature of time series data, we explore alternative ways to deal with the presence of such non-linear patterns. One way is to quantitatively measue the difference between two models using error metrics.
+
+- **Mean Absolute Error**: MAE measures the average error magnitude that each error contibutes equally to the total average.
+- **Root Mean Squared Error**: RMSE is sensitive to large errors.
+- **Mean Absolute Percentage Error**: MAPE express error as a percentage of the actual values, which is useful when dealing with relative errors and percentages.
+- **Spearman's Rank Correlation Coefficient**:  It measures the strength and direction of the monotonic relationship between two datasets, which is a non-parametric model that captures non-linear relationships.
+
+
+
+
