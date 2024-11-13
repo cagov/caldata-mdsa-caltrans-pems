@@ -99,14 +99,13 @@ def clearinghouse_to_s3(day: date) -> None:
 
 @task
 def pems_clearinghouse_to_s3_task(**context):
-    prev_date = (context["execution_date"] - timedelta(days=1)).date()
-    clearinghouse_to_s3(prev_date)
+    clearinghouse_to_s3(context["execution_date"].date())
 
 
 @dag(
     description="Load data from the PeMS clearinghouse webserver to S3",
     start_date=datetime(1994, 12, 1),
-    schedule_interval="0 8 * * *",  # 12 AM PST
+    schedule_interval="0 14 * * *",  # 6 AM PST
     default_args={
         "owner": "Traffic Operations",
         "depends_on_past": False,
