@@ -132,8 +132,7 @@ detector_status as (
 
     left join {{ ref('int_diagnostics__constant_occupancy') }} as co
         on
-            awm.station_id = co.station_id
-            and sps.lane = co.lane
+            awm.detector_id = co.detector_id
             and awm.active_date = co.sample_date
 
     left join {{ ref('int_diagnostics__no_data_status') }} as nds
