@@ -76,7 +76,6 @@ detector_status as (
             when nds.district_feed_working = 'No' then 'District Feed Down'
             when nds.line_num_working = 'No' then 'Line Down'
             when nds.controller_feed_working = 'No' then 'Controller Down'
-            when nds.station_feed_working = 'No' then 'Station Down'
             when nds.detector_feed_working = 'No' then 'No Data'
             when sps.sample_ct = 0 or sps.sample_ct is null
                 then 'Down/No Data'
