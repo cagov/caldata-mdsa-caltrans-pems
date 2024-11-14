@@ -19,7 +19,7 @@ Single loop detectos are prevalent for traffic measurement like occupancy and fl
 ![Daily Average Speed for Each GP Lane](https://github.com/user-attachments/assets/e96bf5ab-6f7a-4b4c-99c0-48da7be3411d)
 ![Daily Average Speed for Each GP Lane PeMS Modernization](https://github.com/user-attachments/assets/0c0e51d8-d145-4586-949b-aa34c07cfec4)
 
-### Why Use STL Decomposition?
+### Why Use [STL Algorithm](https://www.statsmodels.org/dev/examples/notebooks/generated/stl_decomposition.html)?
 
 Seasonal-Trend Decomposition using Loess (STL) is a robust method for decomposing a time series into three additive components:
 
@@ -61,28 +61,13 @@ def decompose_lane(data, station_lane, dataset_name):
     return lane_data
 ```
 
-### [STL Algorithm](https://www.statsmodels.org/dev/examples/notebooks/generated/stl_decomposition.html)
-
-STL decomposition involves the following steps:
-
-1. **Estimation of the Trend Component**:
-   - Smooth the time series data to capture the long-term trend.
-2. **Estimation of the Seasonal Component**:
-   - Extract repeating patterns by averaging over cycles.
-3. **Calculation of the Residual Component**:
-   - Subtract the trend and seasonal components from the original series.
-
-STL uses locally weighted regression (Loess) for smoothing, providing flexibility in modeling non-linear patterns.
-
----
-
 ## Experimental Study
 
-**Goal**: Compare speed calculations from an old PeMS system and multiple versions of a modernized PeMS system to determine which modernized version best matches the existing system. The adjusting parameters including:
+**Goal**: Compare speed calculations from the existing PeMS system and multiple versions of the modernized PeMS system to determine which modernized version best matches the existing system. The adjusting parameters including:
 
-- [X] **Baseline**: Fixed vehicle length vs dynamic vechile length
+- [X] **Baseline**: Fixed vehicle length vs dynamic vehicle length (g-factor or not)
 - [X] **Spatial**: G-factor aggregation: detector, station, corridor
-- [X] **Temporal**: Moving average smoothing length: 2, 12
+- [X] **Temporal**: Moving average smoothing length: 4, 12
 
 | Variation | Baseline | Spatial | Temporal |
 | --------- | -------- | ------- | -------- |
@@ -90,8 +75,8 @@ STL uses locally weighted regression (Loess) for smoothing, providing flexibilit
 | 2         |          | detector|         |
 | 3         |          | station |         |
 | 4         |          | corridor |         |
-| 5         |          | detector | 2       |
-| 6         |          | station  | 2       |
+| 5         |          | detector | 4       |
+| 6         |          | station  | 4       |
 | 7         |          | corridor  | 2       |
 | 8         |          | detector  | 12       |
 | 9         |          | station  | 12       |
@@ -104,7 +89,7 @@ STL uses locally weighted regression (Loess) for smoothing, providing flexibilit
 1. **Time Window**: `10/4/2024 - 10/10/2024`
 2. **Temporal Aggregation Level**: `5-minute`
 3. **Spatial Aggregation Level**: Detector level (`803` unique statsions containing different numbers of lanes).
-4. **Detector Status**: Choose only detectors which are diagnosed as `good`. Specifically, for existing PeMS speed, we only choose data if there are two consecutive days reporting good data.
+4. **Detector Status**: Choose only detectors which are diagnosed as `good`. Specifically, for existing PeMS speed, we only choose data if there are two consecutive days reporting good to get rid of imputation data.
 5. **Sample Size**: Around `700000` records for each variation.
 6. **Seasonality**: `288` Assume the speed has a daily pattern (12*24 = 288).
 
@@ -156,7 +141,7 @@ summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df
 ##### Comparison of Significant Differences Across Datasets (%)
 | Model | seasonal | resid | trend |
 | ----- | -------- | ----- | ----- |
-| 1     | 2.24     | 49.30 | 98.32 |
+| 1     | 2.24     | 49.30 | 98.32 | 
 | 2     | 1.68     | 62.75 | 98.88 |
 | 3     | 1.68     | 61.06 | 98.60 |
 | 4     | 1.68     | 62.75 | 98.88 |
@@ -167,17 +152,23 @@ summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df
 | 9     | 1.68     | 57.14 | 97.48 |
 | 10    | 2.52     | 59.10 | 98.60 |
  
-Detector-level performance with moving average window seems to be the optimal chocie. But t-test is not appropriate for trend comparison given the nature of time series data. We need to explore alternative ways to deal with the presence of such non-linear patterns.
+The results show that all models handle seasonal variations well, with only small differences between datasets. Models 5 and 8 have the least discrepancies. However, there are significant differences in the residuals and trends: residuals are about 50%, and trends are over 95%. The residuals remain because not all seasonal and trend patterns are removed by the STL process, which is expected due to the high volatility of the 5-minute speed dataset. This means the residuals still remain partial trend and seasonality patterns, therefore not following simple white noise patterns. In the future, we might use more complex models to better capture the patterns in speed data. As for the trends through a sample visualizaion, it is highly nonlinear. Using a t-test to compare them isn’t suitable because time series data don’t meet the normality condition required for t-tests. We need to find other ways to analyze these non-linear patterns.
 
-#### MSE, MAE, RMSE, and Spearman's Rank Correlation Coefficient
+![image](https://github.com/user-attachments/assets/9efdb0a0-bf2e-4c03-8640-8135a81cabe3)
 
-One way is to quantitatively measue the difference between two models using error metrics.
 
-- **Mean Absolute Error**: MAE measures the average error magnitude that each error contibutes equally to the total average.
+#### MSE, MAE, and RMSE
+
+One way is to quantitatively measue the difference between two models using error metrics for trend component to compare performance among models.
+
+- **Mean Absolute Error**: MAE measures the average error magnitude that each error contibutes with the same weight to the total average.
 - **Root Mean Squared Error**: RMSE is sensitive to large errors.
 - **Mean Absolute Percentage Error**: MAPE express error as a percentage of the actual values, which is useful when dealing with relative errors and percentages.
-- **Spearman's Rank Correlation Coefficient**:  It measures the strength and direction of the monotonic relationship between two datasets, which is a non-parametric model that captures non-linear relationships.
 
+<!---
+Explore the non-linear patterns. 
+**Spearman's Rank Correlation Coefficient**:  It measures the strength and direction of the monotonic relationship between two datasets, which is a non-parametric model that captures non-linear relationships.
+--->
 ```python
 def compute_error_metrics(lane, data_old, data_modern, component='trend'):
     # Extract components for the lane
@@ -207,11 +198,6 @@ def compute_error_metrics(lane, data_old, data_modern, component='trend'):
         mape = np.mean(np.abs((merged_data[f'{component}_old'] - merged_data[f'{component}_modern']) / merged_data[f'{component}_old'])) * 100
     return mae, rmse, mape
 
-def compute_correlation(lane, data_old, data_modern, component='trend', method='spearman'):
-    # Extract components for the lane
-    comp_old = data_old.loc[data_old['station_lane'] == lane, component].copy()
-    comp_modern = data_modern.loc[data_modern['station_lane'] == lane, component].copy()
-
     # Align data by timestamps
     merged_data = pd.merge(
         comp_old.reset_index(),
@@ -227,16 +213,27 @@ def compute_correlation(lane, data_old, data_modern, component='trend', method='
     # Check if data is sufficient
     if len(merged_data) < 10:
         return None, None
-
-    # Compute Spearman's correlation
-    if method == 'spearman':
-        corr_coeff, p_value = spearmanr(merged_data[f'{component}_old'], merged_data[f'{component}_modern'])
-    else:
-        corr_coeff, p_value = pearsonr(merged_data[f'{component}_old'], merged_data[f'{component}_modern'])
-
-    return corr_coeff, p_value
-
 ```
+
+##### Comparison of Error Metrics for Trend Comparison
+| Model | MAE | RMSE | MAPE |
+| ----- | --- | ---- | ---- |
+| 1     | 9.83| 10.22| 16.38 | 
+| 2     | 8.50| 8.81 | 14.27 |
+| 3     | 4.43| 4.61 | 7.24  |
+| 4     | 8.50| 8.81 | 14.27 |
+| 5     | 3.17| 3.50 | 5.32  |
+| 6     | 4.33| 4.63 | 7.27  |
+| 7     | 8.49| 8.80 | 14.25 |
+| 8     | 3.21| 3.55 | 5.40  |
+| 9     | 4.37| 4.67 | 7.32  |
+| 10    | 8.50| 8.81 | 14.25 |
+
+![MAE](https://github.com/user-attachments/assets/4ea490de-5160-43e8-a4c0-df963ff98181) 
+![RMSE](https://github.com/user-attachments/assets/9c4816f0-89cb-4ac0-9ade-55e57efac96a) 
+![MAPE](https://github.com/user-attachments/assets/e80341af-eddc-4996-ba2f-9a67a735185f)
+
+According to the error metrics, model 5 and 8 still outperforms other models in terms of trend. We choose model 8 as the final model for g-factor speed calculation.
 
 
 
