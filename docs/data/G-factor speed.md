@@ -1,6 +1,6 @@
 # G-Factor Speed
 
-The PeMS system possesses the ability to compute speed for sensors that don't report speed, like single loop detectors. In fact, even many double loop detectors, which often fail to report speed, depend on estimations. 
+The PeMS system possesses the ability to compute speed for sensors that don't report speed, like single loop detectors. In fact, even many double loop detectors, which often fail to report speed, depend on estimations.
 Single loop detectos are prevalent for traffic measurement like occupancy and flow but do not directly measure speed. By establishing a relationship between vehicle count, occupancy, and vehicle length, this model proposes a method to estimate speed indirectly.
 
 ## Methodology
@@ -11,8 +11,8 @@ Single loop detectos are prevalent for traffic measurement like occupancy and fl
 ## STL Decomposition for Comparing Speed Datasets
 
 ### Why Speed QC
-- **Ambiguity**: We noted that even though the existing PeMS system claimed to follow the procedures of the orginal paper, they have made significant changes to smooth the speed calculation without additional detailed documentations that we can follow. It turns out difficult for us to generate the exact same logic to estimate the speed.
-- **Availability**: Through investigations, it seems hard to obtain the datasets of other components, including g-factor and p-factor. They are key parameters to implement a kalman filter for speed smoothing. 
+- **Ambiguity**: We noted that even though the existing PeMS system claimed to follow the procedures of the original paper, they have made significant changes to smooth the speed calculation without additional detailed documentations that we can follow. It turns out difficult for us to generate the exact same logic to estimate the speed.
+- **Availability**: Through investigations, it seems hard to obtain the datasets of other components, including g-factor and p-factor. They are key parameters to implement a kalman filter for speed smoothing.
 - **Accuracy**: Speed is a fundamental metric in PeMS that directly influences the assessment of downstream performance metrics, such as bottleneck identification, congestion levels and VHT. Before performance metrics QC, it is essential to guarantee the accuracy of speed calculation as a basis.
 - **Quantity**: Visual assessments are insufficient to measure the difference.  To accurately identify and measure these variations and adjusted parameters at the detector level, it is essential to adopt quantitative methods.
 
@@ -47,7 +47,7 @@ def decompose_lane(data, station_lane, dataset_name):
         return None
 
     # Set the seasonal period
-    seasonal_period = 288 
+    seasonal_period = 288
 
     # Apply STL decomposition
     stl = STL(lane_data['speed'], period=seasonal_period, robust=True).fit()
@@ -141,7 +141,7 @@ summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df
 ##### Comparison of Significant Differences Across Datasets (%)
 | Model | seasonal | resid | trend |
 | ----- | -------- | ----- | ----- |
-| 1     | 2.24     | 49.30 | 98.32 | 
+| 1     | 2.24     | 49.30 | 98.32 |
 | 2     | 1.68     | 62.75 | 98.88 |
 | 3     | 1.68     | 61.06 | 98.60 |
 | 4     | 1.68     | 62.75 | 98.88 |
@@ -152,21 +152,21 @@ summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df
 | 9     | 1.68     | 57.14 | 97.48 |
 | 10    | 2.52     | 59.10 | 98.60 |
  
-The results show that all models handle seasonal variations well, with only small differences between datasets. Models 5 and 8 have the least discrepancies. However, there are significant differences in the residuals and trends: residuals are about 50%, and trends are over 95%. The residuals remain because not all seasonal and trend patterns are removed by the STL process, which is expected due to the high volatility of the 5-minute speed dataset. This means the residuals still remain partial trend and seasonality patterns, therefore not following simple white noise patterns. In the future, we might use more complex models to better capture the patterns in speed data. As for the trends through a sample visualizaion, it is highly nonlinear. Using a t-test to compare them isn’t suitable because time series data don’t meet the normality condition required for t-tests. We need to find other ways to analyze these non-linear patterns.
+The results show that all models handle seasonal variations well, with only small differences between datasets. Models 5 and 8 have the least discrepancies. However, there are significant differences in the residuals and trends: residuals are about 50%, and trends are over 95%. The residuals remain because not all seasonal and trend patterns are removed by the STL process, which is expected due to the high volatility of the 5-minute speed dataset. This means the residuals still remain partial trend and seasonality patterns, therefore not following simple white noise patterns. In the future, we might use more complex models to better capture the patterns in speed data. As for the trends through a sample visualization, it is highly nonlinear. Using a t-test to compare them isn’t suitable because time series data don’t meet the normality condition required for t-tests. We need to find other ways to analyze these non-linear patterns.
 
 ![image](https://github.com/user-attachments/assets/9efdb0a0-bf2e-4c03-8640-8135a81cabe3)
 
 
 #### MSE, MAE, and RMSE
 
-One way is to quantitatively measue the difference between two models using error metrics for trend component to compare performance among models.
+One way is to quantitatively measure the difference between two models using error metrics for trend component to compare performance among models.
 
-- **Mean Absolute Error**: MAE measures the average error magnitude that each error contibutes with the same weight to the total average.
+- **Mean Absolute Error**: MAE measures the average error magnitude that each error contributes with the same weight to the total average.
 - **Root Mean Squared Error**: RMSE is sensitive to large errors.
 - **Mean Absolute Percentage Error**: MAPE express error as a percentage of the actual values, which is useful when dealing with relative errors and percentages.
 
 <!---
-Explore the non-linear patterns. 
+Explore the non-linear patterns.
 **Spearman's Rank Correlation Coefficient**:  It measures the strength and direction of the monotonic relationship between two datasets, which is a non-parametric model that captures non-linear relationships.
 --->
 ```python
@@ -218,7 +218,7 @@ def compute_error_metrics(lane, data_old, data_modern, component='trend'):
 ##### Comparison of Error Metrics for Trend Comparison
 | Model | MAE | RMSE | MAPE |
 | ----- | --- | ---- | ---- |
-| 1     | 9.83| 10.22| 16.38 | 
+| 1     | 9.83| 10.22| 16.38 |
 | 2     | 8.50| 8.81 | 14.27 |
 | 3     | 4.43| 4.61 | 7.24  |
 | 4     | 8.50| 8.81 | 14.27 |
@@ -229,8 +229,8 @@ def compute_error_metrics(lane, data_old, data_modern, component='trend'):
 | 9     | 4.37| 4.67 | 7.32  |
 | 10    | 8.50| 8.81 | 14.25 |
 
-![MAE](https://github.com/user-attachments/assets/4ea490de-5160-43e8-a4c0-df963ff98181) 
-![RMSE](https://github.com/user-attachments/assets/9c4816f0-89cb-4ac0-9ade-55e57efac96a) 
+![MAE](https://github.com/user-attachments/assets/4ea490de-5160-43e8-a4c0-df963ff98181)
+![RMSE](https://github.com/user-attachments/assets/9c4816f0-89cb-4ac0-9ade-55e57efac96a)
 ![MAPE](https://github.com/user-attachments/assets/e80341af-eddc-4996-ba2f-9a67a735185f)
 
 According to the error metrics, model 5 and 8 still outperforms other models in terms of trend. We choose model 8 as the final model for g-factor speed calculation.
