@@ -151,7 +151,7 @@ summary_df['percentage'] = (summary_df['significant_station_lanes'] / summary_df
 | 8     | 1.12     | 51.54 | 95.51 |
 | 9     | 1.68     | 57.14 | 97.48 |
 | 10    | 2.52     | 59.10 | 98.60 |
- 
+
 The results show that all models handle seasonal variations well, with only small differences between datasets. Models 5 and 8 have the least discrepancies. However, there are significant differences in the residuals and trends: residuals are about 50%, and trends are over 95%. The residuals remain because not all seasonal and trend patterns are removed by the STL process, which is expected due to the high volatility of the 5-minute speed dataset. This means the residuals still remain partial trend and seasonality patterns, therefore not following simple white noise patterns. In the future, we might use more complex models to better capture the patterns in speed data. As for the trends through a sample visualization, it is highly nonlinear. Using a t-test to compare them isn’t suitable because time series data don’t meet the normality condition required for t-tests. We need to find other ways to analyze these non-linear patterns.
 
 ![image](https://github.com/user-attachments/assets/9efdb0a0-bf2e-4c03-8640-8135a81cabe3)
@@ -175,7 +175,7 @@ def compute_error_metrics(lane, data_old, data_modern, component='trend'):
     comp_old = data_old.loc[data_old['station_lane'] == lane, component].copy()
     comp_modern = data_modern.loc[data_modern['station_lane'] == lane, component].copy()
 
- 
+
     merged_data = pd.merge(
         comp_old.reset_index(),
         comp_modern.reset_index(),
