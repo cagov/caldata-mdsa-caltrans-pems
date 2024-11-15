@@ -12,9 +12,18 @@ geo as (
         station_id,
         latitude,
         longitude,
-        concat(longitude, ',', latitude) as location,
+        CONCAT(longitude, ',', latitude) as location,
         absolute_postmile
-    from {{ ref('geo__current_detectors') }}
+    from
+        {{ ref('geo__current_detectors') }} as current_geo
+    where
+        absolute_postmile = (
+            select MAX(absolute_postmile)
+            from {{ ref('geo__current_detectors') }} as sub
+            where sub.station_id = current_geo.station_id
+        )
+    group by
+        station_id, latitude, longitude, absolute_postmile
 ),
 
 aadt_county_geo as (
