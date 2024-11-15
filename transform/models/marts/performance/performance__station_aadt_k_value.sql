@@ -14,7 +14,7 @@ geo as (
         longitude,
         concat(longitude, ',', latitude) as location,
         absolute_postmile
-    from {{ ref('geo_current_stations') }}
+    from {{ ref('geo__current_stations') }}
 ),
 
 aadt_county_geo as (

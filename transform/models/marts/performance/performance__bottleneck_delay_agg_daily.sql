@@ -30,7 +30,7 @@ geo as (
         latitude,
         longitude,
         concat(longitude, ',', latitude) as location
-    from {{ ref('geo_current_stations') }}
+    from {{ ref('geo__current_stations') }}
 ),
 
 bottleneck_delay_county_geo as (
