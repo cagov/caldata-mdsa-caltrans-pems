@@ -25,22 +25,25 @@ bottleneck_delay_with_county as (
 ),
 
 geo as (
-    select distinct
-        station_id,
-        latitude,
-        longitude,
-        concat(longitude, ',', latitude) as location,
-        absolute_postmile
+    select
+        current_geo.station_id,
+        current_geo.latitude,
+        current_geo.longitude,
+        concat(current_geo.longitude, ',', current_geo.latitude) as location,
+        current_geo.absolute_postmile
     from
         {{ ref('geo__current_detectors') }} as current_geo
     where
-        absolute_postmile = (
-            select max(absolute_postmile)
+        current_geo.absolute_postmile = (
+            select max(sub.absolute_postmile)
             from {{ ref('geo__current_detectors') }} as sub
             where sub.station_id = current_geo.station_id
         )
     group by
-        station_id, latitude, longitude, absolute_postmile
+        current_geo.station_id,
+        current_geo.latitude,
+        current_geo.longitude,
+        current_geo.absolute_postmile
 ),
 
 bottleneck_delay_county_geo as (
