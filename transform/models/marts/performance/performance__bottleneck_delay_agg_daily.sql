@@ -25,12 +25,12 @@ bottleneck_delay_with_county as (
 ),
 
 geo as (
-    select distinct
+    select
         station_id,
         latitude,
         longitude,
         concat(longitude, ',', latitude) as location
-    from {{ ref('geo__current_detectors') }}
+    from {{ ref('geo__current_stations') }}
 ),
 
 bottleneck_delay_county_geo as (

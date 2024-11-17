@@ -8,13 +8,13 @@ aadt_with_county as (
 ),
 
 geo as (
-    select distinct
+    select
         station_id,
         latitude,
         longitude,
         concat(longitude, ',', latitude) as location,
         absolute_postmile
-    from {{ ref('geo__current_detectors') }}
+    from {{ ref('geo__current_stations') }}
 ),
 
 aadt_county_geo as (
