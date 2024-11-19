@@ -92,7 +92,7 @@ def decompose_lane(data, station_lane, dataset_name):
 
 1. **Time Window**: `10/4/2024 - 10/10/2024`
 2. **Temporal Aggregation Level**: `5-minute`
-3. **Spatial Aggregation Level**: Detector level (`803` unique statsions containing different numbers of lanes).
+3. **Spatial Aggregation Level**: Detector level (`803` unique stations containing different numbers of lanes).
 4. **Detector Status**: Choose only detectors which are diagnosed as `good`. Specifically, for existing PeMS speed, we only choose data if there are two consecutive days reporting good to get rid of imputation data.
 5. **Sample Size**: Around `700000` records for each variation.
 6. **Seasonality**: `288` Assume the speed has a daily pattern (12\*24 = 288).
@@ -163,7 +163,7 @@ The results show that all models handle seasonal variations well, with only smal
 
 ![image](https://github.com/user-attachments/assets/9efdb0a0-bf2e-4c03-8640-8135a81cabe3)
 
-#### MSE, MAE, and RMSE
+#### MAE, RMSE, and MAPE
 
 One way is to quantitatively measure the difference between two models using error metrics for trend component to compare performance among models.
 
