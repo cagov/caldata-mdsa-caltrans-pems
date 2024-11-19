@@ -29,7 +29,7 @@ repos:
     rev: v2.2.4
     hooks:
       - id: codespell
-        exclude: "docs/data/G-factor speed.md"
+        args: ['--ignore-words=custom-dictionary.txt']
         types_or: [rst, markdown]
         files: docs
   - repo: https://github.com/pre-commit/mirrors-mypy
