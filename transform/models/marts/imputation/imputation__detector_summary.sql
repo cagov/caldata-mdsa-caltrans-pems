@@ -1,6 +1,6 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','lane', 'sample_date'],
+    unique_key=['detector_id', 'sample_date'],
     snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
@@ -13,9 +13,8 @@ with obs_imputed_five_minutes_agg as (
 
 imputation_count as (
     select
-        station_id,
+        detector_id,
         sample_date,
-        lane,
         count(*) as sample_ct,
         count_if(occupancy_imputation_method = 'local') as occ_local_imputation_sample,
         count_if(occupancy_imputation_method = 'regional') as occ_regional_imputation_sample,
@@ -39,14 +38,13 @@ imputation_count as (
         count_if(speed_imputation_method = 'observed') as speed_observed_sample,
         count_if(speed_imputation_method is NULL) as speed_unobserved_unimputed
     from obs_imputed_five_minutes_agg
-    group by station_id, lane, sample_date
+    group by detector_id, sample_date
 ),
 
 imputation_pct as (
     select
-        station_id,
+        detector_id,
         sample_date,
-        lane,
         sample_ct,
         coalesce(occ_local_imputation_sample, 0) / nullifzero(sample_ct)
         * 100 as pct_of_occupancy_local_regression,
