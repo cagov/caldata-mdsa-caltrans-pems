@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "uploader"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "2.27.1"
+numpy = "1.19.5"
+pyarrow = "6.0.1"
+deepdiff = "5.7.0"
+confluent-kafka = "2.3.0"
+pandas = "1.1.5"
+loguru = "0.7.2"
+kazoo = "^2.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
