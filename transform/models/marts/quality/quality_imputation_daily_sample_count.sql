@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
     unique_key=['sample_date'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL"),
+    on_schema_change= "sync_all_columns"
 ) }}
 
 -- read observed and imputed five minutes data
