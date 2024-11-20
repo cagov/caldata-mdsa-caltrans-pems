@@ -13,6 +13,7 @@ with obs_imputed_five_minutes_agg as (
 
 imputation_count as (
     select
+        station_id,
         detector_id,
         sample_date,
         count(*) as sample_ct,
