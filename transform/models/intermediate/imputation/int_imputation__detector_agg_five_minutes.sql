@@ -85,9 +85,8 @@ unimputed as (
         base.sample_ct,
         base.station_valid_from,
         base.station_valid_to,
-        -- If the station_id in the join is not null, it means that the detector
-        -- is considered to be "good" for a given date. TODO: likely restructure
-        -- once the real_detectors model is eliminated.
+        -- If the detector_id in the join is not null, it means that the detector
+        -- is considered to be "good" for a given date. 
         (good_detectors.detector_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
@@ -182,7 +181,6 @@ samples_requiring_imputation_with_local_regional_neighbors as (
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples.*,
-        local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
         local_regional_coeffs.speed_intercept,
         local_regional_coeffs.volume_slope,
@@ -194,7 +192,7 @@ samples_requiring_imputation_with_local_regional_coeffs as (
     asof join local_regional_coeffs
         match_condition (samples.sample_date >= local_regional_coeffs.regression_date)
         on
-            samples.detector_id = local_regional_coeffs.detector_id --change this when done testing
+            samples.detector_id = local_regional_coeffs.detector_id 
             and samples.district = local_regional_coeffs.district
 ),
 
@@ -262,7 +260,7 @@ samples_requiring_imputation_with_global_coeffs as (
     asof join global_coeffs
         match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
-            samples_requiring_imputation.detector_id = global_coeffs.detector_id --change this when done testing
+            samples_requiring_imputation.detector_id = global_coeffs.detector_id 
             and samples_requiring_imputation.district = global_coeffs.district
 ),
 
@@ -311,7 +309,6 @@ samples_requiring_imputation_with_global as (
 /* Finally, do the global imputation! */
 global_imputed as (
     select
-        station_id,
         detector_id,
         sample_date,
         sample_timestamp,

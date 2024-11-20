@@ -15,6 +15,7 @@ imputation_count as (
     select
         station_id,
         detector_id,
+        lane,
         sample_date,
         count(*) as sample_ct,
         count_if(occupancy_imputation_method = 'local') as occ_local_imputation_sample,
@@ -39,12 +40,14 @@ imputation_count as (
         count_if(speed_imputation_method = 'observed') as speed_observed_sample,
         count_if(speed_imputation_method is NULL) as speed_unobserved_unimputed
     from obs_imputed_five_minutes_agg
-    group by detector_id, sample_date
+    group by detector_id, sample_date, station_id, lane
 ),
 
 imputation_pct as (
     select
         detector_id,
+        station_id,
+        lane,
         sample_date,
         sample_ct,
         coalesce(occ_local_imputation_sample, 0) / nullifzero(sample_ct)
