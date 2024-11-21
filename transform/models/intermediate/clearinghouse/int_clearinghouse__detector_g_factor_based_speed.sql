@@ -212,12 +212,13 @@ hourly_g_factor as (
             as raw_g_factor
     from free_speed
 ),
+
 /* smoothing g factor */
 smoothed_g_factor as (
     select
         *,
         avg(raw_g_factor) over (partition by detector_id, day order by hour rows between 6 preceding and 6 following)
-        as g_factor
+            as g_factor
     from hourly_g_factor
 ),
 
@@ -276,8 +277,8 @@ g_factor_speed_smoothed as (
             when
                 lane = 6
                 and speed_smoothed > 74.5
-                then 74.5            
-            when 
+                then 74.5
+            when
                 lane = 1
                 and speed_smoothed < 3
                 then 3
