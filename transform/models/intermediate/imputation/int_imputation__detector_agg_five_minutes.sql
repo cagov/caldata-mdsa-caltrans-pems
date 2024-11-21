@@ -86,7 +86,7 @@ unimputed as (
         base.station_valid_from,
         base.station_valid_to,
         -- If the detector_id in the join is not null, it means that the detector
-        -- is considered to be "good" for a given date. 
+        -- is considered to be "good" for a given date.
         (good_detectors.detector_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
@@ -192,7 +192,7 @@ samples_requiring_imputation_with_local_regional_coeffs as (
     asof join local_regional_coeffs
         match_condition (samples.sample_date >= local_regional_coeffs.regression_date)
         on
-            samples.detector_id = local_regional_coeffs.detector_id 
+            samples.detector_id = local_regional_coeffs.detector_id
             and samples.district = local_regional_coeffs.district
 ),
 
@@ -260,7 +260,7 @@ samples_requiring_imputation_with_global_coeffs as (
     asof join global_coeffs
         match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
-            samples_requiring_imputation.detector_id = global_coeffs.detector_id 
+            samples_requiring_imputation.detector_id = global_coeffs.detector_id
             and samples_requiring_imputation.district = global_coeffs.district
 ),
 
