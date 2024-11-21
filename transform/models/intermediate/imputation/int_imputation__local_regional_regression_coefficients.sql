@@ -138,7 +138,6 @@ detector_counts_pairwise as (
 -- and intercept of the regression.
 detector_counts_regression as (
     select
-        station_id,
         detector_id,
         other_detector_id,
         district,

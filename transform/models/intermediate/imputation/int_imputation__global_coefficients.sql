@@ -134,7 +134,6 @@ detector_counts_with_global_averages as (
 -- and intercept of the regression.
 detector_counts_regression as (
     select
-        station_id,
         detector_id,
         district,
         freeway,
