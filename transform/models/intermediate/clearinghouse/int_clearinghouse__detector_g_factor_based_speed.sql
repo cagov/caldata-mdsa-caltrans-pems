@@ -28,7 +28,8 @@ week_gen as (
     select
         *,
         date_trunc('week', sample_date) as week_start,
-        date_trunc('hour', sample_timestamp) as hour
+        date_trunc('hour', sample_timestamp) as hour,
+        date_trunc('day', sample_date) as day
     from detector_agg
 ),
 
@@ -206,10 +207,18 @@ hourly_g_factor as (
                 when occupancy_avg < occupancy_threshold
                     then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * {{ var("mph_conversion") }}
             end)
-                over (partition by detector_id, week_start, hour),
+                over (partition by detector_id, week_start, day, hour),
             {{ var("vehicle_effective_length") }})
-            as g_factor
+            as raw_g_factor
     from free_speed
+),
+/* smoothing g factor */
+smoothed_g_factor as (
+    select
+        *,
+        avg(raw_g_factor) over (partition by detector_id, day order by hour rows between 6 preceding and 6 following)
+        as g_factor
+    from hourly_g_factor
 ),
 
 /* Calculate exponential filter denoted as p factor */
@@ -217,7 +226,7 @@ p_factor_value as (
     select
         *,
         volume_sum / (volume_sum + {{ var("p_factor_smoothing_constant") }}) as p_factor
-    from hourly_g_factor
+    from smoothed_g_factor
 ),
 
 /* Calculate preliminary speed based on g factor, occupancy, and flow */
@@ -238,6 +247,63 @@ speed_smoothed_value as (
             {{ target.database }}.public.exponential_smooth(spv.speed_preliminary, spv.p_factor::float)
                 over (partition by spv.detector_id order by spv.sample_timestamp)
         ) as res
+),
+
+g_factor_speed_smoothed as (
+    select
+        *,
+        case
+            when
+                lane = 1
+                and speed_smoothed > 86.5
+                then 86.5
+            when
+                lane = 2
+                and speed_smoothed > 84
+                then 84
+            when
+                lane = 3
+                and speed_smoothed > 82
+                then 82
+            when
+                lane = 4
+                and speed_smoothed > 79.5
+                then 79.5
+            when
+                lane = 5
+                and speed_smoothed > 74.5
+                then 74.5
+            when
+                lane = 6
+                and speed_smoothed > 74.5
+                then 74.5            
+            when 
+                lane = 1
+                and speed_smoothed < 3
+                then 3
+            when
+                lane = 2
+                and speed_smoothed < 3
+                then 3
+            when
+                lane = 3
+                and speed_smoothed < 3
+                then 3
+            when
+                lane = 4
+                and speed_smoothed < 3
+                then 3
+            when
+                lane = 5
+                and speed_smoothed < 3
+                then 3
+            when
+                lane = 6
+                and speed_smoothed < 3
+                then 3
+            else speed_smoothed
+        end as imputed_speed
+    from speed_smoothed_value
 )
 
-select * from speed_smoothed_value
+select * from g_factor_speed_smoothed
