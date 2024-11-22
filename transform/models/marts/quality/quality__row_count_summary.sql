@@ -1,3 +1,6 @@
+{{ config(
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL", big="XL")
+) }}
 with
 
 ML_HV_DETECTOR_STATUS_DAILY_COUNT as (
