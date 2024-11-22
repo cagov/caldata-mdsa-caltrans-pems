@@ -1,6 +1,7 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','lane', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    unique_key=['detector_id', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    on_schema_change="append_new_columns",
     snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
 ) }}
 
@@ -37,8 +38,7 @@ regression_dates_to_evaluate as (
 -- the diagnostic tests
 good_detectors as (
     select
-        station_id,
-        lane,
+        detector_id,
         district,
         sample_date
     from {{ ref("int_diagnostics__detector_status") }}
@@ -56,8 +56,7 @@ table to only get samples from dates that we think were producing
 good data. */
 detector_counts as (
     select
-        agg.station_id,
-        agg.lane,
+        agg.detector_id,
         agg.sample_date,
         agg.sample_timestamp,
         agg.volume_sum,
@@ -80,8 +79,7 @@ detector_counts as (
             < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
     inner join good_detectors
         on
-            agg.station_id = good_detectors.station_id
-            and agg.lane = good_detectors.lane
+            agg.detector_id = good_detectors.detector_id
             and agg.sample_date = good_detectors.sample_date
     where agg.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
@@ -109,10 +107,9 @@ global_agg as (
 -- Join the 5-minute aggregated data with the district-freeway aggregation
 detector_counts_with_global_averages as (
     select
-        a.station_id,
+        a.detector_id,
         a.district,
         a.regression_date,
-        a.lane,
         a.freeway,
         a.direction,
         a.station_type,
@@ -137,8 +134,7 @@ detector_counts_with_global_averages as (
 -- and intercept of the regression.
 detector_counts_regression as (
     select
-        station_id,
-        lane,
+        detector_id,
         district,
         freeway,
         station_type,
@@ -154,7 +150,7 @@ detector_counts_regression as (
         regr_slope(occupancy, global_occupancy) as occupancy_slope,
         regr_intercept(occupancy, global_occupancy) as occupancy_intercept
     from detector_counts_with_global_averages
-    group by station_id, lane, district, freeway, direction, station_type, regression_date
+    group by detector_id, district, freeway, direction, station_type, regression_date
     -- No point in regressing if the variables are all null,
     -- this can save significant time.
     having

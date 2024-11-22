@@ -85,17 +85,15 @@ unimputed as (
         base.sample_ct,
         base.station_valid_from,
         base.station_valid_to,
-        -- If the station_id in the join is not null, it means that the detector
-        -- is considered to be "good" for a given date. TODO: likely restructure
-        -- once the real_detectors model is eliminated.
-        (good_detectors.station_id is not null) as detector_is_good,
+        -- If the detector_id in the join is not null, it means that the detector
+        -- is considered to be "good" for a given date. 
+        (good_detectors.detector_id is not null) as detector_is_good,
         coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins
     from base
     left join good_detectors
         on
-            base.station_id = good_detectors.station_id
-            and base.lane = good_detectors.lane
+            base.detector_id = good_detectors.detector_id
             and base.sample_date = good_detectors.sample_date
     where base.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
@@ -106,7 +104,7 @@ unimputed as (
 samples_requiring_imputation as (
     select
         station_id,
-        lane,
+        detector_id,
         district,
         sample_date,
         sample_timestamp,
@@ -128,7 +126,7 @@ samples_requiring_imputation as (
 samples_not_requiring_imputation as (
     select
         station_id,
-        lane,
+        detector_id,
         district,
         sample_date,
         sample_timestamp,
@@ -155,7 +153,7 @@ samples_requiring_imputation_with_local_regional_neighbors as (
     select
         imp.*,
         non_imp.station_id as other_station_id,
-        non_imp.lane as other_lane,
+        non_imp.detector_id as other_detector_id,
         non_imp.occupancy_avg as occupancy_avg_nbr,
         non_imp.volume_sum as volume_sum_nbr,
         non_imp.speed_five_mins as speed_five_mins_nbr,
@@ -169,7 +167,7 @@ samples_requiring_imputation_with_local_regional_neighbors as (
     inner join samples_not_requiring_imputation as non_imp
         on
             nearby_stations.other_station_id = non_imp.station_id
-            and (imp.station_id != non_imp.station_id or imp.lane != non_imp.lane)
+            and (imp.detector_id != non_imp.detector_id)
             and imp.sample_date = non_imp.sample_date
             and imp.sample_timestamp = non_imp.sample_timestamp
 ),
@@ -183,7 +181,6 @@ samples_requiring_imputation_with_local_regional_neighbors as (
 samples_requiring_imputation_with_local_regional_coeffs as (
     select
         samples.*,
-        local_regional_coeffs.other_lane,
         local_regional_coeffs.speed_slope,
         local_regional_coeffs.speed_intercept,
         local_regional_coeffs.volume_slope,
@@ -195,8 +192,7 @@ samples_requiring_imputation_with_local_regional_coeffs as (
     asof join local_regional_coeffs
         match_condition (samples.sample_date >= local_regional_coeffs.regression_date)
         on
-            samples.station_id = local_regional_coeffs.station_id
-            and samples.lane = local_regional_coeffs.lane
+            samples.detector_id = local_regional_coeffs.detector_id 
             and samples.district = local_regional_coeffs.district
 ),
 
@@ -205,8 +201,7 @@ samples_requiring_imputation_with_local_regional_coeffs as (
    values, and finally clamp them to physical numbers (like greater than 0). */
 local_imputed as (
     select
-        station_id,
-        lane,
+        detector_id,
         sample_date,
         sample_timestamp,
         -- Volume calculation
@@ -223,13 +218,12 @@ local_imputed as (
     from
         samples_requiring_imputation_with_local_regional_coeffs
     where other_station_is_local = true
-    group by station_id, lane, sample_date, sample_timestamp
+    group by detector_id, sample_date, sample_timestamp
 ),
 
 regional_imputed as (
     select
-        station_id,
-        lane,
+        detector_id,
         sample_date,
         sample_timestamp,
         -- Volume calculation
@@ -245,7 +239,7 @@ regional_imputed as (
         any_value(regression_date) as regression_date
     from
         samples_requiring_imputation_with_local_regional_coeffs
-    group by station_id, lane, sample_date, sample_timestamp
+    group by detector_id, sample_date, sample_timestamp
 ),
 
 /** Global regression follows! **/
@@ -266,8 +260,7 @@ samples_requiring_imputation_with_global_coeffs as (
     asof join global_coeffs
         match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
-            samples_requiring_imputation.station_id = global_coeffs.station_id
-            and samples_requiring_imputation.lane = global_coeffs.lane
+            samples_requiring_imputation.detector_id = global_coeffs.detector_id 
             and samples_requiring_imputation.district = global_coeffs.district
 ),
 
@@ -316,8 +309,7 @@ samples_requiring_imputation_with_global as (
 /* Finally, do the global imputation! */
 global_imputed as (
     select
-        station_id,
-        lane,
+        detector_id,
         sample_date,
         sample_timestamp,
         -- Volume calculation
@@ -357,20 +349,17 @@ agg_with_local_regional_global_imputation as (
     from unimputed
     left join local_imputed
         on
-            unimputed.station_id = local_imputed.station_id
-            and unimputed.lane = local_imputed.lane
+            unimputed.detector_id = local_imputed.detector_id
             and unimputed.sample_date = local_imputed.sample_date
             and unimputed.sample_timestamp = local_imputed.sample_timestamp
     left join regional_imputed
         on
-            unimputed.station_id = regional_imputed.station_id
-            and unimputed.lane = regional_imputed.lane
+            unimputed.detector_id = regional_imputed.detector_id
             and unimputed.sample_date = regional_imputed.sample_date
             and unimputed.sample_timestamp = regional_imputed.sample_timestamp
     left join global_imputed
         on
-            unimputed.station_id = global_imputed.station_id
-            and unimputed.lane = global_imputed.lane
+            unimputed.detector_id = global_imputed.detector_id
             and unimputed.sample_date = global_imputed.sample_date
             and unimputed.sample_timestamp = global_imputed.sample_timestamp
 )

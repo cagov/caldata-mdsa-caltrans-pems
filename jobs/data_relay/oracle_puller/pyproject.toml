@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "oracle_puller_daemon"
+version = "0.1.0"
+description = ""
+authors = ["Azam Beg <azam.beg@dot.ca.gov>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "2.2.2"
+requests = "2.31.0"
+confluent-kafka = "2.3.0"
+loguru = "0.7.2"
+deepdiff = "7.0.1"
+cx-oracle = "^8.3.0"
+avro = "^1.12.0"
+kazoo = "^2.10.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
