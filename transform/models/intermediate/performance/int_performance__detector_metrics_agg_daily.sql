@@ -1,9 +1,14 @@
-{{ config(materialized='table') }}
+{{ config(
+    materialized="incremental",
+    unique_key=["detector_id", "sample_date"],
+    on_schema_change="sync_all_columns",
+) }}
 
 -- read the station hourly data
 with station_hourly_data as (
     select *
     from {{ ref('int_performance__detector_metrics_agg_hourly') }}
+    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- now aggregate hourly volume, occupancy and speed to daily level
