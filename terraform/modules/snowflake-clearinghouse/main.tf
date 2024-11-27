@@ -62,6 +62,7 @@ resource "snowflake_stage" "pems_raw" {
   database            = snowflake_schema.pems_clearinghouse.database
   schema              = snowflake_schema.pems_clearinghouse.name
   storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_grant_privileges_to_account_role.pems_storage_integration_to_sysadmin]
 }
 
 
@@ -84,6 +85,7 @@ resource "snowflake_stage" "pems_marts" {
   database            = "ANALYTICS_${var.environment}"
   schema              = "PUBLIC"
   storage_integration = snowflake_storage_integration.pems_storage_integration.name
+  depends_on          = [snowflake_grant_privileges_to_account_role.pems_storage_integration_to_sysadmin]
 }
 
 
