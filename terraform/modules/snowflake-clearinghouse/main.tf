@@ -72,7 +72,7 @@ resource "snowflake_grant_privileges_to_account_role" "pems_raw" {
   privileges        = ["USAGE"]
   on_schema_object {
     object_type = "STAGE"
-    object_name = snowflake_stage.pems_raw.name 
+    object_name = snowflake_stage.pems_raw.name
   }
 }
 
@@ -95,7 +95,7 @@ resource "snowflake_grant_privileges_to_account_role" "pems_marts" {
   privileges        = ["USAGE"]
   on_schema_object {
     object_type = "STAGE"
-    object_name = snowflake_stage.pems_marts.name 
+    object_name = snowflake_stage.pems_marts.name
   }
 }
 
