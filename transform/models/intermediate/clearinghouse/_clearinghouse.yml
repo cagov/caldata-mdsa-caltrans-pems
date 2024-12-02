@@ -239,9 +239,9 @@ models:
         description: |
           Generate a shared temporal label for aggregation of weekly data.
       - name: hour
-        description: The hourly value.
+        description: Hour of day data collection.
       - name: day
-        description: The date value.
+        description: Day of month data collection.
       - name: occupancy_threshold
         description: |
           Count the 60th percentile of observed occupancies within a week.
