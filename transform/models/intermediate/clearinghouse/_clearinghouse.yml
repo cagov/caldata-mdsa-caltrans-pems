@@ -228,15 +228,16 @@ models:
           group_by_columns: ["detector_id", "sample_date"]
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
-      This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the PeMS system
-      computes speed for sensors that don't report speed, like single loop detectors. The g-factor is a value that
-      represents the effective length of the vehicles. Typically, a constant value for the g-factor is used which
-      leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop sensitivity.
-      PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate speed estimates.
+      This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the
+      PeMS system computes speed for sensors that don't report speed, like single loop detectors. The g-factor
+      is a value that represents the effective length of the vehicles. Typically, a constant value for the g-factor
+      is used which leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop
+      sensitivity. PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate
+      speed estimates.
     columns:
       - name: week_start
         description: |
-          Generate the a shared temporal label for aggregation of weekly data.
+          Generate a shared temporal label for aggregation of weekly data.
       - name: hour
         description: The hourly value.
       - name: day
@@ -265,7 +266,7 @@ models:
           An initial speed estimate is passed through the p_factor based exponential filter. When the
           flow at the loop is low the smoothing is quite severe. When the flow is high, there is little
           smoothing. This allows us to quickly adapt to periods of congestion as well as to have stable
-          speeds when there is very little data (like in the middle of the night).
+          speeds when the data is sparse (like in the middle of the night).
       - name: speed_smoothed
         description: A smoothed version of the estimated speed by passing through the exponential filter.
       - name: imputed_speed
