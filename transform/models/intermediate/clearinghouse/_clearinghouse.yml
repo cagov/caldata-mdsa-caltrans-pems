@@ -228,20 +228,36 @@ models:
           group_by_columns: ["detector_id", "sample_date"]
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
-      This model calculates the g factor based smoothing speed.
+      This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the PeMS system
+      computes speed for sensors that don't report speed, like single loop detectors. The g-factor is a value that 
+      represents the effective length of the vehicles. Typically, a constant value for the g-factor is used which
+      leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop sensitivity.
+      PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate speed estimates.
     columns:
-      - name: threshold
+      - name: week_start
         description: |
-          Count the 60th percentile of observed occupancies within a month.
+          Generate the a shared temporal label for aggregation of weekly data.
+      - name: hour
+        description: The hourly value.
+      - name: day
+        description: The date value.
+      - name: occupancy_threshold
+        description: |
+          Count the 60th percentile of observed occupancies within a week.
+      - name: lane_number
+        description: The number of lanes for each station.
       - name: free_flow_speed
         description: |
           A specific free flow speed based on the type of freeway (meaning the total number of lanes)
           and the particular lane that the detector is. For example, the free-flow speed in lane 2 of
           a 2-lane freeway is different from the free-flow speed in lane 2 of a 5-lane freeway.
-      - name: g_factor
+      - name: raw_g_factor
         description: |
           Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
           and real-time occupancy.
+      - name: hourly_g_factor
+        description: |
+          Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
       - name: p_factor
         description: An exponential filter with weights that vary as a function of the flow.
       - name: speed_preliminary
@@ -252,3 +268,7 @@ models:
           speeds when there is very little data (like in the middle of the night).
       - name: speed_smoothed
         description: A smoothed version of the estimated speed by passing through the exponential filter.
+      - name: imputed_speed
+        description: |
+          An imputed version of g-factor based speed, adjusted using upper and lower bounds. Boundaries vary
+          based on different scenarios for specific lanes.

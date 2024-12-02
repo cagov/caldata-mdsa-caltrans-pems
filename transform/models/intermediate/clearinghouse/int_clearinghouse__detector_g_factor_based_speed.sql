@@ -192,6 +192,51 @@ free_speed as (
                 and lane_number = 7
                 and lane = 6
                 then 64.5
+            when
+                station_type = 'ML'
+                and lane_number = 7
+                and lane = 7
+                then 64.5
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 1
+                then 76.5
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 2
+                then 74.0
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 3
+                then 72.0
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 4
+                then 69.2
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 5
+                then 64.5
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 6
+                then 64.5
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 7
+                then 64.5
+            when
+                station_type = 'ML'
+                and lane_number = 8
+                and lane = 8
+                then 64.5
             else 64.5
         end as free_flow_speed
 
@@ -271,35 +316,11 @@ g_factor_speed_smoothed as (
                 and speed_smoothed > 79.5
                 then 79.5
             when
-                lane = 5
+                lane in (5, 6, 7, 8)
                 and speed_smoothed > 74.5
                 then 74.5
             when
-                lane = 6
-                and speed_smoothed > 74.5
-                then 74.5
-            when
-                lane = 1
-                and speed_smoothed < 3
-                then 3
-            when
-                lane = 2
-                and speed_smoothed < 3
-                then 3
-            when
-                lane = 3
-                and speed_smoothed < 3
-                then 3
-            when
-                lane = 4
-                and speed_smoothed < 3
-                then 3
-            when
-                lane = 5
-                and speed_smoothed < 3
-                then 3
-            when
-                lane = 6
+                lane in (1, 2, 3, 4, 5, 6, 7, 8)
                 and speed_smoothed < 3
                 then 3
             else speed_smoothed
