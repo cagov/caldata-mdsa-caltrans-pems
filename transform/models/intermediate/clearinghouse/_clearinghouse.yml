@@ -229,7 +229,7 @@ models:
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
       This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the PeMS system
-      computes speed for sensors that don't report speed, like single loop detectors. The g-factor is a value that 
+      computes speed for sensors that don't report speed, like single loop detectors. The g-factor is a value that
       represents the effective length of the vehicles. Typically, a constant value for the g-factor is used which
       leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop sensitivity.
       PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate speed estimates.
