@@ -480,5 +480,6 @@ select distinct
     aadt_8,
     k_30,
     k_50,
-    k_100
+    k_100,
+    1 as test
 from aadt_1_8_kfactors
