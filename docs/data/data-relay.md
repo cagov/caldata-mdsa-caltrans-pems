@@ -5,12 +5,12 @@
 ### Why we need Data Relay
 * Caltrans IT infrastructure collects the road side detector signals and transforms them within the Caltrans network.
 * Data Relay moves PeMS data from internal Caltrans networks to the cloud (Snowflake).
-* Snowflake employs elastic computing resources to transform the data into data warehouse that are consumed by PeMS users.  
+* Snowflake employs elastic computing resources to transform the data within the data warehouse, which are then consumed by PeMS users.  
 
 Therefore, Data Relay performs the critical link between the Caltrans infrastructure and the Snowflake. 
 
-The data sources needed for Snowflake cloud computing include: 
-* The VDS30SEC table.
+The data sources needed for the PeMS system include: 
+* The `VDS30SEC` table.
 * The sensor device configuration tables. 
 
 ### How Data Relay works
