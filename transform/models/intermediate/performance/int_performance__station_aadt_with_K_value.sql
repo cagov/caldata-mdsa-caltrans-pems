@@ -481,5 +481,5 @@ select distinct
     k_30,
     k_50,
     k_100,
-    1 as test
+    2 as test
 from aadt_1_8_kfactors
