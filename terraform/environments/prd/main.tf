@@ -12,7 +12,7 @@ terraform {
     }
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = "0.89"
+      version = "0.92"
     }
   }
 
@@ -116,7 +116,7 @@ resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
 
 # Main ELT architecture
 module "elt" {
-  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=5fe13b2"
+  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=9e032a9"
   providers = {
     snowflake.accountadmin  = snowflake.accountadmin,
     snowflake.securityadmin = snowflake.securityadmin,
