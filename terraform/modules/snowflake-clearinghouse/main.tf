@@ -24,6 +24,10 @@ resource "snowflake_schema" "pems_clearinghouse" {
   database            = "RAW_${var.environment}"
   name                = "CLEARINGHOUSE"
   data_retention_time_in_days = 14
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Schema for raw data relay server data
@@ -32,6 +36,10 @@ resource "snowflake_schema" "pems_db96" {
   database            = "RAW_${var.environment}"
   name                = "DB96"
   data_retention_time_in_days = 14
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Storage integration
