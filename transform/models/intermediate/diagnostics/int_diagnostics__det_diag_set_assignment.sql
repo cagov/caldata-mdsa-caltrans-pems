@@ -13,23 +13,19 @@ station_diagnostic_set_assign as (
         station_id,
         district,
         station_type,
+        dt_set_id,
         _valid_from as station_valid_from,
         _valid_to as station_valid_to,
         case
-            /*when LIKE(UPPER(THRESHOLD_SET), "LOW%") then "Low_Volume"
-            This value is currently in district config file but not in
-            our current metadata files
-            when LIKE(UPPER(THRESHOLD_SET), "RURAL%") then "Rural"
-            We need the definition of when a station is considered
-            Rural from Iteris
-            */
-            when district = 11 then 'Urban_D11'
-            when district = 6 then 'D6_Ramps'
+            when UPPER(dt_set_id) like 'LOW%' then 'Low_Volume'
+            when UPPER(dt_set_id) like 'RURAL%' then 'Rural'
+            when UPPER(dt_set_id) like 'URBAN_D11%' then 'Urban_D11'
+            when UPPER(dt_set_id) like 'D6_RAMPS%' then 'D6_Ramps'
             else 'Urban'
         end as station_diagnostic_set_id,
         case
-            when station_type in ('FR', 'OR') then 'ramp'
-            else 'mainline'
+            when station_type in ('ML', 'HV') then 'mainline'
+            else 'ramp'
         end as station_diagnostic_method_id
 
     from {{ ref ('int_vds__active_stations') }}
