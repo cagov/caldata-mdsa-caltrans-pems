@@ -226,6 +226,7 @@ models:
     tests:
       - five_minute_daily_count:
           group_by_columns: ["detector_id", "sample_date"]
+    columns:
       - name: speed_weighted
         description: |
           If the detector reports a measured speed (miles/hour) in the lane then that value will be used.
