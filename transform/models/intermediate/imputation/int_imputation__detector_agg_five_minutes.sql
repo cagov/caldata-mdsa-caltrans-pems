@@ -88,8 +88,7 @@ unimputed as (
         -- If the detector_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date.
         (good_detectors.detector_id is not null) as detector_is_good,
-        coalesce(base.speed_weighted, (base.volume_sum * 22) / nullifzero(base.occupancy_avg) * (1 / 5280) * 12)
-            as speed_five_mins
+        base.speed_weighted as speed_five_mins
     from base
     left join good_detectors
         on

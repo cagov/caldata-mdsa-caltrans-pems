@@ -41,6 +41,15 @@ spine as (
         on to_date(ts.timestamp_column) = dd.sample_date
 ),
 
+-- Add the model where gfactor speed has been calculated
+gfactor_speed as (
+    select
+        detector_id,
+        sample_timestamp,
+        imputed_speed
+    from {{ ref('int_clearinghouse__detector_g_factor_based_speed') }}
+),
+
 /* Join 5-minute aggregated data to the spine to get a table without missing rows */
 base as (
     select
@@ -59,7 +68,7 @@ base as (
         agg.zero_occ_pos_vol_ct,
         agg.high_volume_ct,
         agg.high_occupancy_ct,
-        agg.speed_weighted,
+        coalesce(agg.speed_weighted, gs.imputed_speed) as speed_weighted,
         agg.volume_observed,
         coalesce(agg.state_postmile, dmeta.state_postmile) as state_postmile,
         coalesce(agg.absolute_postmile, dmeta.absolute_postmile) as absolute_postmile,
@@ -88,6 +97,10 @@ base as (
                 to_date(spine.timestamp_column) < dmeta._valid_to
                 or dmeta._valid_to is null
             )
+    left join gfactor_speed as gs
+        on
+            agg.detector_id = gs.detector_id
+            and agg.sample_timestamp = gs.sample_timestamp
 )
 
 select * from base
