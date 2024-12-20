@@ -23,7 +23,7 @@ five_minute_agg as (
         sample_ct,
         volume_sum,
         occupancy_avg,
-        speed_five_mins as speed_weighted,
+        speed_five_mins,
         station_type,
         absolute_postmile,
         volume_imputation_method,
@@ -33,16 +33,6 @@ five_minute_agg as (
         station_valid_to
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
-),
-
-aggregated_speed as (
-    select
-        *,
-        -- create a boolean function to track wheather speed is imputed or not
-        coalesce(speed_five_mins != speed_weighted or (speed_five_mins is not null and speed_weighted is null), false)
-        -- coalesce(speed_weighted is null, false)
-            as is_speed_calculated
-    from five_minute_agg
 ),
 
 vmt_vht_metrics as (
@@ -56,7 +46,7 @@ vmt_vht_metrics as (
         vmt / nullifzero(vht) as q_value,
         -- travel time
         60 / nullifzero(q_value) as tti
-    from aggregated_speed
+    from five_minute_agg
 ),
 
 delay_metrics as (
