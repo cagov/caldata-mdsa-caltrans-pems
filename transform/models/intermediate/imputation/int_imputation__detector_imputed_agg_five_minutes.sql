@@ -1,5 +1,7 @@
 {{ config(
         materialized='incremental',
+        table_format='iceberg',
+        external_volume='pems_marts_dev',
         on_schema_change="append_new_columns",
         cluster_by=["sample_date"],
         unique_key=["detector_id", "sample_timestamp", "sample_date"],
@@ -30,11 +32,9 @@ hybrid_five_mins_agg as (
         length,
         detector_is_good,
         sample_date,
-        sample_timestamp,
+        sample_timestamp::timestamp_ntz(6),
         absolute_postmile,
         sample_ct,
-        station_valid_from,
-        station_valid_to,
         -- select the imputed value
         case
             when detector_is_good = false or volume_sum is null
