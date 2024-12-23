@@ -226,6 +226,15 @@ models:
     tests:
       - five_minute_daily_count:
           group_by_columns: ["detector_id", "sample_date"]
+    columns:
+      - name: speed_weighted
+        description: |
+          If the detector reports a measured speed (miles/hour) in the lane then that value will be used.
+          The reported value is weighted by the number of vehicles in each sample period. If no speed is
+          reported by the device than the speed value calculated from the
+          int_clearinghouse__detector_g_factor_based_speed model will be placed in the corresponding
+          detector and timestamp row. If there is no device or g-factor provided speed the value will remain
+          null and be populated using imputation in downstream models.
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
       This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the
