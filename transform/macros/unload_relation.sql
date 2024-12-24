@@ -19,7 +19,8 @@
       copy into {{ url }}
       from (
         select * from {{ this }}
-        {% if filter %}
+        {{ log(filter ~ ' ' ~ is_incremental(), info=true) }}
+        {% if filter and is_incremental() %}
           where {{ filter }}
         {% endif %}
       )

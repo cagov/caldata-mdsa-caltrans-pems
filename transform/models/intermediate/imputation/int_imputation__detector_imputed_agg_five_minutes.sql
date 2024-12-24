@@ -32,7 +32,7 @@ hybrid_five_mins_agg as (
         length,
         detector_is_good,
         sample_date,
-        sample_timestamp::timestamp_ntz(6),
+        sample_timestamp::timestamp_ntz(6) as sample_timestamp,
         absolute_postmile,
         sample_ct,
         -- select the imputed value
