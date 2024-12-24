@@ -1,6 +1,7 @@
 {{ config(
     materialized="table",
     unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
+    unload_filter="sample_date >= date_trunc(month, dateadd(day, -2, current_date()))"
 ) }}
 
 with
