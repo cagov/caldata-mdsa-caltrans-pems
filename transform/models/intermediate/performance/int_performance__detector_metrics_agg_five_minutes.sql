@@ -23,7 +23,7 @@ five_minute_agg as (
         sample_ct,
         volume_sum,
         occupancy_avg,
-        speed_five_mins as speed_weighted,
+        speed_five_mins,
         station_type,
         absolute_postmile,
         volume_imputation_method,
@@ -33,27 +33,6 @@ five_minute_agg as (
         station_valid_to
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
-),
-
-aggregated_speed as (
-    select
-        *,
-        --A preliminary speed calcuation was developed on 3/22/24
-        --using a vehicle effective length of 22 feet
-        --(16 ft vehicle + 6 ft detector zone) feet and using
-        --a conversion to get miles per hour (5280 ft / mile and 12
-        --5-minute intervals in an hour).
-        --The following code may be used if we want to use speed from raw data
-        --coalesce(speed_raw, ((volume * 22) / nullifzero(occupancy)
-        --* (1 / 5280) * 12))
-        --impute five minutes missing speed
-        coalesce(speed_weighted, (volume_sum * 22) / nullifzero(occupancy_avg) * (1 / 5280) * 12)
-            as speed_five_mins,
-        -- create a boolean function to track wheather speed is imputed or not
-        coalesce(speed_five_mins != speed_weighted or (speed_five_mins is not null and speed_weighted is null), false)
-        -- coalesce(speed_weighted is null, false)
-            as is_speed_calculated
-    from five_minute_agg
 ),
 
 vmt_vht_metrics as (
@@ -67,7 +46,7 @@ vmt_vht_metrics as (
         vmt / nullifzero(vht) as q_value,
         -- travel time
         60 / nullifzero(q_value) as tti
-    from aggregated_speed
+    from five_minute_agg
 ),
 
 delay_metrics as (
