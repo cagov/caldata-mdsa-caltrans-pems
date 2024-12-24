@@ -1,10 +1,15 @@
-{% macro unload_relation(strip_leading_words=1, unload_partitioning=none) %}
+{% macro unload_relation(
+    strip_leading_words=1,
+    unload_partitioning=none,
+    unload_filter=none
+) %}
   {% if target.name == 'prd' %}
     {% set suffix = 'PRD' %}
   {% else %}
     {% set suffix = 'DEV' %}
   {% endif %}
   {% set partitioning = unload_partitioning or config.get('unload_partitioning', none) %}
+  {% set filter = unload_filter or config.get('unload_filter', none) %}
   {% set stage = '@ANALYTICS_' ~ suffix ~ '.PUBLIC.PEMS_MARTS_' ~ suffix %}
   {% set key = model.name.split('_')[strip_leading_words:] | reject("eq", "") | join("_")  %}
   {% set key = key ~ ('' if partitioning else '.parquet') %}
@@ -12,7 +17,12 @@
   {% set url = stage ~ '/' ~ path %}
       remove {{ url }};
       copy into {{ url }}
-      from {{ this }}
+      from (
+        select * from {{ this }}
+        {% if filter %}
+          where {{ filter }}
+        {% endif %}
+      )
       {% if partitioning %}
           partition by {{ partitioning }}
       {% endif %}
