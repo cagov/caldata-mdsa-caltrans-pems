@@ -18,12 +18,13 @@ with meta_data as (
 detector_status as (
     select
         station_id,
+        lane,
         station_type,
         COUNT(case when detector_status = 'Good' then 1 end) as good_detector_count,
         COUNT(case when detector_status = 'Bad' then 1 end) as bad_detector_count,
         COUNT(detector_status) as total_detector_count
     from meta_data
-    group by station_id, station_type
+    group by station_id, station_type, lane
 ),
 
 good_detector_pct as (
