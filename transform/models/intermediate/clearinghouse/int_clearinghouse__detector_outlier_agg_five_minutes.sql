@@ -27,7 +27,7 @@ good_detectors as (
     select
         detector_id,
         sample_date
-    from {{ ref("int_diagnostics__detector_status") }}
+    from {{ ref('int_diagnostics__detector_status') }}
     where status = 'Good'
 ),
 
@@ -61,15 +61,7 @@ monthly_stats as (
 
 -- retrieve recent five-minute data
 five_minute_agg as (
-    select
-        detector_id,
-        sample_date,
-        sample_timestamp,
-        station_id,
-        lane,
-        station_type,
-        volume_sum,
-        occupancy_avg
+    select *
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
 ),
