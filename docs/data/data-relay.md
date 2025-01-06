@@ -1,7 +1,39 @@
 # Data Relay Documentation
 
 # Overview
-## In a nutshell
+## Backgrounds
+### Why we need Data Relay
+* Caltrans IT infrastructure collects the road side detector signals and transforms them within the Caltrans network.
+* Data Relay moves PeMS data from internal Caltrans networks to the cloud (Snowflake).
+* Snowflake employs elastic computing resources to transform the data within the data warehouse, which are then consumed by PeMS users.
+
+Therefore, Data Relay performs the critical link between the Caltrans infrastructure and the Snowflake.
+
+The data sources needed for the PeMS system include:
+* The `VDS30SEC` table.
+* The sensor device configuration tables.
+
+### How Data Relay works
+* On a regular basis, Data Relay service hosted in Caltrans internal network pulls PeMS upstream data and batch them for uploading to Snowflake.
+* The current upstream for Data Relay is the legacy PeMS Oracle database that serves the legacy PeMS website.
+
+### General System Design Principle
+* Data Relay is the only component in the entire PeMS modernization project that operates within Caltrans internal networks, thus there are upfront limitations we need to consider when we build Data Relay service
+a) Caltrans IT team will not provide support on operating the Data Relay on a routine basis, though they will address the incidents when the hosting machines go down.
+b) The legacy PeMS Oracle database was intended to only serve the legacy PeMS website frontend; supporting an additional data downstream service that powers an entire data system was not in its scope. So does the PeMS Oracle databases' internal networking, which was never purposed for directly transfer data to the public internet.
+c) Cloud system's data ingestion needs to work with large batch of data in compressed form; therefore, the data relay should output that kind of data.
+
+With those constraints set forth, there are extensive studies and experimentation done before we settled down our final architecture. Here is our high-level journey:
+* We considered using Airflow, which provides a powerful tooling support for administering batch-based data pipeline workloads with reliability. The problem, however, is the constraint a), which would force us to include managing an Airflow platform as part of the PeMS modernization project scope, which would increase our cost.
+* We then tried using one machine running python script with crontab as scheduling. It does not come with a heavy-weight of managing an Airflow system, and it may handle any complex data transforming operations with python libraries, but due to the constraint b above, such python script cannot simultaneously talking to Oracle and Snowflake at once.
+* We then tried Kafka. Kafka as a distributed pub-sub services naturally fit into Data Relay in that it offers Task Queue management out-of-the-box, and it orchestrates the machines in and out of the PeMS Oracle networks together (as aforementioned in constraint b, only using one machine for Data Relay for pulling Oracle and pushing to Snowflake is not possible).
+* In spite of Kafka's benefits, it nevertheless shares the same drawback as Airflow in that, managing a Kafka cluster has to be part of the project scope, which increases the cost. Fortunately, Kafka's administering cost is significantly lower than Airflow, in that it has low dependency, and machines are identical setup, unlike Airflow, which has to distinguish different roles such as scheduler - worker - database.
+* In practice, Kafka data is consumed using pub-sub way, which may incur some minor inconveniences to certain operation such as deduplicating such as ensuring configuration tables' elements are deduplicated before sending to Snowflake. Therefore, we scope Kafka to be focused on the VDS30SEC table relaying, which accounts for 99.9% of the daily new data.
+
+
+In sum, we adopted Kafka for our Data Relay service's backbone, and this design decision is the foundation for the architecture design we will introduce in the following sections.
+
+## Whole System Components In a nutshell
 
 1. **PeMS Oracle Database (DB96/DWO):** The source of the data that needs to be pulled and relayed.
 

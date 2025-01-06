@@ -86,33 +86,39 @@ detector_status as (
                 then 'Insufficient Data'
             when
                 awm.station_diagnostic_method_id = 'ramp'
-                and sps.zero_vol_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.zero_flow_percent / 100)
+                and
+                (sps.zero_vol_ct / sps.sample_ct)
+                >= (awm.zero_flow_percent / 100)
                 then 'Card Off'
             when
                 awm.station_diagnostic_method_id = 'mainline'
-                and sps.zero_occ_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.zero_occupancy_percent / 100)
+                and
+                (sps.zero_occ_ct / sps.sample_ct)
+                >= (awm.zero_occupancy_percent / 100)
                 then 'Card Off'
             when
                 awm.station_diagnostic_method_id = 'ramp'
-                and sps.high_volume_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.high_flow_percent / 100)
+                and
+                (sps.high_volume_ct / sps.sample_ct)
+                >= (awm.high_flow_percent / 100)
                 then 'High Val'
             when
                 awm.station_diagnostic_method_id = 'mainline'
-                and sps.high_occupancy_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.high_occupancy_percent / 100)
+                and
+                (sps.high_occupancy_ct / sps.sample_ct)
+                >= (awm.high_occupancy_percent / 100)
                 then 'High Val'
             when
                 awm.station_diagnostic_method_id = 'mainline'
-                and sps.zero_vol_pos_occ_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.flow_occupancy_percent / 100)
+                and
+                (sps.zero_vol_pos_occ_ct / sps.sample_ct)
+                >= (awm.flow_occupancy_percent / 100)
                 then 'Intermittent'
             when
                 awm.station_diagnostic_method_id = 'mainline'
-                and sps.zero_occ_pos_vol_ct / ({{ var("detector_status_max_sample_value") }})
-                > (awm.occupancy_flow_percent / 100)
+                and
+                (sps.zero_occ_pos_vol_ct / sps.sample_ct)
+                >= (awm.occupancy_flow_percent / 100)
                 then 'Intermittent'
             when
                 coalesce(co.min_occupancy_delta = 0, false)
