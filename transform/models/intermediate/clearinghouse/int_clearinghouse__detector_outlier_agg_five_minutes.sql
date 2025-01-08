@@ -32,7 +32,7 @@ good_detectors as (
 ),
 
 -- filter last month's data for good detectors only
-filtered_five_minute_agg as (
+filtered_five_minute_agg_lastmonth as (
     select
         f.detector_id,
         f.sample_date,
@@ -55,7 +55,7 @@ monthly_stats as (
         -- consider using max_capacity
         percentile_cont(0.95) within group (order by volume_sum) as volume_95th,
         percentile_cont(0.95) within group (order by occupancy_avg) as occupancy_95th
-    from filtered_five_minute_agg
+    from filtered_five_minute_agg_lastmonth
     group by detector_id
 ),
 
