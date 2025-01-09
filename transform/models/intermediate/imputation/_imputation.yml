@@ -12,7 +12,7 @@ models:
       This model is unique at the level of REGRESSION_DATE + DETECTOR_ID + OTHER_DETECTOR_ID.
     columns:
       - name: DETECTOR_ID
-        description: The ID of the detector with the dependent variables. 
+        description: The ID of the detector with the dependent variables.
       - name: OTHER_DETECTOR_ID
         description: The ID of the detector with the independent variables.
       - name: DISTRICT

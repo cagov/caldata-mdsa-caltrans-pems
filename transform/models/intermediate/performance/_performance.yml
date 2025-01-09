@@ -6,7 +6,7 @@ models:
       This model contains performance metrics by detector based on data from
       the station_meta and five_minute_agg models. This data forms the basis for
       performance metrics that will be aggregated over various spatial/temporal
-      segments/timeframes. 
+      segments/timeframes.
     columns:
       - name: sample_date
         description: The date associated with five minute aggregated data samples.
@@ -98,7 +98,7 @@ models:
       Hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
       each station regardless of lanes. This measures the hourly performance of the state
       highway system at the station level. This can be used for daily aggregation of PeMS performance
-      metrics at the station level. 
+      metrics at the station level.
     columns:
       - name: STATION_ID
         description: |
@@ -294,7 +294,7 @@ models:
     description: |
       Monthly aggregation of volume,speed, and occupancy along with delays and lost productivity
       across all lanes of the station. These metrics measure the monthly performance
-      of the state highway system. 
+      of the state highway system.
     columns:
       - name: STATION_ID
         description: |
@@ -369,7 +369,7 @@ models:
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
         data_tests:
-          - not_null  
+          - not_null
       - name: SAMPLE_YEAR
         description: The first date of the year associated with the data sample.
         data_tests:
@@ -959,11 +959,11 @@ models:
       This model currently uses a maximum capacity of 2076 vehicles/lane/hour for all detectors. 
       Using this value provides a consistent metric for determining the capcacity and calculating 
       the lost productivity.
-      
+
       The current methodology in PeMS uses the max of either the 15 minute historical highest
       flow or 2076 v/l/h as the capacity at each location per PeMS website  
       https://pems.dot.ca.gov/?dnode=Help&content=help_calc#perf
-      
+
       The issue with the current methodology is that there is no documentation for how the historical
       measured maximum capacity has been developed and we have observed inconsistencies in high flow
       values in PeMS. We also do not have any documention on why a 15-minute timeframe was selected

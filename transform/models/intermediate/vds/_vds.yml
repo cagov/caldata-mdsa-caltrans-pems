@@ -174,14 +174,14 @@ models:
       a 5-mile radius. This dual regression strategy aims to predict or analyze station-related data,
       leveraging both spatial proximity and statistical techniques to enhance understanding and
       planning within transportation contexts.
-      
+
       This model is unique at the level of DETECTOR_ID + OTHER_STATION_ID +_VALID_TO.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - STATION_ID
             - OTHER_STATION_ID
-            - _VALID_TO 
+            - _VALID_TO
     columns:
       - name: station_id
         description: The ID of the station to which the detector is connected.
