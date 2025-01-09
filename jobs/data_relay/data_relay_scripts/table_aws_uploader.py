@@ -344,9 +344,7 @@ def create_timestamp():
 def get_output_path():
     import secrets
 
-    random_string = secrets.token_hex(
-        8
-    )  # generates a random string of length 16 characters
+    random_string = secrets.token_hex(8)  # generates a random string of length 16 characters
     timestamp = create_timestamp()
     return f"{config['output_path']}/{args.topic}/{args.topic}_dump_{timestamp}_{random_string}.json"
 
@@ -369,9 +367,12 @@ def pull():
 
     :return:
     """
-
-    if args.topic in ['CONTROLLER_CONFIG', 'CONTROLLER_CONFIG_LOG', 'DETECTOR_CONFIG', \
-                         'DETECTOR_CONFIG_LOG', 'STATION_CONFIG', 'STATION_CONFIG_LOG', ]:
+    if args.topic in ['CONTROLLER_CONFIG', 
+                      'CONTROLLER_CONFIG_LOG', 
+                      'DETECTOR_CONFIG', 
+                      'DETECTOR_CONFIG_LOG', 
+                      'STATION_CONFIG', 
+                      'STATION_CONFIG_LOG', ]:
         logger.info(f"Topic {args.topic} will directly upload from static files rather than pull kafka.")
         upload('','2012-11-11 11:11', args.topic)
         return
