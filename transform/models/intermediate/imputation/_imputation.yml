@@ -195,7 +195,7 @@ models:
     description: |
       Global regression slopes and intercepts for average of all
       detectors across the  district, freeway, direction, station_type
-      over the regression time period. This model only evaluates new values 
+      over the regression time period. This model only evaluates new values
       on the 3rd day of Feb, May, Aug, and Nov.
       This model is unique at the level of REGRESSION_DATE + DETECTOR_ID.
     columns:

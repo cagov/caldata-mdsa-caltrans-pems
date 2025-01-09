@@ -108,7 +108,7 @@ models:
     description: |
       Metadata for a single loop detector. This is the device that actually records
       flow, occupancy, and speed, and is typically installed in a single lane.
-      Multiple detectors across a set of lanes constitute a station. 
+      Multiple detectors across a set of lanes constitute a station.
       This model is unique at the level of DETECTOR_ID.
     columns:
       - name: detector_id
