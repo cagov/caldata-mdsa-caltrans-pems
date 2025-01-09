@@ -161,7 +161,7 @@ models:
   - name: int_diagnostics__detector_status
     description: |
       This file contains count data by station and lane based on the 30 second raw data
-      along with a diagnostic value associated with the station type and count results. 
+      along with a diagnostic value associated with the station type and count results.
       This model is unique at the level of SAMPLE_DATE + DETECTOR_ID.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
@@ -320,7 +320,7 @@ models:
     description: |
       This data model is built to perform diagnostic tests related to equipment where no data is being
       recieved from field devices. The diagnostic checks in this data model are used to determine the
-      detector status in the downstream int_diagnostics__detector_status model. 
+      detector status in the downstream int_diagnostics__detector_status model.
       This model is unique at the level of ACTIVE_DATE + DETECTOR_ID.
     data_tests:
       - dbt_utils.unique_combination_of_columns:
