@@ -7,7 +7,7 @@ models:
       They are evaluated at regular dates (`regression_date`) in order to
       make multiple measurements of the coefficients. This allows the values
       to vary with time, and for there to be backup measurements if one detector
-      or the other are not operational for the regression dates. 
+      or the other are not operational for the regression dates.
       This model only evaluates new values on the 3rd day of Feb, May, Aug, and Nov.
       This model is unique at the level of REGRESSION_DATE + DETECTOR_ID + OTHER_DETECTOR_ID.
     columns:
