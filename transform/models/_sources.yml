@@ -291,6 +291,8 @@ sources:
         freshness: null
         tests:
           - not_empty
+          - unique:
+              column_name: controller_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -314,6 +316,10 @@ sources:
           with the `controller_config` table to get a full history of controller metadata.
         tests:
           - not_empty
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - controller_id
+                - time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -348,6 +354,8 @@ sources:
         freshness: null
         tests:
           - not_empty
+          - unique:
+              column_name: station_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -371,6 +379,10 @@ sources:
           with the `station_config` table to get a full history of station metadata.
         tests:
           - not_empty
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - station_id
+                - time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -410,6 +422,8 @@ sources:
           Multiple detectors across a set of lanes constitute a station.
         tests:
           - not_empty
+          - unique:
+              column_name: detector_id
         freshness: null
         columns:
           - name: meta
@@ -424,6 +438,10 @@ sources:
           with the `detector_config` table to get a full history of detector metadata.
         tests:
           - not_empty
+          - dbt_utils.unique_combination_of_columns:
+              combination_of_columns:
+                - detector_id
+                - time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
