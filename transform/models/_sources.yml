@@ -289,6 +289,8 @@ sources:
           controller might have a station for the mainline as well as a station
           for an onramp.
         freshness: null
+        tests:
+          - not_empty
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -310,6 +312,8 @@ sources:
         description: |
           A log table showing updates to the controller config. This can be joined
           with the `controller_config` table to get a full history of controller metadata.
+        tests:
+          - not_empty
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -342,6 +346,8 @@ sources:
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
         freshness: null
+        tests:
+          - not_empty
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -363,6 +369,8 @@ sources:
         description: |
           A log table showing updates to the station config. This can be joined
           with the `station_config` table to get a full history of station metadata.
+        tests:
+          - not_empty
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -400,6 +408,8 @@ sources:
           Metadata for a single loop detector. This is the device that actually records
           flow, occupancy, and speed, and is typically installed in a single lane.
           Multiple detectors across a set of lanes constitute a station.
+        tests:
+          - not_empty
         freshness: null
         columns:
           - name: meta
@@ -412,6 +422,8 @@ sources:
         description: |
           A log table showing updates to the detector config. This can be joined
           with the `detector_config` table to get a full history of detector metadata.
+        tests:
+          - not_empty
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
