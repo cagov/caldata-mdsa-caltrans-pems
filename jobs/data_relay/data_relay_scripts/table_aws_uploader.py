@@ -188,14 +188,14 @@ def load_previous_offset_info(topic) -> dict:
             doc_key = ES_KEY
             data = {"document_key": doc_key, "document_value": json.dumps(offsets_json)}
             es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}"
-            response = requests.get(es_url, headers=headers, auth=('data_relay','data_relay_bia'), verify='/nfsdata/dataop/ca_ca.crt')
+            response = requests.get(es_url, headers=headers, auth=('XXX','XXXX'), verify='/nfsdata/dataop/ca_ca.crt')
 
             if "found" in response.json() and not response.json()["found"]:
                 requests.post(
                     f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}",
                     headers=headers,
                     data={"dictionary_value": json.dumps(data)},
-                    auth=('data_relay', 'data_relay_bia'),
+                    auth=('XXXXX', 'XXXXX'),
                     verify='/nfsdata/dataop/ca_ca.crt'
                 )
             else:
@@ -203,7 +203,7 @@ def load_previous_offset_info(topic) -> dict:
                     f"{ELASTIC_SEARCH_SERVER}/data_dict/_update/{doc_key}",
                     headers=headers,
                     data={"doc": {"dictionary_value": json.dumps(data)}},
-                    auth=('data_relay', 'data_relay_bia'),
+                    auth=('XXXXX', 'XXXXX'),
                     verify='/nfsdata/dataop/ca_ca.crt'
                 )
 
@@ -217,7 +217,7 @@ def load_previous_offset_info(topic) -> dict:
         doc_key = ES_KEY
 
         es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}"
-        response = requests.get(es_url, headers=headers, auth=('data_relay','data_relay_bia'),verify='/nfsdata/dataop/ca_ca.crt')
+        response = requests.get(es_url, headers=headers, auth=('XXXXX','XXXXX'),verify='/nfsdata/dataop/ca_ca.crt')
         if "found" in response.json() and response.json()["found"]:
             logger.info(
                 f"Returned from the found response: {json.dumps(response.json())}"
@@ -304,14 +304,14 @@ def save_offset_details_as_json(message, offset_details):
     dockey = ES_KEY
     logger.info(f"dockey {dockey}")
     es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{dockey}"
-    response = requests.get(es_url, headers=headers, auth=('data_relay','data_relay_bia'),verify='/nfsdata/dataop/ca_ca.crt')
+    response = requests.get(es_url, headers=headers, auth=('XXX','XXXXX'),verify='/nfsdata/dataop/ca_ca.crt')
 
     if "found" in response.json() and not response.json()["found"]:
         response = requests.post(
             f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{dockey}",
             headers=headers,
             data=json.dumps({"dictionary_value": json.dumps(offset_details)}),
-            auth=('data_relay','data_relay_bia'),
+            auth=('XXX','XXXXXX'),
             verify='/nfsdata/dataop/ca_ca.crt'
         )
         logger.info(f"Returned {json.dumps(response.json())}")
@@ -320,7 +320,7 @@ def save_offset_details_as_json(message, offset_details):
             f"{ELASTIC_SEARCH_SERVER}/data_dict/_update/{dockey}",
             headers=headers,
             data=json.dumps({"doc": {"dictionary_value": json.dumps(offset_details)}}),
-            auth=('data_relay', 'data_relay_bia'),
+            auth=('XXX', 'XXXXX'),
             verify='/nfsdata/dataop/ca_ca.crt'
         )
         logger.info(f"Returned {json.dumps(response.json())}")
@@ -1171,12 +1171,12 @@ def upload(output_path, date_string, topic):
         logger.info(f"Final topic is {final_topic}")
         if args.snow_env == "DEV":
             logger.info("Chosen the DEV environment for the SNOWFLAKE destination")
-            SNOWFLAKE_PASSWORD = "YwKdbnUrWZ6pi_f!UyRX"
+            SNOWFLAKE_PASSWORD = "XXXXXXXXX"
             ENVIRONMENT = "RAW_DEV"
             USERNAME = "MWAA_SVC_USER_DEV"
         else:
             logger.info("Chosen the PROD environment for the SNOWFLAKE destination")
-            SNOWFLAKE_PASSWORD = "._hQJK8Dtut.T6HBVyA9"
+            SNOWFLAKE_PASSWORD = "XXXXXXXXX"
             ENVIRONMENT = "RAW_PRD"
             USERNAME = "MWAA_SVC_USER_PRD"
 
@@ -1245,12 +1245,12 @@ def upload(output_path, date_string, topic):
 
             if args.snow_env == "DEV": 
                 logger.info("Chosen the DEV environment for the SNOWFLAKE destination")
-                SNOWFLAKE_PASSWORD = "YwKdbnUrWZ6pi_f!UyRX"
+                SNOWFLAKE_PASSWORD = "XXXXXX"
                 ENVIRONMENT = "RAW_DEV"
                 USERNAME="MWAA_SVC_USER_DEV"
             else:
                 logger.info("Chosen the PROD environment for the SNOWFLAKE destination")
-                SNOWFLAKE_PASSWORD = "._hQJK8Dtut.T6HBVyA9"
+                SNOWFLAKE_PASSWORD = "XXXXXX"
                 ENVIRONMENT = "RAW_PRD"
                 USERNAME="MWAA_SVC_USER_PRD"
                 
