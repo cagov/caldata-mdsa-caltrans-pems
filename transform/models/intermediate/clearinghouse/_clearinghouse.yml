@@ -65,21 +65,26 @@ models:
   - name: int_clearinghouse__station_status
     description: |
       TMDD Status data from PeMS Clearinghouse. This seems to be the main source of detector
-      ID to station ID mapping.
+      ID to station ID mapping. This model is unique at the level of META_DATE + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - META_DATE
+            - DETECTOR_ID
     columns:
       - name: META_DATE
         description: The date of the XML metadata file.
-        tests:
+        data_tests:
           - not_null
       - name: STATION_ID
         description: The station ID.
-        tests:
+        data_tests:
           - not_null
       - name: DETECTOR_ID
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
-        tests:
+        data_tests:
           - not_null
       - name: DETECTOR_NAME
         description: The name of the detector.
@@ -89,7 +94,7 @@ models:
           *actual* status of the detector.
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: LAST_UPDATE_TIME
@@ -115,31 +120,37 @@ models:
           obtained from
   - name: int_clearinghouse__detector_agg_five_minutes
     description: |
-      The data model contains the raw 30 second sample data aggregated to the 5 minute level.
+      The data model contains the raw 30 second sample data aggregated to the 5 minute level. 
+      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SAMPLE_TIMESTAMP
+            - DETECTOR_ID
     columns:
       - name: STATION_ID
         description: The station ID.
-        tests:
+        data_tests:
           - not_null
       - name: detector_id
         description: The unique detector ID.
-        tests:
+        data_tests:
           - not_null
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
-        tests:
+        data_tests:
           - not_null
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
-        tests:
+        data_tests:
           - not_null
       - name: STATION_TYPE
         description: Two character string identify the VDS type.
-        tests:
+        data_tests:
           - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: CITY
@@ -148,7 +159,7 @@ models:
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-        tests:
+        data_tests:
           - accepted_values:
               values: ["N", "E", "S", "W", "n", "e", "s", "w"]
       - name: FREEWAY
@@ -222,8 +233,8 @@ models:
       rows. Missing rows are added at the 5-minute timestamp level between each detector's min and max sample
       dates (from the parent model). For all resulting rows, metadata is filled in but data values (eg.
       `volume_sum`, `occupancy_avg`, etc) are set to null, to be imputed later. Column descriptions can be found
-      in `int_clearinghouse__detector_agg_five_minutes`.
-    tests:
+      in `int_clearinghouse__detector_agg_five_minutes`. This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+    data_tests:
       - five_minute_daily_count:
           group_by_columns: ["detector_id", "sample_date"]
     columns:

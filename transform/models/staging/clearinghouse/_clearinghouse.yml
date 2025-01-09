@@ -44,14 +44,18 @@ models:
   - name: stg_clearinghouse__station_raw
     description: |
       Vehicle detector station 30-second raw data from the
-      [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
+      [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/). 
     columns:
       - name: ID
         description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.
+        data_tests:
+          - not_null
       - name: SAMPLE_DATE
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD.
       - name: SAMPLE_TIMESTAMP
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD HH24:MI:SS.
+        data_tests:
+          - not_null
       - name: LANE
         description: The lane number for the detector, starting from 1.
       - name: VOLUME

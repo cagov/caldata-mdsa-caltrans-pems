@@ -4,8 +4,17 @@ models:
       This model summarize the pentration of imputation by each method.
       It provides the total number of samples for five minutes in station
       level as well as percetage of observed and imputed by each method
-      by sample date.
+      by sample date. This model is unique at the level of SAMPLE_DATE + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SAMPLE_DATE
+            - DETECTOR_ID
     columns:
+      - name: DETECTOR_ID
+        description: An integer value that uniquely indentifies a station.
+        data_tests:
+          - not_null
       - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
@@ -14,6 +23,8 @@ models:
         description: The district in which the VDS is located. Values are 1-12.
       - name: SAMPLE_DATE
         description: The date associated with daily aggregated data samples.
+        data_tests:
+          - not_null
       - name: SAMPLE_CT
         description: The number of samples collected in five minutes time period.
       - name: DIRECTION
@@ -66,17 +77,30 @@ models:
         description: Percentage of unobserved and unimputed volume.
   - name: imputation__detector_imputed_agg_five_minutes
     description: |
-      This model compared the imputed values (speed, volume and occupancy) obtained
-      from three different methods (local, regional and global) for bad detectors and
-      chosen the imuted based on the following priorities 'observe', 'local', 'regional'
-      and 'global' respectively. The model reported the observed values for all good detetcors.
+      This model filters the results of the imputation_detector_imputed_agg_five_minutes model from the transform
+      step to detectors with station_type in of either 'ML' or 'HV' from the past 4 days and adds the county name
+      to the results. This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SAMPLE_TIMESTAMP
+            - DETECTOR_ID
+            - COUNTY
     columns:
+      - name: DETECTOR_ID
+        data_tests:
+          - not_null
+      - name: COUNTY
+        data_tests:
+          - not_null
       - name: STATION_ID
         description: The station ID.
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
+          - not_null
       - name: LANE
         description: |
           The lane number of the detector, starting from 1.
