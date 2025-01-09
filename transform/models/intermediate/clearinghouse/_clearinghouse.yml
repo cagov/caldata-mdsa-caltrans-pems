@@ -233,7 +233,8 @@ models:
       rows. Missing rows are added at the 5-minute timestamp level between each detector's min and max sample
       dates (from the parent model). For all resulting rows, metadata is filled in but data values (eg.
       `volume_sum`, `occupancy_avg`, etc) are set to null, to be imputed later. Column descriptions can be found
-      in `int_clearinghouse__detector_agg_five_minutes`. This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+      in `int_clearinghouse__detector_agg_five_minutes`. 
+      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
     data_tests:
       - five_minute_daily_count:
           group_by_columns: ["detector_id", "sample_date"]
