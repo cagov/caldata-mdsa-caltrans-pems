@@ -54,7 +54,7 @@ models:
   - name: stg_db96__station_config
     description: |
       Metadata for a single VDS station. Multiple stations may be connected to
-      a single controller, and multiple detectors may be connected to a single station. 
+      a single controller, and multiple detectors may be connected to a single station.
       This model is unique at the level of STATION_ID.
     columns:
       - name: station_id
