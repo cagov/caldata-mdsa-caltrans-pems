@@ -60,8 +60,8 @@ parser.add_argument(
     "--date_time",
     required=True,
     help=" Date time for the output bucket, a mandatory param, "
-    "in the format of (a) `default`, representing today's start 00:00.001, (also can be considered as yesterday's ending 23:59.999) "
-    ' or (b) `yyyy-MM-dd HH:mm:ss`, something like "2024-03-01 12:30"',
+    "in the format of (a) `default`, representing today"s start 00:00.001, (also can be considered as yesterday"s ending 23:59.999) "
+    " or (b) `yyyy-MM-dd HH:mm:ss`, something like "2024-03-01 12:30"",
 )
 parser.add_argument(
         "--snow_env", 
@@ -69,7 +69,7 @@ parser.add_argument(
 parser.add_argument(
     "--override_checkpoint",
     action="store_true",
-    help=f"If set, this will load the file in json_draft_for_checkpoint {config['json_draft_for_checkpoint']} instead of ES "
+    help=f"If set, this will load the file in json_draft_for_checkpoint {config["json_draft_for_checkpoint"]} instead of ES "
     "Cautious, this will override & overwrite the existing stored values for the checkpoint location. ",
 )
 parser.add_argument(
@@ -95,7 +95,7 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
-ES_KEY = f"_{config['checkpoint_prefix']}_{args.topic}_offsets.json"
+ES_KEY = f"_{config["checkpoint_prefix"]}_{args.topic}_offsets.json"
 
 delta_upload_seconds = args.window
 
@@ -126,7 +126,7 @@ def get_partition_num_for_initialization(topic_name):
     topic = metadata.topics[topic_name]
     # Now you can access partition count for your topic
     partition_count = len(topic.partitions)
-    print(f'The topic "{topic_name}" has {partition_count} partitions.')
+    print(f"The topic "{topic_name}" has {partition_count} partitions.")
     return partition_count
 
 
@@ -144,13 +144,13 @@ def load_previous_offset_info(topic) -> dict:
     This function connects to the Elasticsearch instance and retrieves the offset
      information for the specified topic.
 
-     If the 'override_checkpoint' flag is set, the existing offset
+     If the "override_checkpoint" flag is set, the existing offset
        information is ignored. Two subcases:
          1. If no previous offset information file is provided, it generates
-           default offset information based on the topic's partition number.
+           default offset information based on the topic"s partition number.
          2. If previous offset information is available, then use it.
-    Note: This function relies on external configurations like 'json_draft_for_checkpoint',
-      'ELASTIC_SEARCH_SERVER', and 'ES_KEY'.
+    Note: This function relies on external configurations like "json_draft_for_checkpoint",
+      "ELASTIC_SEARCH_SERVER", and "ES_KEY".
     :param topic:
     :return:
 
@@ -164,7 +164,7 @@ def load_previous_offset_info(topic) -> dict:
             offsets_json = json.load(json_file)
             if "num_partitions" not in offsets_json:
                 logger.error(
-                    f"Wrong file format: {config['json_draft_for_checkpoint']} {json.dumps(offsets_json)}"
+                    f"Wrong file format: {config["json_draft_for_checkpoint"]} {json.dumps(offsets_json)}"
                 )
                 num_partitions = get_partition_num_for_initialization(topic)
                 partitions = {str(i): -1 for i in range(num_partitions)}
@@ -188,23 +188,23 @@ def load_previous_offset_info(topic) -> dict:
             doc_key = ES_KEY
             data = {"document_key": doc_key, "document_value": json.dumps(offsets_json)}
             es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}"
-            response = requests.get(es_url, headers=headers, auth=('XXX','XXXX'), verify='/nfsdata/dataop/ca_ca.crt')
+            response = requests.get(es_url, headers=headers, auth=("XXX","XXXX"), verify="/nfsdata/dataop/ca_ca.crt")
 
             if "found" in response.json() and not response.json()["found"]:
                 requests.post(
                     f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}",
                     headers=headers,
                     data={"dictionary_value": json.dumps(data)},
-                    auth=('XXXXX', 'XXXXX'),
-                    verify='/nfsdata/dataop/ca_ca.crt'
+                    auth=("XXXXX", "XXXXX"),
+                    verify="/nfsdata/dataop/ca_ca.crt"
                 )
             else:
                 requests.post(
                     f"{ELASTIC_SEARCH_SERVER}/data_dict/_update/{doc_key}",
                     headers=headers,
                     data={"doc": {"dictionary_value": json.dumps(data)}},
-                    auth=('XXXXX', 'XXXXX'),
-                    verify='/nfsdata/dataop/ca_ca.crt'
+                    auth=("XXXXX", "XXXXX"),
+                    verify="/nfsdata/dataop/ca_ca.crt"
                 )
 
             return offsets_json
@@ -217,7 +217,7 @@ def load_previous_offset_info(topic) -> dict:
         doc_key = ES_KEY
 
         es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{doc_key}"
-        response = requests.get(es_url, headers=headers, auth=('XXXXX','XXXXX'),verify='/nfsdata/dataop/ca_ca.crt')
+        response = requests.get(es_url, headers=headers, auth=("XXXXX","XXXXX"),verify="/nfsdata/dataop/ca_ca.crt")
         if "found" in response.json() and response.json()["found"]:
             logger.info(
                 f"Returned from the found response: {json.dumps(response.json())}"
@@ -230,7 +230,7 @@ def load_previous_offset_info(topic) -> dict:
 
             if "num_partitions" not in offsets_json:
                 logger.error(
-                    f"Wrong file format: {config['json_draft_for_checkpoint']} {json.dumps(offsets_json)}"
+                    f"Wrong file format: {config["json_draft_for_checkpoint"]} {json.dumps(offsets_json)}"
                 )
                 num_partitions = get_partition_num_for_initialization(topic)
                 partitions = {str(i): -1 for i in range(num_partitions)}
@@ -241,7 +241,7 @@ def load_previous_offset_info(topic) -> dict:
                 }
                 logger.error(f"Override with default {json.dumps(offsets_json)}")
 
-            logger.info(f"Also saved to {config['json_draft_for_checkpoint']}")
+            logger.info(f"Also saved to {config["json_draft_for_checkpoint"]}")
             with open(config["json_draft_for_checkpoint"], "w") as json_file:
                 json_file.write(json.dumps(offsets_json))
             logger.info(f"The extracted content from ES is {offsets_json}")
@@ -273,7 +273,7 @@ def force_start_at_offset(consumer, offset_info):
         topic_parts = []
         logger.debug(f"the offset_info is {offset_info!s}")
         logger.debug(
-            f"the offset_details partition_offsets is {offset_info['partition_offsets']!s}"
+            f"the offset_details partition_offsets is {offset_info["partition_offsets"]!s}"
         )
         for k, v in offset_info.get("partition_offsets").items():
             topic_parts.append(TopicPartition(offset_info.get("topic"), int(k), v + 1))
@@ -304,15 +304,15 @@ def save_offset_details_as_json(message, offset_details):
     dockey = ES_KEY
     logger.info(f"dockey {dockey}")
     es_url = f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{dockey}"
-    response = requests.get(es_url, headers=headers, auth=('XXX','XXXXX'),verify='/nfsdata/dataop/ca_ca.crt')
+    response = requests.get(es_url, headers=headers, auth=("XXX","XXXXX"),verify="/nfsdata/dataop/ca_ca.crt")
 
     if "found" in response.json() and not response.json()["found"]:
         response = requests.post(
             f"{ELASTIC_SEARCH_SERVER}/data_dict/_doc/{dockey}",
             headers=headers,
             data=json.dumps({"dictionary_value": json.dumps(offset_details)}),
-            auth=('XXX','XXXXXX'),
-            verify='/nfsdata/dataop/ca_ca.crt'
+            auth=("XXX","XXXXXX"),
+            verify="/nfsdata/dataop/ca_ca.crt"
         )
         logger.info(f"Returned {json.dumps(response.json())}")
     else:
@@ -320,8 +320,8 @@ def save_offset_details_as_json(message, offset_details):
             f"{ELASTIC_SEARCH_SERVER}/data_dict/_update/{dockey}",
             headers=headers,
             data=json.dumps({"doc": {"dictionary_value": json.dumps(offset_details)}}),
-            auth=('XXX', 'XXXXX'),
-            verify='/nfsdata/dataop/ca_ca.crt'
+            auth=("XXX", "XXXXX"),
+            verify="/nfsdata/dataop/ca_ca.crt"
         )
         logger.info(f"Returned {json.dumps(response.json())}")
 
@@ -346,7 +346,7 @@ def get_output_path():
 
     random_string = secrets.token_hex(8)  # generates a random string of length 16 characters
     timestamp = create_timestamp()
-    return f"{config['output_path']}/{args.topic}/{args.topic}_dump_{timestamp}_{random_string}.json"
+    return f"{config["output_path"]}/{args.topic}/{args.topic}_dump_{timestamp}_{random_string}.json"
 
 
 def pull():
@@ -364,17 +364,16 @@ def pull():
     if a certain number of seconds have passed. The consumer also resets offset
     details by loading them from a saved JSON file, ensuring continuity of
     message consumption.
-
     :return:
     """
-    if args.topic in ['CONTROLLER_CONFIG', 
-                      'CONTROLLER_CONFIG_LOG', 
-                      'DETECTOR_CONFIG', 
-                      'DETECTOR_CONFIG_LOG', 
-                      'STATION_CONFIG', 
-                      'STATION_CONFIG_LOG', ]:
+    if args.topic in ["CONTROLLER_CONFIG", 
+                      "CONTROLLER_CONFIG_LOG", 
+                      "DETECTOR_CONFIG", 
+                      "DETECTOR_CONFIG_LOG", 
+                      "STATION_CONFIG", 
+                      "STATION_CONFIG_LOG", ]:
         logger.info(f"Topic {args.topic} will directly upload from static files rather than pull kafka.")
-        upload('','2012-11-11 11:11', args.topic)
+        upload("","2012-11-11 11:11", args.topic)
         return
     logger.info("Topic {args.topic} will be pulled from kafka and upload.")
 
@@ -445,7 +444,7 @@ def pull():
                     buffer.clear()
                     messages_in_batch = len(buffer)
                     last_saved_time = current_time
-                    # Perform the action here. For this example, we're just printing a statement
+                    # Perform the action here. For this example, we"re just printing a statement
                     logger.info(f"{delta_upload_seconds} seconds have passed, save.")
                     upload(output_path, args.date_time, args.topic)
                     output_path = get_output_path()
@@ -464,7 +463,7 @@ def pull():
                     pass
 
         except StopIteration:
-            # If there's no new message, wait for a bit before retrying
+            # If there"s no new message, wait for a bit before retrying
             logger.info("no message")
             time.sleep(5)
             continue
@@ -481,7 +480,7 @@ def table_specific_schema_reconstruction(df, topic):
      and a `topic` as input parameters, reconstructs a specific schema
      based on the `topic` provided.
 
-     For example, if the `topic` contains the string 'VDS30SEC',
+     For example, if the `topic` contains the string "VDS30SEC",
         we apply the business knowledge to read the data, which has certain columns
            like "SAMPLE_TIME", "RECV_TIME",
            And expecting the rest columns starting with "Loop" and assigns them a float64 data type.
@@ -509,7 +508,7 @@ def table_specific_schema_reconstruction(df, topic):
         df = df.drop("serialized_json", axis=1).join(flattened)
         pd.set_option("display.max_columns", None)
         logger.debug(f"Peek the df after flatten: {df.head()}")
-        logger.debug(f"Columns after flatten: {','.join(df.columns)}")
+        logger.debug(f"Columns after flatten: {",".join(df.columns)}")
 
         specified_cols = ["SAMPLE_TIME", "RECV_TIME", "meta", "VDS_ID"]
         specified_cols_types = ["timestamp", "timestamp", "string", "int"]
@@ -573,7 +572,7 @@ def update_schema_with_parquet_schema(schema_option, topic):
 
     In this function, we first fetch the latest version of the Avro schema
     for the relevant topic. To the obtained schema, we add new field named
-    'pickle_schema_for_parquet' which
+    "pickle_schema_for_parquet" which
     will hold the Parquet schema
       (Python schema option object in pickled and base64 encoded form).
 
@@ -640,7 +639,7 @@ def fetch_parquet_schema_from_registry(topic):
     - The function will return the Parquet schema related to the topic if it exists in schema registry.
        We will base64 decode the pickle schema for parquet from registry and then unpickle it to extract
        the schema.
-    - If the schema doesn't exist, the function return None.
+    - If the schema doesn"t exist, the function return None.
 
     This function will raise an error if it fails to connect with the schema registry server,
       or if the schema returned by the registry is malformed or not found.
@@ -659,7 +658,7 @@ def fetch_parquet_schema_from_registry(topic):
     schema = json.loads(data["schema"])
     # Task 3: Get the keys
     keys = schema.keys()
-    # Task 4: Check for 'pickle_schema_for_parquet' field
+    # Task 4: Check for "pickle_schema_for_parquet" field
     if "pickle_schema_for_parquet" in keys:
         # If exists, encode it in utf-8, base64 decode it and then unpickle it
         pickle_schema_for_parquet = schema["pickle_schema_for_parquet"]
@@ -713,7 +712,7 @@ def transform_table_to_schema(topic, df, schema_option):
 
     Notes
     -----
-        * For the 'VDS30SEC' topic, the 'serialized_json' field is converted into json and then flattened.
+        * For the "VDS30SEC" topic, the "serialized_json" field is converted into json and then flattened.
         * The provided schema should dictate the output dataframe columns.
         * Each column in the dataframe is type casted according to the data type specified
            in the schema.
@@ -754,7 +753,7 @@ def transform_table_to_schema(topic, df, schema_option):
     for column in schema_option.names:
         if column not in df.columns:
             logger.trace(
-                f"column {column} not in df.columns: {','.join(df.columns)} does not match schema_option {schema_option} but I assign None"
+                f"column {column} not in df.columns: {",".join(df.columns)} does not match schema_option {schema_option} but I assign None"
             )
             import numpy as np
 
@@ -781,7 +780,7 @@ def transform_table_to_schema(topic, df, schema_option):
         # Initialize an empty list to store the tuples
         df_segments_by_date = []
 
-        # Group the DataFrame by 'Date_internal' and iterate over the groups
+        # Group the DataFrame by "Date_internal" and iterate over the groups
         for date, group in df.groupby("Date_internal"):
             logger.debug(f"date {date} types: {group.dtypes} dataframe: {group.head()}")
             # Append a tuple of the group (df_segment) and the date to the list
@@ -802,10 +801,10 @@ def split_json_file(raw_data_path, output_dir, lines_per_file=100000):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(raw_data_path, 'r') as f:
+    with open(raw_data_path, "r") as f:
         for file_count, chunk in enumerate(iter(lambda: list(islice(f, lines_per_file)), [])):
             output_file = output_dir / f"split_{file_count}.json"
-            with open(output_file, 'w') as split_file:
+            with open(output_file, "w") as split_file:
                 split_file.writelines(chunk)
 
 
@@ -869,7 +868,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
        dataframe_dates: (list[tuple(pandas.DataFrame, datetime)]) the parsed data from the
                         raw_data_in_json,
                         splitted into multiple dataframes each corresponding to a date,
-                        (the date is from the row's meta field's Date (dt) field)
+                        (the date is from the row"s meta field"s Date (dt) field)
        schema_option: if None, this is raw dataframe with no schema
                       Otherwise, this is a schema object that is used
                        for governing the downstream (like parquet output)
@@ -962,7 +961,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
         schema = json.loads(data["schema"])
         # Task 3: Get the keys
         keys = schema.keys()
-        # Task 4: Check for 'pickle_schema_for_parquet' field
+        # Task 4: Check for "pickle_schema_for_parquet" field
         if "pickle_schema_for_parquet" in keys:
             # Task 5: If it exists, decode the value
             decoded_value = base64.b64decode(
@@ -971,7 +970,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
             decoded_obj = pickle.loads(decoded_value)
             # Task 6: Compare with schema_option
             diff = DeepDiff(decoded_obj, schema_option, ignore_order=True)
-            # Task 7: If there's a difference, publish to schema registry
+            # Task 7: If there"s a difference, publish to schema registry
             if diff:
                 logger.info(
                     "Detected difference then we need to update the schema registry with pickle_schema_for_parquet"
@@ -1011,7 +1010,7 @@ def read_raw_data_with_schema_parsing_attempt(topic, raw_data_path_in_json):
 def upload(output_path, date_string, topic):
     """
      Uploads files located in an output path (with parquet format) to the AWS
-     bucket 'caltrans-pems-dev-us-west-2-raw/db96_export_staging_area'. The directory
+     bucket "caltrans-pems-dev-us-west-2-raw/db96_export_staging_area". The directory
      location to upload to within the bucket is determined by the Date.
       By default the date is from the date_string passed in,
       However, for custom logic, date maybe overriden.
@@ -1025,7 +1024,7 @@ def upload(output_path, date_string, topic):
     :param date_string: A string in the format of "YYYY-MM-DD HH:MM" which sets
       a folder path structure of "year=year/month=month/day=day/".
     :param topic: A string containing information about the relevant topic of the
-      data being uploaded. If the topic string contains 'VDS30SEC', it refers to a
+      data being uploaded. If the topic string contains "VDS30SEC", it refers to a
       district which sets a folder path structure of "district=district_num/".
 
     Returns
@@ -1115,17 +1114,17 @@ def upload(output_path, date_string, topic):
                 day = date.day
                 date_folder_substring = f"year={year}/month={month}/day={day}/"
 
-            logger.info(f"Parquet file row size: {len(df)} at Year({year}) Month({month}) Day ({day}) Date({date}) District({topic.split('.')[0]})")
+            logger.info(f"Parquet file row size: {len(df)} at Year({year}) Month({month}) Day ({day}) Date({date}) District({topic.split(".")[0]})")
 
 
             # table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
-            parquet_output = f"{output_path.replace('.json', '')}.parquet"
+            parquet_output = f"{output_path.replace(".json", "")}.parquet"
             df.to_parquet(parquet_output)
             logger.info(
                 f"Json format {output_path} is converted into parquet format {parquet_output}"
             )
             logger.info(
-                f"Current date is {date} and df first row's date is {df['SAMPLE_TIME'].iloc[0]} and df last row's date is {df['SAMPLE_TIME'].iloc[-1]} and total size is {len(df)}"
+                f"Current date is {date} and df first row"s date is {df["SAMPLE_TIME"].iloc[0]} and df last row"s date is {df["SAMPLE_TIME"].iloc[-1]} and total size is {len(df)}"
             )
 
             shell_cp = (
@@ -1167,8 +1166,8 @@ def upload(output_path, date_string, topic):
                 logger.error(f"An error occurred: {e}")
             except Exception as e:
                 logger.error(f"An unexpected error occurred: {e}")
-    elif final_topic in ['CONTROLLER_CONFIG', 'CONTROLLER_CONFIG_LOG', 'DETECTOR_CONFIG', \
-                         'DETECTOR_CONFIG_LOG', 'STATION_CONFIG', 'STATION_CONFIG_LOG', ]:
+    elif final_topic in ["CONTROLLER_CONFIG", "CONTROLLER_CONFIG_LOG", "DETECTOR_CONFIG", \
+                         "DETECTOR_CONFIG_LOG", "STATION_CONFIG", "STATION_CONFIG_LOG", ]:
         logger.info(f"Final topic is {final_topic}")
         if args.snow_env == "DEV":
             logger.info("Chosen the DEV environment for the SNOWFLAKE destination")
@@ -1198,7 +1197,7 @@ def upload(output_path, date_string, topic):
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
         logger.warning("Now, I need to further execute the uploading script")
-    elif final_topic in ['HOV.DETECTOR_STATUS', 'HOV.station_hour_summary']:
+    elif final_topic in ["HOV.DETECTOR_STATUS", "HOV.station_hour_summary"]:
         logger.debug("final topic in HOV")
         logger.debug(f"output_path {output_path}")
 
@@ -1220,7 +1219,7 @@ def upload(output_path, date_string, topic):
             logger.info(
                 f"This batch is reasonablly large, which indicates a full batch. Then, execute the uploading to Snowflake operation. ")
             # table = pa.Table.from_pandas(df, schema=schema_option, preserve_index=False)
-            parquet_output = f"{output_path.replace('.json', '')}.parquet"
+            parquet_output = f"{output_path.replace(".json", "")}.parquet"
             df.to_parquet(parquet_output)
             logger.info(
                 f"Json format {output_path} is converted into parquet format {parquet_output}"
@@ -1343,7 +1342,7 @@ def start_zoo_client_with_retry(zk, retries=3, delay=5):
             return True
         except Exception as e:  # adjust this with the right exception type
             logger.error(f"{e!s}")
-            if i < retries - 1:  # if it's not the last retry
+            if i < retries - 1:  # if it"s not the last retry
                 sleep(delay)  # wait for a bit before retrying
                 logger.error("continuing retry")
             else:
@@ -1359,52 +1358,52 @@ if __name__ == "__main__":
             raise ValueError("cannot start zookeeper")
         from kazoo.recipe.lock import Lock
         lock_path = "/var/coordinator/my_instance_lock_for_aws_uploader"
-        logger.info(f"I'm about to enter an section of lock ({lock_path}) ")
+        logger.info(f"I"m about to enter an section of lock ({lock_path}) ")
         # kafka_log_handler.flush()
         lock = Lock(zk, lock_path)
         with lock:
             logger.info(
-                f"I'm the only one running table_aws_uploader.py under lock path {lock_path}"
+                f"I"m the only one running table_aws_uploader.py under lock path {lock_path}"
             )
             pull()
             logger.info("I finished the locked session")
-    elif 'signature' in args.debug:
+    elif "signature" in args.debug:
         # example of debugging string
         args_debug = args.debug
-        # extract 'signature' from args.debug string
-        args_debug_list = args_debug.split(',')
+        # extract "signature" from args.debug string
+        args_debug_list = args_debug.split(",")
         debug_dict = {k.strip(): v.strip() for k, v in
-                          (item.split('=') for item in args_debug_list)}
-        signature = debug_dict['signature']
-        # search file for line matching 'signature'
-        with open('/tmp/table_aws_uploader.log') as file:
+                          (item.split("=") for item in args_debug_list)}
+        signature = debug_dict["signature"]
+        # search file for line matching "signature"
+        with open("/tmp/table_aws_uploader.log") as file:
             for _line_num, line in enumerate(file, 1):
                 if signature in line:
-                    parts = line.split('output_path ')
+                    parts = line.split("output_path ")
                     json_path = parts[1].strip()
-                    if 'head' not in debug_dict:
+                    if "head" not in debug_dict:
                         upload(json_path, args.date_time, args.topic)
                     else:
                         import json
 
                         def copy_file_path(input_path):
                             # Separate the directory path and file name to extract the timestamp
-                            parts = input_path.split('/')
+                            parts = input_path.split("/")
                             # Extract the timestamp from the file name
-                            parts[-1].split('_')[-1].split('.')[0]
+                            parts[-1].split("_")[-1].split(".")[0]
                             # Reconstruct the output path with the desired changes
-                            return '/'.join(parts[:-1]) + '/bk.' + parts[-1]
+                            return "/".join(parts[:-1]) + "/bk." + parts[-1]
                             # Return the output path
                         new_path = copy_file_path(json_path)
                         def copy_json_lines(json_path, new_path, n):
                             with open(json_path) as file:
                                 lines = file.readlines()[:n]
 
-                            with open(new_path, 'w') as new_file:
+                            with open(new_path, "w") as new_file:
                                 for line in lines:
                                     new_file.write(line)
-                        copy_json_lines(json_path, new_path, int(debug_dict['head']))
+                        copy_json_lines(json_path, new_path, int(debug_dict["head"]))
                         upload(new_path, args.date_time, args.topic)
 
-                    break  # remove break if searching for all lines with 'signature'
+                    break  # remove break if searching for all lines with "signature"
 
