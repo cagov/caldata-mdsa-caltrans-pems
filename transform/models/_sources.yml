@@ -169,14 +169,6 @@ sources:
     description: |
       Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
       db96 within the Caltrans network.
-    freshness:
-      warn_after:
-        count: 2
-        period: day
-      error_after:
-        count: 3
-        period: day
-    loaded_at_field: time_id
     tables:
       - name: vds30sec
         description: |
@@ -288,7 +280,6 @@ sources:
           stations hooked up to a single controller. For example, the same
           controller might have a station for the mainline as well as a station
           for an onramp.
-        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -310,6 +301,14 @@ sources:
         description: |
           A log table showing updates to the controller config. This can be joined
           with the `controller_config` table to get a full history of controller metadata.
+        freshness:
+          warn_after:
+            count: 30
+            period: day
+          error_after:
+            count: 60
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -341,7 +340,6 @@ sources:
         description: |
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
-        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -363,6 +361,14 @@ sources:
         description: |
           A log table showing updates to the station config. This can be joined
           with the `station_config` table to get a full history of station metadata.
+        freshness:
+          warn_after:
+            count: 15
+            period: day
+          error_after:
+            count: 30
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -400,7 +406,6 @@ sources:
           Metadata for a single loop detector. This is the device that actually records
           flow, occupancy, and speed, and is typically installed in a single lane.
           Multiple detectors across a set of lanes constitute a station.
-        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -412,6 +417,14 @@ sources:
         description: |
           A log table showing updates to the detector config. This can be joined
           with the `detector_config` table to get a full history of detector metadata.
+        freshness:
+          warn_after:
+            count: 15
+            period: day
+          error_after:
+            count: 30
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
