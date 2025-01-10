@@ -169,14 +169,6 @@ sources:
     description: |
       Vehicle Detector Station (VDS) (aka Station) related data obtained via data relay from
       db96 within the Caltrans network.
-    freshness:
-      warn_after:
-        count: 2
-        period: day
-      error_after:
-        count: 3
-        period: day
-    loaded_at_field: time_id
     tables:
       - name: vds30sec
         description: |
@@ -288,7 +280,6 @@ sources:
           stations hooked up to a single controller. For example, the same
           controller might have a station for the mainline as well as a station
           for an onramp.
-        freshness: null
         data_tests:
           - not_empty
           - unique:
@@ -320,6 +311,14 @@ sources:
               combination_of_columns:
                 - controller_id
                 - time_id
+        freshness:
+          warn_after:
+            count: 30
+            period: day
+          error_after:
+            count: 60
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -351,7 +350,6 @@ sources:
         description: |
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
-        freshness: null
         data_tests:
           - not_empty
           - unique:
@@ -383,6 +381,14 @@ sources:
               combination_of_columns:
                 - station_id
                 - time_id
+        freshness:
+          warn_after:
+            count: 15
+            period: day
+          error_after:
+            count: 30
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -424,7 +430,6 @@ sources:
           - not_empty
           - unique:
               column_name: detector_id
-        freshness: null
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
@@ -442,6 +447,14 @@ sources:
               combination_of_columns:
                 - detector_id
                 - time_id
+        freshness:
+          warn_after:
+            count: 15
+            period: day
+          error_after:
+            count: 30
+            period: day
+        loaded_at_field: time_id
         columns:
           - name: meta
             description: Metadata from the data relay scripts.
