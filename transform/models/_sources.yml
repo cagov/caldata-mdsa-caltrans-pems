@@ -289,7 +289,7 @@ sources:
           controller might have a station for the mainline as well as a station
           for an onramp.
         freshness: null
-        tests:
+        data_tests:
           - not_empty
           - unique:
               column_name: controller_id
@@ -314,7 +314,7 @@ sources:
         description: |
           A log table showing updates to the controller config. This can be joined
           with the `controller_config` table to get a full history of controller metadata.
-        tests:
+        data_tests:
           - not_empty
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
@@ -352,7 +352,7 @@ sources:
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
         freshness: null
-        tests:
+        data_tests:
           - not_empty
           - unique:
               column_name: station_id
@@ -377,7 +377,7 @@ sources:
         description: |
           A log table showing updates to the station config. This can be joined
           with the `station_config` table to get a full history of station metadata.
-        tests:
+        data_tests:
           - not_empty
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
@@ -420,7 +420,7 @@ sources:
           Metadata for a single loop detector. This is the device that actually records
           flow, occupancy, and speed, and is typically installed in a single lane.
           Multiple detectors across a set of lanes constitute a station.
-        tests:
+        data_tests:
           - not_empty
           - unique:
               column_name: detector_id
@@ -436,7 +436,7 @@ sources:
         description: |
           A log table showing updates to the detector config. This can be joined
           with the `detector_config` table to get a full history of detector metadata.
-        tests:
+        data_tests:
           - not_empty
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
