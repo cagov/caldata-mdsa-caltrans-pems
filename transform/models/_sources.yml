@@ -282,6 +282,7 @@ sources:
           for an onramp.
         data_tests:
           - not_empty
+          - copy_history_24h
           - unique:
               column_name: controller_id
         columns:
@@ -311,6 +312,7 @@ sources:
               combination_of_columns:
                 - controller_id
                 - time_id
+          - copy_history_24h
         freshness:
           warn_after:
             count: 30
@@ -351,6 +353,7 @@ sources:
           Metadata for a single VDS station. Multiple stations may be connected to
           a single controller, and multiple detectors may be connected to a single station.
         data_tests:
+          - copy_history_24h
           - not_empty
           - unique:
               column_name: station_id
@@ -376,6 +379,7 @@ sources:
           A log table showing updates to the station config. This can be joined
           with the `station_config` table to get a full history of station metadata.
         data_tests:
+          - copy_history_24h
           - not_empty
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
@@ -428,6 +432,7 @@ sources:
           Multiple detectors across a set of lanes constitute a station.
         data_tests:
           - not_empty
+          - copy_history_24h
           - unique:
               column_name: detector_id
         columns:
@@ -443,6 +448,7 @@ sources:
           with the `detector_config` table to get a full history of detector metadata.
         data_tests:
           - not_empty
+          - copy_history_24h
           - dbt_utils.unique_combination_of_columns:
               combination_of_columns:
                 - detector_id
