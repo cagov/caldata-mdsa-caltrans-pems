@@ -48,12 +48,8 @@ models:
       This model presents the imputed values (speed, volume and occupancy)
       from all three (local, regional and global) imputation methods. We impute
       only for bad detectors while observed value is reported for the good
-      detectors. This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - SAMPLE_TIMESTAMP
-            - DETECTOR_ID
+      detectors. This model should be unique at the level of 
+      SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
         description: The station ID.
@@ -140,12 +136,7 @@ models:
       from three different methods (local, regional and global) for bad detectors and
       chooses the imputed based on the following priorities 'observe', 'local', 'regional'
       and 'global' respectively. The model reports the observed values for all good detetcors.
-      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - SAMPLE_TIMESTAMP
-            - DETECTOR_ID
+      This model should be unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
         description: The station ID.

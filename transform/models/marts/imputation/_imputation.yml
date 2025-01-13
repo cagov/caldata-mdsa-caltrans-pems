@@ -85,7 +85,6 @@ models:
           combination_of_columns:
             - SAMPLE_TIMESTAMP
             - DETECTOR_ID
-            - COUNTY
     columns:
       - name: DETECTOR_ID
         data_tests:

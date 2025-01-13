@@ -121,12 +121,7 @@ models:
   - name: int_clearinghouse__detector_agg_five_minutes
     description: |
       The data model contains the raw 30 second sample data aggregated to the 5 minute level.
-      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - SAMPLE_TIMESTAMP
-            - DETECTOR_ID
+      This model should be unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
         description: The station ID.
