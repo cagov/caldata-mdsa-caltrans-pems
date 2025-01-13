@@ -48,7 +48,7 @@ models:
       This model presents the imputed values (speed, volume and occupancy)
       from all three (local, regional and global) imputation methods. We impute
       only for bad detectors while observed value is reported for the good
-      detectors. This model should be unique at the level of 
+      detectors. This model should be unique at the level of
       SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
