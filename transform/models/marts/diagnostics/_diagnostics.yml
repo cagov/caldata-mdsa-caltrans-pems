@@ -3,21 +3,21 @@ version: 2
 models:
   - name: diagnostics__detector_daily_detail
     description: |
-      This file contains detector status data aggregated to the deetector level.
+      This model contains detector status data aggregated to the detector level.
     columns:
       - name: station_id
         description: The unique ID of the station.
-        tests:
+        data_tests:
           - not_null
       - name: status
         description: |
           The detector health value based on a series of validations made from
           sample counts
-        tests:
+        data_tests:
           - not_null
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: station_type
         description: The type of the station.
@@ -82,11 +82,11 @@ models:
     columns:
       - name: station_id
         description: The unique ID of the station.
-        tests:
+        data_tests:
           - not_null
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: station_type
         description: The type of the station.
@@ -138,11 +138,11 @@ models:
     columns:
       - name: station_id
         description: The unique ID of the station.
-        tests:
+        data_tests:
           - not_null
       - name: sample_month
         description: The month associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: station_type
         description: The type of the station.

@@ -6,37 +6,37 @@ models:
       This data model assigns diagnostic threshold values used for detector health
       diagnostics at the station level based on the district and type of station.
       The model also brings in operational detector data for each station where
-      health is being calculated for each station.
+      health is being calculated for each station. This model is unique at the level of ACTIVE_DATE + STATION_ID.
     columns:
       - name: station_id
         description: |
           An integer value that uniquely indentifies the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
+        data_tests:
           - not_null
       - name: active_date
         description: |
           Date a station is considered active based on the meta data configuration file from district.
           This value determines what calculations or diagnostics are associated with a station and it's
           associated detectors on any given date while it is active.
-        tests:
+        data_tests:
           - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: station_type
         description: Two character string identify the VDS type.
-        tests:
+        data_tests:
           - not_null
       - name: station_diagnostic_set_id
         description: Detector threshold set assigned to station.
-        tests:
+        data_tests:
           - not_null
       - name: station_diagnostic_method_id
         description: Detector threshold method assigned to station.
-        tests:
+        data_tests:
           - not_null
       - name: high_occupancy
         description: |
@@ -97,32 +97,37 @@ models:
     description: |
       This file contains count data by station and lane based on the number of raw data samples
       that met a variety of flow and occupancy criteria. This data will be used to determine the
-      diagnostic value associated with a detector.
+      diagnostic value associated with a detector. This model is unique at the level of SAMPLE_DATE + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SAMPLE_DATE
+            - DETECTOR_ID
     columns:
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: district
         description: The district in which the VDS is located. Values are 1-12.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: station_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        tests:
+        data_tests:
           - not_null
       - name: detector_id
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
-        tests:
+        data_tests:
           - not_null
       - name: lane
         description: Lane associated with a route and station from raw data
-        tests:
+        data_tests:
           - not_null
       - name: sample_ct
         description: |
@@ -157,49 +162,55 @@ models:
     description: |
       This file contains count data by station and lane based on the 30 second raw data
       along with a diagnostic value associated with the station type and count results.
+      This model is unique at the level of SAMPLE_DATE + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - SAMPLE_DATE
+            - DETECTOR_ID
     columns:
       - name: active_date
         description: |
           Date a station is considered active based on the meta data configuration file from district.
           This value determines what calculations or diagnostics are associated with a station and it's
           associated detectors on any given date while it is active.
-        tests:
+        data_tests:
           - not_null
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: station_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        tests:
+        data_tests:
           - not_null
       - name: detector_id
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
-        tests:
+        data_tests:
           - not_null
       - name: status
         description: |
           The detector health status based on a series of validations made from sample counts
           across various threshold validations/checks
-        tests:
+        data_tests:
           - not_null
       - name: station_type
         description: The type of the station.
-        tests:
+        data_tests:
           - not_null
       - name: detector_type
         description: A two character code indicating the type of detector.
       - name: lane
         description: Lane associated with a route and station from raw data
-        tests:
+        data_tests:
           - not_null
       - name: district
         description: The Caltrans district for the station.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: county
@@ -277,7 +288,7 @@ models:
           returned.
       - name: station_diagnostic_method_id
         description: Detector threshold method assigned to station.
-        tests:
+        data_tests:
           - not_null
 
   - name: int_diagnostics__constant_occupancy
@@ -293,11 +304,11 @@ models:
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
-        tests:
+        data_tests:
           - not_null
       - name: sample_date
         description: The date associated with raw data samples being counted.
-        tests:
+        data_tests:
           - not_null
       - name: min_occupancy_delta
         description: |
@@ -310,30 +321,36 @@ models:
       This data model is built to perform diagnostic tests related to equipment where no data is being
       recieved from field devices. The diagnostic checks in this data model are used to determine the
       detector status in the downstream int_diagnostics__detector_status model.
+      This model is unique at the level of ACTIVE_DATE + DETECTOR_ID.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ACTIVE_DATE
+            - DETECTOR_ID
     columns:
       - name: active_date
         description: |
           Date a station is considered active based on the meta data configuration file from district.
           This value determines what calculations or diagnostics are associated with a station and it's
           associated detectors on any given date while it is active.
-        tests:
+        data_tests:
           - not_null
       - name: district
         description: The Caltrans district associated with the detector.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: station_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        tests:
+        data_tests:
           - not_null
       - name: detector_id
         description: |
           The detector ID. In general, there can be several detectors for a single
           station, corresponding to different lanes of traffic.
-        tests:
+        data_tests:
           - not_null
       - name: line_num
         description: |

@@ -3,24 +3,28 @@ version: 2
 models:
   - name: int_performance__detector_metrics_agg_five_minutes
     description: |
-      This file contains performance metrics by station and lane based on data from
+      This model contains performance metrics by detector based on data from
       the station_meta and five_minute_agg models. This data forms the basis for
       performance metrics that will be aggregated over various spatial/temporal
       segments/timeframes.
     columns:
       - name: sample_date
         description: The date associated with five minute aggregated data samples.
-        tests:
+        data_tests:
+          - not_null
+      - name: sample_timestamp
+        description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
           - not_null
       - name: detector_id
         description: The unique ID of the detector.
-        tests:
+        data_tests:
           - not_null
       - name: station_id
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-        tests:
+        data_tests:
           - not_null
       - name: lane
         description: Lane associated with a route and station from raw data.
@@ -91,18 +95,18 @@ models:
         description: The method (local/regional/global) used to impute the occupancy.
   - name: int_performance__station_metrics_agg_hourly
     description: |
-      hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
-      each station regardless of lanes. This metrics will measure the hourly performance of the state
-      highway system at the station level.This can be used for daily aggregation of PeMS performance
+      Hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each station regardless of lanes. This measures the hourly performance of the state
+      highway system at the station level. This can be used for daily aggregation of PeMS performance
       metrics at the station level.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
         description: length of the station.
-      - name: TYPE
+      - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
@@ -150,18 +154,18 @@ models:
           under congested conditions instead of under free-flow conditions.
   - name: int_performance__station_metrics_agg_daily
     description: |
-      daily aggregation of volume, occupancy and speed along with delays and lost productivity across
-      all lanes of the station. This metrics will measure the daily performance of the state highway system.
+      Daily aggregation of volume, occupancy and speed along with delays and lost productivity across
+      all lanes of the station. This measures the daily performance of the state highway system.
       This can be used for weekly and monthly aggregation of PeMS performance metrics across all the lanes
       in a given station.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
         description: length of the station.
-      - name: TYPE
+      - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
@@ -216,17 +220,17 @@ models:
            congested conditions instead of under free-flow conditions.
   - name: int_performance__station_metrics_agg_weekly
     description: |
-      weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
-      across all lanes of the station. This metrics will measure the daily performance of the state
-      highway system. This can be used to understand the SHS performance from week to week.
+      Weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
+      across all lanes of the station. This can be used to understand the state highway system
+      performance from week to week.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LANE
         description: Lane associated with a route and station from five minutes performance metrics.
-      - name: TYPE
+      - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: LENGTH
         description: length of the station.
@@ -288,18 +292,17 @@ models:
           under free-flow conditions.
   - name: int_performance__station_metrics_agg_monthly
     description: |
-      monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
-      across all lanes of the station. This metrics will measure the daily performance
-      of the state highway system. This can be used to understand the SHS performance
-      from month to month.
+      Monthly aggregation of volume,speed, and occupancy along with delays and lost productivity
+      across all lanes of the station. These metrics measure the monthly performance
+      of the state highway system.
     columns:
-      - name: ID
+      - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
       - name: LENGTH
         description: length of the station.
-      - name: TYPE
+      - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
@@ -355,17 +358,23 @@ models:
           conditions instead of under free-flow conditions.
   - name: int_performance__station_aadt_with_K_value
     description: |
-      Station level annual average daily traffic and k th highest hour volume in the precceding year.
-      This model only used detector reported observe value and did not impute any missing value to
+      Station level annual average daily traffic and k th highest hour volume in the preceeding year.
+      This model only uses detectors' reported observed values and does not impute any missing values to
       calculate the AADT and k value. More details can be found in the paper "Using Incomplete Archived
       ITS Data to Calculate Annual Average Traffic Statistics" by Shawn Turner and Eun Sug Park
       (Proceedings of the Transportation Research Board 87th Annual Meeting, Washington, D.C., 2008).
     columns:
-      - name: ID
+      - name: STATION_ID
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-      - name: TYPE
+        data_tests:
+          - not_null
+      - name: SAMPLE_YEAR
+        description: The first date of the year associated with the data sample.
+        data_tests:
+          - not_null
+      - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
@@ -538,7 +547,7 @@ models:
           - PM shift (3pm - 8pm)
   - name: int_performance__bottleneck_delay_metrics_agg_hourly
     description: |
-      Hourly aggregation of bottleneck performance by each station. It will measure the hourly performance
+      Hourly aggregation of bottleneck performance by each station. This measures the hourly performance
       of the state highway system at the station level. This can be used for hourly aggregation of bottleneck
       performance metrics.
     columns:
@@ -582,7 +591,7 @@ models:
           due to congestion.
   - name: int_performance__bottleneck_delay_metrics_agg_daily
     description: |
-      Daily aggregation of bottleneck performance by each station. It will measure the hourly performance
+      Daily aggregation of bottleneck performance by each station. This measures the hourly performance
       of the state highway system at the station level. This can be used for daily aggregation of bottleneck
       performance metrics.
     columns:
@@ -619,7 +628,7 @@ models:
           due to congestion.
   - name: int_performance__bottleneck_delay_metrics_agg_monthly
     description: |
-      Monthly aggregation of bottleneck performance by each station. It will measure the hourly performance
+      Monthly aggregation of bottleneck performance by each station. This measures the monthly performance
       of the state highway system at the station level. This can be used for monthly aggregation of bottleneck
       performance metrics.
     columns:
@@ -658,9 +667,9 @@ models:
           due to congestion.
   - name: int_performance__detector_metrics_agg_hourly
     description: |
-      hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
-      each detetcor lane. This metrics will measure the hourly performance of the state
-      highway system at the detecctor level.This can be used for daily aggregation of PeMS performance
+      Hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each detector lane. This measures the hourly performance of the state
+      highway system at the detecctor level. This can be used for daily aggregation of PeMS performance
       metrics at the detector level.
     columns:
       - name: STATION_ID
@@ -729,8 +738,8 @@ models:
           under congested conditions instead of under free-flow conditions.
   - name: int_performance__detector_metrics_agg_daily
     description: |
-      daily aggregation of volume, occupancy and speed along with delays and lost productivity by
-      each detetcor lane. This metrics will measure the daily performance of the state highway system.
+      Daily aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each detetcor lane. This measures the daily performance of the state highway system.
       This can be used for weekly and monthly aggregation of PeMS performance metrics in a given lane.
     columns:
       - name: STATION_ID
@@ -798,8 +807,8 @@ models:
            congested conditions instead of under free-flow conditions.
   - name: int_performance__detector_metrics_agg_weekly
     description: |
-      weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
-      each detector lane. This metrics will measure the daily performance of the state
+      Weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
+      each detector lane. This measures the weekly performance of the state
       highway system. This can be used to understand the SHS performance from week to week.
     columns:
       - name: STATION_ID
@@ -872,10 +881,9 @@ models:
           under free-flow conditions.
   - name: int_performance__detector_metrics_agg_monthly
     description: |
-      monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
-      each detector lane. This metrics will measure the daily performance
-      of the state highway system. This can be used to understand the SHS performance
-      from month to month.
+      Monthly aggregation of volume, speed, and occupancy along with delays and lost productivity by
+      each detector lane. This measures the monthly performance of the state highway system.
+      This can be used to understand the SHS performance from month to month.
     columns:
       - name: STATION_ID
         description: |
@@ -945,8 +953,22 @@ models:
           conditions instead of under free-flow conditions.
   - name: int_performance__max_capacity
     description: |
-      This model calculated five mins maximum capcity for each detector station.
+      This model calculates the five minutes maximum capacity for each detector
       from month to month.
+
+      This model currently uses a maximum capacity of 2076 vehicles/lane/hour for all detectors.
+      Using this value provides a consistent metric for determining the capcacity and calculating
+      the lost productivity.
+
+      The current methodology in PeMS uses the max of either the 15 minute historical highest
+      flow or 2076 v/l/h as the capacity at each location per PeMS website
+      https://pems.dot.ca.gov/?dnode=Help&content=help_calc#perf
+
+      The issue with the current methodology is that there is no documentation for how the historical
+      measured maximum capacity has been developed and we have observed inconsistencies in high flow
+      values in PeMS. We also do not have any documention on why a 15-minute timeframe was selected
+      and how that value is used to compute the 5-minute aggregation level of the lost productivity
+      performance metric.
     columns:
       - name: DETECTOR_ID
         description: |

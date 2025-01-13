@@ -7,9 +7,13 @@ models:
       stations hooked up to a single controller. For example, the same
       controller might have a station for the mainline as well as a station
       for an onramp.
+      This model is unique at the level of CONTROLLER_ID.
     columns:
       - name: controller_id
         description: The unique ID of the controller.
+        data_tests:
+          - not_null
+          - unique
       - name: controller_type
         description: The type of the controller.
       - name: district
@@ -29,6 +33,8 @@ models:
     columns:
       - name: controller_id
         description: The unique ID of the controller.
+        data_tests:
+          - not_null
       - name: time_id
         description: The update timestamp for the controller metadata.
       - name: status
@@ -49,9 +55,13 @@ models:
     description: |
       Metadata for a single VDS station. Multiple stations may be connected to
       a single controller, and multiple detectors may be connected to a single station.
+      This model is unique at the level of STATION_ID.
     columns:
       - name: station_id
         description: The unique ID of the station.
+        data_tests:
+          - not_null
+          - unique
       - name: station_type
         description: The type of the station.
       - name: district
@@ -71,6 +81,8 @@ models:
     columns:
       - name: station_id
         description: The unique ID of the station.
+        data_tests:
+          - not_null
       - name: time_id
         description: The update timestamp for the station metadata.
       - name: status
@@ -97,9 +109,13 @@ models:
       Metadata for a single loop detector. This is the device that actually records
       flow, occupancy, and speed, and is typically installed in a single lane.
       Multiple detectors across a set of lanes constitute a station.
+      This model is unique at the level of DETECTOR_ID.
     columns:
       - name: detector_id
         description: The unique ID of the detector.
+        data_tests:
+          - not_null
+          - unique
       - name: detector_type
         description: The type of the detector.
   - name: stg_db96__detector_config_log
@@ -109,6 +125,8 @@ models:
     columns:
       - name: detector_id
         description: The unique ID of the detector.
+        data_tests:
+          - not_null
       - name: time_id
         description: The update timestamp for the detector metadata.
       - name: station_id
