@@ -11,9 +11,18 @@ models:
       This table is a slowly-changing-dimension-2, meaning that it has multiple
       different versions of the metadata for each controller, with `_valid_from`
       and `_valid_to` datetime columns indicating when the version is correct.
+
+      This model is unique at the level of CONTROLLER_ID + _VALID_TO.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTROLLER_ID
+            - _VALID_TO
     columns:
       - name: controller_id
         description: The unique ID of the controller.
+        data_tests:
+          - not_null
       - name: controller_type
         description: The type of the controller.
       - name: district
@@ -42,6 +51,8 @@ models:
         description: An address for the controller
       - name: _valid_from
         description: The timestamp from which this row is valid.
+        data_tests:
+          - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
 
@@ -53,9 +64,18 @@ models:
       This table is a slowly-changing-dimension-2, meaning that it has multiple
       different versions of the metadata for each controller, with `_valid_from`
       and `_valid_to` datetime columns indicating when the version is correct.
+
+      This model is unique at the level of STATION_ID + _VALID_TO.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - STATION_ID
+            - _VALID_TO
     columns:
       - name: station_id
         description: The unique ID of the station.
+        data_tests:
+          - not_null
       - name: station_type
         description: The type of the station.
       - name: district
@@ -89,6 +109,8 @@ models:
         description: The ID of the controller to which the station is attached.
       - name: _valid_from
         description: The timestamp from which this row is valid.
+        data_tests:
+          - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
   - name: int_vds__detector_config
@@ -105,9 +127,18 @@ models:
       This table is a slowly-changing-dimension-2, meaning that it has multiple
       different versions of the metadata for each controller, with `_valid_from`
       and `_valid_to` datetime columns indicating when the version is correct.
+
+      This model is unique at the level of DETECTOR_ID + _VALID_TO.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DETECTOR_ID
+            - _VALID_TO
     columns:
       - name: detector_id
         description: The unique ID of the detector.
+        data_tests:
+          - not_null
       - name: station_id
         description: The ID of the station to which the detector is connected
       - name: status
@@ -129,6 +160,8 @@ models:
         description: The direction of travel for the freeway on which the station is installed.
       - name: _valid_from
         description: The timestamp from which this row is valid.
+        data_tests:
+          - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
   - name: int_vds__nearby_stations
@@ -141,9 +174,19 @@ models:
       a 5-mile radius. This dual regression strategy aims to predict or analyze station-related data,
       leveraging both spatial proximity and statistical techniques to enhance understanding and
       planning within transportation contexts.
+
+      This model is unique at the level of DETECTOR_ID + OTHER_STATION_ID +_VALID_TO.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - STATION_ID
+            - OTHER_STATION_ID
+            - _VALID_TO
     columns:
       - name: station_id
         description: The ID of the station to which the detector is connected.
+        data_tests:
+          - not_null
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
@@ -154,6 +197,8 @@ models:
         description: The type of the station.
       - name: _valid_from
         description: The timestamp from which this row is valid.
+        data_tests:
+          - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
       - name: DELTA_POSTMILE
@@ -163,6 +208,8 @@ models:
           from id.
       - name: OTHER_STATION_ID
         description: The ID of upstream and downstream stations of the targetted station.
+        data_tests:
+          - not_null
       - name: OTHER_STATION_IS_LOCAL
         description: A boolean function that indicates wheather other statoin is local or not.
       - name: DISTANCE_RANKING
@@ -173,10 +220,10 @@ models:
 
   - name: int_vds__active_stations
     description: |
-      Contains station meta data for all stations that were designated active on any
+      Contains station metadata for all stations that were designated active on any
       given day.
 
   - name: int_vds__active_detectors
     description: |
-      Contains detector meta data for all detectors that were designated active on any
+      Contains detector metadata for all detectors that were designated active on any
       given day.

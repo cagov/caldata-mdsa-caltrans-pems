@@ -48,10 +48,14 @@ models:
     columns:
       - name: ID
         description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.
+        data_tests:
+          - not_null
       - name: SAMPLE_DATE
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD.
       - name: SAMPLE_TIMESTAMP
         description: 30 second raw data sample time as reported by the field element as YYYY/MM/DD HH24:MI:SS.
+        data_tests:
+          - not_null
       - name: LANE
         description: The lane number for the detector, starting from 1.
       - name: VOLUME

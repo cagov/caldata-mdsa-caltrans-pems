@@ -8,15 +8,13 @@ models:
       make multiple measurements of the coefficients. This allows the values
       to vary with time, and for there to be backup measurements if one detector
       or the other are not operational for the regression dates.
+      This model only evaluates new values on the 3rd day of Feb, May, Aug, and Nov.
+      This model is unique at the level of REGRESSION_DATE + DETECTOR_ID + OTHER_DETECTOR_ID.
     columns:
-      - name: STATION_ID
-        description: The ID of the station with the dependent variables.
-      - name: OTHER_STATION_ID
-        description: The ID of the station with the independent variables.
-      - name: LANE
-        description: The lane of the detector with the dependent variables.
-      - name: OTHER_LANE
-        description: The lane of the detector with the independent variables.
+      - name: DETECTOR_ID
+        description: The ID of the detector with the dependent variables.
+      - name: OTHER_DETECTOR_ID
+        description: The ID of the detector with the independent variables.
       - name: DISTRICT
         description: The district of the dependent detector.
       - name: REGRESSION_DATE
@@ -47,17 +45,26 @@ models:
           regional counters.
   - name: int_imputation__detector_agg_five_minutes
     description: |
-      This model presented the imputed values (speed, volume and occupancy)
-      from all three (local, regional and global) imputation method. We imputed
-      only for bad detectors while observe value is reported for the good
-      detectors.
+      This model presents the imputed values (speed, volume and occupancy)
+      from all three (local, regional and global) imputation methods. We impute
+      only for bad detectors while observed value is reported for the good
+      detectors. This model should be unique at the level of
+      SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
         description: The station ID.
+      - name: DETECTOR_ID
+        description: The detector ID.
+        data_tests:
+          - not_null
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
+        data_tests:
+          - not_null
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
+          - not_null
       - name: LANE
         description: |
           The lane number of the detector, starting from 1.
@@ -125,17 +132,24 @@ models:
           were evaluated.
   - name: int_imputation__detector_imputed_agg_five_minutes
     description: |
-      This model compared the imputed values (speed, volume and occupancy) obtained
+      This model compares the imputed values (speed, volume and occupancy) obtained
       from three different methods (local, regional and global) for bad detectors and
-      chosen the imuted based on the following priorities 'observe', 'local', 'regional'
-      and 'global' respectively. The model reported the observed values for all good detetcors.
+      chooses the imputed based on the following priorities 'observe', 'local', 'regional'
+      and 'global' respectively. The model reports the observed values for all good detetcors.
+      This model should be unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
     columns:
       - name: STATION_ID
         description: The station ID.
+      - name: DETECTOR_ID
+        description: The detector ID.
+        data_tests:
+          - not_null
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
         description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
+          - not_null
       - name: LANE
         description: |
           The lane number of the detector, starting from 1.
@@ -172,10 +186,14 @@ models:
     description: |
       Global regression slopes and intercepts for average of all
       detectors across the  district, freeway, direction, station_type
-      over the regression time period.
+      over the regression time period. This model only evaluates new values
+      on the 3rd day of Feb, May, Aug, and Nov.
+      This model is unique at the level of REGRESSION_DATE + DETECTOR_ID.
     columns:
-      - name: STATION_ID
-        description: The station ID.
+      - name: DETECTOR_ID
+        description: The detector ID.
+        data_tests:
+          - not_null
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
@@ -195,6 +213,8 @@ models:
         description: |
           The date on which the coefficients in the global regression
           were evaluated.
+        data_tests:
+          - not_null
       - name: SPEED_SLOPE
         description: The slope of the speed regression.
       - name: SPEED_INTERCEPT
