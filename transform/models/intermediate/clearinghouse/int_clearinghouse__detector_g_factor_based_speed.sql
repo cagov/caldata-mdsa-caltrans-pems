@@ -16,11 +16,10 @@ detector_agg as (
         station_id,
         lane,
         station_type,
-        volume_sum,
-        occupancy_avg,
-        speed_weighted,
+        updated_volume_sum as volume_sum,
+        updated_occupancy_avg as occupancy_avg,
         volume_observed
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('int_clearinghouse__detector_outlier_agg_five_minutes') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
