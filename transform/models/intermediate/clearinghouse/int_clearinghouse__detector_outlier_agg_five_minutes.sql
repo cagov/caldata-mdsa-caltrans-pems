@@ -28,10 +28,11 @@ good_detectors as (
         detector_id,
         sample_date
     from {{ ref('int_diagnostics__detector_status') }}
-    where status = 'Good'
-    and sample_date >= dateadd(month, -1, date_trunc('month', current_date))
-    and sample_date < date_trunc('month', current_date)
-    and station_type in ('ML', 'HV')
+    where
+        status = 'Good'
+        and sample_date >= dateadd(month, -1, date_trunc('month', current_date))
+        and sample_date < date_trunc('month', current_date)
+        and station_type in ('ML', 'HV')
 ),
 
 -- filter last month's data for good detectors only
@@ -76,15 +77,15 @@ outlier_removed_data as (
         -- update volume_sum if it's an outlier
         case
             when
-                fa.volume_sum - ms.volume_mean / nullifzero(ms.volume_stddev) > 3
+                (fa.volume_sum - ms.volume_mean) / nullifzero(ms.volume_stddev) > 3
                 then ms.volume_95th
             else fa.volume_sum
         end as updated_volume_sum,
         -- add a volume_label for imputed volume
         case
             when
-                fa.volume_sum - ms.volume_mean / nullifzero(ms.volume_stddev) > 3
-                then 'observed_outlier'
+                (fa.volume_sum - ms.volume_mean) / nullifzero(ms.volume_stddev) > 3
+                then 'observed outlier'
             else 'observed data'
         end as volume_label,
         -- update occupancy if it's an outlier
@@ -98,7 +99,7 @@ outlier_removed_data as (
         case
             when
                 fa.occupancy_avg > ms.occupancy_95th
-                then 'observed_outlier'
+                then 'observed outlier'
             else 'observed data'
         end as occupancy_label
     from five_minute_agg as fa

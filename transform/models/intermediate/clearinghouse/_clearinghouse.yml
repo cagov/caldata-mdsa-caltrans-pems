@@ -289,26 +289,18 @@ models:
       of data and labeled as 'observed_outlier'.
     columns:
       - name: volume_mean
-        description: |
-          Calculate the mean volume value from last month's volume data.
+        description: Calculate the mean volume value from last month's volume data.
       - name: volume_stddev
-        description: |
-          Calculate the standard deviation from last month's volume data.
+        description: Calculate the standard deviation from last month's volume data.
       - name: volume_95th
-        description: |
-          Calculate 95th percentile of volume for last month.
+        description: Calculate 95th percentile of volume for last month.
       - name: occupancy_95th
-        description: |
-          Calculate 95th percentile of occupancy for last month.
+        description: Calculate 95th percentile of occupancy for last month.
       - name: updated_volume_sum
-        description: |
-          Replace volume with 'volume_95th' if it is diagnosed as outlier.
+        description: Replace volume with 'volume_95th' if it is diagnosed as outlier.
       - name: volume_label
-        description: |
-          Generate a new label indicating whether volume value is an outlier or normal data.
+        description: Generate a new label indicating whether volume value is an outlier or normal data.
       - name: updated_occupancy_avg
-        description: |
-          Replace occupancy with 'occupancy_95th' if it is diagnosed as outlier.
+        description: Replace occupancy with 'occupancy_95th' if it is diagnosed as outlier.
       - name: occupancy_label
-        description: |
-          Generate a new label indicating whether occupancy value is an outlier or normal data.
+        description: Generate a new label indicating whether occupancy value is an outlier or normal data.
