@@ -8,7 +8,7 @@ with station_daily_data as (
     from {{ ref('int_performance__station_metrics_agg_daily') }}
 ),
 
--- now aggregate daily volume, occupancy and speed to weekly
+-- now aggregate daily volume, occupancy and speed to yearly
 spatial_metrics as (
     select
         city,
@@ -20,23 +20,7 @@ spatial_metrics as (
         sum(daily_vht) as yearly_vht,
         yearly_vmt / nullifzero(yearly_vht) as yearly_q_value,
         -- travel time
-        60 / nullifzero(yearly_q_value) as yearly_tti,
-        {% for value in var("V_t") %}
-            sum(delay_{{ value }}_mph)
-                as delay_{{ value }}_mph
-            {% if not loop.last %}
-                ,
-            {% endif %}
-
-        {% endfor %},
-        {% for value in var("V_t") %}
-            sum(lost_productivity_{{ value }}_mph)
-                as lost_productivity_{{ value }}_mph
-            {% if not loop.last %}
-                ,
-            {% endif %}
-
-        {% endfor %}
+        60 / nullifzero(yearly_q_value) as yearly_tti
     from station_daily_data
     group by
         city, sample_year
