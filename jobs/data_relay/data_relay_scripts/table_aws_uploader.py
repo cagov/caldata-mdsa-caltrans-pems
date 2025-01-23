@@ -60,8 +60,8 @@ parser.add_argument(
     "--date_time",
     required=True,
     help=" Date time for the output bucket, a mandatory param, "
-    "in the format of (a) `default`, representing today"s start 00:00.001, (also can be considered as yesterday"s ending 23:59.999) "
-    " or (b) `yyyy-MM-dd HH:mm:ss`, something like "2024-03-01 12:30"",
+    "in the format of (a) `default`, representing today's start 00:00.001, (also can be considered as yesterday's ending 23:59.999) "
+    ' or (b) `yyyy-MM-dd HH:mm:ss`, something like "2024-03-01 12:30"',
 )
 parser.add_argument(
         "--snow_env", 
