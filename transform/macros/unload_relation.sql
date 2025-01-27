@@ -17,6 +17,7 @@
           partition by {{ partitioning }}
       {% endif %}
       file_format = (type=parquet)
+      header = true
       {% if partitioning %}
           max_file_size = 134217728 -- 128 MiB
       {% else %}
