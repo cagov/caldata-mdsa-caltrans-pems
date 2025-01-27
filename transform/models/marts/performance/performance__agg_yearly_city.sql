@@ -40,6 +40,10 @@ spatial_metrics as (
     from station_daily_data
     group by
         city, sample_year
+),
+
+metrics_with_city_name as (
+    {{ get_city_name('spatial_metrics') }}
 )
 
-select * from spatial_metrics
+select * from metrics_with_city_name

@@ -2,12 +2,13 @@
     with county as (
         select
             county_id,
-            lower(county_name) as county
+            lower(county_name) as county,
+            native_id as county_abb
         from {{ ref('counties') }}
     ),
     station_with_county as (
         select
-            {{ table_with_county_id }}.* exclude (county),
+            {{ table_with_county_id }}.*,
             c.county
         from {{ table_with_county_id }}
         inner join county as c
