@@ -20,8 +20,40 @@ with daily_bottleneck_delay as (
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_daily') }}
 ),
 
+-- unpivot delay
+unpivot_delay as (
+    select
+        station_id,
+        sample_date,
+        time_shift,
+        district,
+        station_type,
+        freeway,
+        direction,
+        absolute_postmile,
+        daily_time_shift_duration,
+        daily_time_shift_bottleneck_extent,
+        county,
+        regexp_substr(metric, '([0-9])+', 1, 1) as target_speed,
+        value as delay
+    from (
+        select *
+        from daily_bottleneck_delay
+        unpivot (
+            value for metric in (
+                daily_time_shift_spatial_delay_35_mph,
+                daily_time_shift_spatial_delay_40_mph,
+                daily_time_shift_spatial_delay_45_mph,
+                daily_time_shift_spatial_delay_50_mph,
+                daily_time_shift_spatial_delay_55_mph,
+                daily_time_shift_spatial_delay_60_mph
+            )
+        )
+    )
+),
+
 bottleneck_delay_with_county as (
-    {{ get_county_name('daily_bottleneck_delay') }}
+    {{ get_county_name('unpivot_delay') }}
 ),
 
 geo as (
