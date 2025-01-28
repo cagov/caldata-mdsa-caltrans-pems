@@ -1,5 +1,22 @@
 with monthly as (
-    select * from {{ ref('int_performance__station_metrics_agg_monthly') }}
+    select
+        station_id,
+        sample_month,
+        length,
+        station_type,
+        district,
+        city,
+        freeway,
+        direction,
+        monthly_volume,
+        monthly_occupancy,
+        monthly_speed,
+        monthly_vmt,
+        monthly_vht,
+        monthly_q_value,
+        monthly_tti,
+        county
+    from {{ ref('int_performance__station_metrics_agg_monthly') }}
 ),
 
 monthlyc as (
