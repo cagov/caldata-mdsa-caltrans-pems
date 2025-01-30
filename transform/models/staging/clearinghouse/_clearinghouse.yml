@@ -13,7 +13,7 @@ models:
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata
-        tests:
+        data_tests:
           - not_null
       - name: ABSOLUTE_POSTMILE
         description: Absolute postmile value along a partilcuar state route where the VDS is located
