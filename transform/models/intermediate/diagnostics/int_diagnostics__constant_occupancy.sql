@@ -44,7 +44,7 @@ sum_occupancy_delta as (
             as abs_val_occupancy_delta_summed
     from calculate_occupancy_delta
     qualify
-        (occupancy_avg !> 0)
+        (occupancy_avg > 0)
         and ROW_NUMBER() over (
             partition by detector_id, sample_date
             order by sample_timestamp
