@@ -121,7 +121,8 @@ detector_status as (
                 >= (awm.occupancy_flow_percent / 100)
                 then 'Intermittent'
             when
-                coalesce(co.min_occupancy_delta = 0, false)
+            -- the float value can not compare with 0, we set a small threshold to replace with it
+                coalesce(co.min_occupancy_delta < 0.00001, false)
                 and awm.station_diagnostic_method_id = 'mainline'
                 then 'Constant'
             --Feed unstable case needed
