@@ -47,7 +47,7 @@ yearly_station_level_spatial_temporal_metrics as (
             {% if not loop.last %}
                 ,
             {% endif %}
-        {% endfor %}
+        {% endfor %},
 
         {% for value in var("V_t") %}
             sum(lost_productivity_{{ value }}_mph) as lost_productivity_{{ value }}_mph

@@ -56,4 +56,3 @@ monthly_station_level_spatial_temporal_metrics as (
 )
 
 select * from monthly_station_level_spatial_temporal_metrics
-
