@@ -977,3 +977,70 @@ models:
       - name: MAX_CAPACITY_5MIN
         description: |
           maximum capacity for each detector lane for five mins time period.
+  - name: int_performance__station_metrics_agg_yearly
+    description: |
+      Yearly aggregation of volume, speed, and occupancy along with delays and lost productivity
+      across all lanes of the station. This can be used to understand the state highway system
+      performance trends from year to year.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely identifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: LANE
+        description: Lane associated with a route and station from five-minute performance metrics.
+      - name: STATION_TYPE
+        description: Two-character string identifying the VDS type.
+      - name: LENGTH
+        description: Length of the station in miles.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S, or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: SAMPLE_YEAR
+        description: The year associated with yearly aggregated data samples.
+      - name: YEARLY_SPEED
+        description: Flow-weighted yearly speed across all the lanes.
+      - name: YEARLY_VOLUME
+        description: |
+          The sum of the flow values for a detector over the sample period
+          across all the lanes in a given year.
+      - name: YEARLY_OCCUPANCY
+        description: The average of the occupancy values over the sample period across all the lanes.
+      - name: YEARLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given year and a given section
+          of the freeway across all the lanes.
+      - name: YEARLY_VHT
+        description: |
+          Vehicle Hours Traveled (VHT) is calculated in a given year and a
+          given section of freeway across all the lanes. VHT represents the total time spent
+          by all vehicles on the freeway in a given year.
+      - name: YEARLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60 MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: YEARLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given year across all the lanes. For a single location,
+          its interpretation is the average speed.
+      - name: DELAY
+        description: |
+          Yearly delay for different thresholds of congestion speed such as 35, 40, 45, 50, 55, and 60 MPH
+          across all the lanes. The Delay performance metric represents the amount of additional time
+          spent by vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the yearly lost productivity, calculated as the sum of daily lost productivity over the year
+          across all the lanes. The lost productivity performance metric represents the number of lane-mile-year
+          on the freeway lost due to operating under congested conditions instead of under free-flow conditions.
