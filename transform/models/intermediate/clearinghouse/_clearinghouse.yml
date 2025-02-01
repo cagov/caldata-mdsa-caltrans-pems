@@ -8,13 +8,13 @@ models:
     columns:
       - name: META_DATE
         description: Date of the metadata file.
-        tests:
+        data_tests:
           - not_null
       - name: ID
         description: |
           An integer value that uniquely indenties the Station Metadata.
           Use this value to 'join' other clearinghouse files that contain Station Metadata.
-        tests:
+        data_tests:
           - not_null
       - name: ABSOLUTE_POSTMILE
         description: Absolute postmile value along a particular state route where the VDS is located.
@@ -26,12 +26,12 @@ models:
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-        tests:
+        data_tests:
           - accepted_values:
               values: ["N", "E", "S", "W", "n", "e", "s", "w"]
       - name: DISTRICT
         description: The district in which the VDS is located. Values are 1-12.
-        tests:
+        data_tests:
           - accepted_values:
               values: "{{ var('districts') }}"
       - name: FREEWAY
