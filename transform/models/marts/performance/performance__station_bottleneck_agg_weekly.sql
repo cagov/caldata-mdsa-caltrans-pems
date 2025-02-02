@@ -13,12 +13,6 @@ with weekly_bottleneck_delay as (
         weekly_time_shift_duration,
         weekly_active_days,
         weekly_time_shift_extent,
-        weekly_time_shift_spatial_delay_35_mph,
-        weekly_time_shift_spatial_delay_40_mph,
-        weekly_time_shift_spatial_delay_45_mph,
-        weekly_time_shift_spatial_delay_50_mph,
-        weekly_time_shift_spatial_delay_55_mph,
-        weekly_time_shift_spatial_delay_60_mph,
         county
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_weekly') }}
 ),
