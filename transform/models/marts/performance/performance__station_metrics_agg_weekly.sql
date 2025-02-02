@@ -23,6 +23,10 @@ with weekly as (
 
 weeklyc as (
     {{ get_county_name('weekly') }}
+),
+
+weeklycc as (
+    {{ get_city_name('weeklyc') }}
 )
 
-select * from weeklyc
+select * from weeklycc

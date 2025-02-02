@@ -11,6 +11,10 @@ dailyc as (
     {{ get_county_name('daily') }}
 ),
 
+dailycc as (
+    {{ get_city_name('dailyc') }}
+),
+
 unpivot_combined as (
     select
         station_id,
@@ -19,9 +23,13 @@ unpivot_combined as (
         station_type,
         district,
         city,
+        city_abb,
+        city_name,
         freeway,
         direction,
         county,
+        county_name,
+        county_abb,
         target_speed,
         sum(coalesce(delay, 0)) as delay,
         sum(coalesce(lost_productivity, 0)) as lost_productivity
@@ -34,19 +42,36 @@ unpivot_combined as (
                 station_type,
                 district,
                 city,
+                city_abb,
+                city_name,
                 freeway,
                 direction,
                 county,
+                county_name,
+                county_abb,
                 '{{ value }}' as target_speed,
                 delay_{{ value }}_mph as delay,
                 lost_productivity_{{ value }}_mph as lost_productivity
             from
-                dailyc
+                dailycc
             {% if not loop.last %} union all {% endif %}
         {% endfor %}
     ) as combined_metrics
     group by
-        sample_date, station_id, length, station_type, district, city, freeway, direction, county, target_speed
+        sample_date,
+        station_id,
+        length,
+        station_type,
+        district,
+        city,
+        city_abb,
+        city_name,
+        freeway,
+        direction,
+        county,
+        county_name,
+        county_abb,
+        target_speed
 )
 
 select * from unpivot_combined

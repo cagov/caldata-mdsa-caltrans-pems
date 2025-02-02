@@ -6,6 +6,10 @@ weeklyc as (
     {{ get_county_name('weekly') }}
 ),
 
+weeklycc as (
+    {{ get_city_name('weeklyc') }}
+),
+
 unpivot_combined as (
     select
         station_id,
@@ -16,9 +20,13 @@ unpivot_combined as (
         station_type,
         district,
         city,
+        city_abb,
+        city_name,
         freeway,
         direction,
         county,
+        county_abb,
+        county_name,
         target_speed,
         sum(coalesce(delay, 0)) as delay,
         sum(coalesce(lost_productivity, 0)) as lost_productivity
@@ -33,14 +41,18 @@ unpivot_combined as (
                 station_type,
                 district,
                 city,
+                city_abb,
+                city_name,
                 freeway,
                 direction,
                 county,
+                county_abb,
+                county_name,
                 '{{ value }}' as target_speed,
                 delay_{{ value }}_mph as delay,
                 lost_productivity_{{ value }}_mph as lost_productivity
             from
-                weeklyc
+                weeklycc
             {% if not loop.last %} union all {% endif %}
         {% endfor %}
     ) as combined_metrics
@@ -53,9 +65,13 @@ unpivot_combined as (
         station_type,
         district,
         city,
+        city_abb,
+        city_name,
         freeway,
         direction,
         county,
+        county_abb,
+        county_name,
         target_speed
 )
 
