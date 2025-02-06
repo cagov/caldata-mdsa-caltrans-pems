@@ -6,10 +6,10 @@
     snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 
-/*We dynamically select dataset for last month and calculate the statistics (mean, std)
+/*We dynamically select dataset for last week and calculate the statistics (mean, std)
 for outlier detection*/
 with
-five_minute_agg_lastmonth as (
+five_minute_agg_lastweek as (
     select
         detector_id,
         sample_date,
@@ -17,8 +17,8 @@ five_minute_agg_lastmonth as (
         occupancy_avg
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
     where
-        sample_date >= dateadd(month, -1, date_trunc('month', current_date))
-        and sample_date < date_trunc('month', current_date)
+        sample_date >= dateadd(week, -1, date_trunc('week', current_date))
+        and sample_date < date_trunc('week', current_date)
         and station_type in ('ML', 'HV')
 ),
 
@@ -30,19 +30,19 @@ good_detectors as (
     from {{ ref('int_diagnostics__detector_status') }}
     where
         status = 'Good'
-        and sample_date >= dateadd(month, -1, date_trunc('month', current_date))
-        and sample_date < date_trunc('month', current_date)
+        and sample_date >= dateadd(week, -1, date_trunc('week', current_date))
+        and sample_date < date_trunc('week', current_date)
         and station_type in ('ML', 'HV')
 ),
 
--- filter last month's data for good detectors only
-filtered_five_minute_agg_lastmonth as (
+-- filter last week's data for good detectors only
+filtered_five_minute_agg_lastweek as (
     select
         f.detector_id,
         f.sample_date,
         f.volume_sum,
         f.occupancy_avg
-    from five_minute_agg_lastmonth as f
+    from five_minute_agg_lastweek as f
     inner join good_detectors as g
         on
             f.detector_id = g.detector_id
@@ -51,7 +51,7 @@ filtered_five_minute_agg_lastmonth as (
 ),
 
 -- calculate the statistics
-monthly_stats as (
+weekly_stats as (
     select
         detector_id,
         avg(volume_sum) as volume_mean,
@@ -59,7 +59,7 @@ monthly_stats as (
         -- consider using max_capacity
         percentile_cont(0.95) within group (order by volume_sum) as volume_95th,
         percentile_cont(0.95) within group (order by occupancy_avg) as occupancy_95th
-    from filtered_five_minute_agg_lastmonth
+    from filtered_five_minute_agg_lastweek
     group by detector_id
 ),
 
@@ -104,7 +104,7 @@ outlier_removed_data as (
         end as occupancy_label
     from five_minute_agg as fa
     left join
-        monthly_stats as ms
+        weekly_stats as ms
         on
             fa.detector_id = ms.detector_id
 
