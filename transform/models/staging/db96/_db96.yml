@@ -137,7 +137,7 @@ models:
       - name: slot
       - name: volume_flag
       - name: logical_position
-  - name: vds30sec
+  - name: stg_db96__vds30sec
     description: |
       30-second resolution VDS data from DB96, a legacy Oracle database within Caltrans'
       on-premise network.
