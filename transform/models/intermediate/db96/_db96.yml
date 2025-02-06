@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int__db96_detector_agg_five_minutes
+  - name: int_db96__detector_agg_five_minutes
     description: |
       Raw 30 second sample data aggregated to the 5 minute level.
       Volume values are summed, occupancy is averaged.
