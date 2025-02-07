@@ -330,7 +330,7 @@ models:
           The lost Productivity perfromance metric is
           the number of lane-mile-month on the freeway lost due to operating under congested
           conditions instead of under free-flow conditions.
-  - name: performance__station_metrics_agg_monthly
+  - name: performance__station_metrics_unpivot_agg_monthly
     description: |
       monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
       across all lanes of the station. This metrics will measure the daily performance
