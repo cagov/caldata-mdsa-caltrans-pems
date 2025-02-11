@@ -557,7 +557,7 @@ models:
   - name: performance__station_metrics_unpivot_agg_weekly_county
     description: |
       weekly aggregation of delay and productivity across all lanes aggregated by counties. This metrics will
-      measure the weekly delay and lost productivity of the state highway system. This can be used for 
+      measure the weekly delay and lost productivity of the state highway system. This can be used for
       monthly aggregation of PeMS performance metrics across all the couties.
     columns:
       - name: COUNTY
