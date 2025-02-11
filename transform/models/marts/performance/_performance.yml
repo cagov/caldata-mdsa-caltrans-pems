@@ -358,7 +358,7 @@ models:
       - name: FREEWAY
         description: The freeway where the VDS is located.
       - name: WEEKLY_VOLUME
-        description: The sum of the flow values for a detector over the sample period across all the lanes.
+        description: The sum of the flow values for a station over the sample period across all the lanes.
       - name: WEEKLY_SPEED
         description: flow weighted weekly speed across all the lanes.
       - name: WEEKLY_OCCUPANCY
@@ -462,7 +462,7 @@ models:
             aggregated by cities.
       - name: WEEKLY_VMT
         description: |
-          The sum of the miles of freeway driven by each vehicle in a given day and a given section of
+          The sum of the miles of freeway driven by each vehicle in a given week and a given section of
            the freeway across all the lanes.
       - name: WEEKLY_VHT
         description: |
