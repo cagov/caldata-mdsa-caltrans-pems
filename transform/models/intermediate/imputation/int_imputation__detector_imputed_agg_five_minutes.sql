@@ -1,8 +1,6 @@
 {{ config(
         materialized='incremental',
-        table_format='iceberg',
-        external_volume='pems_marts_dev',
-        on_schema_change="append_new_columns",
+        on_schema_change="apend_new_columns",
         cluster_by=["sample_date"],
         unique_key=["detector_id", "sample_timestamp", "sample_date"],
         snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),

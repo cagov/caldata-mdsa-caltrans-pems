@@ -97,19 +97,26 @@ models:
         +schema: imputation
     marts:
       +materialized: table
-      +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
       +database: "{{ env_var('DBT_ANALYTICS_DB', 'ANALYTICS_DEV') }}"
       performance:
+        +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: performance
       imputation:
+        +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: imputation
       diagnostics:
+        +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: diagnostics
-      geo:
-        +schema: geo
-        +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"
       quality:
+        +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: quality
+      geo:
+        +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"
+        +schema: geo
+      vds:
+        +table_format: iceberg
+        +external_volume: pems_marts_dev
+        +base_location_root: vds
 
 on-run-start:
   - "{{create_udfs()}}"
