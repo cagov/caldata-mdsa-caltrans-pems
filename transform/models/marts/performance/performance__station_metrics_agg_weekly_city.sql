@@ -18,6 +18,8 @@ spatial_metrics as (
         sum(weekly_vmt) / nullifzero(sum(weekly_vht)) as weekly_q_value,
         60 / nullifzero(sum(weekly_q_value)) as weekly_tti
     from station_weekly_data
+    where
+        city is not null
     group by
         city, sample_week
 ),

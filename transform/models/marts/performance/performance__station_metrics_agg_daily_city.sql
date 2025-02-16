@@ -21,6 +21,8 @@ spatial_metrics as (
         sum(daily_vmt) / nullifzero(sum(daily_vht)) as daily_q_value,
         60 / nullifzero(sum(daily_q_value)) as daily_tti
     from station_daily_data
+    where
+        city is not null
     group by
         city, sample_date
 ),
