@@ -1,0 +1,42 @@
+[Unit]
+Description=Oracle Puller Daemon
+After=network.target
+
+# The Oracle Puller Daemon is a continuously running service designed to handle 
+# data crawling tasks for the PeMS system. It processes crawl tasks queued by 
+# the `append_to_crawl_queue*.py` scripts and directly queries the Oracle Database 
+# to pull the requested data.
+#
+# Key Details:
+# - The `oracle_puller.service.sh` script operates as a limited-loop operation, 
+#   meaning it processes a finite number of tasks before exiting (typically within 
+#   30 minutes).
+# - When the script exits, the systemd configuration ensures that the service 
+#   is immediately relaunched, maintaining continuous operation.
+# - This design ensures that the pulling service is always active, capable of 
+#   handling new tasks as they are assigned by the crawling queue.
+# - The service runs in the `/data/projects/crawler` directory and uses the `jupyter` 
+#   user to execute the tasks.
+# 
+#
+# FAQ and Tips:
+# - **How to update the service?**
+#   Run: `sudo systemctl enable oracle_puller` after modifying the service or related files.
+# - **How to check the service health?**
+#   Run: `sudo systemctl status oracle_puller` to view the current status and logs.
+# - **How to turn off the service for maintenance?**
+#   1. Stop the service: `sudo systemctl stop oracle_puller`.
+#   2. Check for any remaining active processes: `ps -ef | grep oracle`.
+#   3. Kill remaining processes (if any): `kill <PID>` for each listed process.
+# - **How to restart the service after maintenance?**
+#   Run: `sudo systemctl start oracle_puller`.
+# 
+
+[Service]
+ExecStart=/etc/systemd/system/oracle_puller.service.sh
+WorkingDirectory=/data/projects/crawler
+Restart=always
+User=jupyter 
+
+[Install]
+WantedBy=multi-user.target
