@@ -102,8 +102,11 @@ models:
         +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: performance
       imputation:
-        +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
+        # +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: imputation
+        +table_format: iceberg
+        +external_volume: pems_marts_dev
+        +base_location_root: imputation
       diagnostics:
         +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: diagnostics
@@ -113,10 +116,6 @@ models:
       geo:
         +post-hook: "{{ unload_relation_as_geojson(strip_leading_words=1) }}"
         +schema: geo
-      vds:
-        +table_format: iceberg
-        +external_volume: pems_marts_dev
-        +base_location_root: vds
 
 on-run-start:
   - "{{create_udfs()}}"
