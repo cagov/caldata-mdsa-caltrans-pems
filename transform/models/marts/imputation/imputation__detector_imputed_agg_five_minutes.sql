@@ -1,15 +1,10 @@
-{{ config(
-    materialized="table",
-    unload_partitioning="('day=' || to_varchar(date_part(day, sample_date)) || '/district=' || district)",
-) }}
-
-
 with imputation_five_mins as (
-    select *
+    select
+        * exclude (sample_timestamp, station_valid_from, station_valid_to),
+        sample_timestamp::timestamp_ntz(6) as sample_timestamp
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where
         station_type in ('ML', 'HV')
-        and sample_date >= dateadd(day, -4, current_date)
 ),
 
 imputation_five_minsc as (
