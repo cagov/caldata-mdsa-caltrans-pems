@@ -23,6 +23,10 @@ with yearly as (
 
 yearlyc as (
     {{ get_county_name('yearly') }}
+),
+
+yearlycc as (
+    {{ get_city_name('yearlyc') }}
 )
 
-select * from yearlyc
+select * from yearlycc

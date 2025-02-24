@@ -34,6 +34,8 @@ unpivot_combined as (
             {% if not loop.last %} union all {% endif %}
         {% endfor %}
     ) as combined_metrics
+    where
+        city is not null
     group by
         city, city_abb, city_name, sample_year, target_speed
 )
