@@ -10,6 +10,7 @@ with monthly_bottleneck as (
         freeway,
         direction,
         absolute_postmile,
+        monthly_active_days,
         monthly_time_shift_duration,
         monthly_time_shift_extent,
         county
