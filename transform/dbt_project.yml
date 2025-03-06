@@ -102,11 +102,10 @@ models:
         +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: performance
       imputation:
-        # +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: imputation
         +table_format: iceberg
         +external_volume: pems_marts_dev
-        +base_location_root: imputation
+        +base_location_root: iceberg
       diagnostics:
         +post-hook: "{{ unload_relation(strip_leading_words=1) }}"
         +schema: diagnostics

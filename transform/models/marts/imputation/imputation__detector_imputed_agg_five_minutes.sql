@@ -1,6 +1,14 @@
+{{ config(
+    materialized='incremental',
+    snowflake_warehouse='TRANSFORMING_XL_DEV'
+) }}
 with imputation_five_mins as (
     select
-        * exclude (sample_timestamp, station_valid_from, station_valid_to),
+        * exclude (
+            sample_timestamp,
+            station_valid_from,
+            station_valid_to
+        ),
         sample_timestamp::timestamp_ntz(6) as sample_timestamp -- iceberg needs ms for timestamps
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where
