@@ -1,6 +1,6 @@
 {{ config(
         materialized='incremental',
-        on_schema_change="apend_new_columns",
+        on_schema_change="append_new_columns",
         cluster_by=["sample_date"],
         unique_key=["detector_id", "sample_timestamp", "sample_date"],
         snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
@@ -30,9 +30,11 @@ hybrid_five_mins_agg as (
         length,
         detector_is_good,
         sample_date,
-        sample_timestamp::timestamp_ntz(6) as sample_timestamp,
+        sample_timestamp,
         absolute_postmile,
         sample_ct,
+        station_valid_from,
+        station_valid_to,
         -- select the imputed value
         case
             when detector_is_good = false or volume_sum is null
