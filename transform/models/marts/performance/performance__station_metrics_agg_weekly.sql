@@ -1,3 +1,8 @@
+{{ config(
+    materialized="table",
+    unload_partitioning="('year=' || to_varchar(date_part(year, sample_week_start_date)))",
+) }}
+
 with weekly as (
     select
         station_id,
