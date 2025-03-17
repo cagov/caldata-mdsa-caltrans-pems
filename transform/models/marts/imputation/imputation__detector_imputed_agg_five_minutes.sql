@@ -1,6 +1,6 @@
 {{ config(
     materialized='incremental',
-    snowflake_warehouse='TRANSFORMING_XL_DEV'
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL", small="XS")
 ) }}
 with imputation_five_mins as (
     select
