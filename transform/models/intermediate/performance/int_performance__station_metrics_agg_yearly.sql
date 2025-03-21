@@ -19,7 +19,7 @@ yearly_station_level_spatial_temporal_metrics as (
         any_value(station_type) as station_type,
         any_value(district) as district,
         any_value(county) as county,
-        min(city) as city,
+        any_value(city) as city,
         any_value(freeway) as freeway,
         any_value(direction) as direction,
         any_value(length) as length,
