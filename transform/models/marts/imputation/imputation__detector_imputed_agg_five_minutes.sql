@@ -1,5 +1,7 @@
 {{ config(
     materialized='incremental',
+    cluster_by=["sample_date"],
+    unique_key=["detector_id", "sample_timestamp", "sample_date"],
     snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL", small="XS")
 ) }}
 with imputation_five_mins as (
