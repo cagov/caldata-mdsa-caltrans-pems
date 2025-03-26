@@ -1,15 +1,21 @@
 {{ config(
-    materialized="table",
-    unload_partitioning="('day=' || to_varchar(date_part(day, sample_date)) || '/district=' || district)",
+    materialized='incremental',
+    cluster_by=["sample_date"],
+    unique_key=["detector_id", "sample_timestamp", "sample_date"],
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL", small="XS")
 ) }}
-
-
 with imputation_five_mins as (
-    select *
+    select
+        * exclude (
+            sample_timestamp,
+            station_valid_from,
+            station_valid_to
+        ),
+        sample_timestamp::timestamp_ntz(6) as sample_timestamp -- iceberg needs ms for timestamps
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
     where
         station_type in ('ML', 'HV')
-        and sample_date >= dateadd(day, -4, current_date)
+        and {{ make_model_incremental('sample_date') }}
 ),
 
 imputation_five_minsc as (
