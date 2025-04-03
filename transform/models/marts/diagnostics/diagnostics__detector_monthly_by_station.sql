@@ -16,6 +16,8 @@ detector_monthly_status_by_station as (
         sample_month,
         station_id,
         county,
+        county_name,
+        county_abb,
         MAX(case when rn = 1 then district end) as district,
         MAX(case when rn = 1 then state_postmile end) as state_postmile,
         MAX(case when rn = 1 then absolute_postmile end) as absolute_postmile,

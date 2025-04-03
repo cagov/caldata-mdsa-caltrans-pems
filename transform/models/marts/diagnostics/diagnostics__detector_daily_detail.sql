@@ -12,6 +12,10 @@ detector_status as (
 
 detector_statusc as (
     {{ get_county_name('detector_status') }}
+),
+
+detector_statuscc as (
+    {{ get_city_name('detector_statusc') }}
 )
 
-select * from detector_statusc
+select * from detector_statuscc
