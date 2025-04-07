@@ -103,7 +103,7 @@ models:
       - name: CITY_NAME
         description: The real city name that contains a specific VDS within PeMS.
       - name: CITY_ABB
-        description: The city name's abbreviation that contains a specific VDS within PeMS.      
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP

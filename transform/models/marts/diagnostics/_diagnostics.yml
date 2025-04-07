@@ -34,7 +34,7 @@ models:
       - name: city_name
         description: The real city name that contains a specific VDS within PeMS.
       - name: city_abb
-        description: The city name's abbreviation that contains a specific VDS within PeMS.      
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
@@ -111,7 +111,7 @@ models:
       - name: city_name
         description: The real city name that contains a specific VDS within PeMS.
       - name: city_abb
-        description: The city name's abbreviation that contains a specific VDS within PeMS.      
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
@@ -175,7 +175,7 @@ models:
       - name: city_name
         description: The real city name that contains a specific VDS within PeMS.
       - name: city_abb
-        description: The city name's abbreviation that contains a specific VDS within PeMS.      
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
