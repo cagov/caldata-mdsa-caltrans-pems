@@ -14,6 +14,10 @@ with imputation_five_mins as (
 
 imputation_five_minsc as (
     {{ get_county_name('imputation_five_mins') }}
+),
+
+imputation_five_minscc as (
+    {{ get_city_name('imputation_five_minsc') }}
 )
 
-select * from imputation_five_minsc
+select * from imputation_five_minscc

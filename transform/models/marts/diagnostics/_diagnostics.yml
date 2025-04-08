@@ -25,8 +25,16 @@ models:
         description: The Caltrans district for the station.
       - name: county
         description: The county FIPS code in which the station installed.
+      - name: county_name
+        description: The real county name that contains a specific VDS within PeMS.
+      - name: county_abb
+        description: The county name's abbreviation that contains a specific VDS within PeMS.
       - name: city
         description: The city FIPS code in which the station is installed.
+      - name: city_name
+        description: The real city name that contains a specific VDS within PeMS.
+      - name: city_abb
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
@@ -94,8 +102,16 @@ models:
         description: The Caltrans district for the station.
       - name: county
         description: The county FIPS code in which the station installed.
+      - name: county_name
+        description: The real county name that contains a specific VDS within PeMS.
+      - name: county_abb
+        description: The county name's abbreviation that contains a specific VDS within PeMS.
       - name: city
         description: The city FIPS code in which the station is installed.
+      - name: city_name
+        description: The real city name that contains a specific VDS within PeMS.
+      - name: city_abb
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction
@@ -149,10 +165,17 @@ models:
       - name: district
         description: The Caltrans district for the station.
       - name: county
-        description: The county FIPS code in which the station is installed.
-
+        description: The county FIPS code in which the station installed.
+      - name: county_name
+        description: The real county name that contains a specific VDS within PeMS.
+      - name: county_abb
+        description: The county name's abbreviation that contains a specific VDS within PeMS.
       - name: city
         description: The city FIPS code in which the station is installed.
+      - name: city_name
+        description: The real city name that contains a specific VDS within PeMS.
+      - name: city_abb
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: freeway
         description: The freeway on which the station is installed.
       - name: direction

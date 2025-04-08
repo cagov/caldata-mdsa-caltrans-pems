@@ -80,6 +80,10 @@ detector_status_by_station_with_metadata as (
 
 detector_status_by_station_with_metadatac as (
     {{ get_county_name('detector_status_by_station_with_metadata') }}
+),
+
+detector_status_by_station_with_metadatacc as (
+    {{ get_city_name('detector_status_by_station_with_metadatac') }}
 )
 
-select * from detector_status_by_station_with_metadatac
+select * from detector_status_by_station_with_metadatacc

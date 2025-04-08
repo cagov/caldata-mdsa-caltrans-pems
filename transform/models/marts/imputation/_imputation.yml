@@ -94,6 +94,16 @@ models:
           - not_null
       - name: STATION_ID
         description: The station ID.
+      - name: COUNTY_NAME
+        description: The real county name that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The county name's abbreviation that contains a specific VDS within PeMS.
+      - name: CITY
+        description: The city FIPS code in which the station is installed.
+      - name: CITY_NAME
+        description: The real city name that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The city name's abbreviation that contains a specific VDS within PeMS.
       - name: SAMPLE_DATE
         description: The date on which the sample was taken.
       - name: SAMPLE_TIMESTAMP
