@@ -1,6 +1,14 @@
 version: 2
 
 models:
+  - name: performance__station_metrics_agg_hourly
+    description: |
+      hourly aggregation of volume, occupancy and speed across all lanes of the station.
+      config:
+        table_format: iceberg
+        external_volume: pems_marts_prd
+        base_location_root: iceberg
+        schema: performance
   - name: performance__station_metrics_agg_daily
     description: |
       daily aggregation of volume, occupancy and speed across all lanes of the station. This metrics will
