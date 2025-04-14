@@ -4,6 +4,7 @@
 # Other config parameters are set in the dbt project directory, as
 # that's where dbt cloud looks for them.
 templater = dbt
+dialect = snowflake
 
 [sqlfluff:templater:dbt]
 project_dir = ./transform
