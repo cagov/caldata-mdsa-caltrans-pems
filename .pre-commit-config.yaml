@@ -51,5 +51,5 @@ repos:
         description: "Lints sql files with `SQLFluff`"
         types: [sql]
         require_serial: true
-        entry: poetry run sqlfluff fix transform --show-lint-violations --processes 0 --nocolor --disable-progress-bar
+        entry: poetry run sqlfluff fix transform --show-lint-violations --nocolor --disable-progress-bar
         pass_filenames: true
