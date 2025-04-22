@@ -1,0 +1,10 @@
+[sqlfluff]
+# For some reason this can only be set in the root directory, cf
+# https://docs.sqlfluff.com/en/stable/configuration/setting_configuration.html#nesting
+# Other config parameters are set in the dbt project directory, as
+# that's where dbt cloud looks for them.
+templater = dbt
+dialect = snowflake
+
+[sqlfluff:templater:dbt]
+project_dir = ./transform
