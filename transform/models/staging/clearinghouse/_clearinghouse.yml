@@ -45,6 +45,8 @@ models:
     description: |
       Vehicle detector station 30-second raw data from the
       [PeMS Clearinghouse feeds](https://pems.dot.ca.gov/feeds/clhouse/).
+    config:
+      event_time: SAMPLE_DATE
     columns:
       - name: ID
         description: Unique VDS (station identifier) value. Use this value to cross-reference with Metadata files.

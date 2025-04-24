@@ -1,9 +1,8 @@
 {{ config(
     materialized="incremental",
+    incremental_strategy="microbatch",
     cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_timestamp","sample_date"],
-    on_schema_change="append_new_columns",
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    snowflake_warehouse = "TRANSFORMING_L_DEV"
 ) }}
 {% set n_lanes = 8 %}
 
@@ -22,8 +21,6 @@ with raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
-
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 dmeta as (
@@ -123,9 +120,7 @@ agg_with_metadata as (
         dmeta.city,
         dmeta.freeway,
         dmeta.direction,
-        dmeta.length,
-        dmeta._valid_from as station_valid_from,
-        dmeta._valid_to as station_valid_to
+        dmeta.length
     from agg_unioned as agg inner join dmeta
         on
             agg.station_id = dmeta.station_id
