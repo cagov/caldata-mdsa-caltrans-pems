@@ -74,9 +74,16 @@ models:
     # has a table in their dev environment. This matches what is done in CI,
     # where is_incremental() also evaluates to `False`.
     +full_refresh: "{{ true if env_var('PRE_COMMIT', '0') == '1' else none }}"
-    # Unfortunately we can't refer to vars in the dbt_project.yml.
+    # Here we configure a project-wide `begin` configuration for incremental
+    # microbatch models. If we are in production, we look further back, but in
+    # dev we only look back one week to speed up dev workflows. This configuration
+    # could be overridden in individual models, but in general we won't want to do that.
+    # Unfortunately we can't refer to vars in the dbt_project.yml:
     # https://github.com/dbt-labs/dbt-core/issues/4873
-    +begin: "2025-04-01"
+    # So when we update the pems_clearinghouse_start_date, we also have to make the
+    # corresponding update here.
+    # yamllint disable-line rule:line-length
+    +begin: "{{ '2023-01-01' if target.name == 'prd' else (modules.datetime.datetime.now() - modules.datetime.timedelta(7)).isoformat() }}"
     +batch_size: day
     staging:
       +materialized: view
