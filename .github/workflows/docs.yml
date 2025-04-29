@@ -1,5 +1,6 @@
 name: docs
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -38,7 +39,7 @@ jobs:
         run: |
           # Generate snowflake dbt docs
           poetry run dbt deps --project-dir=transform
-          poetry run dbt docs generate --project-dir=transform
+          poetry run dbt docs generate --project-dir=transform --target=prd
           cp -r transform/target docs/dbt_docs_snowflake
       - name: Deploy docs to GitHub Pages
         if: github.ref == 'refs/heads/main'
