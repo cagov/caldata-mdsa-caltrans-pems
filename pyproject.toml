@@ -11,7 +11,7 @@ package-mode = false
 python = "~3.10"
 mkdocs-material = "~9.1.3"
 dbt-core = "~1.9"
-dbt-snowflake = "~1.9"
+dbt-snowflake = "~1.9.4"
 jupyterlab = "^4.0.9"
 ibis-framework = {extras = ["snowflake"], version = "^7.2.0"}
 matplotlib = "^3.8.2"
