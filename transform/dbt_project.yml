@@ -11,6 +11,7 @@ flags:
   skip_nodes_if_on_run_start_fails: true
   require_explicit_package_overrides_for_builtin_materializations: true
   source_freshness_run_project_hooks: false
+  enable_iceberg_materializations: true
 
 # This setting configures which "profile" dbt uses for this project.
 profile: caltrans_pems
