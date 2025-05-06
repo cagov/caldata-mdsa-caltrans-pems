@@ -20,9 +20,6 @@ thresholds as (
 detector_date_range as (
     select *
     from {{ ref('int_vds__active_detectors') }}
-    where
-        active_date >= '{{ model.batch.event_time_start if model.batch else "2000-01-01" }}'
-        and active_date < '{{ model.batch.event_time_end if model.batch else "2001-01-01" }}'
 ),
 
 -- impute detected outliers
