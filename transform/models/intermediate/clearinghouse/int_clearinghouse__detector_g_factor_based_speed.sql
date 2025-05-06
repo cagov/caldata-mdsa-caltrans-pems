@@ -19,7 +19,7 @@ detector_agg as (
         updated_volume_sum as volume_sum,
         updated_occupancy_avg as occupancy_avg,
         volume_observed
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes_normalized') }}
+    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
     where {{ make_model_incremental('sample_date') }}
 ),
 
