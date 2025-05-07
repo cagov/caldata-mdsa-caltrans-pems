@@ -90,12 +90,15 @@ detector_outlier_thresholds as (
         agg_date,
         avg(volume_sum) as volume_mean,
         stddev(volume_sum) as volume_stddev,
+        percentile_cont(0.60) within group (order by volume_sum) as volume_60th,
         percentile_cont(0.95) within group (order by volume_sum) as volume_95th,
         avg(occupancy_avg) as occupancy_mean,
         stddev(occupancy_avg) as occupancy_stddev,
+        percentile_cont(0.60) within group (order by occupancy_avg) as occupancy_60th,
         percentile_cont(0.95) within group (order by occupancy_avg) as occupancy_95th,
         avg(speed_weighted) as speed_weighted_mean,
         stddev(speed_weighted) as speed_weighted_stddev,
+        percentile_cont(0.60) within group (order by speed_weighted) as speed_weighted_60th,
         percentile_cont(0.95) within group (order by speed_weighted) as speed_weighted_95th
     from good_detector_data
     group by detector_id, agg_date

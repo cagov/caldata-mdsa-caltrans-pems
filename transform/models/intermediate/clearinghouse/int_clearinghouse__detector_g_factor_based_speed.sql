@@ -3,7 +3,7 @@
     incremental_strategy="microbatch",
     event_time="sample_date",
     cluster_by=["sample_date"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="L")
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
 ) }}
 
 with detector_agg as (
@@ -21,17 +21,25 @@ with detector_agg as (
     from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
+thresholds as (
+    select
+        detector_id,
+        agg_date,
+        occupancy_60th
+    from {{ ref('int_diagnostics__detector_outlier_thresholds') }}
+),
+
 detector_agg_with_thresholds as (
     select
-        *,
-        date_trunc('hour', sample_timestamp) as hour,
-        date_trunc('day', sample_date) as day,
-        /* Generate 60-th percentile of the observed occupancies as occupancy threshold for a day */
-        -- TODO: maybe move into weekly thresholds?
-        percentile_cont(0.6) within group (order by occupancy_avg)
-            over (partition by detector_id, sample_date)
-            as occupancy_threshold
+        detector_agg.*,
+        date_trunc('hour', detector_agg.sample_timestamp) as hour,
+        date_trunc('day', detector_agg.sample_date) as day,
+        thresholds.occupancy_60th as occupancy_threshold
     from detector_agg
+    asof join thresholds
+        match_condition (detector_agg.sample_date >= thresholds.agg_date)
+        on
+            detector_agg.detector_id = thresholds.detector_id
 ),
 
 /* Generate a table of free-flow speeds that are used to calculate g factor.
