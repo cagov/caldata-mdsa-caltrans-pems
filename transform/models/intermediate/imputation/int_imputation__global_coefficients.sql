@@ -46,7 +46,7 @@ good_detectors as (
 ),
 
 agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select * from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
