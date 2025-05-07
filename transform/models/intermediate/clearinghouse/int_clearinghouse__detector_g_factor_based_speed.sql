@@ -1,14 +1,12 @@
 {{ config(
     materialized="incremental",
+    incremental_strategy="microbatch",
+    event_time="sample_date",
     cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_timestamp","sample_date"],
-    on_schema_change="append_new_columns",
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="L")
 ) }}
 
-with
-
-detector_agg as (
+with detector_agg as (
     select
         detector_id,
         sample_date,
@@ -16,35 +14,24 @@ detector_agg as (
         station_id,
         lane,
         station_type,
-        updated_volume_sum as volume_sum,
-        updated_occupancy_avg as occupancy_avg,
+        physical_lanes,
+        volume_sum,
+        occupancy_avg,
         volume_observed
     from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
-week_gen as (
+detector_agg_with_thresholds as (
     select
         *,
-        date_trunc('week', sample_date) as week_start,
         date_trunc('hour', sample_timestamp) as hour,
-        date_trunc('day', sample_date) as day
-    from detector_agg
-),
-
-/* Generate 60-th percentile of the observed occupancies as occupancy threshold for a week dataset */
-threshold as (
-    select
-        *,
+        date_trunc('day', sample_date) as day,
+        /* Generate 60-th percentile of the observed occupancies as occupancy threshold for a day */
+        -- TODO: maybe move into weekly thresholds?
         percentile_cont(0.6) within group (order by occupancy_avg)
-            over (partition by detector_id, week_start)
-            as occupancy_threshold,
-
-        max(lane)
-            over (partition by station_id, station_type)
-            as lane_number
-
-    from week_gen
+            over (partition by detector_id, sample_date)
+            as occupancy_threshold
+    from detector_agg
 ),
 
 /* Generate a table of free-flow speeds that are used to calculate g factor.
@@ -59,187 +46,187 @@ free_speed as (
                 then 65
             when
                 station_type = 'ML'
-                and lane_number = 1
+                and physical_lanes = 1
                 then 65
             when
                 station_type = 'ML'
-                and lane_number = 2
+                and physical_lanes = 2
                 and lane = 1
                 then 71.2
             when
                 station_type = 'ML'
-                and lane_number = 2
+                and physical_lanes = 2
                 and lane = 2
                 then 65.1
             when
                 station_type = 'ML'
-                and lane_number = 3
+                and physical_lanes = 3
                 and lane = 1
                 then 71.9
             when
                 station_type = 'ML'
-                and lane_number = 3
+                and physical_lanes = 3
                 and lane = 2
                 then 69.7
             when
                 station_type = 'ML'
-                and lane_number = 3
+                and physical_lanes = 3
                 and lane = 3
                 then 62.7
             when
                 station_type = 'ML'
-                and lane_number = 4
+                and physical_lanes = 4
                 and lane = 1
                 then 74.8
             when
                 station_type = 'ML'
-                and lane_number = 4
+                and physical_lanes = 4
                 and lane = 2
                 then 70.9
             when
                 station_type = 'ML'
-                and lane_number = 4
+                and physical_lanes = 4
                 and lane = 3
                 then 67.4
             when
                 station_type = 'ML'
-                and lane_number = 4
+                and physical_lanes = 4
                 and lane = 4
                 then 62.8
             when
                 station_type = 'ML'
-                and lane_number = 5
+                and physical_lanes = 5
                 and lane = 1
                 then 76.5
             when
                 station_type = 'ML'
-                and lane_number = 5
+                and physical_lanes = 5
                 and lane = 2
                 then 74.0
             when
                 station_type = 'ML'
-                and lane_number = 5
+                and physical_lanes = 5
                 and lane = 3
                 then 72.0
             when
                 station_type = 'ML'
-                and lane_number = 5
+                and physical_lanes = 5
                 and lane = 4
                 then 69.2
             when
                 station_type = 'ML'
-                and lane_number = 5
+                and physical_lanes = 5
                 and lane = 5
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 1
                 then 76.5
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 2
                 then 74.0
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 3
                 then 72.0
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 4
                 then 69.2
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 5
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 6
+                and physical_lanes = 6
                 and lane = 6
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 1
                 then 76.5
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 2
                 then 74.0
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 3
                 then 72.0
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 4
                 then 69.2
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 5
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 6
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 7
+                and physical_lanes = 7
                 and lane = 7
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 1
                 then 76.5
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 2
                 then 74.0
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 3
                 then 72.0
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 4
                 then 69.2
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 5
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 6
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 7
                 then 64.5
             when
                 station_type = 'ML'
-                and lane_number = 8
+                and physical_lanes = 8
                 and lane = 8
                 then 64.5
             else 64.5
         end as free_flow_speed
 
-    from threshold
+    from detector_agg_with_thresholds
 ),
 
 /* Calculate hourly based g factor, set as 22 if there is a null dataset in the mean function */
@@ -251,7 +238,7 @@ hourly_g_factor as (
                 when occupancy_avg < occupancy_threshold
                     then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * {{ var("mph_conversion") }}
             end)
-                over (partition by detector_id, week_start, day, hour),
+                over (partition by detector_id, hour),
             {{ var("vehicle_effective_length") }})
             as raw_g_factor
     from free_speed

@@ -32,7 +32,7 @@ outlier_removed_data as (
                 (fa.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3
                 then thresholds.volume_95th
             else fa.volume_sum
-        end as updated_volume_sum,
+        end as volume_sum,
         -- add a volume_label for imputed volume
         case
             when
@@ -46,7 +46,7 @@ outlier_removed_data as (
                 fa.occupancy_avg > thresholds.occupancy_95th
                 then thresholds.occupancy_95th
             else fa.occupancy_avg
-        end as updated_occupancy_avg,
+        end as occupancy_avg,
         -- add a column for imputed occupancy
         case
             when
