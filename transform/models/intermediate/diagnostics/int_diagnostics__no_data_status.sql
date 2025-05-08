@@ -2,7 +2,7 @@
     materialized="incremental",
     incremental_strategy="microbatch",
     event_time="active_date",
-    snowflake_warehouse="TRANSFORMING_L_DEV"
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with

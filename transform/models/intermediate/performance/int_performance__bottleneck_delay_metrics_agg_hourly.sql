@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','sample_date', 'sample_hour'],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    snowflake_warehouse = get_snowflake_refresh_warehouse()
 ) }}
 
 -- read the volume, occupancy and speed five minutes data
@@ -10,7 +11,6 @@ with station_five_mins_data as (
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- aggregate five mins delay and calculate the average bottleneck extent in an hourly basis

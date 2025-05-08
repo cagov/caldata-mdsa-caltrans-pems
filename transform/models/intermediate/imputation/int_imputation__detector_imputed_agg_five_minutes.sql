@@ -1,9 +1,9 @@
 {{ config(
         materialized='incremental',
-        on_schema_change="append_new_columns",
+        incremental_strategy="microbatch",
+        event_time="sample_date",
         cluster_by=["sample_date"],
-        unique_key=["detector_id", "sample_timestamp", "sample_date"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
+        snowflake_warehouse = get_snowflake_refresh_warehouse(),
     )
 }}
 
@@ -11,7 +11,6 @@
 with obs_imputed_five_minutes_agg as (
     select *
     from {{ ref('int_imputation__detector_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- now select the final speed, volume and occupancy

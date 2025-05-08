@@ -1,9 +1,9 @@
 {{ config(
     materialized="incremental",
+    incremental_strategy="microbatch",
     cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_timestamp"],
-    on_schema_change="sync_all_columns",
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    event_time="sample_date",
+    snowflake_warehouse = get_snowflake_refresh_warehouse()
 ) }}
 
 with
@@ -32,7 +32,6 @@ five_minute_agg as (
         station_valid_from,
         station_valid_to
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 vmt_vht_metrics as (

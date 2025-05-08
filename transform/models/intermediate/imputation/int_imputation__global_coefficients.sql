@@ -1,8 +1,9 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id', 'district', 'freeway', 'direction', 'station_type','regression_date'],
+    full_refresh=true,
     on_schema_change="append_new_columns",
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 -- Generate dates using dbt_utils.date_spine

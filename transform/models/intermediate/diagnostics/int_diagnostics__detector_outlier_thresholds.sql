@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id', 'agg_date'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="L")
+    full_refresh=true,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 -- Generate dates using dbt_utils.date_spine

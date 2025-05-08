@@ -50,24 +50,6 @@ macros:
         description: |
           Snowflake warehouse size to use when performing a full-refresh
 
-  - name: make_model_incremental
-    description: |
-      This allows for the implementation of complex incremental model
-      logic in one line and one place. Check out [dbt's docs on incremental
-      models](https://docs.getdbt.com/docs/build/incremental-models-overview).
-
-      In addition to incrementality, it implements the variable
-      "dev_model_look_back", which limits the amount of data selected in dev.
-      Two things to note:
-        1. Users implement their own date column
-        2. This macro does not include a "where" keyword, but does include
-        "and". Users are expected to use a "where" clause when implementing this.
-    arguments:
-      - name: date_col
-        type: string
-        description: |
-          Name of date column to use for limiting selected data
-
   - name: unload_relation
     description: |
       Unloads a table or view to the project public marts bucket. The resulting file

@@ -1,9 +1,9 @@
 {{ config(
         materialized='incremental',
-        on_schema_change="append_new_columns",
+        incremental_strategy="microbatch",
+        event_time="sample_date",
         cluster_by=["sample_date"],
-        unique_key=["detector_id", "sample_timestamp", "sample_date"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
+        snowflake_warehouse = get_snowflake_refresh_warehouse(),
     )
 }}
 
@@ -33,7 +33,6 @@ with base as (
             else speed_weighted
         end as speed_weighted
     from {{ ref('int_vds__detector_agg_five_minutes_with_g_factor_speed') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist

@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','sample_date', 'sample_hour'],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    snowflake_warehouse = get_snowflake_refresh_warehouse()
 ) }}
 -- read the volume, occupancy and speed five minutes data
 with station_five_mins_data as (
@@ -9,7 +10,6 @@ with station_five_mins_data as (
         *,
         date_trunc('hour', sample_timestamp) as sample_timestamp_trunc
     from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 -- now aggregate five mins volume, occupancy and speed to hourly
