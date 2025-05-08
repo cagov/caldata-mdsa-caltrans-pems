@@ -1,3 +1,5 @@
+{{ config(event_time="active_date") }}
+
 with date_range as (
         {{ dbt_utils.date_spine(
         datepart="day",

@@ -36,7 +36,7 @@ regression_dates_to_evaluate as (
 
 agg as (
     select *
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
 -- Select all station pairs that are active for the chosen regression dates

@@ -212,16 +212,6 @@ models:
         description: |
           Speed in the lane as measured by the detector in miles/hour.
           Weighted by number of vehicles in each sample period.
-      - name: STATION_VALID_FROM
-        description: |
-          The date that this metadata became valid. Should be the same as `META_DATE`.
-          Finding the right metadata for a date should involve a check with
-          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
-      - name: STATION_VALID_TO
-        description: |
-          The date that this metadata became *invalid*.
-          Finding the right metadata for a date should involve a check with
-          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
   - name: int_clearinghouse__detector_agg_five_minutes_with_missing_rows
     description: |
       This model takes the `int_clearinghouse__detector_agg_five_minutes` model and fills in "missing"

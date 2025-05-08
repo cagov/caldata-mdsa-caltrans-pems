@@ -1,15 +1,13 @@
 {{ config(
     materialized="incremental",
-    cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_date"],
-    on_schema_change="sync_all_columns",
-    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    snowflake_warehouse="TRANSFORMING_L_DEV",
 ) }}
 
 with
 source as (
     select * from {{ ref('int_diagnostics__samples_per_detector') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 detector_meta as (
@@ -18,6 +16,7 @@ detector_meta as (
 
 set_assgnmt as (
     select * from {{ ref('int_diagnostics__det_diag_set_assignment') }}
+    -- TODO: maybe add an event_time config here?
     where active_date between (select min(sample_date) from source) and (select max(sample_date) from source)
 ),
 
