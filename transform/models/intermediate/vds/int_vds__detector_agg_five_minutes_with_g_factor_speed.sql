@@ -3,21 +3,11 @@
     incremental_strategy="microbatch",
     event_time="sample_date",
     cluster_by=["sample_date"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with detector_agg as (
-    select
-        detector_id,
-        sample_date,
-        sample_timestamp,
-        station_id,
-        lane,
-        station_type,
-        physical_lanes,
-        volume_sum,
-        occupancy_avg,
-        volume_observed
+    select *
     from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
@@ -32,8 +22,7 @@ thresholds as (
 detector_agg_with_thresholds as (
     select
         detector_agg.*,
-        date_trunc('hour', detector_agg.sample_timestamp) as hour,
-        date_trunc('day', detector_agg.sample_date) as day,
+        date_trunc('hour', detector_agg.sample_timestamp) as trunc_hour,
         thresholds.occupancy_60th as occupancy_threshold
     from detector_agg
     asof join thresholds
@@ -246,7 +235,7 @@ hourly_g_factor as (
                 when occupancy_avg < occupancy_threshold
                     then occupancy_avg / nullifzero(volume_sum) * free_flow_speed * {{ var("mph_conversion") }}
             end)
-                over (partition by detector_id, hour),
+                over (partition by detector_id, trunc_hour),
             {{ var("vehicle_effective_length") }})
             as raw_g_factor
     from free_speed
@@ -256,7 +245,8 @@ hourly_g_factor as (
 smoothed_g_factor as (
     select
         *,
-        avg(raw_g_factor) over (partition by detector_id, day order by hour rows between 6 preceding and 6 following)
+        avg(raw_g_factor)
+            over (partition by detector_id, sample_date order by trunc_hour rows between 6 preceding and 6 following)
             as g_factor
     from hourly_g_factor
 ),
@@ -291,7 +281,15 @@ speed_smoothed_value as (
 
 g_factor_speed_smoothed as (
     select
-        *,
+        -- keep the final result, but exclude all of the intermediate columns
+        -- except for the free_flow_speed
+        * exclude (
+            trunc_hour,
+            raw_g_factor,
+            p_factor,
+            speed_preliminary
+        )
+        ,
         case
             when
                 lane = 1

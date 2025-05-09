@@ -3,7 +3,7 @@
     incremental_strategy="microbatch",
     event_time="sample_date",
     cluster_by=["sample_date"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with

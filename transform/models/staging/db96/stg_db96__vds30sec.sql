@@ -4,7 +4,7 @@
     incremental_strategy="microbatch",
     cluster_by="sample_date",
     event_time="sample_date",
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 select
     split_part(split_part(filename, '/', 4), '=D', 2)::int as district,

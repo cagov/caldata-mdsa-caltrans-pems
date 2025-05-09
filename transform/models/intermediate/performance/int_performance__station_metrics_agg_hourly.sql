@@ -2,7 +2,7 @@
     materialized="incremental",
     incremental_strategy="microbatch",
     event_time="sample_date",
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 -- read the volume, occupancy and speed five minutes data
 with station_five_mins_data as (

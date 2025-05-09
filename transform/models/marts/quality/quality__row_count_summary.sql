@@ -1,5 +1,5 @@
 {{ config(
-    snowflake_warehouse = get_snowflake_warehouse(size="XL")
+    snowflake_warehouse=get_snowflake_warehouse(size="XL")
 ) }}
 with
 

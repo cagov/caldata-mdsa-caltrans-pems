@@ -3,7 +3,7 @@
     materialized="incremental",
     incremental_strategy="microbatch",
     cluster_by="sample_date",
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 {% set n_lanes = 14 %}
 

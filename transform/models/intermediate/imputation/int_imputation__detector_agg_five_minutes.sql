@@ -3,7 +3,7 @@
         incremental_strategy="microbatch",
         event_time="sample_date",
         cluster_by=["sample_date"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(),
+        snowflake_warehouse=get_snowflake_refresh_warehouse(),
     )
 }}
 
@@ -26,8 +26,6 @@ with base as (
         station_type,
         absolute_postmile,
         sample_ct,
-        station_valid_from,
-        station_valid_to,
         case
             when volume_sum = 0 and occupancy_avg = 0 then 0
             else speed_weighted
@@ -82,8 +80,6 @@ unimputed as (
         base.station_type,
         base.absolute_postmile,
         base.sample_ct,
-        base.station_valid_from,
-        base.station_valid_to,
         -- If the detector_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date.
         (good_detectors.detector_id is not null) as detector_is_good,

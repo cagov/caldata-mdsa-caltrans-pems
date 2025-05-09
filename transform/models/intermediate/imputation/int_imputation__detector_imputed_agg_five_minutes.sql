@@ -3,7 +3,7 @@
         incremental_strategy="microbatch",
         event_time="sample_date",
         cluster_by=["sample_date"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(),
+        snowflake_warehouse=get_snowflake_refresh_warehouse(),
     )
 }}
 
@@ -32,8 +32,6 @@ hybrid_five_mins_agg as (
         sample_timestamp,
         absolute_postmile,
         sample_ct,
-        station_valid_from,
-        station_valid_to,
         -- select the imputed value
         case
             when detector_is_good = false or volume_sum is null

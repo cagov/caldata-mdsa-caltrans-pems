@@ -3,7 +3,7 @@
     incremental_strategy="microbatch",
     cluster_by=["sample_date"],
     event_time="sample_date",
-    snowflake_warehouse = get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with
@@ -28,9 +28,7 @@ five_minute_agg as (
         absolute_postmile,
         volume_imputation_method,
         speed_imputation_method,
-        occupancy_imputation_method,
-        station_valid_from,
-        station_valid_to
+        occupancy_imputation_method
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
 ),
 
