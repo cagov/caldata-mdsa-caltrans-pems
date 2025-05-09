@@ -1,7 +1,7 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id', 'district', 'freeway', 'direction', 'station_type','regression_date'],
-    full_refresh=true,
+    full_refresh=none,
     on_schema_change="append_new_columns",
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
