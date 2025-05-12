@@ -80,6 +80,7 @@ models:
     +begin: "{{ '2023-01-01' if target.name == 'prd' else (modules.datetime.datetime.now() - modules.datetime.timedelta(7)).isoformat() }}"
     +batch_size: day
     +full_refresh: false
+    +lookback: 2
     staging:
       +materialized: view
       clearinghouse:
