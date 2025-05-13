@@ -7,7 +7,7 @@
 
 -- Generate dates using dbt_utils.date_spine
 with date_spine as (
-    select cast(date_day as date) as agg_date
+    select date_day::date as agg_date
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
@@ -91,8 +91,8 @@ detector_outlier_thresholds as (
         agg_date,
         avg(volume_sum) as volume_mean,
         stddev(volume_sum) as volume_stddev,
-        percentile_cont(0.60) within group (order by volume_sum) as volume_60th,
-        percentile_cont(0.95) within group (order by volume_sum) as volume_95th,
+        (percentile_cont(0.60) within group (order by volume_sum))::int as volume_60th,
+        (percentile_cont(0.95) within group (order by volume_sum))::int as volume_95th,
         avg(occupancy_avg) as occupancy_mean,
         stddev(occupancy_avg) as occupancy_stddev,
         percentile_cont(0.60) within group (order by occupancy_avg) as occupancy_60th,

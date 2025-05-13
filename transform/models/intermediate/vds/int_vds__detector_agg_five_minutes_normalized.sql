@@ -31,7 +31,7 @@ volume_normalized as (
         round(iff(
             sample_ct >= 10, volume_observed,
             10 / nullifzero(sample_ct) * volume_observed
-        )) as volume_sum
+        ))::int as volume_sum
     from five_minute_agg
 ),
 
@@ -100,8 +100,9 @@ base as (
         spine.sample_timestamp,
         spine.sample_date,
         spine.station_id,
-        spine.district,
+        -- spine.district,
         spine.lane,
+        agg.district::numeric(38, 5) as district, -- TODO: get this from `spine`.
         agg.sample_ct,
         agg.volume_sum,
         agg.zero_vol_ct,

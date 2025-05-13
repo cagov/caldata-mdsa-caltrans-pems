@@ -79,8 +79,17 @@ models:
     # yamllint disable-line rule:line-length
     +begin: "{{ '2023-01-01' if target.name == 'prd' else (modules.datetime.datetime.now() - modules.datetime.timedelta(7)).isoformat() }}"
     +batch_size: day
-    +full_refresh: false
     +lookback: 2
+    # Best practices document full_refresh=false is a good default for microbatch models.
+    # Since most of our incremental models are microbatch, we set the flag project-wide here.
+    # A few models which *do* allow full refreshes override this config.
+    +full_refresh: false
+    # This is a somewhat dangerous config for incremental models, but I think is the
+    # most sensible when using a microbatch strategy, as full refreshes don't work for schema changes.
+    # So if a schema change on a model happens, dbt tries to update the columns to reflect that.
+    # This is still not bullet-proof, as only some type coercions work, but has a better chance of
+    # succeeeding.
+    +on_schema_change: sync_all_columns
     staging:
       +materialized: view
       clearinghouse:
