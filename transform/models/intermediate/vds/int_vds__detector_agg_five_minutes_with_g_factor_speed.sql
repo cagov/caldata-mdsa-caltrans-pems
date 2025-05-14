@@ -283,12 +283,7 @@ g_factor_speed_smoothed as (
     select
         -- keep the final result, but exclude all of the intermediate columns
         -- except for the free_flow_speed
-        * exclude (
-            trunc_hour,
-            raw_g_factor,
-            p_factor,
-            speed_preliminary
-        )
+        * exclude (trunc_hour)
         ,
         case
             when

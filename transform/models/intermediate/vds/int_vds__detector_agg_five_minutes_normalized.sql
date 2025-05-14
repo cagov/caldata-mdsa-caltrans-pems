@@ -47,12 +47,10 @@ outlier_removed_data as (
             else volume_normalized.volume_sum
         end as volume_sum,
         -- add a volume_label for imputed volume
-        case
-            when
-                (volume_normalized.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3
-                then 'observed outlier'
-            else 'observed data'
-        end as volume_label,
+        coalesce(
+            (volume_normalized.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3,
+            false
+        ) as volume_outlier,
         -- update occupancy if it's an outlier
         case
             when
@@ -61,12 +59,7 @@ outlier_removed_data as (
             else volume_normalized.occupancy_avg
         end as occupancy_avg,
         -- add a column for imputed occupancy
-        case
-            when
-                volume_normalized.occupancy_avg > thresholds.occupancy_95th
-                then 'observed outlier'
-            else 'observed data'
-        end as occupancy_label
+        coalesce(volume_normalized.occupancy_avg > thresholds.occupancy_95th, false) as occupancy_outlier
     from volume_normalized
     asof join thresholds
         match_condition (volume_normalized.sample_date >= thresholds.agg_date)
@@ -120,6 +113,8 @@ base as (
         agg.high_occupancy_ct,
         agg.speed_weighted,
         agg.volume_observed,
+        agg.volume_outlier,
+        agg.occupancy_outlier,
         spine.state_postmile,
         spine.absolute_postmile,
         spine.latitude,
