@@ -7,13 +7,23 @@
 ) }}
 
 -- Generate dates using dbt_utils.date_spine
+-- We choose choose an end_date so that at least linear_regression_time_window
+-- has passed so that we have as complete of data as possible.
 with date_spine as (
     select cast(date_day as date) as regression_date
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
-            start_date="'1998-10-01'",
-            end_date="current_date()"
+            start_date="'" + config.get("begin") + "'",
+            end_date=(
+                "'"
+                + (
+                    modules.datetime.datetime.now()
+                    - modules.datetime.timedelta(days=var("linear_regression_time_window"))
+                    - modules.datetime.timedelta(days=1)
+                ).date().isoformat()
+                + "'"
+            )
         ) }}
     ) as spine
 ),

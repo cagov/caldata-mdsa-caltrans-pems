@@ -74,9 +74,15 @@ outlier_removed_data as (
             volume_normalized.detector_id = thresholds.detector_id
 ),
 
+/*
+  It's undocumented, but in a microbatch context, `config.begin` is parsed into a datetime object:
+  https://github.com/dbt-labs/dbt-core/blob/e7a1c6c315fcfc1b1cee56aa67957223a1f2e9d1
+  /core/dbt/parser/manifest.py#L1446-L1453  -- In all other contexts, it's a string.
+  So, when feeding it into timestamp_spine here, have to convert it *back* to a string.
+*/
 timestamp_spine as (
     {{ timestamp_spine(
-        start_date=var('pems_clearinghouse_start_date'),
+        start_date="'" + config.get("begin").date().isoformat() | string + "'",
         end_date="current_date()",
         second_increment=60*5
     ) }}

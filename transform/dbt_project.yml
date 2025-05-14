@@ -39,14 +39,11 @@ vars:
   mph_conversion: 440
   high_volume_threshold: 20
   high_occupancy_threshold: 0.7
-  incremental_model_look_back: -2
-  dev_model_look_back: -7
   backward_routes: (71, 153, 282, 580, 780)
   day_start: "'05:00:00'"
   day_end: "'21:59:59'"
   V_t: [35, 40, 45, 50, 55, 60]
   districts: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-  pems_clearinghouse_start_date: "'2023-01-01'"
   linear_regression_time_window: 7
   outlier_agg_time_window: 7
   am_peak_start: "'06:00:00'"
@@ -72,12 +69,8 @@ models:
     # microbatch models. If we are in production, we look further back, but in
     # dev we only look back one week to speed up dev workflows. This configuration
     # could be overridden in individual models, but in general we won't want to do that.
-    # Unfortunately we can't refer to vars in the dbt_project.yml:
-    # https://github.com/dbt-labs/dbt-core/issues/4873
-    # So when we update the pems_clearinghouse_start_date, we also have to make the
-    # corresponding update here.
     # yamllint disable-line rule:line-length
-    +begin: "{{ '2023-01-01' if target.name == 'prd' else (modules.datetime.datetime.now() - modules.datetime.timedelta(7)).isoformat() }}"
+    +begin: "{{ '2023-01-01' if target.name == 'prd' else (modules.datetime.datetime.now() - modules.datetime.timedelta(days=10)).date().isoformat() }}"
     +batch_size: day
     +lookback: 2
     # Best practices document full_refresh=false is a good default for microbatch models.

@@ -5,13 +5,15 @@
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
--- Generate dates using dbt_utils.date_spine
+-- Generate dates using dbt_utils.date_spine.
+-- We choose choose an end_date so that at least outlier_agg_time_window
+-- has passed so that we have as complete of data as possible.
 with date_spine as (
     select date_day::date as agg_date
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
-            start_date=var("pems_clearinghouse_start_date"),
+            start_date="'" + config.get("begin") + "'",
             end_date=(
                 "'"
                 + (
