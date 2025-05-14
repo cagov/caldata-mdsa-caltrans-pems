@@ -13,7 +13,7 @@ with date_spine as (
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
-            start_date="'" + config.get("begin") + "'",
+            start_date="'2023-01-01'",
             end_date=(
                 "'"
                 + (
