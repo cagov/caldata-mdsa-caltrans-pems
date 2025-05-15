@@ -79,11 +79,15 @@ good_detector_data as (
             -- TODO: use variable for agg window
             and agg.sample_date
             < dateadd(day, {{ var("outlier_agg_time_window") }}, agg_dates_to_evaluate.agg_date)
-    inner join good_detectors
-        on
-            agg.detector_id = good_detectors.detector_id
-            and agg.sample_date = good_detectors.sample_date
-    where agg.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
+    where
+        agg.station_type in ('ML', 'HV')
+        and exists (
+            select 1
+            from good_detectors
+            where
+                good_detectors.detector_id = agg.detector_id
+                and good_detectors.sample_date = agg.sample_date
+        )
 ),
 
 detector_outlier_thresholds as (
