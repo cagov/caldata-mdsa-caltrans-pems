@@ -2,6 +2,8 @@
     enabled=false,
     materialized="incremental",
     incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
     cluster_by="sample_date",
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}

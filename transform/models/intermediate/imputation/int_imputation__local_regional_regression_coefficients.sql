@@ -1,8 +1,6 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id','other_detector_id','regression_date'],
-    full_refresh=none,
-    on_schema_change="append_new_columns",
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 

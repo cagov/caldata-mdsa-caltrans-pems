@@ -1,7 +1,6 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id', 'agg_date'],
-    full_refresh=none,
     snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 

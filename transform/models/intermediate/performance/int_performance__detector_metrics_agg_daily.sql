@@ -2,6 +2,7 @@
     materialized="incremental",
     incremental_strategy="microbatch",
     event_time="sample_date",
+    full_refresh=false,
 ) }}
 
 -- read the station hourly data

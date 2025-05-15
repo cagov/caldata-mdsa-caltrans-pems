@@ -1,6 +1,7 @@
 {{ config(
     materialized="incremental",
     incremental_strategy="microbatch",
+    full_refresh=false,
     event_time="sample_date",
     cluster_by=["sample_date"],
     snowflake_warehouse=get_snowflake_refresh_warehouse()
