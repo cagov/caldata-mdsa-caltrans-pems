@@ -383,3 +383,43 @@ models:
         description: |
           Returns No if a detector send no samples to PeMS on a daily basis, otherwise Yes is
           returned.
+  - name: int_diagnostics__detector_outlier_thresholds
+    description: |
+      Computes summary statistics of occupancy, volume, and speed for detectors over regular one-week
+      time intervals. Detectors are filtered to one that are considered operational (per the status
+      in `int_diagnostics__detector_status`) before aggregating.
+
+      The statistics in this data model are used to identify outliers in the data normalization process.
+      This model is unique at the level of AGG_DATE + DETECTOR_ID.
+    columns:
+      - name: agg_date
+        description: |
+          The date on which the aggregation *started* (i.e., the start of the one week window).
+        data_tests:
+          - not_null
+      - name: detector_id
+        description: The detector ID
+      - name: occupancy_mean
+        description: The mean of the occupancy over the time period.
+      - name: occupancy_stddev
+        description: The standard deviation of the occupancy over the time period.
+      - name: occupancy_60th
+        description: The 60th percentile of the occupancy over the time period.
+      - name: occupancy_95th
+        description: The 95th percentile of the occupancy over the time period.
+      - name: volume_mean
+        description: The mean of the volume over the time period.
+      - name: volume_stddev
+        description: The standard deviation of the volume over the time period.
+      - name: volume_60th
+        description: The 60th percentile of the volume over the time period.
+      - name: volume_95th
+        description: The 95th percentile of the volume over the time period.
+      - name: speed_weighted_mean
+        description: The mean of the speed over the time period.
+      - name: speed_stddev
+        description: The standard deviation of the speed over the time period.
+      - name: speed_60th
+        description: The 60th percentile of the speed over the time period.
+      - name: speed_95th
+        description: The 95th percentile of the speed over the time period.

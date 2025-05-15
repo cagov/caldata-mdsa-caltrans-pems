@@ -1,10 +1,10 @@
 with date_range as (
-        {{ dbt_utils.date_spine(
+    {{ dbt_utils.date_spine(
         datepart="day",
-        start_date= var("pems_clearinghouse_start_date"),
+        start_date="'" + config.get("begin") + "'",
         end_date= "current_date + 1 "
         )
-        }}
+    }}
 ),
 
 date_range_updated as (

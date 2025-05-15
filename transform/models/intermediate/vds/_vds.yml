@@ -227,3 +227,71 @@ models:
     description: |
       Contains detector metadata for all detectors that were designated active on any
       given day.
+
+  - name: int_vds__detector_agg_five_minutes_normalized
+    description: |
+      This model takes the `int_clearinghouse__detector_agg_five_minutes` model and does some
+      data normalization and cleanup.  The following operations are performed
+        1. If fewer than ten volume samples are recorded (i.e., if some 30-second samples are
+            missing over the five minute period), the volume is extrapolated to the number it
+            might have been if all samples were present.
+        1. Remove extreme values for flow and occupancy based on previous behavior of the detector.
+            If one of those metrics is more than three standard deviations from the mean of the
+            last checkpoint (as measured in `int_diagnostics__detector_outlier_thresholds`),
+            it is replaced with the 95th percentile value, and labeled as 'observed_outlier'
+        1. Fill in "missing" rows. Missing rows are added at the 5-minute timestamp level
+            between each detector's min and max sample dates (from the parent model).
+            For all resulting rows, metadata is filled in but data values (eg. `volume_sum`,
+            `occupancy_avg`, etc) are set to `null`, to be imputed later.
+
+      Column descriptions can be found in `int_clearinghouse__detector_agg_five_minutes`.
+      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+    data_tests:
+      - five_minute_daily_count:
+          group_by_columns: ["detector_id", "sample_date"]
+    columns:
+      - name: volume_observed
+        description: |
+          The observed volume. This will be the same as `volume_sum`, unless extrapolation
+          occurs due to fewer than ten samples being present.
+      - name: volume_outlier
+        description: |
+          Whether the volume was judged to be an outlier and replaced.
+      - name: occupancy_outlier
+        description: |
+          Whether the occupancy was judged to be an outlier and replaced.
+  - name: int_vds__detector_agg_five_minutes_with_g_factor_speed
+    description: |
+      This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the
+      PeMS system computes speed for sensors that don't report speed, like single loop detectors. The g-factor
+      is a value that represents the effective length of the vehicles. Typically, a constant value for the g-factor
+      is used which leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop
+      sensitivity. PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate
+      speed estimates.
+    columns:
+      - name: free_flow_speed
+        description: |
+          A specific free flow speed based on the type of freeway (meaning the total number of lanes)
+          and the particular lane that the detector is. For example, the free-flow speed in lane 2 of
+          a 2-lane freeway is different from the free-flow speed in lane 2 of a 5-lane freeway.
+      - name: raw_g_factor
+        description: |
+          Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
+          and real-time occupancy.
+      - name: g_factor
+        description: |
+          Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
+      - name: p_factor
+        description: An exponential filter with weights that vary as a function of the flow.
+      - name: speed_preliminary
+        description: |
+          An initial speed estimate is passed through the p_factor based exponential filter. When the
+          flow at the loop is low the smoothing is quite severe. When the flow is high, there is little
+          smoothing. This allows us to quickly adapt to periods of congestion as well as to have stable
+          speeds when the data is sparse (like in the middle of the night).
+      - name: speed_smoothed
+        description: A smoothed version of the estimated speed by passing through the exponential filter.
+      - name: imputed_speed
+        description: |
+          An imputed version of g-factor based speed, adjusted using upper and lower bounds. Boundaries vary
+          based on different scenarios for specific lanes.

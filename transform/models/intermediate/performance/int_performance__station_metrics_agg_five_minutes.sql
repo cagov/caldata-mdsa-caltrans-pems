@@ -1,15 +1,15 @@
 {{ config(
     materialized="incremental",
-    on_schema_change="append_new_columns",
+    incremental_strategy="microbatch",
+    event_time="sample_date",
     cluster_by=["sample_date"],
-    unique_key=["station_id", "sample_date", "sample_timestamp"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL")
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with detector_agg_five_minutes as (
     select *
     from {{ ref('int_performance__detector_metrics_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 station_aggregated as (
@@ -25,8 +25,6 @@ station_aggregated as (
         any_value(county) as county,
         any_value(city) as city,
         any_value(length) as length,
-        any_value(station_valid_from) as station_valid_from,
-        any_value(station_valid_to) as station_valid_to,
         round(sum(vmt), 1) as vmt,
         round(sum(vht), 2) as vht,
         sum(sample_ct) as sample_ct,

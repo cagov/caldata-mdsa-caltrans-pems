@@ -5,7 +5,7 @@ ML_HV_DETECTOR_STATUS_DAILY_COUNT as (
     * This CTE returns the number of total rows by station created daily in
     * the int_diagnostics__detector_status model. This count should be
     * to checked against the daily station counts for the following models:
-    * - int_clearinghouse__detector_agg_five_minutes_with_missing_rows
+    * - int_vds__detector_agg_five_minutes_normalized
     * - int_imputation__detector_imputed_agg_five_minutes
     * - int_performance__station_metrics_agg_five_minutes
     * The daily station counts for these models should match for HV and ML
@@ -26,7 +26,7 @@ ML_HV_CLEARINGHOUSE_STATION_DAILY_COUNT as (
     select
         SAMPLE_DATE,
         count(distinct STATION_ID) as ML_HV_CLEARINGHOUSE_STATION_COUNT
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
+    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
     where
         STATION_TYPE in ('ML', 'HV')
         and SAMPLE_DATE >= current_date - 16
