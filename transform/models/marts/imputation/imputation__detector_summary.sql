@@ -3,7 +3,8 @@
     incremental_strategy="microbatch",
     event_time="sample_date",
     full_refresh=false,
-    snowflake_warehouse=get_snowflake_refresh_warehouse()
+    snowflake_warehouse=get_snowflake_refresh_warehouse(),
+    unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
 ) }}
 
 -- read observed and imputed five minutes data
