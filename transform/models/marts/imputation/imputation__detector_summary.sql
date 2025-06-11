@@ -1,7 +1,9 @@
 {{ config(
     materialized="incremental",
-    unique_key=['detector_id', 'sample_date'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL"),
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse(),
     unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
 ) }}
 
@@ -9,7 +11,6 @@
 with obs_imputed_five_minutes_agg as (
     select *
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 imputation_count as (

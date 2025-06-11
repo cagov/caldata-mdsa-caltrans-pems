@@ -1,8 +1,11 @@
 {{ config(
+    enabled=false,
     materialized="incremental",
+    incremental_strategy="microbatch",
     cluster_by="sample_date",
-    unique_key=["id","sample_timestamp","sample_date"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    event_time="sample_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 select
     split_part(split_part(filename, '/', 4), '=D', 2)::int as district,
@@ -52,5 +55,4 @@ select
     speed_13,
     speed_14
 from {{ source('db96', 'vds30sec') }}
-where {{ make_model_incremental('sample_date') }}
 qualify row_number() over (partition by vds_id, sample_date, sample_time order by vds_id) = 1
