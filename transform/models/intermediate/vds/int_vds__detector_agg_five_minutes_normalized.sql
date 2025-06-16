@@ -76,7 +76,7 @@ outlier_removed_data as (
 */
 timestamp_spine as (
     {{ timestamp_spine(
-        start_date="'" + config.get("begin").date().isoformat() | string + "'",
+        start_date="'2023-01-01'::date",
         end_date="current_date()",
         second_increment=60*5
     ) }}

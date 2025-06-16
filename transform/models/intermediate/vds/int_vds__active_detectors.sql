@@ -3,7 +3,7 @@
 with date_range as (
     {{ dbt_utils.date_spine(
         datepart="day",
-        start_date="'" + config.get("begin") + "'::date",
+        start_date="'2023-01-01'::date",
         end_date= "current_date + 1 "
         )
     }}

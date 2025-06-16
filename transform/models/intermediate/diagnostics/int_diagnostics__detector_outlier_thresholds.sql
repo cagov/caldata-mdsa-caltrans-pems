@@ -56,6 +56,7 @@ good_detectors as (
 
 agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where station_type in ('ML', 'HV')
 ),
 
 /* Get the raw five-minute data. This is joined on the
@@ -75,13 +76,11 @@ good_detector_data as (
     from agg
     inner join agg_dates_to_evaluate
         on
-            agg.sample_date >= agg_dates_to_evaluate.agg_date
-            -- TODO: use variable for agg window
+            agg.sample_date::date >= agg_dates_to_evaluate.agg_date
             and agg.sample_date
             < dateadd(day, {{ var("outlier_agg_time_window") }}, agg_dates_to_evaluate.agg_date)
     where
-        agg.station_type in ('ML', 'HV')
-        and exists (
+        exists (
             select 1
             from good_detectors
             where
