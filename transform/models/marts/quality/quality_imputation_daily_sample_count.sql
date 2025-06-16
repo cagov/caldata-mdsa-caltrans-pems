@@ -1,15 +1,16 @@
 {{ config(
     materialized="incremental",
-    unique_key=['sample_date'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL"),
-    on_schema_change= "sync_all_columns"
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse(),
 ) }}
 
 -- read observed and imputed five minutes data
 with obs_imputed_five_minutes_agg as (
     select *
     from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
-    where station_type in ('HV', 'ML') and {{ make_model_incremental('sample_date') }}
+    where station_type in ('HV', 'ML')
 ),
 
 imputation_status_count as (
