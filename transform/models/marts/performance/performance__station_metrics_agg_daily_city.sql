@@ -1,8 +1,3 @@
-{{ config(
-    materialized="table",
-    unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
-) }}
-
 with station_daily_data as (
     select *
     from {{ ref('int_performance__station_metrics_agg_daily') }}
@@ -21,6 +16,8 @@ spatial_metrics as (
         sum(daily_vmt) / nullifzero(sum(daily_vht)) as daily_q_value,
         60 / nullifzero(sum(daily_q_value)) as daily_tti
     from station_daily_data
+    where
+        city is not null
     group by
         city, sample_date
 ),

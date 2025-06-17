@@ -12,6 +12,10 @@ current_stations as (
 
 current_stationsc as (
     {{ get_county_name('current_stations') }}
+),
+
+current_stationscc as (
+    {{ get_city_name('current_stationsc') }}
 )
 
-select * from current_stationsc
+select * from current_stationscc

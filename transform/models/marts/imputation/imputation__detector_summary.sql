@@ -1,7 +1,8 @@
 {{ config(
     materialized="incremental",
     unique_key=['detector_id', 'sample_date'],
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL"),
+    unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
 ) }}
 
 -- read observed and imputed five minutes data

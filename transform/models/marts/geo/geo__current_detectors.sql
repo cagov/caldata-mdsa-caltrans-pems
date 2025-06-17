@@ -12,6 +12,10 @@ current_detectors as (
 
 current_detectorsc as (
     {{ get_county_name('current_detectors') }}
+),
+
+current_detectorscc as (
+    {{ get_city_name('current_detectorsc') }}
 )
 
-select * from current_detectorsc
+select * from current_detectorscc

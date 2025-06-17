@@ -1,8 +1,3 @@
-{{ config(
-    materialized="table",
-    unload_partitioning="('year=' || to_varchar(date_part(year, sample_date)) || '/month=' || to_varchar(date_part(month, sample_date)))",
-) }}
-
 -- read the volume, occupancy and speed daily level data
 with station_daily_data as (
     select *

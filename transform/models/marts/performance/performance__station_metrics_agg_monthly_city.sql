@@ -18,6 +18,8 @@ spatial_metrics as (
         sum(monthly_vmt) / nullifzero(sum(monthly_vht)) as monthly_q_value,
         60 / nullifzero(sum(monthly_q_value)) as monthly_tti
     from station_monthly_data
+    where
+        city is not null
     group by
         city, sample_month
 ),

@@ -1,12 +1,24 @@
 {{ config(materialized='table') }}
 
-with monthly_bottleneck_delay as (
-    select *
+with monthly_bottleneck as (
+    select
+        station_id,
+        sample_month,
+        time_shift,
+        cast(district as int) as district,
+        station_type,
+        freeway,
+        direction,
+        absolute_postmile,
+        monthly_active_days,
+        monthly_time_shift_duration,
+        monthly_time_shift_extent,
+        county
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_monthly') }}
 ),
 
 bottleneck_delay_with_county as (
-    {{ get_county_name('monthly_bottleneck_delay') }}
+    {{ get_county_name('monthly_bottleneck') }}
 ),
 
 geo as (

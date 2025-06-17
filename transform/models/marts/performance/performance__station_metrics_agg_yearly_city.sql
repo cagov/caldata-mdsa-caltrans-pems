@@ -20,6 +20,8 @@ spatial_metrics as (
         -- travel time
         60 / nullifzero(sum(yearly_q_value)) as yearly_tti
     from station_yearly_data
+    where
+        city is not null
     group by
         city, sample_year
 ),

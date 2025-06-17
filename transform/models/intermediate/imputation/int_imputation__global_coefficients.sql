@@ -7,7 +7,7 @@
 
 -- Generate dates using dbt_utils.date_spine
 with date_spine as (
-    select cast(date_day as date) as regression_date
+    select date_day::date as regression_date
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
@@ -45,8 +45,21 @@ good_detectors as (
     where status = 'Good'
 ),
 
+detector_dates_for_regression as (
+    select
+        good_detectors.*,
+        regression_dates_to_evaluate.regression_date
+    from good_detectors
+    inner join regression_dates_to_evaluate
+        on
+            good_detectors.sample_date::date >= regression_dates_to_evaluate.regression_date
+            and good_detectors.sample_date
+            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
+),
+
 agg as (
     select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
 /* Get the five-minute unimputed data. This is joined on the
@@ -69,19 +82,12 @@ detector_counts as (
         -- TODO: Can we give this a better name? Can we move this into the base model?
         coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
             as speed_five_mins,
-        regression_dates_to_evaluate.regression_date
+        detector_dates_for_regression.regression_date
     from agg
-    inner join regression_dates_to_evaluate
+    inner join detector_dates_for_regression
         on
-            agg.sample_date >= regression_dates_to_evaluate.regression_date
-            -- TODO: use variable for regression window
-            and agg.sample_date
-            < dateadd(day, {{ var("linear_regression_time_window") }}, regression_dates_to_evaluate.regression_date)
-    inner join good_detectors
-        on
-            agg.detector_id = good_detectors.detector_id
-            and agg.sample_date = good_detectors.sample_date
-    where agg.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
+            agg.detector_id = detector_dates_for_regression.detector_id
+            and agg.sample_date = detector_dates_for_regression.sample_date
 ),
 
 global_agg as (
