@@ -149,6 +149,7 @@ module "caltrans_s3_lake" {
   caltrans_naming                            = true
   region                                     = local.region
   environment                                = local.environment
+  # TODO: update once we migrate storage integrations
   snowflake_storage_integration_iam_user_arn = "715841364638"
   #snowflake_storage_integration_external_id  = local.storage_aws_external_id
   #snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn

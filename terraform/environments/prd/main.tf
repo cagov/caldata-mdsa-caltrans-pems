@@ -48,6 +48,20 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias   = "caltrans"
+  region  = local.region
+  profile = "caltrans"
+
+  default_tags {
+    tags = {
+      Owner       = "traffic-ops"
+      Project     = local.project
+      Environment = local.environment
+    }
+  }
+}
+
 # This provider is intentionally low-permission. In Snowflake, object creators are
 # the default owners of the object. To control the owner, we create different provider
 # blocks with different roles, and require that all snowflake resources explicitly
@@ -119,6 +133,26 @@ data "aws_iam_role" "mwaa_execution_role" {
 resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
   role       = data.aws_iam_role.mwaa_execution_role.name
   policy_arn = module.s3_lake.pems_raw_read_write_policy.arn
+}
+
+###############################
+# Caltrans AWS Infrastructure #
+###############################
+
+module "caltrans_s3_lake" {
+  source = "../../modules/s3-lake"
+  providers = {
+    aws = aws.caltrans
+  }
+
+  prefix                                     = "awspd101"
+  caltrans_naming                            = true
+  region                                     = local.region
+  environment                                = local.environment
+  # TODO: update once we migrate storage integrations
+  snowflake_storage_integration_iam_user_arn = "715841364638"
+  #snowflake_storage_integration_external_id  = local.storage_aws_external_id
+  #snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
 }
 
 ############################
