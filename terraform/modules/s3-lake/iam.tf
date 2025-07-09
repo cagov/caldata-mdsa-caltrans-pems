@@ -7,7 +7,7 @@
 
 # Airflow service user for writing to S3
 resource "aws_iam_user" "airflow_s3_writer" {
-  name = "${var.prefix}-airflow-s3-writer"
+  name = "${var.prefix}${local.iam_user_infix}-airflow-s3-writer"
 }
 
 resource "aws_iam_user_policy_attachment" "airflow_s3_writer_policy_attachment" {
@@ -27,7 +27,7 @@ resource "aws_iam_role_policy_attachment" "snowflake_storage_integration_marts" 
 
 # IAM role for Snowflake to assume when reading from the external stage buckets
 resource "aws_iam_role" "snowflake_storage_integration" {
-  name = "${var.prefix}-snowflake-storage-integration"
+  name = "${var.prefix}${local.iam_role_infix}-snowflake-storage-integration"
 
   # https://docs.snowflake.com/user-guide/data-load-snowpipe-auto-s3#step-5-grant-the-iam-user-permissions-to-access-bucket-objects
   assume_role_policy = jsonencode({

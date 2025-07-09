@@ -3,10 +3,22 @@ variable "prefix" {
   type        = string
 }
 
+variable "caltrans_naming" {
+  description = "Whether to use Caltrans' naming convention for resources"
+  type        = bool
+  default     = false
+}
+
 variable "region" {
   description = "Region for AWS resources"
   type        = string
   default     = "us-west-2"
+}
+
+variable "environment" {
+  description = "Environment shorthand. Only used with include_resource_types"
+  type        = string
+  default     = "dev"
 }
 
 variable "snowflake_storage_integration_iam_user_arn" {
