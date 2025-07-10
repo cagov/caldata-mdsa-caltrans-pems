@@ -25,7 +25,6 @@ locals {
   environment = "dev"
   project     = "pems"
   region      = "us-west-2"
-  locator     = "NGB13288"
   account_name = "DSE_CALTRANS_PEMS"
   organization_name= "VSB79059"
 
