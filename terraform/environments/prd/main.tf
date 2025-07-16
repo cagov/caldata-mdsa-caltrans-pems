@@ -12,7 +12,7 @@ terraform {
     }
     snowflake = {
       source  = "Snowflake-Labs/snowflake"
-      version = "0.97"
+      version = "1.0.1"
     }
   }
 
@@ -25,7 +25,8 @@ locals {
   environment = "prd"
   project     = "pems"
   region      = "us-west-2"
-  locator     = "NGB13288"
+  account_name = "DSE_CALTRANS_PEMS"
+  organization_name= "VSB79059"
 
   # These are circular dependencies on the outputs. Unfortunate, but
   # necessary, as we don't know them until we've created the storage
@@ -52,36 +53,46 @@ provider "aws" {
 # blocks with different roles, and require that all snowflake resources explicitly
 # flag the role they want for the creator.
 provider "snowflake" {
-  account = local.locator
   role    = "PUBLIC"
+  account_name      = local.account_name
+  organization_name = local.organization_name
+  preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for account administration (to be used only when necessary).
 provider "snowflake" {
   alias   = "accountadmin"
-  account = local.locator
+  account_name      = local.account_name
+  organization_name = local.organization_name
   role    = "ACCOUNTADMIN"
+  preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for creating databases, warehouses, etc.
 provider "snowflake" {
   alias   = "sysadmin"
-  account = local.locator
+  account_name      = local.account_name
+  organization_name = local.organization_name
   role    = "SYSADMIN"
+  preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for managing grants to roles.
 provider "snowflake" {
   alias   = "securityadmin"
-  account = local.locator
+  account_name      = local.account_name
+  organization_name = local.organization_name
   role    = "SECURITYADMIN"
+  preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for managing user accounts and roles.
 provider "snowflake" {
   alias   = "useradmin"
-  account = local.locator
+  account_name      = local.account_name
+  organization_name = local.organization_name
   role    = "USERADMIN"
+  preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 ############################
@@ -116,7 +127,7 @@ resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
 
 # Main ELT architecture
 module "elt" {
-  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=ebd59ff"
+  source = "github.com/cagov/data-infrastructure.git//terraform/snowflake/modules/elt?ref=2477659"
   providers = {
     snowflake.accountadmin  = snowflake.accountadmin,
     snowflake.securityadmin = snowflake.securityadmin,
