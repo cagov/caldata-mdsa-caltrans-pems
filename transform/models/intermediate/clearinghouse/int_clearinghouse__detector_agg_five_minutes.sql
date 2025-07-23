@@ -63,12 +63,12 @@ agg as (
         {% for lane in range(1, n_lanes+1) %}
             count_if(volume_{{ lane }} is not null and occupancy_{{ lane }} is not null) as sample_ct_{{ lane }},
         {% endfor %}
-    {% for lane in range(1, n_lanes+1) %}
-        sum(volume_{{ lane }} * speed_{{ lane }})
-        / nullifzero(sum(volume_{{ lane }})) as speed_weighted_{{ lane }}        {% if not loop.last %}
-            ,
-        {% endif %}
-    {% endfor %}
+        {% for lane in range(1, n_lanes+1) %}
+            sum(volume_{{ lane }} * speed_{{ lane }})
+            / nullifzero(sum(volume_{{ lane }})) as speed_weighted_{{ lane }}        {% if not loop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
     from raw
     group by station_id, sample_date, sample_timestamp_trunc, district
 ),

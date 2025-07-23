@@ -18,7 +18,9 @@ detector_meta as (
 
 set_assgnmt as (
     select * from {{ ref('int_diagnostics__det_diag_set_assignment') }}
-    where active_date between (select min(sample_date) from source) and (select max(sample_date) from source)
+    where
+        active_date between
+        (select min(source.sample_date) from source) and (select max(source.sample_date) from source)
 ),
 
 assignment_with_meta as (

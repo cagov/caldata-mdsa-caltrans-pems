@@ -46,7 +46,9 @@ equipment_meta as (
             sm.controller_id = cm.controller_id
             and {{ get_scd_2_data('dm.active_date','cm._valid_from','cm._valid_to') }}
     -- Constrain dates to not exceed those in the samples_per_detector model.
-    where dm.active_date between (select min(active_date) from source) and (select max(active_date) from source)
+    where
+        dm.active_date between
+        (select min(source.active_date) from source) and (select max(source.active_date) from source)
 ),
 
 equipment_with_samples as (
