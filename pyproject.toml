@@ -1,38 +1,23 @@
-[tool.poetry]
+[project]
 name = "caldata-mdsa-caltrans-pems"
 version = "0.1.0"
-description = "\"Traffic Operations PeMS Modernization\""
+description = "Traffic Operations PeMS Modernization"
 authors = ["Traffic Operations <Zhenyu.Zhu@dot.ca.gov>"]
 license = "MIT"
 readme = "README.md"
-package-mode = false
+requires-python = "==3.13.*"
+dependencies = [
+    "dbt-core~=1.10",
+    "dbt-snowflake~=1.10",
+    "mkdocs-material~=9.6.14",
+]
 
-[tool.poetry.dependencies]
-python = "~3.10"
-mkdocs-material = "~9.1.3"
-dbt-core = "~1.8"
-dbt-snowflake = "~1.8"
-jupyterlab = "^4.0.9"
-ibis-framework = {extras = ["snowflake"], version = "^7.2.0"}
-matplotlib = "^3.8.2"
-seaborn = "^0.13.0"
-numpy = "^1.26.2"
-scipy = "^1.11.4"
-scikit-learn = "^1.3.2"
-python-dotenv = "^1.0.0"
-plotly = "^5.18.0"
-dash = "^2.14.2"
-geopandas = "^1.0.1"
-snowflake-snowpark-python = "^1.20"
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.1"
-sqlfluff = "3.1.1"
-sqlfluff-templater-dbt = "3.1.1"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "sqlfluff>=3.4.1",
+    "sqlfluff-templater-dbt>=3.4.1",
+]
 
 [tool.ruff]
 line-length = 88

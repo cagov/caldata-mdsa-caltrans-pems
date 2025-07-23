@@ -1,6 +1,6 @@
 [sqlfluff]
-templater = dbt
 dialect = snowflake
+templater = dbt
 max_line_length = 120
 
 # I decide my column ordering, not you!
