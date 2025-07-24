@@ -1,5 +1,5 @@
 default_language_version:
-  python: python3.10
+  python: python3.13
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
@@ -9,13 +9,14 @@ repos:
           - --unsafe
       - id: check-json
       - id: trailing-whitespace
+      - id: check-merge-conflict
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         types: [yaml]
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.28.0
+    rev: v1.37.1
     hooks:
       - id: yamllint
         args: []
@@ -42,7 +43,7 @@ repos:
   # Note: for SQLFluff we don't use the default pre-commit hook because
   # the pre-commit managed python environment can be difficult to install,
   # especially due to issues with pyarrow being brought in by Snowflake.
-  # This keep things more predictable by using the poetry.lock environment.
+  # This keep things more predictable by using the uv.lock environment.
   - repo: local
     hooks:
       - id: sqlfluff
@@ -51,5 +52,5 @@ repos:
         description: "Lints sql files with `SQLFluff`"
         types: [sql]
         require_serial: true
-        entry: poetry run sqlfluff fix transform --show-lint-violations --nocolor --disable-progress-bar
+        entry: uv run sqlfluff fix --show-lint-violations --nocolor --disable-progress-bar
         pass_filenames: true
