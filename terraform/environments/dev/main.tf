@@ -41,9 +41,18 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Owner       = local.owner
-      Project     = local.project
-      Environment = local.environment
+      "BURequestor": "zhenyu.zhu@dot.ca.gov"
+      "BUName": "Business Intelligence and Automation"
+      "BUCode": "3345"
+      "ProjectCode": ""
+      "ProjectPhase": ""
+      "ReportingCode": ""
+      "DataClassification": "Public"
+      "Environment": "NP"
+      "EnvironmentType": "Dev"
+      "ApplicationName": "PeMS"
+      "Backup": "No"
+      "BusinessCriticality": "Low"
     }
   }
 }
