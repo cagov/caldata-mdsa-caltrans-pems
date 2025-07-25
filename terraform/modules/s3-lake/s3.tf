@@ -40,7 +40,7 @@ data "aws_iam_policy_document" "pems_raw_read_write" {
 }
 
 resource "aws_iam_policy" "pems_raw_read_write" {
-  name        = "${var.prefix}${local.iam_policy_infix}-${var.region}-raw-read-write"
+  name        = "${var.caltrans_naming ? "custom_" : ""}${var.prefix}${local.iam_policy_infix}-${var.region}-raw-read-write"
   description = "Policy allowing read/write for s3 pems raw bucket"
   policy      = data.aws_iam_policy_document.pems_raw_read_write.json
 }
@@ -80,7 +80,7 @@ data "aws_iam_policy_document" "pems_raw_external_stage_policy" {
 }
 
 resource "aws_iam_policy" "pems_raw_external_stage_policy" {
-  name        = "${var.prefix}${local.iam_policy_infix}-${var.region}-pems-raw-external-stage-policy"
+  name        = "${var.caltrans_naming ? "custom_" : ""}${var.prefix}${local.iam_policy_infix}-${var.region}-pems-raw-external-stage-policy"
   description = "Policy allowing read/write for snowpipe-test bucket"
   policy      = data.aws_iam_policy_document.pems_raw_external_stage_policy.json
 }
@@ -149,7 +149,7 @@ data "aws_iam_policy_document" "pems_marts_external_stage_policy" {
 }
 
 resource "aws_iam_policy" "pems_marts_external_stage_policy" {
-  name        = "${var.prefix}${local.iam_policy_infix}-${var.region}-pems-marts-external-stage-policy"
+  name        = "${var.caltrans_naming ? "custom_" : ""}${var.prefix}${local.iam_policy_infix}-${var.region}-pems-marts-external-stage-policy"
   description = "Policy allowing read/write for PeMS marts bucket"
   policy      = data.aws_iam_policy_document.pems_marts_external_stage_policy.json
 }
