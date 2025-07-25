@@ -176,4 +176,6 @@ data "aws_iam_policy_document" "pems_marts_public_read" {
 resource "aws_s3_bucket_policy" "pems_marts_public_read" {
   bucket = aws_s3_bucket.pems_marts.id
   policy = data.aws_iam_policy_document.pems_marts_public_read.json
+
+  depends_on = [aws_s3_bucket_public_access_block.pems_marts]
 }
