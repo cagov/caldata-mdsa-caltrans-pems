@@ -19,29 +19,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.10"
-      - uses: snok/install-poetry@v1
+          enable-cache: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          virtualenvs-path: .venv
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v4
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+          python-version-file: ".python-version"
+      - uses: actions/checkout@v4
       - name: Load GIS Datasets
         env:
           SNOWFLAKE_DATABASE: RAW_PRD
           SNOWFLAKE_WAREHOUSE: LOADING_XS_PRD
           SNOWFLAKE_ROLE: LOADER_PRD
-        run: poetry run python -m jobs.load_geo_reference_data
+        run: uv run python -m jobs.load_geo_reference_data
       - name: Create UDFs
         env:
           SNOWFLAKE_DATABASE: ANALYTICS_PRD
           SNOWFLAKE_WAREHOUSE: TRANSFORMING_XS_PRD
           SNOWFLAKE_ROLE: TRANSFORMER_PRD
-        run: poetry run python -m jobs.create_stored_procedures
+        run: uv run python -m jobs.create_stored_procedures
