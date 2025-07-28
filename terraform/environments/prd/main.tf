@@ -70,6 +70,44 @@ provider "aws" {
   }
 }
 
+#####################
+# MIGRATION RELATED #
+#####################
+data "aws_caller_identity" "current" {
+  provider = aws.caltrans
+}
+
+data "aws_iam_policy_document" "pems_raw_migration" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.arn]
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:GetObjectTagging",
+      "s3:GetObjectVersion",
+      "s3:GetObjectVersionTagging"
+    ]
+
+    resources = [
+      module.s3_lake.pems_raw_bucket.arn,
+      "${module.s3_lake.pems_raw_bucket.arn}/*",
+    ]
+  }
+}
+
+resource "aws_s3_bucket_policy" "pems_raw_migration" {
+  bucket = module.s3_lake.pems_raw_bucket.name
+  policy = data.aws_iam_policy_document.pems_raw_migration.json
+}
+
+#########################
+# END MIGRATION RELATED #
+#########################
+
 # This provider is intentionally low-permission. In Snowflake, object creators are
 # the default owners of the object. To control the owner, we create different provider
 # blocks with different roles, and require that all snowflake resources explicitly
