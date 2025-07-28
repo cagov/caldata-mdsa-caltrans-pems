@@ -21,12 +21,12 @@ terraform {
 }
 
 locals {
-  owner       = "caltrans"
-  environment = "dev"
-  project     = "pems"
-  region      = "us-west-2"
-  account_name = "DSE_CALTRANS_PEMS"
-  organization_name= "VSB79059"
+  owner             = "caltrans"
+  environment       = "dev"
+  project           = "pems"
+  region            = "us-west-2"
+  account_name      = "DSE_CALTRANS_PEMS"
+  organization_name = "VSB79059"
 
   # These are circular dependencies on the outputs. Unfortunate, but
   # necessary, as we don't know them until we've created the storage
@@ -55,18 +55,18 @@ provider "aws" {
 
   default_tags {
     tags = {
-      "BURequestor": "zhenyu.zhu@dot.ca.gov"
-      "BUName": "Business Intelligence and Automation"
-      "BUCode": "3345"
-      "ProjectCode": "unknown"
-      "ProjectPhase": "unknown"
-      "ReportingCode": "unknown"
-      "DataClassification": "Public"
-      "Environment": "NP"
-      "EnvironmentType": "Dev"
-      "ApplicationName": "PeMS"
-      "Backup": "No"
-      "BusinessCriticality": "Low"
+      "BURequestor" : "zhenyu.zhu@dot.ca.gov"
+      "BUName" : "Business Intelligence and Automation"
+      "BUCode" : "3345"
+      "ProjectCode" : "unknown"
+      "ProjectPhase" : "unknown"
+      "ReportingCode" : "unknown"
+      "DataClassification" : "Public"
+      "Environment" : "NP"
+      "EnvironmentType" : "Dev"
+      "ApplicationName" : "PeMS"
+      "Backup" : "No"
+      "BusinessCriticality" : "Low"
     }
   }
 }
@@ -76,45 +76,45 @@ provider "aws" {
 # blocks with different roles, and require that all snowflake resources explicitly
 # flag the role they want for the creator.
 provider "snowflake" {
-  account_name      = local.account_name
-  organization_name = local.organization_name
-  role    = "PUBLIC"
+  account_name             = local.account_name
+  organization_name        = local.organization_name
+  role                     = "PUBLIC"
   preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for account administration (to be used only when necessary).
 provider "snowflake" {
-  alias   = "accountadmin"
-  account_name      = local.account_name
-  organization_name = local.organization_name
-  role    = "ACCOUNTADMIN"
+  alias                    = "accountadmin"
+  account_name             = local.account_name
+  organization_name        = local.organization_name
+  role                     = "ACCOUNTADMIN"
   preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for creating databases, warehouses, etc.
 provider "snowflake" {
-  alias   = "sysadmin"
-  account_name      = local.account_name
-  organization_name = local.organization_name
-  role    = "SYSADMIN"
+  alias                    = "sysadmin"
+  account_name             = local.account_name
+  organization_name        = local.organization_name
+  role                     = "SYSADMIN"
   preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for managing grants to roles.
 provider "snowflake" {
-  alias   = "securityadmin"
-  account_name      = local.account_name
-  organization_name = local.organization_name
-  role    = "SECURITYADMIN"
+  alias                    = "securityadmin"
+  account_name             = local.account_name
+  organization_name        = local.organization_name
+  role                     = "SECURITYADMIN"
   preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
 # Snowflake provider for managing user accounts and roles.
 provider "snowflake" {
-  alias   = "useradmin"
-  account_name      = local.account_name
-  organization_name = local.organization_name
-  role    = "USERADMIN"
+  alias                    = "useradmin"
+  account_name             = local.account_name
+  organization_name        = local.organization_name
+  role                     = "USERADMIN"
   preview_features_enabled = ["snowflake_storage_integration_resource", "snowflake_stage_resource", "snowflake_pipe_resource"]
 }
 
@@ -154,10 +154,10 @@ module "caltrans_s3_lake" {
     aws = aws.caltrans
   }
 
-  prefix                                     = "awspd101"
-  caltrans_naming                            = true
-  region                                     = local.region
-  environment                                = local.environment
+  prefix          = "awspd101"
+  caltrans_naming = true
+  region          = local.region
+  environment     = local.environment
   # TODO: update once we migrate storage integrations
   snowflake_storage_integration_iam_user_arn = "715841364638"
   #snowflake_storage_integration_external_id  = local.storage_aws_external_id
