@@ -41,17 +41,9 @@ provider "aws" {
 
   default_tags {
     tags = {
-      "BURequestor": "zhenyu.zhu@dot.ca.gov"
-      "BUName": "Business Intelligence and Automation"
-      "BUCode": "3345"
-      "ProjectCode": ""
-      "ProjectPhase": ""
-      "ReportingCode": ""
-      "DataClassification": "Public"
-      "Environment": "PD"
-      "ApplicationName": "PeMS"
-      "Backup": "No"
-      "BusinessCriticality": "Low"
+      Owner       = local.owner
+      Project     = local.project
+      Environment = local.environment
     }
   }
 }
@@ -63,9 +55,17 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Owner       = "traffic-ops"
-      Project     = local.project
-      Environment = local.environment
+      "BURequestor": "zhenyu.zhu@dot.ca.gov"
+      "BUName": "Business Intelligence and Automation"
+      "BUCode": "3345"
+      "ProjectCode": "unknown"
+      "ProjectPhase": "unknown"
+      "ReportingCode": "unknown"
+      "DataClassification": "Public"
+      "Environment": "PD"
+      "ApplicationName": "PeMS"
+      "Backup": "No"
+      "BusinessCriticality": "Low"
     }
   }
 }
