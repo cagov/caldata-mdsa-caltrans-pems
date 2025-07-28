@@ -201,6 +201,64 @@ module "caltrans_s3_lake" {
   #snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
 }
 
+# Allow ODI account MWAA execution role to access Caltrans pems_raw bucket
+resource "aws_s3_bucket_policy" "caltrans_pems_raw_cross_account" {
+  provider = aws.caltrans
+  bucket   = module.caltrans_s3_lake.pems_raw_bucket.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowODIAccountMWAAAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = data.aws_iam_role.mwaa_execution_role.arn
+        }
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          module.caltrans_s3_lake.pems_raw_bucket.arn,
+          "${module.caltrans_s3_lake.pems_raw_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Give MWAA execution role access to Caltrans pems-raw bucket for cross-account data copying
+# Create policy in ODI account that grants access to Caltrans bucket
+data "aws_iam_policy_document" "mwaa_caltrans_s3_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      module.caltrans_s3_lake.pems_raw_bucket.arn,
+      "${module.caltrans_s3_lake.pems_raw_bucket.arn}/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "mwaa_caltrans_s3_access" {
+  name        = "${local.owner}-${local.project}-${local.environment}-mwaa-caltrans-pems-raw-access"
+  description = "Allow MWAA to access Caltrans pems_raw bucket"
+  policy      = data.aws_iam_policy_document.mwaa_caltrans_s3_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "mwaa_execution_role_caltrans" {
+  role       = data.aws_iam_role.mwaa_execution_role.name
+  policy_arn = aws_iam_policy.mwaa_caltrans_s3_access.arn
+}
+
 ############################
 # Snowflake Infrastructure #
 ############################
