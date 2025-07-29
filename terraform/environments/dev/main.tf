@@ -228,10 +228,9 @@ module "caltrans_s3_lake" {
   caltrans_naming = true
   region          = local.region
   environment     = local.environment
-  # TODO: update once we migrate storage integrations
-  snowflake_storage_integration_iam_user_arn = "715841364638"
-  #snowflake_storage_integration_external_id  = local.storage_aws_external_id
-  #snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
+  snowflake_storage_integration_iam_user_arn = local.storage_aws_iam_user_arn
+  snowflake_storage_integration_external_id  = local.storage_aws_external_id
+  snowflake_pipe_sqs_queue_arn               = local.pipe_sqs_queue_arn
 }
 
 # Allow ODI account MWAA execution role to access Caltrans pems_raw bucket
@@ -291,9 +290,9 @@ module "snowflake_clearinghouse" {
   }
 
   environment          = upper(local.environment)
-  raw_s3_url           = "s3://${module.s3_lake.pems_raw_bucket.name}"
-  marts_s3_url         = "s3://${module.s3_lake.pems_marts_bucket.name}"
-  storage_aws_role_arn = module.s3_lake.snowflake_storage_integration_role.arn
+  raw_s3_url           = "s3://${module.caltrans_s3_lake.pems_raw_bucket.name}"
+  marts_s3_url         = "s3://${module.caltrans_s3_lake.pems_marts_bucket.name}"
+  storage_aws_role_arn = module.caltrans_s3_lake.snowflake_storage_integration_role.arn
 }
 
 output "pems_raw_stage" {
