@@ -181,6 +181,38 @@ resource "aws_iam_role_policy_attachment" "mwaa_execution_role" {
   policy_arn = module.s3_lake.pems_raw_read_write_policy.arn
 }
 
+# Give MWAA execution role access to Caltrans pems-raw bucket for cross-account data copying
+# Create policy in ODI account that grants access to Caltrans bucket
+# TODO: remove once data relay setup is complete
+data "aws_iam_policy_document" "mwaa_caltrans_s3_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      module.caltrans_s3_lake.pems_raw_bucket.arn,
+      "${module.caltrans_s3_lake.pems_raw_bucket.arn}/*"
+    ]
+  }
+}
+
+# TODO: remove once data relay setup is complete
+resource "aws_iam_policy" "mwaa_caltrans_s3_access" {
+  name        = "${local.owner}-${local.project}-${local.environment}-mwaa-caltrans-pems-raw-access"
+  description = "Allow MWAA to access Caltrans pems_raw bucket"
+  policy      = data.aws_iam_policy_document.mwaa_caltrans_s3_access.json
+}
+
+# TODO: remove once data relay setup is complete
+resource "aws_iam_role_policy_attachment" "mwaa_execution_role_caltrans" {
+  role       = data.aws_iam_role.mwaa_execution_role.name
+  policy_arn = aws_iam_policy.mwaa_caltrans_s3_access.arn
+}
+
 ###############################
 # Caltrans AWS Infrastructure #
 ###############################
@@ -228,35 +260,6 @@ resource "aws_s3_bucket_policy" "caltrans_pems_raw_cross_account" {
       }
     ]
   })
-}
-
-# Give MWAA execution role access to Caltrans pems-raw bucket for cross-account data copying
-# Create policy in ODI account that grants access to Caltrans bucket
-data "aws_iam_policy_document" "mwaa_caltrans_s3_access" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:DeleteObject",
-      "s3:ListBucket"
-    ]
-    resources = [
-      module.caltrans_s3_lake.pems_raw_bucket.arn,
-      "${module.caltrans_s3_lake.pems_raw_bucket.arn}/*"
-    ]
-  }
-}
-
-resource "aws_iam_policy" "mwaa_caltrans_s3_access" {
-  name        = "${local.owner}-${local.project}-${local.environment}-mwaa-caltrans-pems-raw-access"
-  description = "Allow MWAA to access Caltrans pems_raw bucket"
-  policy      = data.aws_iam_policy_document.mwaa_caltrans_s3_access.json
-}
-
-resource "aws_iam_role_policy_attachment" "mwaa_execution_role_caltrans" {
-  role       = data.aws_iam_role.mwaa_execution_role.name
-  policy_arn = aws_iam_policy.mwaa_caltrans_s3_access.arn
 }
 
 ############################
