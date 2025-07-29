@@ -5,7 +5,7 @@ description = "Traffic Operations PeMS Modernization"
 authors = ["Traffic Operations <Zhenyu.Zhu@dot.ca.gov>"]
 license = "MIT"
 readme = "README.md"
-requires-python = "==3.13.*"
+requires-python = "==3.12.*"
 dependencies = [
     "dbt-core~=1.10",
     "dbt-snowflake~=1.10",
