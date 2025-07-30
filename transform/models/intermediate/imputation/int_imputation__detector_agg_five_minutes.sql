@@ -185,7 +185,7 @@ samples_requiring_imputation_with_local_regional_coeffs as (
         local_regional_coeffs.regression_date
     from samples_requiring_imputation_with_local_regional_neighbors as samples
     asof join local_regional_coeffs
-        match_condition (samples.sample_date >= local_regional_coeffs.regression_date)
+        match_condition(samples.sample_date >= local_regional_coeffs.regression_date)
         on
             samples.detector_id = local_regional_coeffs.detector_id
             and samples.district = local_regional_coeffs.district
@@ -253,7 +253,7 @@ samples_requiring_imputation_with_global_coeffs as (
         global_coeffs.regression_date
     from samples_requiring_imputation
     asof join global_coeffs
-        match_condition (samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
+        match_condition(samples_requiring_imputation.sample_date >= global_coeffs.regression_date)
         on
             samples_requiring_imputation.detector_id = global_coeffs.detector_id
             and samples_requiring_imputation.district = global_coeffs.district

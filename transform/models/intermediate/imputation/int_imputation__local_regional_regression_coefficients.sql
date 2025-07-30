@@ -65,7 +65,7 @@ nearby_stations as (
     do this filtering already, but in some profiling Snowflake was doing some join reordering
     that caused an unnecessary row explosion, where the date filtering was happening
     after the pairwise join. So this helps avoid that behavior. */
-    where regression_dates_to_evaluate.regression_date >= (select min(sample_date) from agg)
+    where regression_dates_to_evaluate.regression_date >= (select min(agg.sample_date) from agg)
 ),
 
 
