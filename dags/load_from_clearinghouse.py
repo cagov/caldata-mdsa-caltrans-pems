@@ -11,6 +11,7 @@ from airflow.decorators import dag, task
 HTTP_NOT_FOUND = 404
 CLHOUSE_PREFIX = "https://pems.dot.ca.gov/feeds/clhouse"
 S3_PREFIX = "s3://caltrans-pems-prd-us-west-2-raw"
+CALTRANS_S3_PREFIX = "s3://awspd101s3b-prd-us-west-2-raw"
 DISTRICTS = ["d03", "d04", "d05", "d06", "d07", "d08", "d10", "d11", "d12"]
 
 
@@ -23,7 +24,7 @@ def copy_file(src, dst, s3) -> None:
         )
 
 
-def clearinghouse_to_s3(day: date) -> None:
+def clearinghouse_to_s3(day: date, s3_bucket: str) -> None:
     """
     Copy PeMS vehicle detector data from the clearinghouse website to S3 for a date.
 
@@ -35,6 +36,8 @@ def clearinghouse_to_s3(day: date) -> None:
     ----------
     day: datetime.date
         The date for which to copy data.
+    s3_bucket: str
+        The S3 bucket into which to copy the data
     """
     s3 = boto3.client("s3")
 
@@ -60,7 +63,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{d}_text_station_raw_{day.year}_{day.month:02}_{day.day:02}.txt.gz"
         )
         dst_raw_url = (
-            f"{S3_PREFIX}/clhouse/raw/{d}/{day.year}/{day.month:02}/"
+            f"{s3_bucket}/clhouse/raw/{d}/{day.year}/{day.month:02}/"
             f"{d}_text_station_raw_{day.year}_{day.month:02}_{day.day:02}.txt.gz"
         )
         try:
@@ -75,7 +78,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{d}_text_meta_{day.year}_{day.month:02}_{day.day:02}.txt"
         )
         dst_meta_url = (
-            f"{S3_PREFIX}/clhouse/meta/{d}/{day.year}/{day.month:02}/"
+            f"{s3_bucket}/clhouse/meta/{d}/{day.year}/{day.month:02}/"
             f"{d}_text_meta_{day.year}_{day.month:02}_{day.day:02}.txt"
         )
         # Not every date has meta, some are missing (FileNotFoundError),
@@ -88,7 +91,7 @@ def clearinghouse_to_s3(day: date) -> None:
             f"{d}_tmdd_meta_{day.year}_{day.month:02}_{day.day:02}.xml"
         )
         dst_meta_xml_url = (
-            f"{S3_PREFIX}/clhouse/status/{d}/{day.year}/{day.month:02}/"
+            f"{s3_bucket}/clhouse/status/{d}/{day.year}/{day.month:02}/"
             f"{d}_tmdd_meta_{day.year}_{day.month:02}_{day.day:02}.xml"
         )
         # Not every date has status, some are missing (FileNotFoundError),
@@ -99,7 +102,8 @@ def clearinghouse_to_s3(day: date) -> None:
 
 @task
 def pems_clearinghouse_to_s3_task(**context):
-    clearinghouse_to_s3(context["execution_date"].date())
+    clearinghouse_to_s3(context["execution_date"].date(), S3_PREFIX)
+    clearinghouse_to_s3(context["execution_date"].date(), CALTRANS_S3_PREFIX)
 
 
 @dag(
