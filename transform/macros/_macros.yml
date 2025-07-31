@@ -129,3 +129,46 @@ macros:
         description: |
           This function replace the county numeric code to county full name. The county name was made lower case
           to make it insensitive for kibana search option.
+
+  - name: validate_all_schemas
+    description: |
+      Macro to validate all model and source schemas in the project against
+      their documentation.
+
+      This macro creates a comprehensive report of schema validation issues
+      across all models and sources in the project. It compares the documented
+      columns in dbt YAML files with the actual columns in the database
+      tables/views.
+
+      The macro will always raise an error if validation issues are found, making
+      it suitable for use in CI/CD pipelines to enforce schema documentation
+      standards.
+    arguments:
+      - name: errors_only
+        type: boolean
+        description: |
+          If true, only shows tables with validation errors. If false, shows all
+          validation results including successful matches. Defaults to false.
+      - name: undocumented_columns_as_errors
+        type: boolean
+        description: |
+          If true, treats undocumented columns as validation errors. If false,
+          undocumented columns are reported as warnings but don't cause failure.
+          Defaults to true.
+
+  - name: drop_schemas_with_prefix
+    description: |
+      Macro to drop a schema in the database with a specified prefix.
+
+      This macro constructs the schema name using the provided prefix and drops
+      it if it exists.
+      Useful for cleaning up test or temporary schemas in CI/CD workflows.
+    arguments:
+      - name: prefix
+        type: string
+        description: |
+          The prefix to use when constructing the schema name to drop.
+      - name: database
+        type: string
+        description: |
+          The database in which the schema resides. Optional; defaults to the target database.
