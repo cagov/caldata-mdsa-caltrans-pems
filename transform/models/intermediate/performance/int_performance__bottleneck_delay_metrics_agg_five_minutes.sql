@@ -1,9 +1,10 @@
 {{ config(
     materialized="incremental",
+    incremental_strategy="microbatch",
+    event_time="sample_date",
     cluster_by=["sample_date"],
-    unique_key=["station_id", "sample_date", "sample_timestamp"],
-    on_schema_change='sync_all_columns',
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS")
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with
@@ -30,9 +31,7 @@ station_five_minute as (
         delay_55_mph,
         delay_60_mph
     from {{ ref ("int_performance__station_metrics_agg_five_minutes") }}
-    where
-        {{ make_model_incremental('sample_date') }}
-        and station_type in ('ML', 'HV')
+    where station_type in ('ML', 'HV')
 ),
 
 calcs as (
