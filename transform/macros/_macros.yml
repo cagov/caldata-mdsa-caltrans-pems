@@ -156,7 +156,7 @@ macros:
           undocumented columns are reported as warnings but don't cause failure.
           Defaults to true.
 
-  - name: drop_schema_with_prefix
+  - name: drop_schemas_with_prefix
     description: |
       Macro to drop a schema in the database with a specified prefix.
 
@@ -172,21 +172,3 @@ macros:
         type: string
         description: |
           The database in which the schema resides. Optional; defaults to the target database.
-
-  - name: get_custom_schemas
-    description: |
-      Macro to retrieve a custom schema name for a model or source.
-
-      This macro returns the schema name based on project conventions,
-      environment, or other logic.
-      Useful for dynamically assigning schemas in multi-environment dbt projects.
-    arguments:
-      - name: model_name
-        type: string
-        description: |
-          The name of the model or source for which to get the custom schema.
-      - name: environment
-        type: string
-        description: |
-          The environment (e.g., dev, prod) to use when determining the schema name.
-          Optional.
