@@ -9,7 +9,7 @@
 
 with detector_agg as (
     select *
-    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
+    from {{ ref('int_imputation__detector_imputed_agg_five_minutes') }}
 ),
 
 thresholds as (
@@ -17,7 +17,7 @@ thresholds as (
         detector_id,
         agg_date,
         occupancy_60th
-    from {{ ref('int_diagnostics__detector_outlier_thresholds') }}
+    from {{ ref('int_imputation__detector_outlier_thresholds') }}
 ),
 
 detector_agg_with_thresholds as (
@@ -27,7 +27,7 @@ detector_agg_with_thresholds as (
         thresholds.occupancy_60th as occupancy_threshold
     from detector_agg
     asof join thresholds
-        match_condition (detector_agg.sample_date >= thresholds.agg_date)
+        match_condition(detector_agg.sample_date >= thresholds.agg_date)
         on
             detector_agg.detector_id = thresholds.detector_id
 ),

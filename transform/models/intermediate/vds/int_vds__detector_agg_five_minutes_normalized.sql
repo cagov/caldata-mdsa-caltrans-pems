@@ -13,10 +13,6 @@ with five_minute_agg as (
     from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
 ),
 
-thresholds as (
-    select * from {{ ref('int_diagnostics__detector_outlier_thresholds') }}
-),
-
 /* Get date range where a detector is expected to be collecting data. */
 detector_date_range as (
     select *
@@ -34,38 +30,6 @@ volume_normalized as (
             10 / nullifzero(sample_ct) * volume_observed
         ))::int as volume_sum
     from five_minute_agg
-),
-
--- impute detected outliers
-outlier_removed_data as (
-    select
-        volume_normalized.* exclude (volume_sum, occupancy_avg),
-        -- update volume_sum if it's an outlier
-        case
-            when
-                (volume_normalized.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3
-                then thresholds.volume_95th
-            else volume_normalized.volume_sum
-        end as volume_sum,
-        -- add a volume_label for imputed volume
-        coalesce(
-            (volume_normalized.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3,
-            false
-        ) as volume_outlier,
-        -- update occupancy if it's an outlier
-        case
-            when
-                volume_normalized.occupancy_avg > thresholds.occupancy_95th
-                then thresholds.occupancy_95th
-            else volume_normalized.occupancy_avg
-        end as occupancy_avg,
-        -- add a column for imputed occupancy
-        coalesce(volume_normalized.occupancy_avg > thresholds.occupancy_95th, false) as occupancy_outlier
-    from volume_normalized
-    asof join thresholds
-        match_condition (volume_normalized.sample_date >= thresholds.agg_date)
-        on
-            volume_normalized.detector_id = thresholds.detector_id
 ),
 
 timestamp_spine as (
@@ -108,8 +72,6 @@ base as (
         agg.high_occupancy_ct,
         agg.speed_weighted,
         agg.volume_observed,
-        agg.volume_outlier,
-        agg.occupancy_outlier,
         spine.state_postmile,
         spine.absolute_postmile,
         spine.latitude,
@@ -122,7 +84,7 @@ base as (
         spine.direction,
         spine.length
     from spine
-    left join outlier_removed_data as agg
+    left join volume_normalized as agg
         on spine.sample_timestamp = agg.sample_timestamp and spine.detector_id = agg.detector_id
 )
 

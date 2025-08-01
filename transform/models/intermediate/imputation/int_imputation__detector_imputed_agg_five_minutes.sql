@@ -79,7 +79,6 @@ hybrid_five_mins_agg as (
                 or speed_five_mins is null
                 then
                     coalesce(local_regression_date, regional_regression_date, global_regression_date)
-            else sample_date
         end as regression_date,
 
         -- assign the imputation method

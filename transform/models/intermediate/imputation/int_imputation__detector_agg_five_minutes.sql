@@ -31,7 +31,7 @@ with base as (
             when volume_sum = 0 and occupancy_avg = 0 then 0
             else speed_weighted
         end as speed_weighted
-    from {{ ref('int_vds__detector_agg_five_minutes_with_g_factor_speed') }}
+    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
@@ -59,6 +59,13 @@ local_regional_coeffs as (
 global_coeffs as (
     select * from {{ ref('int_imputation__global_coefficients') }}
 ),
+
+/* Thresholds for what we should consider an outlier, based on historical
+   measurements of detectors. */
+thresholds as (
+    select * from {{ ref('int_imputation__detector_outlier_thresholds') }}
+),
+
 
 /* Join unimputed data with the "good detectors" model to flag whether we consider a
 detector to be operating correctly for a given day. */
@@ -93,6 +100,31 @@ unimputed as (
     where base.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
+-- Detect outliers and fill with 95th percentile value
+unimputed_without_outliers as (
+    select
+        unimputed.* exclude (volume_sum, occupancy_avg),
+        -- update volume_sum if it's an outlier
+        case
+            when
+                (unimputed.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3
+                then thresholds.volume_95th
+            else unimputed.volume_sum
+        end as volume_sum,
+        -- update occupancy if it's an outlier
+        case
+            when
+                unimputed.occupancy_avg > thresholds.occupancy_95th
+                then thresholds.occupancy_95th
+            else unimputed.occupancy_avg
+        end as occupancy_avg
+    from unimputed
+    asof join thresholds
+        match_condition(unimputed.sample_date >= thresholds.agg_date)
+        on
+            unimputed.detector_id = thresholds.detector_id
+),
+
 /* Split the unimputed data into two sets, one requiring imputation
   (it's status is not "Good") and one not requiring imputation (it's status is
   "Good") */
@@ -109,7 +141,7 @@ samples_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
+    from unimputed_without_outliers
     where not detector_is_good
     -- there can still be gaps in detectors that are "Good",
     -- so we try to impute for those as well.
