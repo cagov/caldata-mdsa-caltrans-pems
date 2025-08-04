@@ -26,6 +26,7 @@ with base as (
         length,
         station_type,
         absolute_postmile,
+        physical_lanes,
         sample_ct,
         case
             when volume_sum = 0 and occupancy_avg = 0 then 0
@@ -87,6 +88,7 @@ unimputed as (
         base.length,
         base.station_type,
         base.absolute_postmile,
+        base.physical_lanes,
         base.sample_ct,
         -- If the detector_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date.
@@ -163,7 +165,7 @@ samples_not_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
+    from unimputed_without_outliers
     where
         detector_is_good
         and volume_sum is not null
@@ -354,7 +356,7 @@ global_imputed as (
 /** Put the local, regional, and global datasets all together **/
 agg_with_local_regional_global_imputation as (
     select
-        unimputed.*,
+        unimputed_without_outliers.*,
         local_imputed.regression_date as local_regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
@@ -373,22 +375,22 @@ agg_with_local_regional_global_imputation as (
         global_imputed.volume_global_regression,
         global_imputed.occupancy_global_regression,
         global_imputed.speed_global_regression
-    from unimputed
+    from unimputed_without_outliers
     left join local_imputed
         on
-            unimputed.detector_id = local_imputed.detector_id
-            and unimputed.sample_date = local_imputed.sample_date
-            and unimputed.sample_timestamp = local_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = local_imputed.detector_id
+            and unimputed_without_outliers.sample_date = local_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = local_imputed.sample_timestamp
     left join regional_imputed
         on
-            unimputed.detector_id = regional_imputed.detector_id
-            and unimputed.sample_date = regional_imputed.sample_date
-            and unimputed.sample_timestamp = regional_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = regional_imputed.detector_id
+            and unimputed_without_outliers.sample_date = regional_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = regional_imputed.sample_timestamp
     left join global_imputed
         on
-            unimputed.detector_id = global_imputed.detector_id
-            and unimputed.sample_date = global_imputed.sample_date
-            and unimputed.sample_timestamp = global_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = global_imputed.detector_id
+            and unimputed_without_outliers.sample_date = global_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = global_imputed.sample_timestamp
 )
 
 select * from agg_with_local_regional_global_imputation
