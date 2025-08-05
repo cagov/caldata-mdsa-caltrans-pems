@@ -1,9 +1,9 @@
 {{ config(
     materialized="incremental",
-    cluster_by=["active_date"],
-    unique_key=["detector_id", "active_date"],
-    on_schema_change="sync_all_columns",
-    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="active_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with
@@ -12,7 +12,6 @@ source as (
         sample_date as active_date,
         * exclude sample_date
     from {{ ref('int_diagnostics__samples_per_detector') }}
-    where {{ make_model_incremental('active_date') }}
 ),
 
 detector_meta as (

@@ -1,8 +1,11 @@
 {{ config(
+    enabled=false,
     materialized="incremental",
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
     cluster_by="sample_date",
-    unique_key=["id", "lane", "sample_timestamp","sample_date"],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 {% set n_lanes = 14 %}
 
@@ -21,7 +24,6 @@ with raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref("stg_db96__vds30sec") }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 agg as (

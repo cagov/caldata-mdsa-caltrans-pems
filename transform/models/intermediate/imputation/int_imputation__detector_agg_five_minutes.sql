@@ -1,9 +1,10 @@
 {{ config(
         materialized='incremental',
-        on_schema_change="append_new_columns",
+        incremental_strategy="microbatch",
+        event_time="sample_date",
         cluster_by=["sample_date"],
-        unique_key=["detector_id", "sample_timestamp", "sample_date"],
-        snowflake_warehouse = get_snowflake_refresh_warehouse(big="XL", small="XS"),
+        full_refresh=false,
+        snowflake_warehouse=get_snowflake_refresh_warehouse(),
     )
 }}
 
@@ -25,15 +26,13 @@ with base as (
         length,
         station_type,
         absolute_postmile,
+        physical_lanes,
         sample_ct,
-        station_valid_from,
-        station_valid_to,
         case
             when volume_sum = 0 and occupancy_avg = 0 then 0
             else speed_weighted
         end as speed_weighted
-    from {{ ref('int_clearinghouse__detector_agg_five_minutes_with_missing_rows') }}
-    where {{ make_model_incremental('sample_date') }}
+    from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
 ),
 
 /* Get all detectors that are "real" in that they represent lanes that exist
@@ -62,6 +61,13 @@ global_coeffs as (
     select * from {{ ref('int_imputation__global_coefficients') }}
 ),
 
+/* Thresholds for what we should consider an outlier, based on historical
+   measurements of detectors. */
+thresholds as (
+    select * from {{ ref('int_imputation__detector_outlier_thresholds') }}
+),
+
+
 /* Join unimputed data with the "good detectors" model to flag whether we consider a
 detector to be operating correctly for a given day. */
 unimputed as (
@@ -82,9 +88,8 @@ unimputed as (
         base.length,
         base.station_type,
         base.absolute_postmile,
+        base.physical_lanes,
         base.sample_ct,
-        base.station_valid_from,
-        base.station_valid_to,
         -- If the detector_id in the join is not null, it means that the detector
         -- is considered to be "good" for a given date.
         (good_detectors.detector_id is not null) as detector_is_good,
@@ -95,6 +100,31 @@ unimputed as (
             base.detector_id = good_detectors.detector_id
             and base.sample_date = good_detectors.sample_date
     where base.station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
+),
+
+-- Detect outliers and fill with 95th percentile value
+unimputed_without_outliers as (
+    select
+        unimputed.* exclude (volume_sum, occupancy_avg),
+        -- update volume_sum if it's an outlier
+        case
+            when
+                (unimputed.volume_sum - thresholds.volume_mean) / nullifzero(thresholds.volume_stddev) > 3
+                then thresholds.volume_95th
+            else unimputed.volume_sum
+        end as volume_sum,
+        -- update occupancy if it's an outlier
+        case
+            when
+                unimputed.occupancy_avg > thresholds.occupancy_95th
+                then thresholds.occupancy_95th
+            else unimputed.occupancy_avg
+        end as occupancy_avg
+    from unimputed
+    asof join thresholds
+        match_condition(unimputed.sample_date >= thresholds.agg_date)
+        on
+            unimputed.detector_id = thresholds.detector_id
 ),
 
 /* Split the unimputed data into two sets, one requiring imputation
@@ -113,7 +143,7 @@ samples_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
+    from unimputed_without_outliers
     where not detector_is_good
     -- there can still be gaps in detectors that are "Good",
     -- so we try to impute for those as well.
@@ -135,7 +165,7 @@ samples_not_requiring_imputation as (
         volume_sum,
         occupancy_avg,
         speed_five_mins
-    from unimputed
+    from unimputed_without_outliers
     where
         detector_is_good
         and volume_sum is not null
@@ -326,7 +356,7 @@ global_imputed as (
 /** Put the local, regional, and global datasets all together **/
 agg_with_local_regional_global_imputation as (
     select
-        unimputed.*,
+        unimputed_without_outliers.*,
         local_imputed.regression_date as local_regression_date,
         local_imputed.volume_local_regression,
         local_imputed.occupancy_local_regression,
@@ -345,22 +375,22 @@ agg_with_local_regional_global_imputation as (
         global_imputed.volume_global_regression,
         global_imputed.occupancy_global_regression,
         global_imputed.speed_global_regression
-    from unimputed
+    from unimputed_without_outliers
     left join local_imputed
         on
-            unimputed.detector_id = local_imputed.detector_id
-            and unimputed.sample_date = local_imputed.sample_date
-            and unimputed.sample_timestamp = local_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = local_imputed.detector_id
+            and unimputed_without_outliers.sample_date = local_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = local_imputed.sample_timestamp
     left join regional_imputed
         on
-            unimputed.detector_id = regional_imputed.detector_id
-            and unimputed.sample_date = regional_imputed.sample_date
-            and unimputed.sample_timestamp = regional_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = regional_imputed.detector_id
+            and unimputed_without_outliers.sample_date = regional_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = regional_imputed.sample_timestamp
     left join global_imputed
         on
-            unimputed.detector_id = global_imputed.detector_id
-            and unimputed.sample_date = global_imputed.sample_date
-            and unimputed.sample_timestamp = global_imputed.sample_timestamp
+            unimputed_without_outliers.detector_id = global_imputed.detector_id
+            and unimputed_without_outliers.sample_date = global_imputed.sample_date
+            and unimputed_without_outliers.sample_timestamp = global_imputed.sample_timestamp
 )
 
 select * from agg_with_local_regional_global_imputation

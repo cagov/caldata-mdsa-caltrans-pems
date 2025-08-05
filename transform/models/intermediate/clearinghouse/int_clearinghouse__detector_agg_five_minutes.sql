@@ -1,9 +1,10 @@
 {{ config(
     materialized="incremental",
+    incremental_strategy="microbatch",
+    full_refresh=false,
+    event_time="sample_date",
     cluster_by=["sample_date"],
-    unique_key=["detector_id", "sample_timestamp","sample_date"],
-    on_schema_change="append_new_columns",
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XS", big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 {% set n_lanes = 8 %}
 
@@ -22,8 +23,6 @@ with raw as (
             trunc(sample_timestamp, 'hour')
         ) as sample_timestamp_trunc
     from {{ ref('stg_clearinghouse__station_raw') }}
-
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 dmeta as (
@@ -82,14 +81,7 @@ agg as (
             district,
             sample_ct_{{ lane }} as sample_ct,
             {{ lane }} as lane,
-            volume_{{ lane }} as volume_observed,
-            round(iff(
-                sample_ct_{{ lane }} >= 10, volume_{{ lane }},
-                10 / nullifzero(sample_ct_{{ lane }}) * volume_{{ lane }}
-            ))
-                as volume_sum,
-                --Represents the observed or normalized flow value based on the
-                --number of samples recieved by the device
+            volume_{{ lane }} as volume_sum,
             zero_vol_ct_{{ lane }} as zero_vol_ct,
             occupancy_{{ lane }} as occupancy_avg,
             zero_occ_ct_{{ lane }} as zero_occ_ct,
@@ -123,9 +115,7 @@ agg_with_metadata as (
         dmeta.city,
         dmeta.freeway,
         dmeta.direction,
-        dmeta.length,
-        dmeta._valid_from as station_valid_from,
-        dmeta._valid_to as station_valid_to
+        dmeta.length
     from agg_unioned as agg inner join dmeta
         on
             agg.station_id = dmeta.station_id

@@ -1,13 +1,14 @@
 {{ config(
     materialized="incremental",
-    unique_key=['station_id','sample_date', 'time_shift'],
-    snowflake_warehouse = get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with hourly_spatial_bottleneck_delay_metrics as (
     select *
     from {{ ref('int_performance__bottleneck_delay_metrics_agg_hourly') }}
-    where {{ make_model_incremental('sample_date') }}
 ),
 
 /*aggregate hourly delay and bottleneck extent in a daily level. Since one day has

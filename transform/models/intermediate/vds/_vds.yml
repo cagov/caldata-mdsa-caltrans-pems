@@ -227,3 +227,32 @@ models:
     description: |
       Contains detector metadata for all detectors that were designated active on any
       given day.
+
+  - name: int_vds__detector_agg_five_minutes_normalized
+    description: |
+      This model takes the `int_clearinghouse__detector_agg_five_minutes` model and does some
+      data normalization and cleanup.  The following operations are performed
+        1. If fewer than ten volume samples are recorded (i.e., if some 30-second samples are
+            missing over the five minute period), the volume is extrapolated to the number it
+            might have been if all samples were present.
+        1. Fill in "missing" rows. Missing rows are added at the 5-minute timestamp level
+            between each detector's min and max sample dates (from the parent model).
+            For all resulting rows, metadata is filled in but data values (eg. `volume_sum`,
+            `occupancy_avg`, etc) are set to `null`, to be imputed later.
+
+      Column descriptions can be found in `int_clearinghouse__detector_agg_five_minutes`.
+      This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
+    data_tests:
+      - five_minute_daily_count:
+          group_by_columns: ["detector_id", "sample_date"]
+    columns:
+      - name: volume_observed
+        description: |
+          The observed volume. This will be the same as `volume_sum`, unless extrapolation
+          occurs due to fewer than ten samples being present.
+      - name: volume_outlier
+        description: |
+          Whether the volume was judged to be an outlier and replaced.
+      - name: occupancy_outlier
+        description: |
+          Whether the occupancy was judged to be an outlier and replaced.

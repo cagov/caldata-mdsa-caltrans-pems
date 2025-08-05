@@ -1,9 +1,9 @@
 {{ config(
     materialized="incremental",
-    cluster_by=['sample_date'],
-    unique_key=['detector_id', 'sample_date'],
-    on_schema_change='sync_all_columns',
-    snowflake_warehouse=get_snowflake_refresh_warehouse(small="XL")
+    incremental_strategy="microbatch",
+    event_time="sample_date",
+    full_refresh=false,
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 with
@@ -14,7 +14,6 @@ source as (
     where
         TO_TIME(sample_timestamp) >= {{ var("day_start") }}
         and TO_TIME(sample_timestamp) <= {{ var("day_end") }}
-        and {{ make_model_incremental('sample_date') }}
 ),
 
 samples_per_detector as (

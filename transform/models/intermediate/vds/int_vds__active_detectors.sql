@@ -1,10 +1,12 @@
+{{ config(event_time="active_date") }}
+
 with date_range as (
-        {{ dbt_utils.date_spine(
+    {{ dbt_utils.date_spine(
         datepart="day",
-        start_date="to_date('01/01/2010', 'mm/dd/yyyy')",
-        end_date= "current_date + 1"
+        start_date=var("pems_clearinghouse_start_date"),
+        end_date= "current_date + 1 "
         )
-        }}
+    }}
 ),
 
 date_range_updated as (

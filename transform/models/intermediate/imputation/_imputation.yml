@@ -50,6 +50,7 @@ models:
       only for bad detectors while observed value is reported for the good
       detectors. This model should be unique at the level of
       SAMPLE_TIMESTAMP + DETECTOR_ID.
+      TODO - better docs here
     columns:
       - name: STATION_ID
         description: The station ID.
@@ -227,3 +228,78 @@ models:
         description: The slope of the occupancy regression.
       - name: OCCUPANCY_INTERCEPT
         description: The intercept of the occupancy regression.
+  - name: int_imputation__detector_outlier_thresholds
+    description: |
+      Computes summary statistics of occupancy, volume, and speed for detectors over regular one-week
+      time intervals. Detectors are filtered to one that are considered operational (per the status
+      in `int_diagnostics__detector_status`) before aggregating.
+
+      The statistics in this data model are used to identify outliers in the data normalization process.
+      This model is unique at the level of AGG_DATE + DETECTOR_ID.
+    columns:
+      - name: agg_date
+        description: |
+          The date on which the aggregation *started* (i.e., the start of the one week window).
+        data_tests:
+          - not_null
+      - name: detector_id
+        description: The detector ID
+      - name: occupancy_mean
+        description: The mean of the occupancy over the time period.
+      - name: occupancy_stddev
+        description: The standard deviation of the occupancy over the time period.
+      - name: occupancy_60th
+        description: The 60th percentile of the occupancy over the time period.
+      - name: occupancy_95th
+        description: The 95th percentile of the occupancy over the time period.
+      - name: volume_mean
+        description: The mean of the volume over the time period.
+      - name: volume_stddev
+        description: The standard deviation of the volume over the time period.
+      - name: volume_60th
+        description: The 60th percentile of the volume over the time period.
+      - name: volume_95th
+        description: The 95th percentile of the volume over the time period.
+      - name: speed_weighted_mean
+        description: The mean of the speed over the time period.
+      - name: speed_stddev
+        description: The standard deviation of the speed over the time period.
+      - name: speed_60th
+        description: The 60th percentile of the speed over the time period.
+      - name: speed_95th
+        description: The 95th percentile of the speed over the time period.
+  - name: int_imputation__detector_agg_five_minutes_with_g_factor_speed
+    description: |
+      This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the
+      PeMS system computes speed for sensors that don't report speed, like single loop detectors. The g-factor
+      is a value that represents the effective length of the vehicles. Typically, a constant value for the g-factor
+      is used which leads to inaccurate speeds because the g-factor varies by lane, time-of-day, as well as the loop
+      sensitivity. PeMS estimates a g-factor for each loop for every 5 minutes over an average week to provide accurate
+      speed estimates.
+    columns:
+      - name: free_flow_speed
+        description: |
+          A specific free flow speed based on the type of freeway (meaning the total number of lanes)
+          and the particular lane that the detector is. For example, the free-flow speed in lane 2 of
+          a 2-lane freeway is different from the free-flow speed in lane 2 of a 5-lane freeway.
+      - name: raw_g_factor
+        description: |
+          Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
+          and real-time occupancy.
+      - name: g_factor
+        description: |
+          Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
+      - name: p_factor
+        description: An exponential filter with weights that vary as a function of the flow.
+      - name: speed_preliminary
+        description: |
+          An initial speed estimate is passed through the p_factor based exponential filter. When the
+          flow at the loop is low the smoothing is quite severe. When the flow is high, there is little
+          smoothing. This allows us to quickly adapt to periods of congestion as well as to have stable
+          speeds when the data is sparse (like in the middle of the night).
+      - name: speed_smoothed
+        description: A smoothed version of the estimated speed by passing through the exponential filter.
+      - name: imputed_speed
+        description: |
+          An imputed version of g-factor based speed, adjusted using upper and lower bounds. Boundaries vary
+          based on different scenarios for specific lanes.

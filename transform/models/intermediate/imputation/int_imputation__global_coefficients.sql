@@ -2,17 +2,27 @@
     materialized="incremental",
     unique_key=['detector_id', 'district', 'freeway', 'direction', 'station_type','regression_date'],
     on_schema_change="append_new_columns",
-    snowflake_warehouse=get_snowflake_refresh_warehouse(big="XL")
+    snowflake_warehouse=get_snowflake_refresh_warehouse()
 ) }}
 
 -- Generate dates using dbt_utils.date_spine
+-- We choose choose an end_date so that at least linear_regression_time_window
+-- has passed so that we have as complete of data as possible.
 with date_spine as (
     select date_day::date as regression_date
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
-            start_date="'1998-10-01'",
-            end_date="current_date()"
+            start_date=var("pems_clearinghouse_start_date"),
+            end_date=(
+                "'"
+                + (
+                    modules.datetime.datetime.now()
+                    - modules.datetime.timedelta(days=var("linear_regression_time_window"))
+                    - modules.datetime.timedelta(days=1)
+                ).date().isoformat()
+                + "'"
+            )
         ) }}
     ) as spine
 ),
@@ -58,7 +68,7 @@ detector_dates_for_regression as (
 ),
 
 agg as (
-    select * from {{ ref('int_clearinghouse__detector_agg_five_minutes') }}
+    select * from {{ ref('int_vds__detector_agg_five_minutes_normalized') }}
     where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
 ),
 
