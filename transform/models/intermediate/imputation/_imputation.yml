@@ -130,6 +130,19 @@ models:
         description: |
           The date on which the coefficients in the global regression
           were evaluated.
+      - name: COUNTY
+        description: The county in which the detector is located.
+      - name: CITY
+        description: The city in which the detector is located.
+      - name: LENGTH
+        description: The length of the state highway.
+      - name: SAMPLE_CT
+      - name: STATION_VALID_FROM
+        description: The date from which the station is valid.
+      - name: STATION_VALID_TO
+        description: The date until which the station is valid.
+      - name: ABSOLUTE_POSTMILE
+        description: Absolute postmile value along a particular state route where the VDS is located.
   - name: int_imputation__detector_imputed_agg_five_minutes
     description: |
       This model compares the imputed values (speed, volume and occupancy) obtained
@@ -166,9 +179,9 @@ models:
       - name: VOLUME_SUM
         description: observed or imputed flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
-      - name: SPEED_WEIGHTED
-        description: |
-          Flow-weighted speed reported by the device.
+      # - name: SPEED_WEIGHTED
+      #   description: |
+      #     Flow-weighted speed reported by the device.
       - name: SPEED_FIVE_MINS
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
@@ -182,6 +195,20 @@ models:
         description: |
           The date on which the coefficients in the regression
           were evaluated.
+      - name: COUNTY
+        description: The county in which the detector is located.
+      - name: CITY
+        description: The city in which the detector is located.
+      - name: LENGTH
+        description: The length of the state highway.
+      - name: ABSOLUTE_POSTMILE
+        description: Absolute postmile value along a particular state route where the VDS is located.
+      - name: SAMPLE_CT
+        description: The number of samples taken for the detector in the sample period.
+      - name: STATION_VALID_FROM
+        description: The date from which the station is valid.
+      - name: STATION_VALID_TO
+        description: The date until which the station is valid.
   - name: int_imputation__global_coefficients
     description: |
       Global regression slopes and intercepts for average of all
@@ -194,13 +221,13 @@ models:
         description: The detector ID.
         data_tests:
           - not_null
-      - name: SAMPLE_DATE
-        description: The date on which the sample was taken.
-      - name: SAMPLE_TIMESTAMP
-        description: The timestamp of the start for the 5 minute aggregated samples.
-      - name: LANE
-        description: |
-          The lane number of the detector, starting from 1.
+      # - name: SAMPLE_DATE
+      #   description: The date on which the sample was taken.
+      # - name: SAMPLE_TIMESTAMP
+      #   description: The timestamp of the start for the 5 minute aggregated samples.
+      # - name: LANE
+      #   description: |
+      #     The lane number of the detector, starting from 1.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
       - name: DISTRICT

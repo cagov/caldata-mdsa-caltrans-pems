@@ -301,6 +301,8 @@ sources:
             description: The freeway on which the controller is installed.
           - name: freeway_dir
             description: The direction of travel for the freeway on which the controller is installed.
+          - name: ORIGIN_SET
+            description: Source or origin set for the controller configuration (add more detail if known).
       - name: controller_config_log
         description: |
           A log table showing updates to the controller config. This can be joined
@@ -342,6 +344,7 @@ sources:
           - name: stn_address
             description: An address for the controller.
           - name: eqp_owner_id
+            description: Equipment owner ID for the controller (add more detail if known).
           - name: USER_ID_1
           - name: USER_ID_2
           - name: USER_ID_3
@@ -371,6 +374,8 @@ sources:
             description: The freeway on which the station is installed.
           - name: freeway_dir
             description: The direction of travel for the freeway on which the station is installed.
+          - name: ORIGIN_SET
+            description: Source or origin set for the station configuration (add more detail if known).
       - name: station_config_log
         description: |
           A log table showing updates to the station config. This can be joined
@@ -414,7 +419,7 @@ sources:
           - name: angle
           - name: seg_start
           - name: seg_end
-          - name: eqp_owner_id
+          # - name: EQP_OWNER_ID
           - name: USER_ID_1
           - name: USER_ID_2
           - name: USER_ID_3
@@ -437,6 +442,8 @@ sources:
             description: The unique ID of the detector.
           - name: detector_type
             description: The type of the detector.
+          - name: ORIGIN_SET
+            description: Source or origin set for the detector configuration (add more detail if known).
       - name: detector_config_log
         description: |
           A log table showing updates to the detector config. This can be joined
@@ -483,6 +490,8 @@ sources:
           Caltrans internal GIS application. [Data
           source](https://gisdata-caltrans.opendata.arcgis.com/datasets/111030d0d67e49d789080c47d9e4e618_0/about)
         columns:
+          - name: OBJECTID
+            description: Unique identifier for the county boundary feature.
           - name: COUNTYFP10
             description: 2020 Census county FIPS code.
           - name: GEOID10
@@ -531,6 +540,12 @@ sources:
             description: The length of the district.
           - name: "geometry"
             description: The geometry of the district.
+          - name: DISTRICT_ID
+          - name: DISTRICT_NAME
+          - name: STATE_ID
+          - name: DISTRICT_LONGITUDE
+          - name: DISTRICT_LATITUDE
+          - name: OBJECTID
       - name: shn_lines
         description: |
           StateHighways are state highways based upon the Caltrans Linear Referencing System. Each record in this
@@ -604,3 +619,9 @@ sources:
             description: The length of the state highway.
           - name: "geometry"
             description: The geometry of the state highway.
+          - name: OBJECTID
+            description: Unique identifier for the state highway feature.
+          - name: ROUTE
+            description: The route number of the state highway.
+          - name: RTESUFFIX
+            description: The route suffix of the state highway, if any.

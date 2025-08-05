@@ -242,6 +242,94 @@ models:
           int_clearinghouse__detector_g_factor_based_speed model will be placed in the corresponding
           detector and timestamp row. If there is no device or g-factor provided speed the value will remain
           null and be populated using imputation in downstream models.
+      - name: DETECTOR_ID
+        description: The unique detector ID.
+        data_tests:
+          - not_null
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken.
+        data_tests:
+          - not_null
+      - name: SAMPLE_TIMESTAMP
+        description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
+          - not_null
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+        data_tests:
+          - not_null
+      - name: VOLUME_SUM
+        description: |
+          For the 5-minute aggregation there should be 10 30-second samples collected. If 10 or more
+          samples are collected the aggregated (sum) volume rounded to the nearest integer value is used
+          but if less than 10 samples are recieved in the 5-minute timeframe the flow is normalized using
+          the equation: 10 / sample count * sum(volume).
+      - name: OCCUPANCY_AVG
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
+      - name: VOLUME_OBSERVED
+        description: Number of vehicles that passed over the detector during the sample period for the lane.
+      - name: SAMPLE_CT
+      - name: ZERO_VOL_CT
+        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0.
+      - name: ZERO_OCC_CT
+        description: Counts the number of raw data samples where a lane's occupancy value equals 0.
+      - name: ZERO_VOL_POS_OCC_CT
+        description: |
+          Counts the number of raw data samples where a lane's volume
+          (flow) value equals 0 but occupancy is greater than 0.
+      - name: ZERO_OCC_POS_VOL_CT
+        description: |
+          Counts the number of raw data samples where a lane's occupancy value
+          equals 0 but volume (flow) is greater than 0.
+      - name: HIGH_VOLUME_CT
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high
+          value threshold detector diagnostic parameter for a station.
+      - name: HIGH_OCCUPANCY_CT
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value
+          threshold detector diagnostic parameter for a station.
+      - name: STATION_ID
+        description: The station ID.
+        data_tests:
+          - not_null
+      - name: DISTRICT
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+        data_tests:
+          - accepted_values:
+              values: ["N", "E", "S", "W", "n", "e", "s", "w"]
+      - name: ABSOLUTE_POSTMILE
+        description: Absolute postmile value along a particular state route where the VDS is located.
+      - name: STATE_POSTMILE
+        description: State Postmile value.
+      - name: LATITUDE
+        description: Latitude of a specific VDS.
+      - name: LENGTH
+        description: The length associated with a VDS.
+      - name: LONGITUDE
+        description: Longitude of a specific VDS.
+      - name: PHYSICAL_LANES
+        description: Total number of lanes for a specific VDS.
+      - name: STATION_VALID_FROM
+        description: |
+          The date that this metadata became valid. Should be the same as `META_DATE`.
+          Finding the right metadata for a date should involve a check with
+          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
+      - name: STATION_VALID_TO
+        description: |
+          The date that this metadata became *invalid*.
+          Finding the right metadata for a date should involve a check with
+          `STATION_VALID_FROM <= date < STATION_VALID_TO`.
   - name: int_clearinghouse__detector_g_factor_based_speed
     description: |
       This model calculates the g-factor based smoothing speed. According to the PeMS documentation, the
@@ -272,9 +360,9 @@ models:
         description: |
           Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
           and real-time occupancy.
-      - name: hourly_g_factor
-        description: |
-          Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
+      # - name: hourly_g_factor
+      #   description: |
+      #     Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
       - name: p_factor
         description: An exponential filter with weights that vary as a function of the flow.
       - name: speed_preliminary
@@ -289,20 +377,56 @@ models:
         description: |
           An imputed version of g-factor based speed, adjusted using upper and lower bounds. Boundaries vary
           based on different scenarios for specific lanes.
+      - name: DETECTOR_ID
+        description: The unique detector ID.
+        data_tests:
+          - not_null
+      - name: SAMPLE_DATE
+        description: The date on which the sample was taken.
+        data_tests:
+          - not_null
+      - name: SAMPLE_TIMESTAMP
+        data_tests:
+          - not_null
+      - name: LANE
+        description: |
+          The lane number of the detector, starting from 1.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+        data_tests:
+          - not_null
+      - name: VOLUME_SUM
+        description: |
+          For the 5-minute aggregation there should be 10 30-second samples collected. If 10 or more
+          samples are collected the aggregated (sum) volume rounded to the nearest integer value is used
+          but if less than 10 samples are recieved in the 5-minute timeframe the flow is normalized using
+          the equation: 10 / sample count * sum(volume).
+      - name: OCCUPANCY_AVG
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
+      - name: VOLUME_OBSERVED
+        description: Number of vehicles that passed over the detector during the sample period for the lane.
+      - name: G_FACTOR
+        description: The g-factor value used to calculate the speed.
+        data_tests:
+          - not_null
+      - name: STATION_ID
+        description: The station ID.
+        data_tests:
+          - not_null
   - name: int_clearinghouse__detector_outlier_agg_five_minutes
     description: |
       This model takes the `int_clearinghouse__detector_agg_five_minutes` model and detects extreme values for
       flow and occupancy using z-score statistics in last month. All extreme values are filled with 95th percentile
       of data and labeled as 'observed_outlier'.
     columns:
-      - name: volume_mean
-        description: Calculate the mean volume value from last month's volume data.
-      - name: volume_stddev
-        description: Calculate the standard deviation from last month's volume data.
-      - name: volume_95th
-        description: Calculate 95th percentile of volume for last month.
-      - name: occupancy_95th
-        description: Calculate 95th percentile of occupancy for last month.
+      # - name: volume_mean
+      #   description: Calculate the mean volume value from last month's volume data.
+      # - name: volume_stddev
+      #   description: Calculate the standard deviation from last month's volume data.
+      # - name: volume_95th
+      #   description: Calculate 95th percentile of volume for last month.
+      # - name: occupancy_95th
+      #   description: Calculate 95th percentile of occupancy for last month.
       - name: updated_volume_sum
         description: Replace volume with 'volume_95th' if it is diagnosed as outlier.
       - name: volume_label
@@ -311,3 +435,89 @@ models:
         description: Replace occupancy with 'occupancy_95th' if it is diagnosed as outlier.
       - name: occupancy_label
         description: Generate a new label indicating whether occupancy value is an outlier or normal data.
+      - name: STATION_ID
+        description: The station ID.
+      - name: sample_date
+        description: The date on which the sample was taken.
+      - name: sample_timestamp
+        description: The timestamp of the start for the 5 minute aggregated samples.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: sample_ct
+        description:
+          Counts the number of raw data samples where a lane's volume (flow)
+          and occupancy values contain any non-null value.
+      - name: lane
+        description: |
+          Lane associated with a detector located along a route and station from raw data.
+      - name: volume_observed
+        description: Number of vehicles that passed over the detector during the sample period for the lane.
+      - name: volume_sum
+        description: |
+          For the 5-minute aggregation there should be 10 30-second samples collected. If 10 or more
+          samples are collected the aggregated (sum) volume rounded to the nearest integer value is used
+          but if less than 10 samples are recieved in the 5-minute timeframe the flow is normalized using
+          the equation: 10 / sample count * sum(volume).
+      - name: zero_vol_ct
+        description: Counts the number of raw data samples where a lane's volume (flow) value equals 0.
+      - name: occupancy_avg
+        description: Occupancy of the lane during the sample period expressed as a decimal number between
+      - name: zero_occ_ct
+        description: Counts the number of raw data samples where a lane's occupancy value equals 0.
+      - name: zero_vol_pos_occ_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume
+          (flow) value equals 0 but occupancy is greater than 0.
+      - name: zero_occ_pos_vol_ct
+        description: |
+          Counts the number of raw data samples where a lane's occupancy value
+          equals 0 but volume (flow) is greater than 0.
+      - name: high_volume_ct
+        description: |
+          Counts the number of volume (flow) values in a lane that exceeded the high
+          value threshold detector diagnostic parameter for a station.
+      - name: high_occupancy_ct
+        description: |
+          Counts the number of occupancy values in a lane that exceeded the high value
+          threshold detector diagnostic parameter for a station.
+      - name: speed_weighted
+        description: |
+          Speed in the lane as measured by the detector in miles/hour.
+          Weighted by number of vehicles in each sample period.
+      - name: detector_id
+        description: The unique detector ID.
+        data_tests:
+          - not_null
+      - name: state_postmile
+        description: State Postmile value.
+      - name: absolute_postmile
+        description: Absolute postmile value along a particular state route where the VDS is located.
+      - name: latitude
+        description: Latitude of a specific VDS.
+      - name: longitude
+        description: Longitude of a specific VDS.
+      - name: physical_lanes
+        description: Total number of lanes for a specific VDS.
+      - name: station_type
+        description: Two character string identify the VDS type.
+      - name: county
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: city
+        description: The city number where the VDS is located, if available.
+      - name: freeway
+        description: The freeway where the VDS is located.
+      - name: direction
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+        data_tests:
+          - accepted_values:
+              values: ["N", "E", "S", "W", "n", "e", "s", "w"]
+      - name: length
+        description: The length associated with a VDS.
+      - name: station_valid_from
+        description: |
+          The date that this metadata became valid. Should be the same as `META_DATE`.
+          Finding the right metadata for a date should involve a check with
+          `station_valid_from <= date < station_valid_to`.
+      - name: station_valid_to
+        description: |
+          The date that this metadata became *invalid*.

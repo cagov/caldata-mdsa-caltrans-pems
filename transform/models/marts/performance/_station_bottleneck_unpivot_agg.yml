@@ -1,0 +1,111 @@
+version: 2
+
+models:
+  - name: performance__station_bottleneck_unpivot_agg_monthly
+    description: |
+      Monthly bottleneck delay metrics unpivoted by speed threshold.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_month
+        description: Month of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: station_type
+        description: Type of station.
+      - name: district
+        description: District number.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: county
+        description: County name.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: target_speed
+        description: Speed threshold for delay calculation.
+      - name: delay
+        description: Total delay for the station and month at the target speed.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string.
+  - name: performance__station_bottleneck_unpivot_agg_weekly
+    description: |
+      Weekly bottleneck delay metrics unpivoted by speed threshold.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_week
+        description: Week of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: station_type
+        description: Type of station.
+      - name: district
+        description: District number.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: county
+        description: County name.
+      - name: target_speed
+        description: Speed threshold for delay calculation.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string
+      - name: delay
+        description: Total delay for the station and week at the target speed.
+  - name: performance__station_bottleneck_unpivot_agg_daily
+    description: |
+      Daily bottleneck delay metrics unpivoted by speed threshold.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_date
+        description: Date of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: station_type
+        description: Type of station.
+      - name: district
+        description: District number.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: county
+        description: County name.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string
+      - name: target_speed
+        description: Speed threshold for delay calculation.
+      - name: delay
+        description: Total delay for the station and day at the target speed.

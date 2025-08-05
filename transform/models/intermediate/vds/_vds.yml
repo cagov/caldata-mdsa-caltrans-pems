@@ -113,27 +113,18 @@ models:
           - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+      - name: length
+        description: Length of the station.
+
   - name: int_vds__detector_config
     description: |
       Metadata for a single loop detector. This is the device that actually records
       flow, occupancy, and speed, and is typically installed in a single lane.
       Multiple detectors across a set of lanes constitute a station.
-
-      Unlike the equivalent configuration models for controller and station,
-      this metadata model is further joined with metadata for each detector's
-      station. This adds some further denormalization to the table, but is a
-      practical response to so many downstream metrics relying on station metadata.
-
       This table is a slowly-changing-dimension-2, meaning that it has multiple
       different versions of the metadata for each controller, with `_valid_from`
       and `_valid_to` datetime columns indicating when the version is correct.
-
       This model is unique at the level of DETECTOR_ID + _VALID_TO.
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - DETECTOR_ID
-            - _VALID_TO
     columns:
       - name: detector_id
         description: The unique ID of the detector.
@@ -164,6 +155,19 @@ models:
           - not_null
       - name: _valid_to
         description: The timestamp to which this row is valid. If it is still valid, this is `null`.
+      - name: length
+        description: Length associated with the detector.
+      - name: state_postmile
+        description: State postmile for the detector.
+      - name: absolute_postmile
+        description: Absolute postmile for the detector.
+      - name: latitude
+        description: Latitude of the detector.
+      - name: longitude
+        description: Longitude of the detector.
+      - name: physical_lanes
+        description: Number of physical lanes at the detector's station.
+
   - name: int_vds__nearby_stations
     description: |
       The model employs postmile-based distance metrics to identify nearby stations, specifically
@@ -222,8 +226,96 @@ models:
     description: |
       Contains station metadata for all stations that were designated active on any
       given day.
+    columns:
+      - name: active_date
+        description: Date the station was active.
+      - name: station_id
+        description: Unique identifier for the station.
+      - name: status
+        description: Status of the station.
+      - name: name
+        description: Name of the station.
+      - name: physical_lanes
+        description: Number of physical lanes at the station.
+      - name: use_speed
+        description: Indicates if speed is used for the station.
+      - name: dt_set_id
+        description: Diagnostic set ID for the station.
+      - name: state_postmile
+        description: State postmile for the station.
+      - name: absolute_postmile
+        description: Absolute postmile for the station.
+      - name: latitude
+        description: Latitude of the station.
+      - name: longitude
+        description: Longitude of the station.
+      - name: angle
+        description: Angle of the station.
+      - name: segment_start
+        description: Segment start for the station.
+      - name: segment_end
+        description: Segment end for the station.
+      - name: length
+        description: Length of the station.
+      - name: controller_id
+        description: Controller ID for the station.
+      - name: _valid_from
+        description: Timestamp from which this row is valid.
+      - name: _valid_to
+        description: Timestamp to which this row is valid.
+      - name: station_type
+        description: Type of the station.
+      - name: district
+        description: Caltrans district for the station.
+      - name: county
+        description: County for the station.
+      - name: city
+        description: City for the station.
+      - name: freeway
+        description: Freeway for the station.
+      - name: direction
+        description: Direction of travel for the station.
 
   - name: int_vds__active_detectors
     description: |
       Contains detector metadata for all detectors that were designated active on any
       given day.
+    columns:
+      - name: active_date
+        description: Date the detector was active.
+      - name: detector_id
+        description: Unique identifier for the detector.
+      - name: station_id
+        description: Station ID to which the detector is connected.
+      - name: status
+        description: Status of the detector.
+      - name: lane
+        description: Lane number of the detector.
+      - name: detector_type
+        description: Type of the detector.
+      - name: station_type
+        description: Type of the station.
+      - name: district
+        description: Caltrans district for the detector.
+      - name: county
+        description: County for the detector.
+      - name: city
+        description: City for the detector.
+      - name: freeway
+        description: Freeway for the detector.
+      - name: direction
+        description: Direction of travel for the detector.
+      - name: length
+        description: Length associated with the detector.
+      - name: state_postmile
+        description: State postmile for the detector.
+      - name: absolute_postmile
+        description: Absolute postmile for the detector.
+      - name: latitude
+        description: Latitude of the detector.
+      - name: longitude
+        description: Longitude of the detector.
+      - name: physical_lanes
+        description: Number of physical lanes at the detector's station.
+      - name: _VALID_FROM
+      - name: _VALID_TO

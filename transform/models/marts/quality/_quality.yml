@@ -110,3 +110,22 @@ models:
         description: Percentage of daily speed sample that was observed but not imputed.
       - name: PCT_VOL_OBSERVED_UNIMPUTED
         description: Percentage of daily volume sample that was observed but not imputed.
+  - name: quality__station_row_count_summary
+    description: |
+      This model summarizes the daily counts of ML and HV detectors for each
+      station across multiple source models to ensure consistency and completeness
+      of station-level data. It helps identify discrepancies or missing data at
+      the station level by comparing detector counts between models.
+      Monitoring these counts can highlight stations with data quality issues or
+      anomalies that require further investigation.
+    columns:
+      - name: SAMPLE_DATE
+        description: The date associated with the station-level aggregate counts.
+      - name: ML_HV_DETECTOR_STATUS_STATION_COUNT
+        description: Number of distinct ML and HV detectors for each station in the detector status model.
+      - name: ML_HV_CLEARINGHOUSE_STATION_COUNT
+        description: Number of distinct ML and HV detectors for each station in the clearinghouse model.
+      - name: ML_HV_IMPUTATION_STATION_COUNT
+        description: Number of distinct ML and HV detectors for each station in the imputation model.
+      - name: ML_HV_PERFORMANCE_STATION_COUNT
+        description: Number of distinct ML and HV detectors for each station in the performance model.
