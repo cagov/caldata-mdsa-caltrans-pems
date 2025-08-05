@@ -29,13 +29,20 @@ config parameter.
 !!! note
     This involves changing data in production. It should be done with care!
 
-Any time you make changes to an incremental model's logic or schema, you should refresh all of its data.
+"Backfilling" refers to re-running data loading and transformation tasks on historical data.
+You might need to do this for a few reasons:
+
+1. You've identified missing or corrupted data from some incident.
+1. You've implemented some bugfix or enhancement to your data processing logic,
+    and want it to be reflected in historical data.
+1. You refactor or rename parts of your data models.
+
+Any time one of the above happens, you should backfill the data in your incremental models.
 This is because the incremental logic typically involves merging the new data with the old data:
 any significant changes can result in (at best) empty data or (at worst) hard-to-debug data quality issues.
 Or, if the changes are big enough, the merge will just fail.
-To avoid this, we rebuild the production incremental tables from scratch.
 
-Right now, full refreshes are a fairly manual process.
+Currently, backfills of incremental models are a fairly manual process.
 
 ### 1. Create a production target
 
@@ -77,7 +84,7 @@ Under normal operations, microbatch builds fill in the most recent data,
 but they can also be used to backfill specific date ranges for the table using the
 `--event-time-start` and `--event-time-end` command line arguments.
 
-!!! note
+!!! note "Why the `--full-refresh` flag?"
     Not every model in the project uses microbatch logic. For instance, the models
     computing regression coefficients use a different incremental logic.
     However, these other models have complex inter-dependencies with microbatch incremental models,
@@ -89,13 +96,64 @@ but they can also be used to backfill specific date ranges for the table using t
     regardless of whether the backfill covers the full project date range.
     This ensures that the non-microbatch incremental models are are always in sync with the microbatch ones.
 
-A command for backfilling production data would then look like:
+    The `--full-refresh` flag also triggers larger compute resources in the `get_snowflake_refresh_warehouse()`
+    macro (see [below](#utility-macros) for more information).
+
+One significant pitfall of backfilling PeMS data is in the imputation logic.
+The data imputation models fill gaps or unreliable vehicle detector station data
+with [imputed](https://en.wikipedia.org/wiki/Imputation_(statistics)) values
+based on *historical* behavior of the detectors and their neighbors.
+Since this relies on the historical data being present,
+it's important that the imputation-related models and anything that depends on them
+be run *after* any data backfilling is complete,
+otherwise the imputation may be relying on missing or bad data.
+An indicator that a model depends on historical data is if it uses an
+[`asof` join](https://docs.snowflake.com/en/sql-reference/constructs/asof-join).
+
+To make historical backfills easier, we've taken the following approach:
+
+1. All models that directly rely on data history being complete are grouped together in `intermediate/imputation`.
+1. We've provided a series of [dbt selectors](https://docs.getdbt.com/reference/node-selection/yaml-selectors)
+    to make it easier to break the backfill into steps:
+
+    1. `prep`: data cleaning, preparation, and diagnostics.
+        These models do not depend on any history, and should be fully backfilled before
+        moving on to the next selector.
+    1. `imputation`: data imputation. These models rely on historical data being complete.
+    1. `performance`: performance metrics and data marts. Most of these rely on imputation
+        being complete.
+
+A recipe for backfilling production data would then look like:
 
 ```bash
-dbt build --target prd --full-refresh --event-time-start '2024-01-01' --event-time-end '2025-01-01' --select /path/to/the/model.sql+
+# Run the data preparation stage. This could be broken into multiple
+# steps to cover large date ranges.
+uv run dbt build \
+    --target prd \
+    --full-refresh \
+    --event-time-start '<backfill start date>' \
+    --event-time-end '<backfill end date>' \
+    --selector prep
+
+# Run the impuation stage. This should be done after the "prep"
+# stage is fully backfilled.
+uv run dbt build \
+    --target prd \
+    --full-refresh \
+    --event-time-start '<backfill start date>' \
+    --event-time-end '<backfill end date>' \
+    --selector imputation
+
+# Build the performance metrics and marts
+uv run dbt build \
+    --target prd \
+    --full-refresh \
+    --event-time-start '<backfill start date>' \
+    --event-time-end '<backfill end date>' \
+    --selector performance
 ```
 
-A few notes about this command:
+A few notes about this recipe:
 
 1. Because we are typically rebuilding large tables with this command, it might take some time.
 1. `--target prd` selects the production environment as opposed to the default development one.
@@ -105,8 +163,6 @@ A few notes about this command:
     Models that use the `get_snowflake_refresh_warehouse()`
     macro will select a larger Snowflake virtual warehouse when this flag is selected,
     since doing the full refresh typically involves processing much more data.
-1. We use the `+` selector to indicate that every downstream model of the one with the schema change
-    should also get rebuilt.
 1. For *extremely* large backfills, you can consider breaking it up into multiple steps by, e.g.,
     selecting one year at a time using the `--event-time-start` and `--event-time-end` arguments.
 

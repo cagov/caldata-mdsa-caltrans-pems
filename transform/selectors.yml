@@ -1,0 +1,52 @@
+selectors:
+  - name: prep
+    description: |
+      Data preparation and cleaning. Very early stages of data transformation
+      that does not involve any longitudinal information or imputation. Includes:
+
+      * Data reshaping
+      * Aggregation to 5-minute buckets
+      * Aligning timestamps and filling timestamp gaps
+      * Diagnostic heuristics
+
+      In particular, this group does not have any `asof` joins, which involve joins
+      across un-aligned time series, which makes them fairly easy to run incrementally
+      and backfill as-needed.
+    definition:
+      union:
+        - method: path
+          value: models/staging
+        - method: path
+          value: models/intermediate/clearinghouse
+        - method: path
+          value: models/intermediate/db96
+        - method: path
+          value: models/intermediate/diagnostics
+        - method: path
+          value: models/intermediate/vds
+  - name: imputation
+    description: |
+      Imputation-related data models.
+
+      Data quality issues in the raw data can result in gaps and unreliable data.
+      The data transformations in this selector are all related to *imputation*,
+      where we fill those gaps or unreliable data points. In general, this process
+      involves looking at historical data, and joining along un-aligned time series.
+      For that reason, it's important that the data in the `prep` group be fully
+      backfilled before running this selector.
+    definition:
+      union:
+        - method: path
+          value: models/intermediate/imputation
+  - name: performance
+    description: |
+      Performance metrics and data marts.
+
+      Most of these are computed based on the imputed data models,
+      rather than raw data models.
+    definition:
+      union:
+        - method: path
+          value: models/intermediate/performance
+        - method: path
+          value: models/marts
