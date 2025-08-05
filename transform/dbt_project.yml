@@ -45,6 +45,7 @@ vars:
   day_end: "'21:59:59'"
   V_t: [35, 40, 45, 50, 55, 60]
   districts: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  pems_clearinghouse_start_date: "'2023-01-01'::date"
   linear_regression_time_window: 7
   outlier_agg_time_window: 7
   am_peak_start: "'06:00:00'"

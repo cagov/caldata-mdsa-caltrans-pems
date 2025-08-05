@@ -12,7 +12,7 @@ with date_spine as (
     from (
         {{ dbt_utils.date_spine(
             datepart="day",
-            start_date="'2023-01-01'",
+            start_date=var("pems_clearinghouse_start_date"),
             end_date=(
                 "'"
                 + (
