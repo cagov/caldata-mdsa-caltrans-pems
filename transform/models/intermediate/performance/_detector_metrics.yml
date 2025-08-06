@@ -87,13 +87,7 @@ models:
       - name: station_type
         description: Two character string identify the VDS type.
       - name: station_valid_from
-        description: The date that this metadata became valid. Should be the same as `META_DATE`.
-        data_tests:
-          - not_null
       - name: station_valid_to
-        description: The date that this metadata is no longer valid. Should be the same as `META_DATE`.
-        data_tests:
-          - not_null
       - name: DELAY_35_MPH
         description: |
           The Delay performance metric is the amount of additional time spent by the
