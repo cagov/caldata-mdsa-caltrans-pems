@@ -20,37 +20,6 @@ models:
         description:
           Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across freeway, direction
           and type.
-      # - name: YEARLY_SPEED_AVG
-      #   description: flow weighted speed over the sample year.
-      # - name: YEARLY_VOLUME_SUM
-      #   description:
-      #     The sum of the flow values over the sample period across freeway, direction
-      #     and type.
-      # - name: YEARLY_OCCUPANCY_AVG
-      #   description:
-      #     The average of the occupancy values over the sample period across freeway, direction
-      #     and type.
-      # - name: YEARLY_VMT
-      #   description: |
-      #     The sum of the miles of freeway driven by each vehicle in a given year and
-      #     a given freeway, direction and type.
-      # - name: YEARLY_VHT
-      #   description: |
-      #     Vehicle Hours Travelled (VHT) is calculated in a given a year and a
-      #     given freeway, direction and type. VHT is the amount of time spent by all of the
-      #     vehicles on the freeway in a given year.
-      # - name: YEARLY_TTI
-      #   description: |
-      #     The Travel Time Index (TTI) is the ratio of the average travel time for all users
-      #     across a region to the free-flow travel time across freeway, direction
-      #     and type. The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
-      #     For loop-based performance measures, the TTI is simply the free-flow speed divided by the
-      #     performance measure Q.
-      # - name: YEARLY_Q_VALUE
-      #   description: |
-      #     Q is the sum of the VMT in a spatial and temporal region divided by the sum of
-      #     the VHT in the same region in a given year across freeway, direction
-      #     and type. For a single location its interpretation is the average speed.
       - name: DELAY
         description: |
           yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph

@@ -1,7 +1,4 @@
 target/
 dbt_packages/
 macros/
-<<<<<<< before updating
 tests/
-=======
->>>>>>> after updating

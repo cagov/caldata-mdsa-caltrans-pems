@@ -419,7 +419,6 @@ sources:
           - name: angle
           - name: seg_start
           - name: seg_end
-          # - name: EQP_OWNER_ID
           - name: USER_ID_1
           - name: USER_ID_2
           - name: USER_ID_3

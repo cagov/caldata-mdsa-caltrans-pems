@@ -62,31 +62,6 @@ models:
           to be the time to traverse the link when traveling at 60MPH. For loop-based
           performance measures, the TTI is simply the free-flow speed divided by the
           performance measure Q.
-      # - name: delay
-      #   description: |
-      #     The Delay performance metric is the amount of additional time spent by the
-      #     vehicles on a section of road due to congestion. This is the difference
-      #     between the travel time at a non-congestion speed and the current speed.
-      #     The congestion, or threshold, speed is usually 35MPH but in PeMS we compute
-      #     the delay for a number of different thresholds so that we can accommodate
-      #     different definitions of delay. The threshold values used are 35, 40, 45, 50,
-      #     55, and 60 MPH. The formula is: F * (L/V - L/V_t). The formula is:
-      #     F * (L/V - L/V_t). F = flow (volume), L = length of the segment, V = current speed,
-      #     and V_t = threshold speed. Delay can never be negative.
-      # - name: lost_productivity
-      #   description: |
-      #     The Productivity performance metric is the number of lane-mile-hours on the freeway
-      #     lost due to operating under congested conditions instead of under free-flow
-      #     conditions. When the freeway is in congestion - which we take to be when the speed
-      #     is below a certain, user-selectable, threshold - we find the ratio between the
-      #     measured flow and the capacity for this location. This drop in capacity is due to
-      #     the fact that the freeway is operating in congested conditions instead of in free-flow.
-      #     We then multiply one minus this ratio by the length of the segment to determine the
-      #     number of equivalent lane-miles-hours of freeway which this represents. For the
-      #     capacity we look at the historical measured data for each location and determine the
-      #     maximum observed 15-minute flow. We use the maximum of this value and 2076 v/l/h
-      #     as the capacity at each location. The threshold values used are 35, 40, 45, 50, 55,
-      #     and 60 MPH.
       - name: speed_imputation_method
         description: The method (local/regional/global) used to impute the speed.
       - name: volume_imputation_method
@@ -348,11 +323,6 @@ models:
           the VHT in the same region in a given day for each detector lane. For a single location
           its interpretation is the
           average speed.
-      # - name: DELAY
-      #   description: |
-      #     hourly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     for each detector lane.The Delay performance metric is the amount of additional time spent by the
-      #      vehicles on a section of road due to congestion.
       - name: DELAY_35_MPH
         description: |
           Hourly delay for threshold of 35 mph for each detector lane. The Delay performance metric is the
@@ -377,12 +347,6 @@ models:
         description: |
           Hourly delay for threshold of 60 mph for each detector lane. The Delay performance metric is the
           amount of additional time spent by the vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the hourly lost productivity that is simply sum up the 12 five minutes
-      #     lost productivity in an hour time period for each detector lane.The lost Productivity
-      #     performance metric is the number of lane-mile-hours on the freeway lost due to operating
-      #     under congested conditions instead of under free-flow conditions.
       - name: LOST_PRODUCTIVITY_35_MPH
         description: |
           Hourly lost productivity for threshold of 35 mph for each detector lane. The lost Productivity
@@ -446,8 +410,6 @@ models:
         description: The week associated with weekly aggregated data samples.
       - name: SAMPLE_WEEK_START_DATE
         description: the begining date of a sample week.
-      # - name: WEEKLY_SPEED
-      #   description: flow weighted weekly speed for each detector lane.
       - name: WEEKLY_VOLUME
         description:
           The sum of the flow values for a detector over the sample period
@@ -475,19 +437,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given week for each detector lane. For a single location
           its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     weekly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #      for each detector lane.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #      vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the daily lost productivity that is simply sum up 7 days
-      #     lost productivity in a given week timeperiod for each detector lane.
-      #     The lost Productivity performance metric is the number of lane-mile-week
-      #     on the freeway lost due to operating under congested conditions instead of
-      #     under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           Weekly delay for threshold of 35 mph for each detector lane. The Delay performance metric is the
@@ -572,9 +521,6 @@ models:
         description: The unique number that identifies the county that contains a specific VDS within PeMS.
       - name: SAMPLE_MONTH
         description: The starting date of each month of the year.
-      # - name: MONTHLY_SPEED
-      #   description: flow weighted monthly speed by
-      #     each detector lane.
       - name: MONTHLY_VOLUME
         description:
           The sum of the flow values for a detector over the sample period by
@@ -602,19 +548,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given month of the year for each detector lane.
           For a single location its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     for each detector lane.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #     vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the monthly lost productivity that is simply sum up all days
-      #     lost productivity in a given month of the year timeperiod for each detector lane.
-      #     The lost Productivity performance metric is
-      #     the number of lane-mile-month on the freeway lost due to operating under congested
-      #     conditions instead of under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           Monthly delay for threshold of 35 mph for each detector lane.

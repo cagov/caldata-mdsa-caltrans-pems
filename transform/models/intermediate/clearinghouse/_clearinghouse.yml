@@ -360,9 +360,6 @@ models:
         description: |
           Dynamic vehicle length which is an unbiased estimator based on threshold, free_flow_speed
           and real-time occupancy.
-      # - name: hourly_g_factor
-      #   description: |
-      #     Smoothed vehicle length calculated using 12 g-factors from the 6 preceding and following 5-minute intervals.
       - name: p_factor
         description: An exponential filter with weights that vary as a function of the flow.
       - name: speed_preliminary
@@ -419,14 +416,6 @@ models:
       flow and occupancy using z-score statistics in last month. All extreme values are filled with 95th percentile
       of data and labeled as 'observed_outlier'.
     columns:
-      # - name: volume_mean
-      #   description: Calculate the mean volume value from last month's volume data.
-      # - name: volume_stddev
-      #   description: Calculate the standard deviation from last month's volume data.
-      # - name: volume_95th
-      #   description: Calculate 95th percentile of volume for last month.
-      # - name: occupancy_95th
-      #   description: Calculate 95th percentile of occupancy for last month.
       - name: updated_volume_sum
         description: Replace volume with 'volume_95th' if it is diagnosed as outlier.
       - name: volume_label

@@ -57,17 +57,6 @@ models:
         description: The freeway where the VDS is located.
       - name: DIRECTION
         description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-      # - name: DELAY
-      #   description: |
-      #     hourly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     across the all lanes.The Delay performance metric is the amount of additional time spent by the
-      #      vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the hourly lost productivity that is simply sum up the 12 five minutes
-      #     lost productivity in an hour time period across the all lanes.The lost Productivity
-      #     performance metric is the number of lane-mile-hours on the freeway lost due to operating
-      #     under congested conditions instead of under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           The Delay performance metric is the amount of additional time spent by the
@@ -177,17 +166,6 @@ models:
           the VHT in the same region in a given day across all the lanes. For a single location
           its interpretation is the
           average speed.
-      # - name: DELAY
-      #   description: |
-      #     daily delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #      across all the lanes.The Delay performance metric is the amount of additional time spent by the
-      #      vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the daily lost productivity that is simply sum up 24 hours
-      #     lost productivity in a given day timeperiod across all the lanes.The lost Productivity
-      #     performance metric is the number of lane-mile-days on the freeway lost due to operating under
-      #      congested conditions instead of under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           The Delay performance metric is the amount of additional time spent by the
@@ -252,8 +230,6 @@ models:
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-      # - name: LANE
-      #   description: Lane associated with a route and station from five minutes performance metrics.
       - name: STATION_TYPE
         description: Two character string identify the VDS type.
       - name: LENGTH
@@ -303,19 +279,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given week across all the lanes. For a single location
           its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     weekly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #      across all the lanes.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #      vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the daily lost productivity that is simply sum up 7 days
-      #     lost productivity in a given week timeperiod across all the lanes.
-      #     The lost Productivity performance metric is the number of lane-mile-week
-      #     on the freeway lost due to operating under congested conditions instead of
-      #     under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           The Delay performance metric is the amount of additional time spent by the
@@ -423,19 +386,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given month of the year across all the lanes.
           For a single location its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     across all the lanes.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #     vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the monthly lost productivity that is simply sum up all days
-      #     lost productivity in a given month of the year timeperiod across all the lanes.
-      #     The lost Productivity performance metric is
-      #     the number of lane-mile-month on the freeway lost due to operating under congested
-      #     conditions instead of under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           Monthly delay for threshold of 35 mph for each detector lane.
@@ -506,8 +456,6 @@ models:
         description: |
           An integer value that uniquely identifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-      # - name: LANE
-      #   description: Lane associated with a route and station from five-minute performance metrics.
       - name: STATION_TYPE
         description: Two-character string identifying the VDS type.
       - name: LENGTH
@@ -553,16 +501,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given year across all the lanes. For a single location,
           its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     Yearly delay for different thresholds of congestion speed such as 35, 40, 45, 50, 55, and 60 MPH
-      #     across all the lanes. The Delay performance metric represents the amount of additional time
-      #     spent by vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the yearly lost productivity, calculated as the sum of daily lost productivity over the year
-      #     across all the lanes. The lost productivity performance metric represents the number of lane-mile-year
-      #     on the freeway lost due to operating under congested conditions instead of under free-flow conditions.
       - name: DELAY_35_MPH
         description: |
           Yearly delay for threshold of 35 mph for each detector lane.

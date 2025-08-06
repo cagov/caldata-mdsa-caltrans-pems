@@ -438,19 +438,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given month of the year across all the lanes.
           For a single location its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     across all the lanes.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #     vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the monthly lost productivity that is simply sum up all days
-      #     lost productivity in a given month of the year timeperiod across all the lanes.
-      #     The lost Productivity performance metric is
-      #     the number of lane-mile-month on the freeway lost due to operating under congested
-      #     conditions instead of under free-flow conditions.
   - name: performance__station_metrics_agg_monthly_city
     description: |
       monthly aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics will
@@ -609,19 +596,6 @@ models:
           Q is the sum of the VMT in a spatial and temporal region divided by the sum of
           the VHT in the same region in a given month of the year across all the lanes.
           For a single location its interpretation is the average speed.
-      # - name: DELAY
-      #   description: |
-      #     yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
-      #     across all the lanes.
-      #     The Delay performance metric is the amount of additional time spent by the
-      #     vehicles on a section of road due to congestion.
-      # - name: LOST_PRODUCTIVITY
-      #   description: |
-      #     This is the yearly lost productivity that is simply sum up all days
-      #     lost productivity in a given month of the year timeperiod across all the lanes.
-      #     The lost Productivity performance metric is
-      #     the number of lane-mile-month on the freeway lost due to operating under congested
-      #     conditions instead of under free-flow conditions.
   - name: performance__station_metrics_agg_yearly_city
     description: |
       yearly aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics will
