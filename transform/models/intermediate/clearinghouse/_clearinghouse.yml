@@ -450,7 +450,7 @@ models:
       - name: zero_vol_ct
         description: Counts the number of raw data samples where a lane's volume (flow) value equals 0.
       - name: occupancy_avg
-        description: Occupancy of the lane during the sample period expressed as a decimal number between
+        description: Occupancy of the lane during the sample period expressed as a decimal number between 0 and 1.
       - name: zero_occ_ct
         description: Counts the number of raw data samples where a lane's occupancy value equals 0.
       - name: zero_vol_pos_occ_ct

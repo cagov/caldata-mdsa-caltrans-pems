@@ -6,11 +6,11 @@ models:
       Contains metadata for all current detectors, including location and configuration details.
     columns:
       - name: geometry
-        description: "Spatial point geometry for each detector."
+        description: Spatial point geometry for each detector.
       - name: county
-        description: "County name for each detector, derived from location."
+        description: County name for each detector, derived from location.
       - name: city
-        description: "City name for each detector, derived from location."
+        description: City name for each detector, derived from location.
       - name: detector_id
         description: Unique identifier for the detector.
       - name: station_id
@@ -56,14 +56,14 @@ models:
       - name: city_abb
         description: Abbreviation for the city.
   - name: geo__current_stations
-    description: "Current stations with geometry, county, and city information."
+    description: Current stations with geometry, county, and city information.
     columns:
       - name: geometry
-        description: "Spatial point geometry for each station."
+        description: Spatial point geometry for each station.
       - name: county
-        description: "County name for each station, derived from location."
+        description: County name for each station, derived from location.
       - name: city
-        description: "City name for each station, derived from location."
+        description: City name for each station, derived from location.
       - name: STATION_ID
         description: Unique identifier for the station.
       - name: STATUS
