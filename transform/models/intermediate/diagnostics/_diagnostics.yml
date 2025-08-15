@@ -92,6 +92,7 @@ models:
           The date that this metadata became valid. Should be the same as `META_DATE`.
           Finding the right metadata for a date should involve a check with
           `_VALID_FROM <= date < _VALID_TO`.
+      - name: dt_set_id
 
   - name: int_diagnostics__samples_per_detector
     description: |

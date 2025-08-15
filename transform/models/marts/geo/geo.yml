@@ -1,0 +1,112 @@
+version: 2
+
+models:
+  - name: geo__current_detectors
+    description: |
+      Contains metadata for all current detectors, including location and configuration details.
+    columns:
+      - name: geometry
+        description: Spatial point geometry for each detector.
+      - name: county
+        description: County name for each detector, derived from location.
+      - name: city
+        description: City name for each detector, derived from location.
+      - name: detector_id
+        description: Unique identifier for the detector.
+      - name: station_id
+        description: Station ID to which the detector is connected.
+      - name: status
+        description: Status of the detector.
+      - name: lane
+        description: Lane number of the detector.
+      - name: detector_type
+        description: Type of the detector.
+      - name: station_type
+        description: Type of the station.
+      - name: district
+        description: Caltrans district for the detector.
+      - name: county
+        description: County for the detector.
+      - name: city
+        description: City for the detector.
+      - name: freeway
+        description: Freeway for the detector.
+      - name: direction
+        description: Direction of travel for the detector.
+      - name: length
+        description: Length associated with the detector.
+      - name: state_postmile
+        description: State postmile for the detector.
+      - name: absolute_postmile
+        description: Absolute postmile for the detector.
+      - name: latitude
+        description: Latitude of the detector.
+      - name: longitude
+        description: Longitude of the detector.
+      - name: physical_lanes
+        description: Number of physical lanes at the detector's station.
+      - name: geometry
+        description: Geometry of the detector location.
+      - name: county_name
+        description: Name of the county.
+      - name: county_abb
+        description: Abbreviation for the county.
+      - name: city_name
+        description: Name of the city.
+      - name: city_abb
+        description: Abbreviation for the city.
+  - name: geo__current_stations
+    description: Current stations with geometry, county, and city information.
+    columns:
+      - name: geometry
+        description: Spatial point geometry for each station.
+      - name: county
+        description: County name for each station, derived from location.
+      - name: city
+        description: City name for each station, derived from location.
+      - name: STATION_ID
+        description: Unique identifier for the station.
+      - name: STATUS
+        description: Status of the station.
+      - name: NAME
+        description: Name of the station.
+      - name: PHYSICAL_LANES
+        description: Number of physical lanes at the station.
+      - name: USE_SPEED
+        description: Indicates if speed data is used for the station.
+      - name: DT_SET_ID
+        description: Data set identifier for the station.
+      - name: STATE_POSTMILE
+        description: State postmile for the station.
+      - name: ABSOLUTE_POSTMILE
+        description: Absolute postmile for the station.
+      - name: LATITUDE
+        description: Latitude of the station.
+      - name: LONGITUDE
+        description: Longitude of the station.
+      - name: ANGLE
+        description: Angle of the station location.
+      - name: SEGMENT_START
+        description: Start of the segment for the station.
+      - name: SEGMENT_END
+        description: End of the segment for the station.
+      - name: LENGTH
+        description: Length of the station.
+      - name: CONTROLLER_ID
+        description: Controller identifier for the station.
+      - name: STATION_TYPE
+        description: Type of the station.
+      - name: DISTRICT
+        description: Caltrans district for the station.
+      - name: FREEWAY
+        description: Freeway for the station.
+      - name: DIRECTION
+        description: Direction of travel for the station.
+      - name: COUNTY_NAME
+        description: Name of the county for the station.
+      - name: COUNTY_ABB
+        description: Abbreviation for the county for the station.
+      - name: CITY_NAME
+        description: Name of the city for the station.
+      - name: CITY_ABB
+        description: Abbreviation for the city for the station.

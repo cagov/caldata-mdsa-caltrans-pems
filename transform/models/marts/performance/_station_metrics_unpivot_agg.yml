@@ -1,0 +1,481 @@
+version: 2
+
+models:
+  - name: performance__station_metrics_unpivot_agg_daily
+    description: |
+      daily aggregation of delays and lost productivity based on different speed thresholds across
+      all lanes of the station. This metrics will measure the daily performance of the state highway system.
+      This can be used for weekly and monthly aggregation of PeMS performance metrics across all the lanes
+      in a given station.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: LENGTH
+        description: length of the station.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: TARGET_SPEED
+        description: Threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all lanes.
+      - name: DELAY
+        description: |
+          daily delay for different target speed thresholds. The Delay performance metric is the amount of
+          additional time spent by the vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the daily lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_daily_city
+    description: |
+      daily aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics
+      will measure the daily delay and lost productivity of the state highway system. This can be used for
+      weekly and monthly aggregation of PeMS performance metrics across all the lanes in a given station.
+    columns:
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          daily delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the daily lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_daily_county
+    description: |
+      daily aggregation of delay and productivity across all lanes aggregated by counties. This metrics will
+      measure the daily delay and lost productivity of the state highway system. This can be used for weekly
+      and monthly aggregation of PeMS performance metrics across all the couties.
+    columns:
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          daily delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the daily lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_daily_district
+    description: |
+      daily aggregation of delay and productivity across all lanes aggregated by districts. This metrics will
+      measure the daily delay and lost productivity of the state highway system. This can be used for weekly
+      and monthly aggregation of PeMS performance metrics across all the couties.
+    columns:
+      - name: DISTRICT
+        description: The unique number that identifies the district that contains a specific VDS within PeMS.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          daily delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the daily lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_weekly
+    description: |
+      weekly aggregation of delays and lost productivity based on different speed thresholds across
+      all lanes of the station. This metrics will measure the weekly performance of the state highway system.
+      This can be used for monthly aggregation of PeMS performance metrics across all the lanes
+      in a given station.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: SAMPLE_YEAR
+        description: The year associated with the date.
+      - name: SAMPLE_WEEK
+        description: The week associated with the date.
+      - name: SAMPLE_WEEK_START_DATE
+        description: The first date of each week associated with the date.
+      - name: LENGTH
+        description: length of the station.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: TARGET_SPEED
+        description: Threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all lanes.
+      - name: DELAY
+        description: |
+          weekly delay for different target speed thresholds. The Delay performance metric is the amount of
+          additional time spent by the vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the weekly lost productivity that is simply sum up 24 hours
+          lost productivity in a given time period across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_weekly_city
+    description: |
+      weekly aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics
+      will measure the weekly delay and lost productivity of the state highway system. This can be used for
+      monthly aggregation of PeMS performance metrics across all the lanes in a given station.
+    columns:
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: SAMPLE_WEEK
+        description: The week associated with the date.
+      - name: SAMPLE_WEEK_START_DATE
+        description: The first date of each week associated with the date.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          weekly delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the weekly lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_weekly_county
+    description: |
+      weekly aggregation of delay and productivity across all lanes aggregated by counties. This metrics will
+      measure the weekly delay and lost productivity of the state highway system. This can be used for
+      monthly aggregation of PeMS performance metrics across all the couties.
+    columns:
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_WEEK
+        description: The week associated with the date.
+      - name: SAMPLE_WEEK_START_DATE
+        description: The first date of each week associated with the date.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          weekly delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the weekly lost productivity that is simply sum up 24 hours
+          lost productivity in a given day timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_weekly_district
+    description: |
+      Weekly aggregation of delay and lost productivity across all lanes, grouped by district and speed threshold.
+      This model measures the weekly performance of the state highway system at the district level,
+      supporting analysis of congestion and productivity losses across districts.
+    columns:
+      - name: DISTRICT
+        description: District number.
+      - name: SAMPLE_WEEK
+        description: Week of the sample.
+      - name: SAMPLE_WEEK_START_DATE
+        description: Start date of the week associated with the sample.
+      - name: TARGET_SPEED
+        description: Speed threshold for delay/productivity calculation.
+      - name: DELAY
+        description: Total weekly delay for the district at the target speed.
+      - name: LOST_PRODUCTIVITY
+        description: Total weekly lost productivity for the district at the target speed.
+  - name: performance__station_metrics_unpivot_agg_monthly
+    description: |
+      monthly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across all lanes of the station. This metrics will measure the monthly performance
+      of the state highway system. This can be used to understand the SHS performance
+      from month to month.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: LENGTH
+        description: length of the station.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: SAMPLE_MONTH
+        description: The starting date of each month of the year.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          monthly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across all the lanes.
+          The lost Productivity performance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_monthly_city
+    description: |
+      monthly aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics
+      will measure the monthly delay and lost productivity of the state highway system. This can be used for
+      monthly and monthly aggregation of PeMS performance metrics across all the lanes in a given station.
+    columns:
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: SAMPLE_MONTH
+        description: The month associated with the date.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          monthly delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the monthly lost productivity that is simply sum up 24 hours
+          lost productivity in a given month timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_monthly_county
+    description: |
+      Monthly aggregation of delay and lost productivity across all lanes, grouped by county and speed threshold.
+      This model measures the monthly performance of the state highway system at the county level,
+      supporting analysis of congestion and productivity losses across counties.
+    columns:
+      - name: COUNTY
+        description: County number.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county.
+      - name: SAMPLE_MONTH
+        description: Month of the sample.
+      - name: TARGET_SPEED
+        description: Speed threshold for delay/productivity calculation.
+      - name: DELAY
+        description: Total monthly delay for the county at the target speed.
+      - name: LOST_PRODUCTIVITY
+        description: Total monthly lost productivity for the county at the target speed.
+  - name: performance__station_metrics_unpivot_agg_monthly_district
+    description: |
+      Monthly aggregation of delay and lost productivity by district and speed threshold.
+    columns:
+      - name: district
+        description: District number.
+      - name: sample_month
+        description: Month of the sample.
+      - name: target_speed
+        description: Speed threshold for delay/productivity calculation.
+      - name: delay
+        description: Total delay for the district and month at the target speed.
+      - name: lost_productivity
+        description: Total lost productivity for the district and month at the target speed.
+  - name: performance__station_metrics_unpivot_agg_yearly
+    description: |
+      yearly aggregation of volume,speed, and occupancy along with delays and lost productivity by
+      across all lanes of the station. This metrics will measure the yearly performance
+      of the state highway system. This can be used to understand the SHS performance
+      from year to year.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: LENGTH
+        description: length of the station.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: SAMPLE_YEAR
+        description: The starting date of each year.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          yearly delay for different threshold of congestion speed such as 35, 40, 45, 50, 55 and 60 mph
+          across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the yearly lost productivity that is simply sum up all days
+          lost productivity in a given month of the year timeperiod across all the lanes.
+          The lost Productivity performance metric is
+          the number of lane-mile-month on the freeway lost due to operating under congested
+          conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_yearly_city
+    description: |
+      yearly aggregation of volume, occupancy and speed across all lanes aggregated by cities. This metrics
+      will measure the yearly delay and lost productivity of the state highway system.
+    columns:
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: CITY_NAME
+        description: The unique name that identifies the city that contains a specific VDS within PeMS.
+      - name: CITY_ABB
+        description: The unique abbreviation that identifies the city that contains a specific VDS within PeMS.
+      - name: SAMPLE_YEAR
+        description: The associated year.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          yearly delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the yearly lost productivity that is simply sum up 24 hours
+          lost productivity in a given year timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_yearly_county
+    description: |
+      yearly aggregation of delay and productivity across all lanes aggregated by counties. This metrics will
+      measure the yearly delay and lost productivity of the state highway system.
+    columns:
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_YEAR
+        description: The associated year.
+      - name: TARGET_SPEED
+        description: Thresholds of congestion speed such as 35, 40, 45, 50, 55 and 60 mph across all the lanes
+      - name: DELAY
+        description: |
+          yearly delay aggregated by cities for different target speed thresholds across all the lanes.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY
+        description: |
+          This is the yearly lost productivity that is simply sum up 24 hours
+          lost productivity in a given year timeperiod across all the lanes. The lost productivity
+          performance metric is the number of lane-mile-days on the freeway lost due to operating under
+           congested conditions instead of under free-flow conditions.
+  - name: performance__station_metrics_unpivot_agg_yearly_district
+    description: |
+      Yearly aggregation of delay and lost productivity by district and speed threshold.
+    columns:
+      - name: district
+        description: District number.
+      - name: sample_year
+        description: Year of the sample.
+      - name: target_speed
+        description: Speed threshold for delay/productivity calculation.
+      - name: delay
+        description: Total delay for the district and year at the target speed.
+      - name: lost_productivity
+        description: Total lost productivity for the district and year at the target speed.

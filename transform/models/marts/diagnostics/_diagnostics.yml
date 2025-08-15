@@ -84,6 +84,27 @@ models:
           Date a station is considered active based on the meta data configuration file from district.
           This value determines what calculations or diagnostics are associated with a station and it's
           assocaited detectors on any given date while it is active.
+      - name: station_diagnostic_method_id
+        description: Diagnostic method ID for the station.
+      - name: detector_type
+        description: Type of the detector.
+      - name: lane
+        description: Lane number of the detector.
+      - name: length
+        description: Length associated with the detector.
+      - name: district_feed_working
+        description: District feed working status.
+      - name: line_num_working
+        description: Line number working status.
+      - name: controller_feed_working
+        description: Controller feed working status.
+      - name: station_feed_working
+        description: Station feed working status.
+      - name: detector_feed_working
+        description: Detector feed working status.
+      - name: min_occupancy_delta
+        description: Minimum occupancy delta value.
+
   - name: diagnostics__detector_daily_by_station
     description: |
       This file contains detector status data aggregated to the station level.
@@ -146,6 +167,10 @@ models:
         description: The number of bad detectors per day and station that had intermittent detector issues.
       - name: constant_count
         description: The number of bad detectors per day and station that had constant occupancy issues.
+      - name: detector_count
+        description: Number of detectors at the station.
+      - name: length
+        description: Length of the station.
 
   - name: diagnostics__detector_monthly_by_station
     description: |

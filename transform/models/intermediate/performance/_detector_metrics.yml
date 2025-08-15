@@ -1,0 +1,604 @@
+version: 2
+
+models:
+  - name: int_performance__detector_metrics_agg_five_minutes
+    description: |
+      This model contains performance metrics by detector based on data from
+      the station_meta and five_minute_agg models. This data forms the basis for
+      performance metrics that will be aggregated over various spatial/temporal
+      segments/timeframes.
+    columns:
+      - name: sample_date
+        description: The date associated with five minute aggregated data samples.
+        data_tests:
+          - not_null
+      - name: sample_timestamp
+        description: The timestamp of the start for the 5 minute aggregated samples.
+        data_tests:
+          - not_null
+      - name: detector_id
+        description: The unique ID of the detector.
+        data_tests:
+          - not_null
+      - name: station_id
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+        data_tests:
+          - not_null
+      - name: lane
+        description: Lane associated with a route and station from raw data.
+      - name: sample_ct
+        description: |
+          Counts the number of raw data samples where a lane's volume (flow) and occupancy
+          values contain any non-null value.
+      - name: volume_sum
+        description: The sum of the flow values for a detector over the sample period.
+      - name: occupancy_avg
+        description: The average of the occupancy values over the sample period.
+      - name: speed_five_mins
+        description: |
+          Actual reported speed if available otherwise the preliminary speed calculation
+          in miles/hour based on the simplified version of the speed formula located at
+          https://pems.dot.ca.gov/Papers/vanzwet_gfactor.pdf
+      - name: vmt
+        description: |
+          The sum of the miles of freeway driven by each vehicle for a given unit of
+          time and a given section of the freeway.
+      - name: vht
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated over a given unit of time and a
+          given section of freeway. VHT is the amount of time spent by all of the
+          vehicles on the freeway.
+      - name: q_value
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region. For a single location its interpretation is the
+          average speed.
+      - name: tti
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: speed_imputation_method
+        description: The method (local/regional/global) used to impute the speed.
+      - name: volume_imputation_method
+        description: The method (local/regional/global) used to impute the volume.
+      - name: occupancy_imputation_method
+        description: The method (local/regional/global) used to impute the occupancy.
+      - name: district
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: county
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: city
+        description: The city number where the VDS is located, if available.
+      - name: freeway
+        description: The freeway where the VDS is located.
+      - name: direction
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: length
+        description: The length of the station.
+      - name: absolute_postmile
+        description: |
+          Represents the distance in miles from the start of the highway to
+          the beginning and end of each highway section.
+      - name: station_type
+        description: Two character string identify the VDS type.
+      - name: station_valid_from
+      - name: station_valid_to
+      - name: DELAY_35_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 35 mph.
+      - name: DELAY_40_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 40 mph.
+      - name: DELAY_45_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 45 mph.
+      - name: DELAY_50_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 50 mph.
+      - name: DELAY_55_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 55 mph.
+      - name: DELAY_60_MPH
+        description: |
+          The Delay performance metric is the amount of additional time spent by the
+          vehicles on a section of road due to congestion at 60 mph.
+      - name: LOST_PRODUCTIVITY_35_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 35 mph.
+      - name: LOST_PRODUCTIVITY_40_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 40 mph.
+      - name: LOST_PRODUCTIVITY_45_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 45 mph.
+      - name: LOST_PRODUCTIVITY_50_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 50 mph.
+      - name: LOST_PRODUCTIVITY_55_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 55 mph.
+      - name: LOST_PRODUCTIVITY_60_MPH
+        description: |
+          The Productivity performance metric is the number of lane-mile-hours on the freeway
+          lost due to operating under congested conditions instead of under free-flow
+          conditions at 60 mph.
+
+  - name: int_performance__detector_metrics_agg_hourly
+    description: |
+      Hourly aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each detector lane. This measures the hourly performance of the state
+      highway system at the detecctor level. This can be used for daily aggregation of PeMS performance
+      metrics at the detector level.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DETECTOR_ID
+        description: |
+          An integer value that uniquely indentifies a detector.
+          Use this value to 'join' other files or tables that contain the detector ID value.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LANE
+        description: Total number of lanes for a specific VDS.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_HOUR
+        description: the hour associated with hourly aggregated data samples.
+      - name: SAMPLE_DATE
+        description: The date associated with hourly aggregated data samples.
+      - name: HOURLY_VOLUME
+        description: The sum of the flow values for a detector over the sample period for each detector lane.
+      - name: HOURLY_SPEED
+        description: flow weighted houly speed for each detector lane.
+      - name: HOURLY_OCCUPANCY
+        description: The average of the occupancy values over the sample period for each detector lane.
+      - name: LENGTH
+      - name: HOURLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in an hour and a given section of the
+          freeway for each detector lane.
+      - name: HOURLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated over an hour and a
+          given section of freeway. VHT is the amount of time spent by all of the
+          vehicles on the freeway.
+      - name: HOURLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: HOURLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region. For a single location its interpretation is the
+          average speed.
+      - name: DELAY_35_MPH
+        description: |
+          Hourly delay for threshold of 35 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_40_MPH
+        description: |
+          Hourly delay for threshold of 40 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_45_MPH
+        description: |
+          Hourly delay for threshold of 45 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_50_MPH
+        description: |
+          Hourly delay for threshold of 50 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_55_MPH
+        description: |
+          Hourly delay for threshold of 55 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_60_MPH
+        description: |
+          Hourly delay for threshold of 60 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY_35_MPH
+        description: |
+          Hourly lost productivity for threshold of 35 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_40_MPH
+        description: |
+          Hourly lost productivity for threshold of 40 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_45_MPH
+        description: |
+          Hourly lost productivity for threshold of 45 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_50_MPH
+        description: |
+          Hourly lost productivity for threshold of 50 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_55_MPH
+        description: |
+          Hourly lost productivity for threshold of 55 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_60_MPH
+        description: |
+          Hourly lost productivity for threshold of 60 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+
+  - name: int_performance__detector_metrics_agg_daily
+    description: |
+      Daily aggregation of volume, occupancy and speed along with delays and lost productivity by
+      each detetcor lane. This measures the daily performance of the state highway system.
+      This can be used for weekly and monthly aggregation of PeMS performance metrics in a given lane.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DETECTOR_ID
+        description: |
+          An integer value that uniquely indentifies a detector.
+          Use this value to 'join' other files or tables that contain the detector ID value.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LANE
+        description: Total number of lanes for a specific VDS.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_DATE
+        description: The date associated with daily aggregated data samples.
+      - name: DAILY_VOLUME
+        description: The sum of the flow values for a detector over the sample period for each detector.
+      - name: DAILY_SPEED
+        description: flow weighted daily speed for each detector.
+      - name: DAILY_OCCUPANCY
+        description: The average of the occupancy values over the sample period for each detector.
+      - name: DAILY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given day and a given section of
+           the freeway for each detector.
+      - name: DAILY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given day and a
+          given section of freeway for each detector. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given day.
+      - name: DAILY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: DAILY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given day for each detector lane. For a single location
+          its interpretation is the
+          average speed.
+      - name: DELAY_35_MPH
+        description: |
+          Hourly delay for threshold of 35 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_40_MPH
+        description: |
+          Hourly delay for threshold of 40 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_45_MPH
+        description: |
+          Hourly delay for threshold of 45 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_50_MPH
+        description: |
+          Hourly delay for threshold of 50 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_55_MPH
+        description: |
+          Hourly delay for threshold of 55 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_60_MPH
+        description: |
+          Hourly delay for threshold of 60 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY_35_MPH
+        description: |
+          Hourly lost productivity for threshold of 35 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_40_MPH
+        description: |
+          Hourly lost productivity for threshold of 40 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_45_MPH
+        description: |
+          Hourly lost productivity for threshold of 45 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_50_MPH
+        description: |
+          Hourly lost productivity for threshold of 50 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_55_MPH
+        description: |
+          Hourly lost productivity for threshold of 55 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_60_MPH
+        description: |
+          Hourly lost productivity for threshold of 60 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-hours on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+
+  - name: int_performance__detector_metrics_agg_weekly
+    description: |
+      Weekly aggregation of volume, speed and occupancy along with delays and lost productivity by
+      each detector lane. This measures the weekly performance of the state
+      highway system. This can be used to understand the SHS performance from week to week.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DETECTOR_ID
+        description: |
+          An integer value that uniquely indentifies a detector.
+          Use this value to 'join' other files or tables that contain the detector ID value.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LANE
+        description: Total number of lanes for a specific VDS.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_WEEK
+        description: The week associated with weekly aggregated data samples.
+      - name: SAMPLE_WEEK_START_DATE
+        description: the begining date of a sample week.
+      - name: WEEKLY_VOLUME
+        description:
+          The sum of the flow values for a detector over the sample period
+          for each detector lane.
+      - name: WEEKLY_OCCUPANCY
+        description: The average of the occupancy values over the sample period for each detector lane.
+      - name: WEEKLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given week and a given section
+          of the freeway for each detector lane.
+      - name: WEEKLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given week and a
+          given section of freeway for each detector lane. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given week.
+      - name: WEEKLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time. The free-flow travel time is taken
+          to be the time to traverse the link when traveling at 60MPH. For loop-based
+          performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: WEEKLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given week for each detector lane. For a single location
+          its interpretation is the average speed.
+      - name: DELAY_35_MPH
+        description: |
+          Weekly delay for threshold of 35 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_40_MPH
+        description: |
+          Weekly delay for threshold of 40 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_45_MPH
+        description: |
+          Weekly delay for threshold of 45 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_50_MPH
+        description: |
+          Weekly delay for threshold of 50 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_55_MPH
+        description: |
+          Weekly delay for threshold of 55 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: DELAY_60_MPH
+        description: |
+          Weekly delay for threshold of 60 mph for each detector lane. The Delay performance metric is the
+          amount of additional time spent by the vehicles on a section of road due to congestion.
+      - name: LOST_PRODUCTIVITY_35_MPH
+        description: |
+          Weekly lost productivity for threshold of 35 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_40_MPH
+        description: |
+          Weekly lost productivity for threshold of 40 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_45_MPH
+        description: |
+          Weekly lost productivity for threshold of 45 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_50_MPH
+        description: |
+          Weekly lost productivity for threshold of 50 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_55_MPH
+        description: |
+          Weekly lost productivity for threshold of 55 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_60_MPH
+        description: |
+          Weekly lost productivity for threshold of 60 mph for each detector lane. The lost Productivity
+          performance metric is the number of lane-mile-weeks on the freeway lost due to operating
+          under congested conditions instead of under free-flow conditions.
+  - name: int_performance__detector_metrics_agg_monthly
+    description: |
+      Monthly aggregation of volume, speed, and occupancy along with delays and lost productivity by
+      each detector lane. This measures the monthly performance of the state highway system.
+      This can be used to understand the SHS performance from month to month.
+    columns:
+      - name: STATION_ID
+        description: |
+          An integer value that uniquely indentifies a station.
+          Use this value to 'join' other files or tables that contain the Station ID value.
+      - name: DETECTOR_ID
+        description: |
+          An integer value that uniquely indentifies a detector.
+          Use this value to 'join' other files or tables that contain the detector ID value.
+      - name: DIRECTION
+        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
+      - name: FREEWAY
+        description: The freeway where the VDS is located.
+      - name: LANE
+        description: Total number of lanes for a specific VDS.
+      - name: STATION_TYPE
+        description: Two character string identify the VDS type.
+      - name: DISTRICT
+        description: The district in which the VDS is located. Values are 1-12.
+      - name: CITY
+        description: The city number where the VDS is located, if available.
+      - name: COUNTY
+        description: The unique number that identifies the county that contains a specific VDS within PeMS.
+      - name: SAMPLE_MONTH
+        description: The starting date of each month of the year.
+      - name: MONTHLY_VOLUME
+        description:
+          The sum of the flow values for a detector over the sample period by
+          each detector lane.
+      - name: MONTHLY_OCCUPANCY
+        description: The average of the occupancy values over the sample period for each detector lane.
+      - name: MONTHLY_VMT
+        description: |
+          The sum of the miles of freeway driven by each vehicle in a given month of the year and
+          a given section of the freeway for each detector lane.
+      - name: MONTHLY_VHT
+        description: |
+          Vehicle Hours Travelled (VHT) is calculated in a given month of the year and a
+          given section of freeway for each detector lane. VHT is the amount of time spent by all of the
+          vehicles on the freeway in a given month of the year.
+      - name: MONTHLY_TTI
+        description: |
+          The Travel Time Index (TTI) is the ratio of the average travel time for all users
+          across a region to the free-flow travel time for each detector lane.
+          The free-flow travel time is taken to be the time to traverse the link when traveling at 60MPH.
+          For loop-based performance measures, the TTI is simply the free-flow speed divided by the
+          performance measure Q.
+      - name: MONTHLY_Q_VALUE
+        description: |
+          Q is the sum of the VMT in a spatial and temporal region divided by the sum of
+          the VHT in the same region in a given month of the year for each detector lane.
+          For a single location its interpretation is the average speed.
+      - name: DELAY_35_MPH
+        description: |
+          Monthly delay for threshold of 35 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: DELAY_40_MPH
+        description: |
+          Monthly delay for threshold of 40 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: DELAY_45_MPH
+        description: |
+          Monthly delay for threshold of 45 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: DELAY_50_MPH
+        description: |
+          Monthly delay for threshold of 50 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: DELAY_55_MPH
+        description: |
+          Monthly delay for threshold of 55 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: DELAY_60_MPH
+        description: |
+          Monthly delay for threshold of 60 mph for each detector lane.
+          The Delay performance metric is the amount of additional time spent by the vehicles on a section
+          of road due to congestion.
+      - name: LOST_PRODUCTIVITY_35_MPH
+        description: |
+          Monthly lost productivity for threshold of 35 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_40_MPH
+        description: |
+          Monthly lost productivity for threshold of 40 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_45_MPH
+        description: |
+          Monthly lost productivity for threshold of 45 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_50_MPH
+        description: |
+          Monthly lost productivity for threshold of 50 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_55_MPH
+        description: |
+          Monthly lost productivity for threshold of 55 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.
+      - name: LOST_PRODUCTIVITY_60_MPH
+        description: |
+          Monthly lost productivity for threshold of 60 mph for each detector lane.
+          The lost Productivity performance metric is the number of lane-mile-month on the freeway lost due
+          to operating under congested conditions instead of under free-flow conditions.

@@ -104,6 +104,8 @@ models:
       - name: segment_end
       - name: controller_id
         description: The ID of the controller to which the station is attached.
+      - name: length
+        description: Length of the station.
   - name: stg_db96__detector_config
     description: |
       Metadata for a single loop detector. This is the device that actually records

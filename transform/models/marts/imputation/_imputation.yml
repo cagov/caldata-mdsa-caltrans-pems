@@ -19,18 +19,12 @@ models:
         description: |
           An integer value that uniquely indentifies a station.
           Use this value to 'join' other files or tables that contain the Station ID value.
-      - name: DISTRICT
-        description: The district in which the VDS is located. Values are 1-12.
       - name: SAMPLE_DATE
         description: The date associated with daily aggregated data samples.
         data_tests:
           - not_null
       - name: SAMPLE_CT
         description: The number of samples collected in five minutes time period.
-      - name: DIRECTION
-        description: A string indicating the freeway direction of a specific VDS. Directions are N, E, S or W.
-      - name: FREEWAY
-        description: The freeway where the VDS is located.
       - name: LANE
         description: Total number of lanes for a specific VDS.
       - name: PCT_OF_OCCUPANCY_GLOBAL_REGRESSION
@@ -55,7 +49,7 @@ models:
         description: Percentage of imputed speed using regional regression.
       - name: PCT_OF_SPEED_LOCAL_AVG
         description: Percentage of imputed speed using local average.
-      - name: PCT_OF_SPEED_REGIONAL_AVGN
+      - name: PCT_OF_SPEED_REGIONAL_AVG
         description: Percentage of imputed speed using regional average.
       - name: PCT_OF_SPEED_OBSERVED
         description: Percentage of observed speed.
@@ -80,11 +74,6 @@ models:
       This model filters the results of the imputation_detector_imputed_agg_five_minutes model from the transform
       step to detectors with station_type in of either 'ML' or 'HV' from the past 4 days and adds the county name
       to the results. This model is unique at the level of SAMPLE_TIMESTAMP + DETECTOR_ID.
-    data_tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - SAMPLE_TIMESTAMP
-            - DETECTOR_ID
     columns:
       - name: DETECTOR_ID
         data_tests:
@@ -126,9 +115,6 @@ models:
       - name: VOLUME_SUM
         description: observed or imputed flow values for a detector over the sample period.
       - name: OCCUPANCY_AVG
-      - name: SPEED_WEIGHTED
-        description: |
-          Flow-weighted speed reported by the device.
       - name: SPEED_FIVE_MINS
         description: |
           Flow-weighted observed or imputed speed for five minutes time period.
@@ -142,3 +128,13 @@ models:
         description: |
           The date on which the coefficients in the regression
           were evaluated.
+      - name: length
+        description: Length associated with the detector.
+      - name: absolute_postmile
+        description: Absolute postmile for the detector.
+      - name: sample_ct
+        description: Number of samples collected in five minutes.
+      - name: station_valid_from
+        description: Timestamp from which the station is valid.
+      - name: station_valid_to
+        description: Timestamp to which the station is valid.

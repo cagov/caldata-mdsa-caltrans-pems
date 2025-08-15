@@ -1,0 +1,115 @@
+version: 2
+
+models:
+  - name: performance__station_bottleneck_agg_monthly
+    description: |
+      Monthly bottleneck metrics aggregated by station, including location and county.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_month
+        description: Month of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: district
+        description: District number.
+      - name: station_type
+        description: Type of station.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: monthly_active_days
+        description: Number of active days in the month.
+      - name: monthly_time_shift_duration
+        description: Duration of time shift in the month.
+      - name: monthly_time_shift_extent
+        description: Extent of time shift in the month.
+      - name: county
+        description: County name.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string.
+  - name: performance__station_bottleneck_agg_weekly
+    description: |
+      Weekly bottleneck metrics aggregated by station, including location and county.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_week
+        description: Week of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: district
+        description: District number.
+      - name: station_type
+        description: Type of station.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: weekly_active_days
+        description: Number of active days in the week.
+      - name: weekly_time_shift_duration
+        description: Duration of time shift in the week.
+      - name: weekly_time_shift_extent
+        description: Extent of time shift in the week.
+      - name: county
+        description: County name.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string.
+  - name: performance__station_bottleneck_agg_daily
+    description: |
+      Daily bottleneck metrics aggregated by station, including location and county.
+    columns:
+      - name: station_id
+        description: Station identifier.
+      - name: sample_date
+        description: Date of the sample.
+      - name: time_shift
+        description: Time shift for bottleneck event.
+      - name: district
+        description: District number.
+      - name: station_type
+        description: Type of station.
+      - name: freeway
+        description: Freeway identifier.
+      - name: direction
+        description: Freeway direction.
+      - name: absolute_postmile
+        description: Absolute postmile location.
+      - name: daily_time_shift_duration
+        description: Duration of time shift in the day.
+      - name: daily_time_shift_bottleneck_extent
+        description: Extent of bottleneck in the day.
+      - name: county
+        description: County name.
+      - name: COUNTY_NAME
+        description: The unique name that identifies the county that contains a specific VDS within PeMS.
+      - name: COUNTY_ABB
+        description: The unique abbreviation that identifies the county that contains a specific VDS within PeMS.
+      - name: latitude
+        description: Latitude of station.
+      - name: longitude
+        description: Longitude of station.
+      - name: location
+        description: Location as longitude,latitude string.
