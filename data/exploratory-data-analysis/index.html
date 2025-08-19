@@ -1,0 +1,904 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../dbt_docs/">
+      
+      
+        <link rel="next" href="../data-relay/">
+      
+      
+      <link rel="icon" href="../../images/odi-circle_logomark-blue.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Exploratory Data Analysis - Traffic Operations Infrastructure</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#caltrans-pems-exploratory-data-analysis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Traffic Operations Infrastructure" class="md-header__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Traffic Operations Infrastructure
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Exploratory Data Analysis
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Traffic Operations Infrastructure" class="md-nav__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    Traffic Operations Infrastructure
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../writing-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Writing Documentation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Loading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Incremental Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-relay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-warehouse-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Warehouse Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dbt_docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    dbt Project
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Data Analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Data Analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Exploratory Data Analysis
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exploratory Data Analysis
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Findings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deliverables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remaining-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remaining Questions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-relay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bottlenecks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bottlenecks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imputation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Imputation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Transformation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance-calcs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance Calculations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../detector-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Detector Health Diagnostics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      Background
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Goals
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Findings
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deliverables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deliverables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remaining-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remaining Questions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="caltrans-pems-exploratory-data-analysis">Caltrans PeMS: Exploratory Data Analysis<a class="headerlink" href="#caltrans-pems-exploratory-data-analysis" title="Permanent link">&para;</a></h1>
+<h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
+<p>The California Department of Transportation (Caltrans) collects data that describes the flow of traffic on California freeways. Caltrans stores these data in a database called PeMS. The data describe the number of counts per unit time measured by roughly 45,000 sensors on a 30-second cadence. The type of sensor varies considerably, e.g. radar and magnetometers (see Chapter 1 of the <a href="https://pems.dot.ca.gov/Papers/PeMS_Intro_User_Guide_v6.pdf">Introduction to PeMS User Guide</a>).</p>
+<p>In some cases, these data are missing. Faulty or broken sensors do not collect data. Or sensor data is not wirelessly transmitted back to PeMS. In addition, Caltrans performs some calculations to convert these raw sensor data into physical observables such as speed. These calculations include some assumptions such as the length of the vehicle, or <em>g</em>. Based on the quality of the assumption, these data can include errors.</p>
+<h2 id="goals">Goals<a class="headerlink" href="#goals" title="Permanent link">&para;</a></h2>
+<p>The goals for the project were two-fold: to learn how to use Snowflake to analyze large datasets and to answer a few basic questions about the nature of the data. We developed an interactive data visualization to quickly explore the data.</p>
+<h2 id="findings">Findings<a class="headerlink" href="#findings" title="Permanent link">&para;</a></h2>
+<p>We report three main findings about the nature of the data.</p>
+<ol>
+<li>Do some types of roads have more missing data than others? The Caltrans/PeMS sensor data describes many different types of roads. Some are interstate roads, while others are small, local roads. The California Department of Transportation identifies <a href="https://dot.ca.gov/programs/research-innovation-system-information/office-of-highway-system-information-performance/functional-classification">seven major types of roads</a>. The data we have does not specify the type of road. There is a ‘FWY’ column for each station that contains an integer road number. The 15, 10, and 5 freeways have the most sensors.</li>
+<li>Do some regions have more missing data than others? The Caltrans/PeMS data is organized by districts. This map shows how Caltrans carves the state into 11 districts. An analysis of data in 2022 and 2023 shows 19.2 thousand sensors with almost 28 billion observations. Some 5.6% of the sensors had all null observations (<code>FLOW_1</code>) and 9.1% of the sensors had all zero observations (<code>FLOW_1</code>) . We observed a few different types of missing data: single missing observations, intermittent outages for a few minutes during the day, and hours to months long outages.</li>
+<li>Do the calculations for speed and traffic flow make sense? The Caltrans/PeMS data uses some heuristics to calculate speed and traffic flow. Are these reasonable? To answer this question, we can try to confirm some basic traffic patterns. For example: Does traffic increase during <a href="https://dot.ca.gov/programs/traffic-operations/hov">peak traffic hours</a>, which is 6am to 10am and again from 3pm to 7pm in Northern California? While there are some anomalous observations, the flow and speed generally follow a pattern with low speeds and high flow during peak traffic hours. See Figure 6 for an example.</li>
+</ol>
+<p><img alt="Figure 1. An example of a null observation." src="../../images/fig1.png" /></p>
+<p>Figure 1. An example of a null observation.</p>
+<p><img alt="Figure 2. An example of an observation containing all zero values." src="../../images/fig2.png" /></p>
+<p>Figure 2. An example of an observation containing all zero values.</p>
+<p><img alt="Figure 3. Average lane 1 flow from all California sensors in 2022 and 2023. Black dots represent sensors with all null values." src="../../images/fig3.png" /></p>
+<p>Figure 3. Average lane 1 flow from all California sensors in 2022 and 2023. Black dots represent sensors with all null values.</p>
+<p><img alt="Figure 4. Sensors reporting all null values for 2022 and 2023." src="../../images/fig4.png" /></p>
+<p>Figure 4. Sensors reporting all null values for 2022 and 2023.</p>
+<p><img alt="Figure 5. Sensors reporting all zero values for 2022 and 2023. These appear to be centered around the major metropolitan areas." src="../../images/fig5.png" /></p>
+<p>Figure 5. Sensors reporting all zero values for 2022 and 2023. These appear to be centered around the major metropolitan areas.</p>
+<p><img alt="Figure 6. The speed (left) and flow (right) of traffic over the Bay Bridge on Tuesday, September 13, 2022." src="../../images/fig6.png" /></p>
+<p>Figure 6. The speed (left) and flow (right) of traffic over the Bay Bridge on Tuesday, September 13, 2022.</p>
+<h2 id="deliverables">Deliverables<a class="headerlink" href="#deliverables" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Deliverable 1: We learned how to use Snowflake to analyze large datasets. To read data from Snowflake, we used an open-source Python package called Ibis. Ibis provides a Python interface to Snowflake that's easy to use. <a href="https://ibis-project.org/">Ibis</a> loads data from a Snowflake into a pandas dataframe. pandas dataframes connect nicely to a typical data science workflow. We demonstrated this workflow in <a href="https://github.com/cagov/caldata-mdsa-caltrans-pems/blob/main/pems/missing_data.ipynb">this notebook</a>, located in the <code>/pems</code> subdirectory.</p>
+</li>
+<li>
+<p>Deliverable 2: This documentation.</p>
+</li>
+<li>
+<p>Deliverable 3: An interactive data visualization. We ultimately chose to go with building the dashboard via <a href="https://dash.plotly.com">Dash</a>. This was mainly due to the platform's maturity, robust documentation, and known flexibility (see Table 1). While Dash provided a working solution that was performant enough to work with, the poor deployment options are a disappointment. To make deployment of these Dash apps workable, it would require the team to adopt this as a standard. This is because it requires standing up a server, or paying plotly to host it. Streamlit appears to check most of the boxes; however, its scalability and performance is the only open question. Shiny for Python appears to be very promising; however, it is still relatively new.</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Deployment options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://dash.plotly.com/">Dash Plotly</a></td>
+<td><ul><li> Well established with good documentation and community</li><li>Simple interactive plots via plotly<li>Flexible</li></ul></td>
+<td><ul><li>No simple hosting option</li></ul></td>
+<td><ul><li>Self hosted options</li><li>Paid options</li><li><a href="https://dash.plotly.com/deployment">Deploy Your Dash App | Dash for Python Documentation | Plotly</a></li></ul></td>
+</tr>
+<tr>
+<td><a href="https://streamlit.io/">Streamlit</a></td>
+<td><ul><li>Probably simplest to get started and easiest to deploy</li><li>Integrates with Snowflake</li><li>Free and simple deployment options</li><li>Robust community</td>
+<td><ul><li>Limited functionality and scalability compared to others</li><li>Limited in ability to take input from user interaction (e.g. clicks) with maps/visualizations</li></ul></td>
+<td><ul><li> <a href="https://www.snowflake.com/en/data-cloud/overview/streamlit-in-snowflake/">Streamlit in Snowflake</a></li><li><a href="https://streamlit.io/cloud">Easy and free via Github</a></li><ul><li>No paid options for more compute and memory</ul></li></td>
+</tr>
+<tr>
+<td><a href="https://shiny.posit.co/py/">Shiny for Python</a></td>
+<td><ul><li>The R implementation is one of the most well established and mature dashboarding ecosystems for any language</li><li>Free and simple deployment options</td>
+<td><ul><li>Relatively new for Python so documentation and community is currently limited</td>
+<td><ul><li>Self hosted options via shiny server</li><li><a href="https://shiny.posit.co/py/docs/deploy.html">Deployment Options</a></li><li>Easy and free via <a href="https://www.shinyapps.io/">shinyapps.io</a></li><ul><li>Paid options for more compute and memory</td>
+</tr>
+</tbody>
+</table>
+<p>Table 1. Comparison of different dashboard options</p>
+<h2 id="remaining-questions">Remaining Questions<a class="headerlink" href="#remaining-questions" title="Permanent link">&para;</a></h2>
+<p>Here are some open questions we recommend probing.</p>
+<ul>
+<li>Why would sensors not report for long periods of time? Why do some sensors have zero values for a long period of time while others report null values?</li>
+<li>What are the different reasons why a sensor’s data may be missing? Does this differ by sensor type, location, lane, etc.? Which type of missing data requires imputation?</li>
+<li>Do some years or seasons have more missing data than others?</li>
+<li>How many total sensors are there? (There is a discrepancy between the website reporting 40K sensors and the data containing 25K sensors).</li>
+<li>Does the data we have include imputed data? If so, is there a way to tell what is imputed or not?</li>
+<li>What is reasonable in terms of a sensor missing data?</li>
+<li>What source of data are we using?</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+    
+  </body>
+</html>

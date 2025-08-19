@@ -1,0 +1,1000 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../writing-documentation/">
+      
+      
+      <link rel="icon" href="../images/odi-circle_logomark-blue.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Setup - Traffic Operations Infrastructure</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#repository-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Traffic Operations Infrastructure" class="md-header__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Traffic Operations Infrastructure
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Traffic Operations Infrastructure" class="md-nav__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    Traffic Operations Infrastructure
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Install dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2-install-python-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Install Python dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-dbt-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Install dbt dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-snowflake" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure Snowflake
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-dbt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure dbt
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure dbt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snowflake-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snowflake project
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installing pre-commit hooks
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Writing Documentation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Loading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Incremental Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/data-relay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-warehouse-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Warehouse Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dbt_docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    dbt Project
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Data Analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Data Analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/exploratory-data-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exploratory Data Analysis
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/data-relay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/bottlenecks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bottlenecks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/imputation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Imputation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/data-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Transformation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/performance-calcs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance Calculations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data/detector-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Detector Health Diagnostics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#install-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Install dependencies
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Install dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2-install-python-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Install Python dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-dbt-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Install dbt dependencies
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-snowflake" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure Snowflake
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-dbt" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configure dbt
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configure dbt">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#snowflake-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snowflake project
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-pre-commit-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installing pre-commit hooks
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="repository-setup">Repository setup<a class="headerlink" href="#repository-setup" title="Permanent link">&para;</a></h1>
+<p>These are instructions for individual contributors to set up the repository locally.</p>
+<h2 id="install-dependencies">Install dependencies<a class="headerlink" href="#install-dependencies" title="Permanent link">&para;</a></h2>
+<p>We use <code>uv</code> to manage our Python virtual environments.
+If you have not yet installed it on your system,
+you can follow the instructions for it <a href="https://docs.astral.sh/uv/getting-started/installation/">here</a>.
+Most of the ODI team uses <a href="https://brew.sh">Homebrew</a> to install the package.
+We do not recommend installing <code>uv</code> using <code>pip</code>: as a tool for managing Python environments,
+it makes sense for it to live outside of a particular Python distribution.</p>
+<h3 id="2-install-python-dependencies">2. Install Python dependencies<a class="headerlink" href="#2-install-python-dependencies" title="Permanent link">&para;</a></h3>
+<p>If you prefix your commands with <code>uv run</code> (e.g. <code>uv run dbt build</code>),
+then <code>uv</code> will automatically make sure that the appropriate dependencies are installed before invoking the command.</p>
+<p>However, if you want to explicitly ensure that all of the dependencies are installed in the virtual environment, run
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>sync
+</code></pre></div>
+in the root of the repository.</p>
+<p>Once the dependencies are installed, you can also "activate" the virtual environment
+(similar to how conda virtual environments are activated) by running
+<div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</code></pre></div>
+from the repository root.
+With the environment activated, you no longer have to prefix commands with <code>uv run</code>.</p>
+<p>Which approach to take is largely a matter of personal preference:</p>
+<ul>
+<li>Using the <code>uv run</code> prefix is more reliable, as dependencies are <em>always</em> resolved before executing.</li>
+<li>Using <code>source .venv/bin/activate</code> involves less typing.</li>
+</ul>
+<h3 id="3-install-dbt-dependencies">3. Install dbt dependencies<a class="headerlink" href="#3-install-dbt-dependencies" title="Permanent link">&para;</a></h3>
+<p>dbt comes with some core libraries, but others can be added on.
+This command installs those extra libraries that are needed for this repo.
+It will have to be re-run each time the repo starts relying on a new dbt library.</p>
+<p>To install dbt dependencies, open a terminal and enter:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>dbt<span class="w"> </span>deps<span class="w"> </span>--project-dir<span class="w"> </span>transform
+</code></pre></div>
+<h2 id="configure-snowflake">Configure Snowflake<a class="headerlink" href="#configure-snowflake" title="Permanent link">&para;</a></h2>
+<p>In order to use Snowflake (as well as the terraform validators for the Snowflake configuration)
+you should set some default local environment variables in your environment.
+This will depend on your operating system and shell. For Linux and Mac OS systems,
+as well as users of Windows subsystem for Linux (WSL) it's often set in
+<code>~/.zshrc</code>, <code>~/.bashrc</code>, or <code>~/.bash_profile</code>.</p>
+<p>If you use zsh or bash, open your shell configuration file, and add the following lines:</p>
+<p><strong>Default Transformer role</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Legacy account identifier</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ACCOUNT</span><span class="o">=</span>&lt;account-locator&gt;
+<span class="c1"># The preferred account identifier is to use name of the account prefixed by its organization (e.g. myorg-account123)</span>
+<span class="c1"># Supporting snowflake documentation - https://docs.snowflake.com/en/user-guide/admin-account-identifier</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ACCOUNT</span><span class="o">=</span>&lt;org_name&gt;-&lt;account_name&gt;<span class="w"> </span><span class="c1"># format is organization-account</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_USER</span><span class="o">=</span>&lt;your-username&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_PASSWORD</span><span class="o">=</span>&lt;your-password&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ROLE</span><span class="o">=</span>TRANSFORMER_DEV
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_WAREHOUSE</span><span class="o">=</span>TRANSFORMING_XS_DEV
+</code></pre></div>
+<p>This will enable you to perform transforming activities which is needed for dbt.
+Open a new terminal and verify that the environment variables are set.</p>
+<p><strong>Switch to Loader role</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Legacy account identifier</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ACCOUNT</span><span class="o">=</span>&lt;account-locator&gt;
+<span class="c1"># The preferred account identifier is to use name of the account prefixed by its organization (e.g. myorg-account123)</span>
+<span class="c1"># Supporting snowflake documentation - https://docs.snowflake.com/en/user-guide/admin-account-identifier</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ACCOUNT</span><span class="o">=</span>&lt;org_name&gt;-&lt;account_name&gt;<span class="w"> </span><span class="c1"># format is organization-account</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_USER</span><span class="o">=</span>&lt;your-username&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_PASSWORD</span><span class="o">=</span>&lt;your-password&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_ROLE</span><span class="o">=</span>LOADER_DEV
+<span class="nb">export</span><span class="w"> </span><span class="nv">SNOWFLAKE_WAREHOUSE</span><span class="o">=</span>LOADING_XS_DEV
+</code></pre></div>
+<p>This will enable you to perform loading activities and is needed to which is needed for Airflow or Fivetran.
+Again, open a new terminal and verify that the environment variables are set.</p>
+<h2 id="configure-dbt">Configure dbt<a class="headerlink" href="#configure-dbt" title="Permanent link">&para;</a></h2>
+<p>The connection information for our data warehouses will,
+in general, live outside of this repository.
+This is because connection information is both user-specific usually sensitive,
+so should not be checked into version control.
+In order to run this project locally, you will need to provide this information
+in a YAML file located (by default) in <code>~/.dbt/profiles.yml</code> (where <code>~</code> indicates your home directory).
+To see the absolute path of where dbt is looking for your <code>profiles.yml</code>,
+run <code>dbt debug</code> and inspect the output.</p>
+<p>Instructions for writing a <code>profiles.yml</code> are documented
+<a href="https://docs.getdbt.com/docs/get-started/connection-profiles">here</a>,
+as well as specific instructions for
+<a href="https://docs.getdbt.com/reference/warehouse-setups/snowflake-setup">Snowflake</a>.</p>
+<p>You can verify that your <code>profiles.yml</code> is configured properly by running</p>
+<div class="highlight"><pre><span></span><code>dbt<span class="w"> </span>debug
+</code></pre></div>
+<p>from the dbt project root directory (<code>transform</code>).</p>
+<h3 id="snowflake-project">Snowflake project<a class="headerlink" href="#snowflake-project" title="Permanent link">&para;</a></h3>
+<p>A minimal version of a <code>profiles.yml</code> for dbt development with is:</p>
+<div class="highlight"><pre><span></span><code>caltrans_pems:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: &lt;account-locator&gt;
+      user: &lt;your-username&gt;
+      password: &lt;your-password&gt;
+      authenticator: username_password_mfa
+      role: TRANSFORMER_DEV
+      database: TRANSFORM_DEV
+      warehouse: TRANSFORMING_XS_DEV
+      schema: DBT_&lt;your-name&gt;   # Test schema for development
+      threads: 4
+</code></pre></div>
+<h2 id="installing-pre-commit-hooks">Installing <code>pre-commit</code> hooks<a class="headerlink" href="#installing-pre-commit-hooks" title="Permanent link">&para;</a></h2>
+<p>This project uses <a href="https://pre-commit.com/">pre-commit</a> to lint, format,
+and generally enforce code quality. These checks are run on every commit,
+as well as in CI.</p>
+<p>To set up your pre-commit environment locally run</p>
+<div class="highlight"><pre><span></span><code>pre-commit<span class="w"> </span>install
+</code></pre></div>
+<p>The next time you make a commit, the pre-commit hooks will run on the contents of your commit
+(the first time may be a bit slow as there is some additional setup).</p>
+<p>You can verify that the pre-commit hooks are working properly by running</p>
+<p><div class="highlight"><pre><span></span><code>pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</code></pre></div>
+to test every file in the repository against the checks.</p>
+<p>Some of the checks lint our dbt models,
+so having the dbt project configured is a requirement to run them,
+even if you don't intend to use those packages.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["content.code.copy"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.50899def.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,304 @@
+
+
+-- Generate dates using dbt_utils.date_spine
+with date_spine as (
+    select date_day::date as regression_date
+    from (
+        
+
+
+
+
+
+with rawdata as (
+
+    
+
+    
+
+    with p as (
+        select 0 as generated_number union all select 1
+    ), unioned as (
+
+    select
+
+    
+    p0.generated_number * power(2, 0)
+     + 
+    
+    p1.generated_number * power(2, 1)
+     + 
+    
+    p2.generated_number * power(2, 2)
+     + 
+    
+    p3.generated_number * power(2, 3)
+     + 
+    
+    p4.generated_number * power(2, 4)
+     + 
+    
+    p5.generated_number * power(2, 5)
+     + 
+    
+    p6.generated_number * power(2, 6)
+     + 
+    
+    p7.generated_number * power(2, 7)
+     + 
+    
+    p8.generated_number * power(2, 8)
+     + 
+    
+    p9.generated_number * power(2, 9)
+     + 
+    
+    p10.generated_number * power(2, 10)
+     + 
+    
+    p11.generated_number * power(2, 11)
+     + 
+    
+    p12.generated_number * power(2, 12)
+     + 
+    
+    p13.generated_number * power(2, 13)
+    
+    
+    + 1
+    as generated_number
+
+    from
+
+    
+    p as p0
+     cross join 
+    
+    p as p1
+     cross join 
+    
+    p as p2
+     cross join 
+    
+    p as p3
+     cross join 
+    
+    p as p4
+     cross join 
+    
+    p as p5
+     cross join 
+    
+    p as p6
+     cross join 
+    
+    p as p7
+     cross join 
+    
+    p as p8
+     cross join 
+    
+    p as p9
+     cross join 
+    
+    p as p10
+     cross join 
+    
+    p as p11
+     cross join 
+    
+    p as p12
+     cross join 
+    
+    p as p13
+    
+    
+
+    )
+
+    select *
+    from unioned
+    where generated_number <= 9819
+    order by generated_number
+
+
+
+),
+
+all_periods as (
+
+    select (
+        
+
+    dateadd(
+        day,
+        row_number() over (order by 1) - 1,
+        '1998-10-01'
+        )
+
+
+    ) as date_day
+    from rawdata
+
+),
+
+filtered as (
+
+    select *
+    from all_periods
+    where date_day <= current_date()
+
+)
+
+select * from filtered
+
+
+    ) as spine
+),
+
+-- Filter dates to get the desired date sequence
+regression_dates as (
+    select *
+    from date_spine
+    where
+        extract(day from regression_date) = 3
+        and extract(month from regression_date) in (2, 5, 8, 11)
+),
+
+regression_dates_to_evaluate as (
+    select * from regression_dates
+    
+),
+
+-- Get all of the detectors that are producing good data, based on
+-- the diagnostic tests
+good_detectors as (
+    select
+        detector_id,
+        district,
+        sample_date
+    from ANALYTICS_PRD.diagnostics.int_diagnostics__detector_status
+    where status = 'Good'
+),
+
+detector_dates_for_regression as (
+    select
+        good_detectors.*,
+        regression_dates_to_evaluate.regression_date
+    from good_detectors
+    inner join regression_dates_to_evaluate
+        on
+            good_detectors.sample_date::date >= regression_dates_to_evaluate.regression_date
+            and good_detectors.sample_date
+            < dateadd(day, 7, regression_dates_to_evaluate.regression_date)
+),
+
+agg as (
+    select * from ANALYTICS_PRD.clearinghouse.int_clearinghouse__detector_agg_five_minutes
+    where station_type in ('ML', 'HV') -- TODO: make a variable for "travel station types"
+),
+
+/* Get the five-minute unimputed data. This is joined on the
+regression dates to only get samples which are within a week of
+the regression date. It's also joined with the "good detectors"
+table to only get samples from dates that we think were producing
+good data. */
+detector_counts as (
+    select
+        agg.detector_id,
+        agg.sample_date,
+        agg.sample_timestamp,
+        agg.volume_sum,
+        agg.occupancy_avg,
+        agg.speed_weighted,
+        agg.district,
+        agg.freeway,
+        agg.direction,
+        agg.station_type,
+        -- TODO: Can we give this a better name? Can we move this into the base model?
+        coalesce(agg.speed_weighted, (agg.volume_sum * 22) / nullifzero(agg.occupancy_avg) * (1 / 5280) * 12)
+            as speed_five_mins,
+        detector_dates_for_regression.regression_date
+    from agg
+    inner join detector_dates_for_regression
+        on
+            agg.detector_id = detector_dates_for_regression.detector_id
+            and agg.sample_date = detector_dates_for_regression.sample_date
+),
+
+global_agg as (
+    select
+        sample_date,
+        sample_timestamp,
+        district,
+        freeway,
+        direction,
+        station_type,
+        /* Note: since this is an aggregate *across* stations rather than
+        within a single station, it is more appropriate to average the sum
+        rather than sum it. In any event, these averages are intended to be
+        used for computing regression coefficients, so this just makes the
+        regression coefficient the same up to a constant factor*/
+        avg(volume_sum) as volume_sum,
+        avg(occupancy_avg) as occupancy_avg,
+        sum(volume_sum * speed_weighted) / nullifzero(sum(volume_sum)) as speed_weighted
+    from detector_counts
+    group by sample_date, sample_timestamp, district, freeway, direction, station_type
+),
+
+-- Join the 5-minute aggregated data with the district-freeway aggregation
+detector_counts_with_global_averages as (
+    select
+        a.detector_id,
+        a.district,
+        a.regression_date,
+        a.freeway,
+        a.direction,
+        a.station_type,
+        a.speed_five_mins as speed,
+        a.volume_sum as volume,
+        a.occupancy_avg as occupancy,
+        g.volume_sum as global_volume,
+        g.occupancy_avg as global_occupancy,
+        g.speed_weighted as global_speed
+    from detector_counts as a
+    inner join global_agg as g
+        on
+            a.sample_date = g.sample_date
+            and a.sample_timestamp = g.sample_timestamp
+            and a.district = g.district
+            and a.freeway = g.freeway
+            and a.direction = g.direction
+            and a.station_type = g.station_type
+),
+
+-- Aggregate the self-joined table to get the slope
+-- and intercept of the regression.
+detector_counts_regression as (
+    select
+        detector_id,
+        district,
+        freeway,
+        station_type,
+        direction,
+        regression_date,
+        -- speed regression model
+        regr_slope(speed, global_speed) as speed_slope,
+        regr_intercept(speed, global_speed) as speed_intercept,
+        -- flow or volume regression model
+        regr_slope(volume, global_volume) as volume_slope,
+        regr_intercept(volume, global_volume) as volume_intercept,
+        -- occupancy regression model
+        regr_slope(occupancy, global_occupancy) as occupancy_slope,
+        regr_intercept(occupancy, global_occupancy) as occupancy_intercept
+    from detector_counts_with_global_averages
+    group by detector_id, district, freeway, direction, station_type, regression_date
+    -- No point in regressing if the variables are all null,
+    -- this can save significant time.
+    having
+        (count(volume) > 0 and count(global_volume) > 0)
+        or (count(occupancy) > 0 and count(global_occupancy) > 0)
+        or (count(speed) > 0 and count(global_speed) > 0)
+)
+
+select * from detector_counts_regression

@@ -1,0 +1,1423 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../exploratory-data-analysis/">
+      
+      
+        <link rel="next" href="../bottlenecks/">
+      
+      
+      <link rel="icon" href="../../images/odi-circle_logomark-blue.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.16">
+    
+    
+      
+        <title>Data Relay - Traffic Operations Infrastructure</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data-relay-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Traffic Operations Infrastructure" class="md-header__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Traffic Operations Infrastructure
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data Relay
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Traffic Operations Infrastructure" class="md-nav__button md-logo" aria-label="Traffic Operations Infrastructure" data-md-component="logo">
+      
+  <img src="../../images/odi-square_logomark-blue.svg" alt="logo">
+
+    </a>
+    Traffic Operations Infrastructure
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../writing-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Writing Documentation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-loading/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Loading
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Incremental Models
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data-warehouse-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Warehouse Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dbt_docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    dbt Project
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Data Analysis
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Data Analysis
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../exploratory-data-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Exploratory Data Analysis
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Relay
+    
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bottlenecks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bottlenecks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imputation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Imputation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Transformation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance-calcs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance Calculations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../detector-health/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Detector Health Diagnostics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="data-relay-documentation">Data Relay Documentation<a class="headerlink" href="#data-relay-documentation" title="Permanent link">&para;</a></h1>
+<h1 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h1>
+<h2 id="backgrounds">Backgrounds<a class="headerlink" href="#backgrounds" title="Permanent link">&para;</a></h2>
+<h3 id="why-we-need-data-relay">Why we need Data Relay<a class="headerlink" href="#why-we-need-data-relay" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Caltrans IT infrastructure collects the road side detector signals and transforms them within the Caltrans network.</li>
+<li>Data Relay moves PeMS data from internal Caltrans networks to the cloud (Snowflake).</li>
+<li>Snowflake employs elastic computing resources to transform the data within the data warehouse, which are then consumed by PeMS users.</li>
+</ul>
+<p>Therefore, Data Relay performs the critical link between the Caltrans infrastructure and the Snowflake.</p>
+<p>The data sources needed for the PeMS system include:
+* The <code>VDS30SEC</code> table.
+* The sensor device configuration tables.</p>
+<h3 id="how-data-relay-works">How Data Relay works<a class="headerlink" href="#how-data-relay-works" title="Permanent link">&para;</a></h3>
+<ul>
+<li>On a regular basis, Data Relay service hosted in Caltrans internal network pulls PeMS upstream data and batch them for uploading to Snowflake.</li>
+<li>The current upstream for Data Relay is the legacy PeMS Oracle database that serves the legacy PeMS website.</li>
+</ul>
+<h3 id="general-system-design-principle">General System Design Principle<a class="headerlink" href="#general-system-design-principle" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Data Relay is the only component in the entire PeMS modernization project that operates within Caltrans internal networks, thus there are upfront limitations we need to consider when we build Data Relay service
+a) Caltrans IT team will not provide support on operating the Data Relay on a routine basis, though they will address the incidents when the hosting machines go down.
+b) The legacy PeMS Oracle database was intended to only serve the legacy PeMS website frontend; supporting an additional data downstream service that powers an entire data system was not in its scope. So does the PeMS Oracle databases' internal networking, which was never purposed for directly transfer data to the public internet.
+c) Cloud system's data ingestion needs to work with large batch of data in compressed form; therefore, the data relay should output that kind of data.</li>
+</ul>
+<p>With those constraints set forth, there are extensive studies and experimentation done before we settled down our final architecture. Here is our high-level journey:
+* We considered using Airflow, which provides a powerful tooling support for administering batch-based data pipeline workloads with reliability. The problem, however, is the constraint a), which would force us to include managing an Airflow platform as part of the PeMS modernization project scope, which would increase our cost.
+* We then tried using one machine running python script with crontab as scheduling. It does not come with a heavy-weight of managing an Airflow system, and it may handle any complex data transforming operations with python libraries, but due to the constraint b above, such python script cannot simultaneously talking to Oracle and Snowflake at once.
+* We then tried Kafka. Kafka as a distributed pub-sub services naturally fit into Data Relay in that it offers Task Queue management out-of-the-box, and it orchestrates the machines in and out of the PeMS Oracle networks together (as aforementioned in constraint b, only using one machine for Data Relay for pulling Oracle and pushing to Snowflake is not possible).
+* In spite of Kafka's benefits, it nevertheless shares the same drawback as Airflow in that, managing a Kafka cluster has to be part of the project scope, which increases the cost. Fortunately, Kafka's administering cost is significantly lower than Airflow, in that it has low dependency, and machines are identical setup, unlike Airflow, which has to distinguish different roles such as scheduler - worker - database.
+* In practice, Kafka data is consumed using pub-sub way, which may incur some minor inconveniences to certain operation such as deduplicating such as ensuring configuration tables' elements are deduplicated before sending to Snowflake. Therefore, we scope Kafka to be focused on the VDS30SEC table relaying, which accounts for 99.9% of the daily new data.</p>
+<p>In sum, we adopted Kafka for our Data Relay service's backbone, and this design decision is the foundation for the architecture design we will introduce in the following sections.</p>
+<h2 id="whole-system-components-in-a-nutshell">Whole System Components In a nutshell<a class="headerlink" href="#whole-system-components-in-a-nutshell" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>PeMS Oracle Database (DB96/DWO):</strong> The source of the data that needs to be pulled and relayed.</p>
+</li>
+<li>
+<p><strong>Servers</strong></p>
+<ul>
+<li>
+<p><strong>svgcmdl01 (Puller Side):</strong></p>
+<ul>
+<li><strong>Gateway:</strong> <code>/etc/systemd/system/oracle_puller.service</code></li>
+<li><strong>Configuration:</strong> <code>/etc/systemd/system/oracle_puller.service.sh</code></li>
+<li><strong>Script:</strong> <code>/data/projects/crawler/oracle_puller_daemon.py</code></li>
+<li><strong>Data Source:</strong> Oracle Database (DB96/DWO)</li>
+<li><strong>Process:</strong> Continuously pulls data from the Oracle databases based on tasks generated by the task queue on svgcmdl02. The pulled data is then sent to the Kafka service.</li>
+</ul>
+</li>
+<li>
+<p><strong>svgcmdl02 (Uploader Side):</strong></p>
+<ul>
+<li><strong>Task Queue Generators:</strong><ul>
+<li><strong>Cron Jobs:</strong> <code>append_to_crawl_queue.py</code> (runs every 3 hours) generate tasks for the puller on svgcmdl01, scheduling SQL queries to be executed periodically.</li>
+</ul>
+</li>
+<li><strong>Data Uploaders:</strong><ul>
+<li><strong>Script:</strong> <code>aws_upload_daemon_script.sh</code> (runs every 6 hours) processes the pulled data and uploads it to AWS S3/Snowflake.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Kafka Service</strong></p>
+<ul>
+<li><strong>Purpose:</strong> Centralized service to manage data flow between the task producers and consumers.</li>
+<li><strong>Topics:</strong><ul>
+<li><strong>Task Queue Topic:</strong> <code>oracle_crawl_queue_topic</code> (where tasks are published for the puller to execute)</li>
+<li><strong>Data Buffer Topics:</strong> <code>D3.VDS30SEC</code>, <code>D4.VDS30SEC</code>, ..., <code>D12.VDS30SEC</code> (where pulled data is buffered before being consumed by the uploader)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Data Flow</strong></p>
+<ul>
+<li><strong>Task Generation:</strong> Cron jobs on svgcmdl02 generate tasks every few hours and send them to Kafka.</li>
+<li><strong>Task Execution:</strong> svgcmdl01 pulls tasks from Kafka, executes the tasks to retrieve data from the Oracle database, and then sends the data back to Kafka topics.</li>
+<li><strong>Data Upload:</strong> The data is consumed from Kafka topics by svgcmdl02 and uploaded to AWS S3/Snowflake at scheduled intervals.</li>
+</ul>
+</li>
+<li>
+<p><strong>Final Destination:</strong></p>
+<ul>
+<li><strong>AWS/Snowflake:</strong> The final destination for the data after it has been pulled, processed, and uploaded.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h2 id="diagrams">Diagrams<a class="headerlink" href="#diagrams" title="Permanent link">&para;</a></h2>
+<h3 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>                                +-------------------+
+                                | PeMS Oracle       |
+                                | Database          |
+                                | DB96 / DWO        |
+                                +-------------------+
+                                         |
+                                         v
+                +-------------------------------------------------+
+                |           Server svgcmdl01 (Puller Side)        |
+                |                                                 |
+                | 1. Oracle Puller Daemon                         |
+                |    - Gateway:                   |
+        |   /etc/systemd/system/oracle_puller.service |
+                |    - Executes: oracle_puller_daemon.py          |
+                |    - Continuously pulls data from DB96/DWO      |
+                |                                                 |
+                | 2. Task Generation (via Kafka)                  |
+                |    - Task:                      |
+        |   SQL Queries from cron jobs on svgcmdl02   |
+                |    - Kafka Topic: oracle_crawl_queue_topic      |
+                |    - Puller consumes these tasks and pulls data |
+                |                                                 |
+                +-------------------------------------------------+
+                                         |
+                                         v
+                +-------------------------------------------------+
+                |           Server svgcmdl02 (Uploader Side)      |
+                |                                                 |
+                | 1. Cron Jobs                                    |
+                |    - Generate tasks for oracle_puller           |
+                |    - Example: db96 task every 3 hours           |
+                |                                                 |
+                | 2. Data Upload                                  |
+                |    - Upload pulled data to AWS/Snowflake        |
+                |    - Example: db96 data upload every 6 hours    |
+                |                                                 |
+                +-------------------------------------------------+
+                                         |
+                                         v
+                +-------------------------------------------------+
+                |           AWS / Snowflake                       |
+                |                                                 |
+                | 1. Stores the data uploaded from svgcmdl02      |
+                |    - Transformed DB96 / DWO tables              |
+                |                                                 |
+                +-------------------------------------------------+
+</code></pre></div>
+<h3 id="data-flow">Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h3>
+<h2 id="-svgcmdl01-kafka-service-svgcmdl02-puller-side-uploader-side-gateway-task-queue-topic-cron-jobs-configuration-data-buffer-data-uploaders-script-topics-data-source-data-pulled-by-oracle_puller-and-sent-to-kafka-data-consumed-by-aws_upload_daemon_-scriptsh-data-sent-to-kafka-data-uploaded-to-aws-s3snowflake"><div class="highlight"><pre><span></span><code>+-------------------+       +-------------------+       +-------------------+
+|                   |       |                   |       |                   |
+|  svgcmdl01        |       |  Kafka Service    |       |  svgcmdl02        |
+|  (Puller Side)    |       |                   |       |  (Uploader Side)  |
+|                   |       |                   |       |                   |
+| - Gateway         |       | - Task Queue Topic|       | - Cron Jobs       |
+| - Configuration   |       | - Data Buffer     |       | - Data Uploaders  |
+| - Script          |       |   Topics          |       |                   |
+| - Data Source     |       |                   |       |                   |
+|                   |       |                   |       |                   |
++-------------------+       +-------------------+       +-------------------+
+        |                           |                          |
+        |  Data pulled by           |                          |
+        |  `oracle_puller`          |                          |
+        |  and sent to Kafka        |                          |
+        +--------------------------&gt;|                          |
+        |                           |                          |
+        +---------------------------| ------------------------&gt;|
+        |                           |  Data consumed by        |
+        |                           | `aws_upload_daemon_      |
+        |                           |             script.sh`   |
+        |                           |                          |
+        +-------------------------- | ------------------------&gt;|
+            Data sent to Kafka      Data uploaded to AWS S3/Snowflake
+</code></pre></div><a class="headerlink" href="#-svgcmdl01-kafka-service-svgcmdl02-puller-side-uploader-side-gateway-task-queue-topic-cron-jobs-configuration-data-buffer-data-uploaders-script-topics-data-source-data-pulled-by-oracle_puller-and-sent-to-kafka-data-consumed-by-aws_upload_daemon_-scriptsh-data-sent-to-kafka-data-uploaded-to-aws-s3snowflake" title="Permanent link">&para;</a></h2>
+<h1 id="workflow-from-data-source-to-final-destination">Workflow from Data Source to Final Destination<a class="headerlink" href="#workflow-from-data-source-to-final-destination" title="Permanent link">&para;</a></h1>
+<p><strong>From: PeMS Oracle Database</strong></p>
+<ul>
+<li>DB96</li>
+<li>DWO</li>
+</ul>
+<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>jupyter@svgcmdl01.dot.ca.gov
+password:
+</code></pre></div>
+<p><strong>To： Snowflake</strong></p>
+<ul>
+<li>AWS S3</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># account 1</span>
+jupyter@svgcmdl02.dot.ca.gov
+<span class="c1"># account 2</span>
+s159123@svgcmdl02.dot.ca.gov
+password:
+</code></pre></div>
+<h2 id="puller-side-server-svgcmdl01">Puller Side: <code>Server svgcmdl01</code><a class="headerlink" href="#puller-side-server-svgcmdl01" title="Permanent link">&para;</a></h2>
+<h3 id="entry-pointgateway-of-the-program">Entry point/Gateway of the program<a class="headerlink" href="#entry-pointgateway-of-the-program" title="Permanent link">&para;</a></h3>
+<p>system file automatically run by certain system software</p>
+<ul>
+<li>Gateway file: <code>Oracle_puller.service</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>ls<span class="w"> </span>/etc/systemd/system
+<span class="c1"># File structure</span>
+Gateway:
+├──<span class="w"> </span>/etc/systemd/system
+│<span class="w">   </span>├──<span class="w"> </span>oracle_puller.service
+│<span class="w">   </span>└──<span class="w"> </span>oracle_puller.service.sh
+</code></pre></div>
+<ul>
+<li>Gateway Contents <code>Oracle_puller.service</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>ls<span class="w"> </span>/etc/systemd/system/oracle_puller.service
+<span class="w">        </span><span class="c1"># File contents</span>
+<span class="w">        </span><span class="c1"># ----------------------------------------------------</span>
+<span class="w">        </span><span class="o">[</span>Unit<span class="o">]</span>
+<span class="w">        </span><span class="nv">Description</span><span class="o">=</span>Oracle<span class="w"> </span>Puller<span class="w"> </span>Daemon
+<span class="w">        </span><span class="nv">After</span><span class="o">=</span>network.target
+<span class="w">        </span><span class="o">[</span>Service<span class="o">]</span>
+<span class="w">        </span><span class="nv">ExecStart</span><span class="o">=</span>/etc/systemd/system/oracle_puller.service.sh
+<span class="w">        </span><span class="nv">WorkingDirectory</span><span class="o">=</span>/data/projects/crawler
+<span class="w">        </span><span class="nv">Restart</span><span class="o">=</span>always
+<span class="w">        </span><span class="nv">User</span><span class="o">=</span>jupyter
+
+<span class="w">        </span><span class="o">[</span>Install<span class="o">]</span>
+<span class="w">        </span><span class="nv">WantedBy</span><span class="o">=</span>multi-user.target
+<span class="w">        </span><span class="c1"># ----------------------------------------------------</span>
+</code></pre></div>
+<ul>
+<li>Gateway Configuration: <code>oracle_puller.service.sh</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>/etc/systemd/system/oracle_puller.service.sh
+<span class="w">        </span><span class="c1"># File contents</span>
+<span class="w">        </span><span class="c1"># ----------------------------------------------------</span>
+<span class="w">        </span><span class="c1">#!/user/bin/bashrc</span>
+<span class="w">        </span><span class="nb">source</span><span class="w"> </span>/home/jupyter/.bashrc
+<span class="w">        </span><span class="nb">cd</span><span class="w"> </span>/data/projects/crawler<span class="w">  </span><span class="c1"># working folder</span>
+<span class="w">        </span>python3.9<span class="w"> </span>oracle_puller_daemon.py<span class="w"> </span><span class="c1"># execute the program</span>
+<span class="w">        </span><span class="c1"># ----------------------------------------------------</span>
+</code></pre></div>
+<ul>
+<li>Puller file structure</li>
+</ul>
+<div class="highlight"><pre><span></span><code>├──<span class="w"> </span>/data/projects/crawler
+│<span class="w">   </span>└──<span class="w"> </span>oracle_puller_daemon.py
+<span class="w">        </span><span class="c1"># running continuously to pull data from Oracle</span>
+</code></pre></div>
+<h3 id="operations-on-the-program">Operations on the program<a class="headerlink" href="#operations-on-the-program" title="Permanent link">&para;</a></h3>
+<ul>
+<li>check status of the system control file: <code>oracle_puller.service</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>oracle_puller
+<span class="w">    </span><span class="c1"># key info</span>
+<span class="w">    </span>oracle_puller.service<span class="w"> </span>-<span class="w"> </span>Oracle<span class="w"> </span>Puller<span class="w"> </span>Daemon
+<span class="w">    </span>CGroup:<span class="w"> </span>/system.slice/oracle_puller.service
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>/user/bin/bash<span class="w"> </span>/etc/systemd/system/oracle_puller.service.sh
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>python3.9<span class="w"> </span>oracle_puller_daemon.py
+</code></pre></div>
+<ul>
+<li>Operations : <strong>Stop</strong> and <strong>Restart</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>systemctl<span class="w"> </span>stop<span class="w"> </span>oracle_puller
+sudo<span class="w"> </span>systemctl<span class="w"> </span>restart<span class="w"> </span>oracle_puller
+</code></pre></div>
+<ul>
+<li>For new service, redefine the similar contents like the <code>oracle_puller.service</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>vi<span class="w"> </span>/etc/systemd/system/oracle_puller.service
+</code></pre></div>
+<h2 id="uploader-side-server-svgcmdl02">Uploader Side: <code>Server svgcmdl02</code><a class="headerlink" href="#uploader-side-server-svgcmdl02" title="Permanent link">&para;</a></h2>
+<h3 id="cron-jobs-overview">Cron Jobs  - Overview<a class="headerlink" href="#cron-jobs-overview" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Note:</strong> For the crontab , use the s159123 account</li>
+</ul>
+<div class="highlight"><pre><span></span><code>crontab<span class="w"> </span>-e
+<span class="c1"># Service health checking, done at weekdays morning 730am</span>
+<span class="m">34</span><span class="w"> </span><span class="m">7</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="m">1</span>-5<span class="w"> </span>/home/s159123/check_services.sh
+<span class="w"> </span>
+<span class="c1"># Every hour, clean the json files under tmp that are 4 hours old</span>
+<span class="m">0</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>find<span class="w"> </span>/tmp<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.json&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span>-mmin<span class="w"> </span>+240<span class="w"> </span>-exec<span class="w"> </span>rm<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="c1"># ======================================== Task Queue Generator ==================================================================================================</span>
+<span class="c1"># DWO config data upload daily (upload config data to AWS)</span>
+<span class="c1"># db96 (generate the task queues for oracle_puller)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span>,5,8,11,14,17,20,23<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>append_to_crawl_queue.py<span class="w"> </span>--append_to_queue<span class="w"> </span>--githash<span class="w"> </span><span class="s1">&#39;3110c63&#39;</span><span class="w"> </span>--day_partition_number<span class="w"> </span><span class="m">8</span>
+<span class="w">    </span><span class="c1"># explanation -------------------------------------------------------------------</span>
+<span class="w">        </span><span class="c1"># 0: minutes</span>
+<span class="w">        </span><span class="c1"># 2,5,8,11,14,17,20,23: hours, 8 times in a day for the crontab job to</span>
+<span class="w">                                                                   </span><span class="c1"># launch the following script</span>
+<span class="w">        </span><span class="c1"># * * *: every day; day, month, year</span>
+<span class="w">        </span><span class="c1"># cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue: go to the working folder</span>
+<span class="w">        </span><span class="c1"># python3 append_to_crawl_queue.py --append_to_queue --githash &#39;3110c63&#39; --day_partition_number 8</span>
+<span class="w">    </span><span class="c1"># purpose:</span>
+<span class="w">        </span><span class="c1"># sending the controlling commands to pull the DB96 every 3 hours</span>
+<span class="w">    </span><span class="c1">#---------------------------------------------------------------------------------</span>
+
+<span class="c1"># DWO config crawl task daily</span>
+<span class="m">0</span><span class="w"> </span><span class="m">19</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/nfsdata/dataop/uploader<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3.9<span class="w"> </span>append_to_crawl_queue_config.py<span class="w"> </span>--githash<span class="w"> </span><span class="s1">&#39;ccccccc&#39;</span><span class="w"> </span>--append_to_queue
+<span class="c1"># ========================================Data Uploader ==================================================================================================</span>
+<span class="c1"># DWO config data upload daily (upload config data to AWS)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">23</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>sh<span class="w"> </span>/nfsdata/dataop/uploader/aws_upload_daemon_script.sh<span class="w"> </span><span class="s2">&quot;CONTROLLER_CONFIG,CONTROLLER_CONFIG_LOG,DETECTOR_CONFIG,DETECTOR_CONFIG_LOG,STATION_CONFIG,STATION_CONFIG_LOG&quot;</span>
+<span class="w"> </span>
+<span class="c1"># Cron scheduling the aws uploader, every 6 hours. (consume the data pulled from the oracle_puller, upload PeMS data to AWS)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">0</span>,6,12,18<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>sh<span class="w"> </span>/nfsdata/dataop/uploader/aws_upload_daemon_script.sh<span class="w"> </span><span class="s2">&quot;D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC&quot;</span>
+<span class="w"> </span>
+<span class="w"> </span>
+<span class="c1"># 0 23 * * * sh /nfsdata/dataop/uploader/aws_upload_daemon_script.sh &quot;D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC,CONTROLLER_CONFIG,CONTROLLER_CONFIG_LOG,DETECTOR_CONFIG,DETECTOR_CONFIG_LOG,STATION_CONFIG,STATION_CONFIG_LOG&quot;</span>
+</code></pre></div>
+<h3 id="task-queue-generators-on-svgcmdl02-d2">Task Queue Generators on svgcmdl02 (D2)<a class="headerlink" href="#task-queue-generators-on-svgcmdl02-d2" title="Permanent link">&para;</a></h3>
+<p><strong>Result/Output</strong></p>
+<ul>
+<li><strong>Crawl Queue:</strong> [task1, task2, task3, ...], [task_n, task_n+1, ...]</li>
+</ul>
+<p><strong>Relation with</strong> <code>oracle_puller</code> :</p>
+<ul>
+<li><strong><code>oracle_puller</code></strong>: task (SQL statement) executor/consumer (svgcmdl01)</li>
+<li><strong><code>crontab controller</code></strong>: task (SQL statement)  generator/ producer (svgcmdl02)</li>
+</ul>
+<h4 id="db96-task-generator-every-3-hours"><strong>db96 Task Generator</strong> (every 3 hours)<a class="headerlink" href="#db96-task-generator-every-3-hours" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># db96 Task Generator file path</span>
+<span class="nb">cd</span><span class="w"> </span>/home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
+python3<span class="w"> </span>append_to_crawl_queue.py
+</code></pre></div>
+<ul>
+<li><strong>Cron Scheduling Command</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># db96</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span>,5,8,11,14,17,20,23<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>append_to_crawl_queue.py<span class="w"> </span>--append_to_queue<span class="w"> </span>--githash<span class="w"> </span><span class="s1">&#39;3110c63&#39;</span><span class="w"> </span>--day_partition_number<span class="w"> </span><span class="m">8</span>
+</code></pre></div>
+<ul>
+<li><strong>Purpose</strong><ul>
+<li>Populate/Produce the tasks queues for <code>oracle_puller</code> to pull data the DB96 every 3 hours</li>
+</ul>
+</li>
+<li><strong>Explanation</strong><ul>
+<li><code>0</code>: minutes</li>
+<li><code>2,5,8,11,14,17,20,23</code>: hours, 8 times in a day for the crontab job to  launch the following script</li>
+<li><code>* * *</code>: every day; day, month, year</li>
+<li><code>cd /home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue</code>: go to the working folder</li>
+<li><code>python3 append_to_crawl_queue.py --append_to_queue --githash '3110c63' --day_partition_number 8</code> : find and append the task queue  every 3 hours for <code>oracle_puller.service</code>   (running continuously) to pull data from the <code>DB96</code></li>
+</ul>
+</li>
+<li><strong>More details about</strong> <code>append_to_crawl_queue.py</code><ul>
+<li><strong>Purpose:</strong> Populate the crawl queue with new SQL statements. This process is similar to creating a table in a spreadsheet and populating it, but instead of storing the queue in Excel, it's stored in a Kafka service.</li>
+<li><strong>Service topic</strong>:<code>SeCRAW_QUEUE_KAFKA_TOPIC = "oracle_crawl_queue_topic"</code><ul>
+<li>The same topic corresponds to the same task queue</li>
+<li>Kafka service distributes the tasks</li>
+</ul>
+</li>
+<li><strong>Server cluster:</strong> <code>KAFKA_SERVERS=(PLAINTEXT://svgcmdl03:9092, PLAINTEXT://svgcmdl04:9092,PLAINTEXT://svgcmdl05:9092)</code></li>
+<li>
+<p><strong>SQL template:</strong></p>
+<ul>
+<li><strong>Purpose:</strong> SQL command that enables the puller to extract data from the Oracle database</li>
+<li><strong>Interpretation:</strong> Each SQL query represents a distinct task to be executed</li>
+<li><strong>On the puller side:</strong> The system performs parameter replacement to generate the final SQL query. Read the SQL statement in the SQL queue one by one, and consume it.</li>
+<li><strong>Google Drive Excel Example (task queue):</strong> https://drive.google.com/drive/u/0/home</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="dwo-task-generator-daily"><strong>DWO Task Generator (Daily)</strong><a class="headerlink" href="#dwo-task-generator-daily" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># DWO Task Generator file path</span>
+<span class="nb">cd</span><span class="w"> </span>/home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
+python3<span class="w"> </span>append_to_crawl_queue_config.py
+</code></pre></div>
+<ul>
+<li><strong>Cron Scheduling Command</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># DWO config crawl task daily</span>
+<span class="m">0</span><span class="w"> </span><span class="m">19</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/nfsdata/dataop/uploader<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3.9<span class="w"> </span>append_to_crawl_queue_config.py<span class="w"> </span>--githash<span class="w"> </span><span class="s1">&#39;ccccccc&#39;</span><span class="w"> </span>--append_to_queue
+</code></pre></div>
+<ul>
+<li><strong>Purpose</strong><ul>
+<li>Populate/Produce the task queues for <code>oracle_puller</code> to pull configuration data from the DWO database daily</li>
+</ul>
+</li>
+<li>
+<p><strong>Explanation</strong></p>
+<ul>
+<li>refer other similar detailed explanation to the db96</li>
+</ul>
+<p>Some other commands for testing</p>
+<div class="highlight"><pre><span></span><code>python3.9<span class="w"> </span>append_to_crawl_queue.py<span class="w"> </span>--output_csv_file<span class="w"> </span>db96.text.csv<span class="w"> </span>--day_partition_number<span class="w"> </span><span class="m">8</span><span class="w"> </span>--crawl_window_start<span class="w"> </span><span class="s2">&quot;2024-03-01 18:00:00&quot;</span><span class="w"> </span>--githash<span class="w"> </span>default
+vi<span class="w"> </span>db96.text.csv
+python3.9<span class="w"> </span>append_to_crawl_queue.py<span class="w"> </span>--output_csv_file<span class="w"> </span>dwo.text.csv<span class="w"> </span>--day_partition_number<span class="w"> </span><span class="m">8</span><span class="w"> </span>--crawl_window_start<span class="w"> </span><span class="s2">&quot;2024-03-01 18:00:00&quot;</span><span class="w"> </span>--githash<span class="w"> </span>default
+vi<span class="w"> </span>dwo.text.csv
+</code></pre></div>
+</li>
+</ul>
+<h3 id="data-uploadersconsumers-on-svgcmdl02-d2">Data Uploaders/Consumers on svgcmdl02 (D2)<a class="headerlink" href="#data-uploadersconsumers-on-svgcmdl02-d2" title="Permanent link">&para;</a></h3>
+<p><strong>Result/Output</strong></p>
+<ul>
+<li>Data uploaded to AWS/Snowflake</li>
+</ul>
+<p><strong>Relation with</strong> <code>oracle_puller</code> :</p>
+<ul>
+<li><strong><code>oracle_puller</code></strong>: Data (json) generator/ producer (svgcmdl01)</li>
+<li><strong><code>crontab controller</code></strong>: Data (json) executor/consumer (svgcmdl02)</li>
+</ul>
+<h4 id="db96-data-uploader-for-aws-every-3-hours"><strong>db96 Data: Uploader for AWS</strong> (every 3 hours)<a class="headerlink" href="#db96-data-uploader-for-aws-every-3-hours" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># gateway configuration</span>
+/nfsdata/dataop/uploader/aws_upload_daemon_script.sh
+</code></pre></div>
+<ul>
+<li><strong>Cron Scheduling Command</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Cron scheduling the aws uploader, every 6 hours. (consume the data pulled from the oracle_puller, upload PeMS data to AWS)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">0</span>,6,12,18<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>sh<span class="w"> </span>/nfsdata/dataop/uploader/aws_upload_daemon_script.sh<span class="w"> </span><span class="s2">&quot;D3.VDS30SEC,D4.VDS30SEC,D5.VDS30SEC,D6.VDS30SEC,D7.VDS30SEC,D8.VDS30SEC,D10.VDS30SEC,D11.VDS30SEC,D12.VDS30SEC&quot;</span>
+</code></pre></div>
+<ul>
+<li><strong>Purpose</strong><ul>
+<li>Upload the data extracted by <code>oracle_puller</code> to AWS/Snowflake every 6 hours</li>
+</ul>
+</li>
+<li><strong>Explanation</strong><ul>
+<li>refer other similar detailed explanation to the db96 task generator</li>
+</ul>
+</li>
+</ul>
+<h4 id="dwo-config-data-uploader-for-aws-every-3-hours"><strong>DWO C</strong>onfig Data <strong>Uploader for AWS</strong> (every 3 hours)<a class="headerlink" href="#dwo-config-data-uploader-for-aws-every-3-hours" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>/nfsdata/dataop/uploader/aws_upload_daemon_script.sh
+</code></pre></div>
+<ul>
+<li><strong>Cron Scheduling Command</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># DWO config data upload daily (upload config data to AWS)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">23</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>sh<span class="w"> </span>/nfsdata/dataop/uploader/aws_upload_daemon_script.sh<span class="w"> </span><span class="s2">&quot;CONTROLLER_CONFIG,CONTROLLER_CONFIG_LOG,DETECTOR_CONFIG,DETECTOR_CONFIG_LOG,STATION_CONFIG,STATION_CONFIG_LOG&quot;</span>
+</code></pre></div>
+<ul>
+<li><strong>Purpose</strong><ul>
+<li>Upload the config data extracted by <code>oracle_puller</code> to AWS/Snowflake daily</li>
+</ul>
+</li>
+<li><strong>Explanation</strong><ul>
+<li>refer other similar detailed explanation to the db96  task generator</li>
+</ul>
+</li>
+</ul>
+<h2 id="kafka-service">Kafka Service<a class="headerlink" href="#kafka-service" title="Permanent link">&para;</a></h2>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Centralized service to manage the supplier and consumer</li>
+<li>Hosting the crawl queue</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/s159123/gitrepo/dataop/agents/agent_oracle_puller_queue
+</code></pre></div>
+<ul>
+<li>
+<p>Perform a health check for the Kafka service by verifying if each server is running</p>
+<div class="highlight"><pre><span></span><code>telnet<span class="w"> </span>svgcmd102/3/4/5<span class="w"> </span><span class="m">9092</span>
+</code></pre></div>
+</li>
+</ul>
+<h3 id="different-kafka-topics">Different Kafka Topics<a class="headerlink" href="#different-kafka-topics" title="Permanent link">&para;</a></h3>
+<h4 id="1-kafka-topic-for-crawl-tasks">1. kafka topic for crawl tasks<a class="headerlink" href="#1-kafka-topic-for-crawl-tasks" title="Permanent link">&para;</a></h4>
+<p><code>oracle_crawl_queue_topic</code> (coordination between the crawl task generator and puller)</p>
+<h4 id="2-kafka-topics-for-data-buffer">2. kafka topics for data buffer<a class="headerlink" href="#2-kafka-topics-for-data-buffer" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Kafka topic: <code>D3.VDS30SEC</code></li>
+<li>Kafka topic: <code>D4.VDS30SEC</code></li>
+<li>…</li>
+<li>Kafka topic: <code>D12.VDS30SEC</code></li>
+</ul>
+<p><strong>Puller (every 10 minutes):</strong></p>
+<p><strong>Uploader (every 6 hours)</strong></p>
+<ol>
+<li><code>df = pd.read_sql("select * from D3.VDS30SEC …")</code> (Notes: * is too heavy, 10-minute data every time, small batch pulling continuously)</li>
+<li>puller then transfer the <code>df</code> then upload to kafka topic: <code>D3.VDS30SEC</code> (in the format of json)</li>
+</ol>
+<p>Uploader on D2 svgcml02 will be able to consume the data in <code>D3.VDS30SEC</code> and batch uploading (with transform) it to snowflake’s <code>D3.VDS30SEC</code></p>
+<h2 id="source-of-data-relay-task-details">Source of Data Relay [Task Details]<a class="headerlink" href="#source-of-data-relay-task-details" title="Permanent link">&para;</a></h2>
+<h4 id="pems-oracle-database-db96-dwo">PeMS Oracle Database (DB96, DWO)<a class="headerlink" href="#pems-oracle-database-db96-dwo" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>DB96</strong> (Headquarter database for storing the field sensor data from district TMCs)<ul>
+<li>Data resource<ul>
+<li><code>D3.VDS30SEC</code></li>
+<li><code>D4.VDS30SEC</code></li>
+<li>…</li>
+<li><code>D12.VDS30SEC</code></li>
+</ul>
+</li>
+<li>Columns for D3.VDS30SEC:<ul>
+<li><code>SAMPLE_TIME</code></li>
+<li><code>LOOP1_SPD</code></li>
+<li><code>LOOP1_VOL</code></li>
+<li><code>LOOP2_SPD</code></li>
+<li><code>LOOP2_VOL</code></li>
+<li>…</li>
+<li><code>LOOP8_SPD</code></li>
+<li><code>LOOP8_VOL</code></li>
+</ul>
+</li>
+<li>Credentials in <code>/home/jupyter/.bashrc on svgcmdl01</code> (i.e. <code>DB_USER</code> <code>DB96_PASSWORD</code>)</li>
+<li>Test some simple query <code>query_db96_debug.py</code>:<ul>
+<li><code>cd /data/projects/crawler/agent_oracle_puller_queue/</code></li>
+<li><code>python3.9 query_db96_debug.py</code><ul>
+<li><code>Get_Data_From_PeMS(dbname: DB96/DWO,  sql statement)</code> :</li>
+<li>To stop the process: Use <code>ps -ef | grep query</code> to find the process ID, then <code>kill [process_id]</code> (e.g., <code>kill 66472</code>)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>DWO</strong><ul>
+<li>Six Tables<ul>
+<li><code>PEMS.STATION_CONFIG</code></li>
+<li><code>PEMS.STATION_CONFIG_LOG</code></li>
+<li><code>PEMS.CONTROLLER_CONFIG</code></li>
+<li><code>PEMS.CONTROLLER_CONFIG_LOG</code></li>
+<li><code>PEMS.DETECTOR_CONFIG</code></li>
+<li><code>PEMS.DETECTOR_CONFIG_LOG</code></li>
+</ul>
+</li>
+<li>Credentials in <code>/home/jupyter/.bashrc on svgcmdl01</code> (i.e. <code>DB_USER</code> <code>DB96_PASSWORD</code>)</li>
+</ul>
+</li>
+<li>Other Path:<ul>
+<li>SQL Developer (Ken)</li>
+</ul>
+</li>
+</ul>
+<h2 id="target-of-data-relay-task-details">Target of Data Relay [Task Details]<a class="headerlink" href="#target-of-data-relay-task-details" title="Permanent link">&para;</a></h2>
+<p><strong>Purpose:</strong> Check the output/target of the data relay</p>
+<h4 id="how-to-navigate"><strong>How to navigate</strong><a class="headerlink" href="#how-to-navigate" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Login to <a href="mailto:to`s159123@svgcmdl02.dot.ca.gov"><code>ssh s159123@svgcmdl02.dot.ca.gov</code></a></li>
+<li><code>cd /nfsdata/dataup/uploader/</code></li>
+<li>Write some SQL statement such as the ones in <code>snowsql/scratch.sql</code> (exemplary SQL statements)</li>
+<li>
+<p>Procedure to run:</p>
+<ul>
+<li>
+<p><strong>Step 1:</strong> Load snowflake credentials <code>SNOWSQL_PWD</code> in <code>/home/s159123/.bashrc</code> to the environment:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">source</span><span class="w"> </span>/home/s159123/.bashrc
+</code></pre></div>
+</li>
+<li>
+<p><strong>Step 2.0:</strong> Use Snowsql command (test):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">REQUESTS_CA_BUNDLE</span><span class="o">=</span>/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+snowsql<span class="w"> </span>-a<span class="w"> </span>NGB13288<span class="w"> </span>-u<span class="w"> </span>MWAA_SVC_USER_DEV<span class="w"> </span>-o<span class="w"> </span><span class="nv">insecure_mode</span><span class="o">=</span>True<span class="w"> </span>-f
+/nfsdata/dataop/uploader/snowsql/scratch.sql<span class="w"> </span>-d<span class="w"> </span>RAW_DEV
+</code></pre></div>
+</li>
+<li>
+<p><strong>Step 2.1:</strong> Use Snowsql command (real program):</p>
+<div class="highlight"><pre><span></span><code><span class="nv">REQUESTS_CA_BUNDLE</span><span class="o">=</span>/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+snowsql<span class="w"> </span>-a<span class="w"> </span>NGB13288<span class="w"> </span>-u<span class="w"> </span>MWAA_SVC_USER_DEV<span class="w"> </span>-o<span class="w"> </span><span class="nv">insecure_mode</span><span class="o">=</span>True<span class="w"> </span>-f
+/nfsdata/dataop/uploader/snowsql/snowsql_load_CONTROLLER_CONFIG_LOG.sql<span class="w"> </span>-d<span class="w"> </span>RAW_DEV
+</code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p>Snowflake DBs (Transformed data)</p>
+<ul>
+<li>Transformed DB96 tables:<ul>
+<li>DB96.VDS30SEC</li>
+</ul>
+</li>
+<li>Transformed DWO tables:<ul>
+<li>Six Tables<ul>
+<li><code>DB96.CONTROLLER_CONFIG</code></li>
+<li><code>DB96.CONTROLLER_CONFIG_LOG</code></li>
+<li><code>DB96.STATION_CONFIG</code></li>
+<li><code>DB96.STATION_CONFIG_LOG</code></li>
+<li><code>DB96.DETECTOR_CONFIG</code></li>
+<li><code>DB96.DETECTOR_CONFIG_LOG</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>website: <code>https://app.snowflake.com/vsb79059/dse_caltrans_pems/worksheets</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="intermediate-data-task-details"><strong>Intermediate data</strong> [Task Details]<a class="headerlink" href="#intermediate-data-task-details" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Read the local parquet file: <code>/nfsdata/dataop/uploader/tmp/CONTROLLER_CONFIG_LOG_dump_static.parquet @~/controller_config_log;</code><ul>
+<li>Read this parquet file <code>pd.read_parquet(/nfsdata/dataop/uploader/tmp/CONTROLLER_CONFIG_LOG_dump_static.parquet, dtype_backend='pyarrow')</code></li>
+</ul>
+</li>
+<li>Transform the parquet file to snowflake tables</li>
+</ul>
+<h1 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">&para;</a></h1>
+<h3 id="foundational-concepts">Foundational concepts<a class="headerlink" href="#foundational-concepts" title="Permanent link">&para;</a></h3>
+<hr />
+<ol>
+<li><strong>Cron Jobs:</strong></li>
+<li><strong>Definition:</strong> Cron jobs are scheduled tasks that run automatically at specified intervals. In this workflow, they are responsible for generating task queues that trigger data pulls from the Oracle database.</li>
+<li>
+<p><strong>Example:</strong> A cron job might be set to run every 3 hours to initiate a data pull process via Kafka.</p>
+</li>
+<li>
+<p><strong>Kafka:</strong></p>
+</li>
+<li><strong>Definition:</strong> Kafka is a distributed event streaming platform used for building real-time data pipelines and streaming applications. It allows different services to communicate asynchronously by sending messages through topics.</li>
+<li>
+<p><strong>In this context:</strong> Kafka serves as a central service for managing tasks and buffering data between producers (task generators) and consumers (data processors).</p>
+</li>
+<li>
+<p><strong>Oracle Puller:</strong></p>
+</li>
+<li><strong>Definition:</strong> A custom script or daemon (e.g., <code>oracle_puller_daemon.py</code>) that extracts data from an Oracle database based on predefined tasks (e.g., SQL queries). The data is then sent to Kafka for further processing.</li>
+<li>
+<p><strong>Function:</strong> It continuously pulls data from Oracle as tasks are generated, ensuring up-to-date data is retrieved.</p>
+</li>
+<li>
+<p><strong>Task Queue:</strong></p>
+</li>
+<li><strong>Definition:</strong> A list or queue of tasks that need to be processed by a specific service. In this case, the task queue is generated by cron jobs and sent to Kafka to be consumed by the <code>oracle_puller</code>.</li>
+<li>
+<p><strong>In this context:</strong> The tasks in the queue are SQL queries that the <code>oracle_puller</code> executes to retrieve data from Oracle.</p>
+</li>
+<li>
+<p><strong>Data Buffer:</strong></p>
+</li>
+<li><strong>Definition:</strong> A temporary storage area where data is held before being processed or transferred to its final destination. In this workflow, Kafka acts as a buffer for the data pulled from Oracle, ensuring smooth data flow to the uploader.</li>
+<li>
+<p><strong>Purpose:</strong> Buffers prevent data loss or overload by holding data temporarily, especially during peak loads or system delays.</p>
+</li>
+<li>
+<p><strong>AWS S3:</strong></p>
+</li>
+<li><strong>Definition:</strong> Amazon Simple Storage Service (S3) is an object storage service used for storing and retrieving any amount of data at any time. It's scalable, reliable, and widely used for cloud data storage.</li>
+<li>
+<p><strong>In this workflow:</strong> Data pulled from Oracle is uploaded to AWS S3 as a final storage destination after being processed.</p>
+</li>
+<li>
+<p><strong>Snowflake:</strong></p>
+</li>
+<li><strong>Definition:</strong> Snowflake is a cloud-based data warehousing platform that allows organizations to store, process, and analyze large volumes of structured and semi-structured data.</li>
+<li>
+<p><strong>In this workflow:</strong> Snowflake is used as another storage destination for the pulled data, enabling further analysis and reporting.</p>
+</li>
+<li>
+<p><strong>SQL Queries:</strong></p>
+</li>
+<li><strong>Definition:</strong> Structured Query Language (SQL) is used to communicate with and manipulate databases. SQL queries retrieve, update, or manage data stored in relational databases.</li>
+<li>
+<p><strong>In this context:</strong> SQL queries are generated by cron jobs and sent to the <code>oracle_puller</code>, which uses them to extract data from the Oracle database.</p>
+</li>
+<li>
+<p><strong>Daemon:</strong></p>
+</li>
+<li><strong>Definition:</strong> A daemon is a background process that runs continuously and performs specific operations without user interaction.</li>
+<li>
+<p><strong>In this context:</strong> The <code>oracle_puller_daemon.py</code> script is a daemon that constantly monitors for tasks from Kafka, pulls data from Oracle, and forwards it to Kafka topics.</p>
+</li>
+<li>
+<p><strong>Buffer Topics (Kafka Topics):</strong></p>
+<ul>
+<li><strong>Definition:</strong> In Kafka, topics are named channels where data records (messages) are published and from which consumers read. Topics are partitioned and distributed for scalability.</li>
+<li><strong>In this workflow:</strong> Buffer topics (e.g., <code>D3.VDS30SEC</code>) temporarily hold the data pulled from Oracle before it is uploaded to AWS or Snowflake.</li>
+</ul>
+</li>
+<li>
+<p><strong>Producers and Consumers:</strong></p>
+<ul>
+<li><strong>Producer:</strong> In Kafka, a producer is a service or application that sends data to a Kafka topic.</li>
+<li><strong>Consumer:</strong> A consumer reads data from a Kafka topic and processes it further.</li>
+<li><strong>In this workflow:</strong> svgcmdl02 acts as a producer of task queues, while svgcmdl01 is a consumer of tasks (SQL queries). Similarly, svgcmdl01 produces data, and svgcmdl02 consumes it for uploading.</li>
+</ul>
+</li>
+</ol>
+<h3 id="task-related-questions">Task Related Questions<a class="headerlink" href="#task-related-questions" title="Permanent link">&para;</a></h3>
+<hr />
+<ol>
+<li><strong>What is the purpose of the <code>oracle_puller_daemon.py</code> script?</strong></li>
+<li>
+<p>The <code>oracle_puller_daemon.py</code> script is used to pull data from the Oracle database. It operates continuously to retrieve and process data based on tasks assigned via Kafka.</p>
+</li>
+<li>
+<p><strong>How often do cron jobs generate tasks for the <code>oracle_puller</code>?</strong></p>
+</li>
+<li>
+<p>Cron jobs generate tasks every 3 hours for the <code>oracle_puller</code> to execute. This scheduling ensures that data is pulled from the Oracle database at regular intervals.</p>
+</li>
+<li>
+<p><strong>What role does Kafka play in the data workflow?</strong></p>
+</li>
+<li>
+<p>Kafka serves as a central messaging service that manages the flow of tasks and data between different components. It stores task queues and buffers data before it is consumed by the uploader.</p>
+</li>
+<li>
+<p><strong>How is data transferred from Kafka to AWS S3/Snowflake?</strong></p>
+</li>
+<li>
+<p>Data is transferred from Kafka to AWS S3/Snowflake by the <code>aws_upload_daemon_script.sh</code>, which runs every 6 hours. This script consumes the data buffered in Kafka topics and uploads it to the final storage destinations.</p>
+</li>
+<li>
+<p><strong>What is the significance of the data buffer topics in Kafka?</strong></p>
+</li>
+<li>
+<p>Data buffer topics in Kafka (e.g., <code>D3.VDS30SEC</code>, <code>D4.VDS30SEC</code>) are used to temporarily store the pulled data before it is processed and uploaded. These topics help manage data flow and ensure that data is handled efficiently.</p>
+</li>
+<li>
+<p><strong>How do cron jobs interact with Kafka?</strong></p>
+</li>
+<li>
+<p>Cron jobs on svgcmdl02 generate SQL tasks and publish them to Kafka topics. These tasks are then consumed by the <code>oracle_puller</code> on svgcmdl01, which pulls the data from the Oracle database.</p>
+</li>
+<li>
+<p><strong>What happens if there is a failure in the data pull process?</strong></p>
+</li>
+<li>
+<p>In case of a failure, the <code>oracle_puller</code> will not be able to retrieve data, which could affect the subsequent steps. Error handling and retry mechanisms should be in place to address failures and ensure data integrity.</p>
+</li>
+<li>
+<p><strong>How is the scheduling of data uploads managed?</strong></p>
+</li>
+<li>
+<p>Data uploads are managed by the <code>aws_upload_daemon_script.sh</code>, which is scheduled to run every 6 hours. This script handles the transfer of data from Kafka to AWS S3/Snowflake.</p>
+</li>
+<li>
+<p><strong>Can the frequency of cron jobs or data uploads be adjusted?</strong></p>
+</li>
+<li>
+<p>Yes, the frequency of cron jobs and data uploads can be adjusted by modifying the respective cron job schedules and script settings as needed.</p>
+</li>
+<li>
+<p><strong>What are the key components involved in this data workflow?</strong></p>
+<ul>
+<li>The key components are the Oracle database, <code>oracle_puller</code> script, Kafka service, cron jobs, and AWS S3/Snowflake. Each plays a crucial role in managing and processing the data.</li>
+</ul>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.50899def.min.js"></script>
+      
+    
+  </body>
+</html>
